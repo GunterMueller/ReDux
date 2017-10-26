@@ -1,0 +1,63 @@
+\section{The AX-Subsystem}
+
+The \redux\ subsystem {\em ax} contains auxiliary algorithms which are not 
+specific to term manipulation.
+
+A few routines are meant to hide \ALDES\ specific i/o-features.
+These procedures may be subject to changes if \redux\ is ported to
+\index{porting \redux}
+a different environment like SACLIB.
+The input unit may be changed using IUCHNG only.
+The \ALDES/SAC-2 assignment ``IUNIT:=n'' should not be used.
+BLKW may be used to write a certain number of blanks not exceeding the 
+end of the line.
+ENDOLN tests whether the character currently read is the last character of
+the current line.
+SFOL test of a given string still fits on the current line.
+
+Then there is a group of routines to support reading and writing
+\ALDES/SAC-2 data types.
+The function SCHAR scans the character ignoring blanks.
+SWSP scans a white-space (blank, end-of-line).
+\index{white-space}
+WORDRD reads a continous list of non-white-space characters.
+This may be usefull to read Unix path names or other names containing special 
+symbols.
+The function AREADR is a robust version of AREAD (atom read) designed for
+interactive input.
+LEREAD reads a list of integers that may contain ranges like ``5--11''.
+The string output procedures STROUT (string out) and 
+STOUTL (sting out and newline) must be called with string
+constants only.
+They should replace the SAC-2 procedure CLOUT whenever possible.
+
+HALT stops the program with a division by zero error.
+\index{division by zero}
+This causes normally a core dump which can be examined by a post mortem
+debugger 
+(HALT is normally called if unexpected or un-allowed branches of the code
+are reached).
+
+There is a group of algorithms operating on lists of $\gamma$-integers,
+\index{integer!$\gamma${-}}
+i.\,e.\ the list elements are treated as numbers and not as atoms or lists
+depending on whether they are less than $\beta$ or not.
+We use the notion of $\gamma$-integers, if we do not care whether an object
+is a pointer ($ > \beta$) or a $\beta$-integer.
+$\gamma$-integers are {\em not} modified to ensure the correctness of the
+garbage collector.
+\index{garbage collector}
+INTDIF (difference), INTINS (insert), INTINT (intersection), 
+INTMEM (member), INTSBS (subset) and INTUNI (union) are set operations for 
+lists of $\gamma$-integers.
+Thus set operations on lists (sets) of pointers are possible.
+ILPASS searches through two associated lists of $\gamma$-integers.
+LP2EVE and LP2ODD extract the elements at even and odd positions
+of a list of period two
+and LTLCPY copies destructively a list of $\gamma$-integers into another list.
+
+The module {\tt axsl1} contains sorting algorithms for lists of 
+sublists where the first element of each sublist is a $\beta$-integer
+(weight) according to which the sublists are compared.
+Only the algorithm LOISE which inserts a list of sublists into an
+ordered list of sublists should be called outside of {\tt axsl1}.

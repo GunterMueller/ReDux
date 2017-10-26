@@ -1,0 +1,304 @@
+\section{General Facts on the Demo Programs}
+\subsection{Low Level Input and Output}
+The character set available for input and output is the complete ASCII
+character set. Characters in the range 0--31 are mapped to the
+blank character.
+
+The \redux\  demo programs use the \ALDES\ input units\footnote{The notion
+``unit'' is taken from FORTRAN 77.
+Originally, \ALDES\ was translated to FORTRAN.
+To be compatible with the \ALDES\ to FORTRAN translators, the
+I/O-primitives for the \ALDES\ to C translators simulate the
+FORTRAN I/O.}
+4 and 5. 
+Input unit 4 is (by default) associated with the file 
+{\it program}{\tt .in} in the current directory 
+ where {\it program} is the name of
+the \redux\  demo program.
+Input unit 5 is (by dehault) the terminal input (in UNIX: stdin).
+The \redux\  demo programs use \ALDES\ output units 6 and 0.
+Output unit 6 is the terminal output (in UNIX: stdout),
+output unit 0 is the error output stream (in UNIX: stderr).
+The basic input and output routine {\tt IO} records
+all terminal input and output to a log-file that is by default called
+{\it program}{\tt .log}.
+
+\subsection{Program Start}
+\label{GeneralProgramStart}
+The \redux\  demo programs {\tt ic}, {\tt to} and {\tt ts}
+can be started by typing their name at the 
+operating system prompt. 
+In this case,  they read a {\em data type}\/\footnote{
+A \redux\  data type is an equational specification, consisting of a
+signature description and a set of equations.}
+from the file {\it program}{\tt .in} in the working
+directory and allow the user to work interactively with the 
+algorithms of the \redux\  system. 
+If the data type is contained in another file, the name of this file can be
+given as command line option, i.\,e.\ the program {\tt ic} would
+be invoked by typing {\tt ic spec/group.rdx} if the data type
+file is {\tt spec/group.rdx}.
+
+Some other demo programs (tc, ac, ev and trd) need a second file,
+the so-called {\em algos-file\/}: It contains information concerning SAC--2
+and \redux\  algorithms that are used by the \redux\  interpreter module.
+The default name for this file is {\it program}{\tt .algos}.
+If another algos-file is to be used, its name must be given as a
+second command line argument, so that the program {\tt ac} with the
+previous data type file and algos file {\tt
+/usr/local/redux/src/it/algos} would be invoked with the command
+\begin{quote}
+{\tt ac spec/group.rdx /usr/local/redux/src/it/algos}.
+\end{quote}
+In either case, all terminal input and output is recorded in a log-file.
+The name of the log-file is by default.
+{\it program}{\tt .log} in the working directory.
+The default name of the log-file may be overwritten by a second 
+(if no algos file is need) or a third (if an algos file is needed) command
+line argument.
+For exact specification of the command line syntax of \redux\ programs
+the the manual pages.
+
+%For convenience, there are shell scripts (each shell script has the same
+%name as the corresponding demonstration program but is spelled in upper
+%case letters) that can be started by typing 
+%\begin{quote}
+% {\em shell-script-name}  
+%    [{\em file-name} $|$ {\tt -D} [{\em directory-name} ]].
+%\end{quote}
+
+%\begin{itemize}
+%\item
+%If one of the shell scripts is called without arguments, it directly
+%starts the appropriate demonstration program.
+%If the data type file {\it program}{\tt .in} does not exist, the shell
+%script issues an error message and aborts.
+
+%\item
+%If the argument {\em file-name} is supplied, the shell script searches
+%for files named {\em file-name} in the global \redux\  specification 
+%directory and its subdirectories.
+%If the command line parameter {\em file-name} does not has the
+%extension {\tt .rdx}, this suffix is appended before the search is done.
+%For each of the found files, the user is asked if this data type
+%shall be used. A symbolic link with name {\em program\tt .in}
+%to the requested file is created and the demo program is started.
+
+%\item
+%When a script is called with the option {\tt -D}, the script searches
+%in the directory named {\em directory} (default directory is the global
+%\redux\  specification directory) for files with the file name
+%extension {\tt .rdx}. A list of all data types found is displayed
+%(piped through {\tt more}) and the user is prompted to enter one of
+%these data type names. A symbolic link to the chosen file is created
+%and the demo program is started.
+%\end{itemize}
+%If the demo program needs an algos file and there is a file called
+%{\em algos} in the current directory, this file is used.
+%Otherwise the global \redux\  algos file is used. 
+
+\subsection{Interactive Input}
+After reading a data type from the file {\it program}{\tt .in}, 
+the programs may be controlled by interactive input.
+During a dialogue, an asterisk ({\tt *}) in the
+output serves as a prompt for user interaction.
+Every interactive input must be followed by $\langle$return$\rangle$.
+Terms and axioms must be terminated by a semicolon.
+
+The program is either menu directed or a specification of the needed input 
+data is given.
+Input options are given in brackets [\,] separated by slashes.
+%Letters in curly braces \{\,\} (separated by commas) indicate that a 
+%string of the given letters must be entered. 
+%This is done by concatenating some of the given letters.
+Typing $\langle$return$\rangle$ without any of the given letters means that
+a default value has been chosen.
+The questions `{\tt READY *}', `{\tt continue *}'  or just `{\tt *}' must
+be answered by hitting the $\langle$return$\rangle$ key.
+
+\subsection{Algebraic Specifications}
+This section gives a short summary of the \redux\  specification
+parser.\footnote{A description of the old \redux\  specification parser
+that was the only parser up to \redux\  version~1.4 can be found in
+Appendix~\ref{OldParser}.}
+A more thorough treatise on the \redux\  parser can be found in
+{\em A New Parser for \redux\  --- User Guide}.
+
+The input file  {\it program}{\tt .in} must contain a one- or 
+many sorted algebraic specification.
+This specification contains information about the data type
+name, sorts, constants, variables, function symbols and the set of
+axioms.
+All function symbols (operators) must be 
+listed together with their domains and ranges, all constants and variables 
+together with their types. 
+For the operators, information on the fixity, on precedence and
+associativity and on unification states can be added.
+In Figures~\ref{dtgram1}, \ref{dtgram2} and \ref{axgram},
+we present the syntax of an algebraic specification in extended BNF.
+\input{dtgram1}
+\input{dtgram2}
+\input{axgram}
+
+Identifiers ({\it Ident}) are standard identifiers starting with a letter
+followed by an arbitrary string of letters or digits.
+Extendent identifiers ({\it XIdent}) may be made up of letters, digits
+and special characters in any order.
+The special characters which can be used in all sections (without escape
+character) are:
+\begin{quote} 
+{\tt\verb:! @ # $ * _ & + ^ | ~ [ ] { } ' " . \ / ? >:}
+\end{quote}
+\begin{verbatim} 
+` < = : - % 
+\end{verbatim}
+Further special charecters can be allowed depending on the context.
+\begin{verbatim} 
+` < = : - % 
+\end{verbatim}
+In a context where they are not allowed these special characters must be 
+preceded by an escape character.
+The escape character is the backtick ({\tt `}). 
+The backtick itself is made available by two subsequent backticks.
+For more information on the exact syntax see \NPUG.
+
+The double per cent sign (\verb/%%/) is used as comment sign.  After
+reading the comment sign, all characters until the end of the line are
+skipped.  This comment symbol may be used whenever terms or theorems
+are read.
+
+The following semantic constraints are given: the argument list of an
+operator must be as long as the type list of its domain and the
+arguments must be of the appropriate type. Also the name of an
+operator, variable or constant may not be the same as another
+operator's, variable's or constant's name.  Furthermore, no left-hand
+side of an axiom may consist only of a constant or a variable because
+there is the built-in assumption that constants and variables are
+irreducible.
+This restriction does not apply to nullary operators.  Thus
+in \redux\  constants can be handled more efficiently than nullary operators.
+
+Note that external objects must not be used in {\tt ic}, {\tt to}, {\tt ts}
+and {\tt uc}.
+The {\tt ac} program can handle external terms, but in the term ordering
+algorithms, external operators
+are treated like constants, independent of their argument. Its
+main menu contains an item to compute terms with external operators.
+In {\tt trd}, external operators have a fixed argument that
+must be supplied interactively by the user.
+The {\tt ev} program is prepared to use a special kind of external objects,
+so called {\em partial evaluation domains}.
+These objects a meant to support the normalization process and will neither
+appear in input terms nor in output terms.
+All programs using external objects read in the file {\tt algos}
+(unless another file has been specified in the command line)
+that contains one entry for each algorithm that can be specified
+in the {\tt EXTERNAL} section of the used data type or as property under
+the key {\tt XINT}.
+
+After reaching the {\tt END} symbol, the programs stop reading the
+algebraic specification. This feature can be used to put comments at
+the end of algebraic specification files though we encourage to use the
+\verb/%%/-sign for comments.
+
+Algebraic specifications are called {\em data types} in the \redux\ 
+system.  The data type describing lists over the elements 0 and 1 can
+be described as shown in Figure~\ref{fi:exa}.
+
+\begin{figure}[htbp]
+\begin{center}
+\noindent
+\rule{\textwidth}{0.6pt}
+
+%\fbox{
+\begin{minipage}{5.9in} %necessary if there is a footnote within the figure
+\begin{quote}
+\begin{verbatim}
+DATATYPE LIST;
+%%  STATUS completed
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION List({0,1}): cons, app, rev
+%%  ORIGIN  folklore
+SORT
+   EL, LIST;
+CONST
+   0, 1: EL;
+   nil: LIST;
+VAR
+   A, B, C: EL;
+   L, M, N: LIST;
+OPERATOR
+   @: LIST, LIST -> LIST;   %%  append 
+   [: EL, LIST -> LIST;     %%  cons
+   rev: LIST -> LIST;       %%  reverse
+NOTATION
+   rev: FUNCTION;
+   @: INFIX;
+   [: ROUNDFIX ];
+AXIOM
+   [1] (nil @ L) == L;
+   [2] ([ A,L ] @ M) == [ A,(L @ M) ];
+   [3] rev(nil) == nil;
+   [4] rev([ A,L ]) == (rev(L) @ [ A,nil ]);
+END
+\end{verbatim}
+\end{quote}
+\end{minipage}
+ 
+\noindent
+\rule{\textwidth}{0.6pt}
+%} %end fbox
+\end{center}
+\caption{An example of a \redux\  data type specification} \label{fi:exa}
+\end{figure}
+The the data type is named {\tt LIST} and contains two sorts,
+namely {\tt EL} and {\tt LIST}. The constants {\tt 0} and {\tt 1}
+are of sort {\tt EL} and {\tt nil} is of sort {\tt LIST}.
+There are variables of sort {\tt EL} ({\tt A, B, C}) and of sort {\tt LIST}
+({\tt L, M, N}).
+There are three operators in the data type:
+The operator {\tt @} has the domain {\tt LIST} $\times$ {\tt LIST}
+and is written as infix operator.
+The operator {\tt [} has the domain {\tt EL} $\times$ {\tt LIST} and
+is used as roundfix operator.
+The last operator ({\tt rev}) has the domain sort {\tt LIST}
+and is used as a function. 
+The result sort of all three operators is {\tt LIST}.
+
+
+\subsection{Traces}
+The \redux\  demo programs provide several tracing facilities that can be
+arbitrarily combined:
+\begin{itemize}
+\item The counter example trace
+\item The critical pair trace
+\item The formula reduction trace
+\item The general ordering trace
+\item The inessential critical pair trace
+\item The node deletion trace
+\item The path ordering trace
+\item The polynomial ordering trace
+\item The procedure name trace
+\item The proved theorems trace
+\item The substitution trace
+\item The theorem derivation trace
+\item The tree extension trace
+\item The evaluation trace
+\item The term generation trace
+\end{itemize}
+
+When traces can be selected, the programs ask for each of the available
+traces whether it shall be switched on or off.
+The user must type {\tt 1} if he wants to select the trace or {\tt 0} if
+he does not.
+A description of the traces is given in Appendix~\ref{Traces}.
+
+\subsection{Timing}
+The \redux\  demo programs provide timing facilities. Since the resolution
+of the timing commands is rather slow ($1/60$~s or $1/100$~s depending on
+the operating system), the displayed times
+can be interpreted only if they are long relative to 
+$1/60$~s or $1/100$~s respectively.
+
+All traces need CPU time, therefore the traces should be switched off if
+program timing is done.

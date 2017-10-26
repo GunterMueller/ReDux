@@ -1,0 +1,40 @@
+\begin{figure}[htbp]
+\begin{center}
+%\fbox{
+\noindent
+\rule{\textwidth}{0.6pt}
+
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs ClosingRoundfixName} \gsep {\vs DTName} \gsep {\vs OpName} \gsep {\vs Value} \= \kill
+{\vs ClosingRoundfixName} \gsep {\vs DTName} \gsep {\vs OpName} \gsep 
+   {\vs Value} \> \gprod {\vs XIdent} \\
+{\vs AlgoName} \gsep {\vs Domain} \gsep {\vs Range} \gsep {\vs SortName} \> \gprod {\vs Ident} \\
+{\vs CoercionOpNames} \gsep {\vs ConstNames} \gsep \\
+   {\vs ObjectNames} \gsep
+   {\vs OpNames} \gsep {\vs VarNames} \> \gprod {\vs XIdents} \\
+{\vs SortNames} \gsep {\vs XSortNames} \> \gprod {\vs Idents} \\
+\\
+{\vs InfixOp} \gsep {\vs LispOp} \gsep 
+   {\vs PostfixOp} \gsep {\vs PrefixOp} \gsep {\vs RoundfixOp} \gsep
+   {\vs Var} \= \kill
+{\vs CoercionPrefixOp} \gsep {\vs CoercionRoundfixOp} \gsep {\vs Const} \gsep
+   {\vs FunctionOp} \gsep \\
+   {\vs InfixOp} \gsep {\vs LispOp} \gsep 
+   {\vs PostfixOp} \gsep {\vs PrefixOp} \gsep {\vs RoundfixOp} \gsep
+   {\vs Var} \> \gprod {\vs XIdent} \\
+\\
+{\vs XIdents} \= \gprod {\vs XIdent} \gstar{\ts{,} {\vs XIdent}} \\
+{\vs Idents} \> \gprod {\vs Ident} \gstar{\ts{,} {\vs Ident}} \\
+\\
+{\vs Number} \> \gprod \gplus{{\vs Digit}}
+\end{tabbing}
+\end{minipage}
+%} % end fbox
+
+\noindent
+\rule{\textwidth}{0.6pt}
+\caption{Definition of Auxiliary Grammar Symbols}
+\label{axgram}
+\end{center}
+\end{figure}

@@ -1,0 +1,23 @@
+DATATYPE NAT;
+SORT
+	NAT;
+CONST
+	0, 1: NAT;
+VAR
+	A, B, C, D, E: NAT;
+OPERATOR
+	+: NAT, NAT -> NAT;
+	S: NAT -> NAT;
+NOTATION
+	+, S: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(A,0)==A;
+[3] +(+(A,B),1)==+(1,+(A,B));
+[4] +(+(1,A),B)==+(1,+(A,B));
+[4] +(S(B),A)==+(B,S(A));
+[5] S(+(B,A))==+(B,S(A));
+[6] S(0)==1 ;
+[7] S(1)==+(1,1) ;
+END
+;This file is nat01.typ

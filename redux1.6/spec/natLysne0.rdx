@@ -1,0 +1,31 @@
+DATATYPE NATLYSNE;
+SORT
+	INT, NAT, VALUE;
+CONST
+	Z: INT;
+	0: NAT;
+	P, N: VALUE;
+VAR
+	A, B, C, D, E: INT;
+	a, b, c, d, e: NAT;
+	v: VALUE;
+OPERATOR
+	S: INT -> INT;
+	NEG: INT -> INT;
+	s: NAT -> NAT;
+	abs: INT -> NAT;
+	sign: INT -> VALUE;
+	sgneg: VALUE -> VALUE;
+NOTATION
+	S, NEG, s, abs, sign, sgneg: FUNCTION;
+AXIOM
+[1] sgneg(P) == N;
+[2] sgneg(N) == P;
+[3] abs(Z) == 0;
+[4] abs(S(A)) == s(abs(A));
+[5] abs(NEG(A)) == abs(A);
+[6] sign(Z) == P;
+[7] sign(S(A)) == sign(A);
+[8] sign(NEG(A)) == sgneg(sign(A));
+END
+; taken from [Olav Lysne:90, example 1: equations]

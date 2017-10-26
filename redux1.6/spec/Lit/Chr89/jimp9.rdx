@@ -1,0 +1,171 @@
+%% 
+DATATYPE P9;
+%%  AUTHOR Jim Christian
+%%  STATUS uncompleted
+%%  ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+%%  DESCRIPTION Problem P8
+SORT
+	NAT;
+VAR
+	x, y, z: NAT;
+OPERATOR
+	f: NAT, NAT -> NAT;
+	E1:  -> NAT;
+	E2:  -> NAT;
+	E3:  -> NAT;
+	E4:  -> NAT;
+	E5:  -> NAT;
+	E6:  -> NAT;
+	E7:  -> NAT;
+	E8:  -> NAT;
+	E9:  -> NAT;
+	E10:  -> NAT;
+	E11:  -> NAT;
+	E12:  -> NAT;
+	E13:  -> NAT;
+	E14:  -> NAT;
+	E15:  -> NAT;
+	E16:  -> NAT;
+	E17:  -> NAT;
+	E18:  -> NAT;
+	E19:  -> NAT;
+	E20:  -> NAT;
+	E21:  -> NAT;
+	E22:  -> NAT;
+	E23:  -> NAT;
+	E24:  -> NAT;
+	E25:  -> NAT;
+	E26:  -> NAT;
+	E27:  -> NAT;
+	E28:  -> NAT;
+	E29:  -> NAT;
+	E30:  -> NAT;
+	E31:  -> NAT;
+	E32:  -> NAT;
+	I1: NAT -> NAT;
+	I2: NAT -> NAT;
+	I3: NAT -> NAT;
+	I4: NAT -> NAT;
+	I5: NAT -> NAT;
+	I6: NAT -> NAT;
+	I7: NAT -> NAT;
+	I8: NAT -> NAT;
+	I9: NAT -> NAT;
+	I10: NAT -> NAT;
+	I11: NAT -> NAT;
+	I12: NAT -> NAT;
+	I13: NAT -> NAT;
+	I14: NAT -> NAT;
+	I15: NAT -> NAT;
+	I16: NAT -> NAT;
+	I17: NAT -> NAT;
+	I18: NAT -> NAT;
+	I19: NAT -> NAT;
+	I20: NAT -> NAT;
+	I21: NAT -> NAT;
+	I22: NAT -> NAT;
+	I23: NAT -> NAT;
+	I24: NAT -> NAT;
+	I25: NAT -> NAT;
+	I26: NAT -> NAT;
+	I27: NAT -> NAT;
+	I28: NAT -> NAT;
+	I29: NAT -> NAT;
+	I30: NAT -> NAT;
+	I31: NAT -> NAT;
+	I32: NAT -> NAT;
+NOTATION
+	f, I1, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, I21, I22, I23, I24, I25, I26, I27, I28, I29, I30, I31, I32: FUNCTION;
+AXIOM
+[1]  f(f(x,y),z) == f(x,f(y,z));
+[2]  f(E1,x)     == x;
+[3]  f(E2,x)     == x;
+[4]  f(E3,x)     == x;
+[5]  f(E4,x)     == x;
+[6]  f(E5,x)     == x;
+[7]  f(E6,x)     == x;
+[8]  f(E7,x)     == x;
+[9]  f(E8,x)     == x;
+[10] f(E9,x)     == x;
+[11] f(E10,x)    == x;
+[12] f(E11,x)    == x;
+[13] f(E12,x)    == x;
+[14] f(E13,x)    == x;
+[15] f(E14,x)    == x;
+[16] f(E15,x)    == x;
+[17] f(E16,x)    == x;
+[18] f(E17,x)    == x;
+[19] f(E18,x)    == x;
+[20] f(E19,x)    == x;
+[21] f(E20,x)    == x;
+[22] f(E21,x)    == x;
+[23] f(E22,x)    == x;
+[24] f(E23,x)    == x;
+[25] f(E24,x)    == x;
+[26] f(E25,x)    == x;
+[27] f(E26,x)    == x;
+[28] f(E27,x)    == x;
+[29] f(E28,x)    == x;
+[30] f(E29,x)    == x;
+[31] f(E30,x)    == x;
+[32] f(E31,x)    == x;
+[33] f(E32,x)    == x;
+[34] f(x,I1(x))  == E1;
+[35] f(x,I2(x))  == E2;
+[36] f(x,I3(x))  == E3;
+[37] f(x,I4(x))  == E4;
+[38] f(x,I5(x))  == E5;
+[39] f(x,I6(x))  == E6;
+[40] f(x,I7(x))  == E7;
+[41] f(x,I8(x))  == E8;
+[42] f(x,I9(x))  == E9;
+[43] f(x,I10(x)) == E10;
+[44] f(x,I11(x)) == E11;
+[45] f(x,I12(x)) == E12;
+[46] f(x,I13(x)) == E13;
+[47] f(x,I14(x)) == E14;
+[48] f(x,I15(x)) == E15;
+[49] f(x,I16(x)) == E16;
+[50] f(x,I17(x)) == E17;
+[51] f(x,I18(x)) == E18;
+[52] f(x,I19(x)) == E19;
+[53] f(x,I20(x)) == E20;
+[54] f(x,I21(x)) == E21;
+[55] f(x,I22(x)) == E22;
+[56] f(x,I23(x)) == E23;
+[57] f(x,I24(x)) == E24;
+[58] f(x,I25(x)) == E25;
+[59] f(x,I26(x)) == E26;
+[60] f(x,I27(x)) == E27;
+[61] f(x,I28(x)) == E28;
+[62] f(x,I29(x)) == E29;
+[63] f(x,I30(x)) == E30;
+[64] f(x,I31(x)) == E31;
+[65] f(x,I32(x)) == E32;
+END
+
+%% Hallo Reinhard,
+%% 
+%% gestern ist erstmals P9 durchgelaufen.
+%% 
+%% Es folgt die Statistik und der Datentyp:
+%% 
+%% XYZ P9
+%% XYZ 0 (KBM)
+%% XYZ 3 (GNF)
+%% XYZ 128 (GCL)
+%% XYZ 8 (GAX)
+%% XYZ 7 (DTH)
+%% XYZ 4 (VP)
+%% XYZ 2249 (Zyklen)
+%% XYZ 31936 (Q1-MAX)
+%% XYZ 36907 (CP-SUM)
+%% XYZ 2114 (AX-MAX)
+%% XYZ 103 (AX)
+%% XYZ 310160 (SEQ-Ord)
+%% XYZ 185690 (SEQ-ALPUR+CPLNF)
+%% XYZ 47090 (SEQ-LOISE)
+%% XYZ 4263510 (TIME-PT)
+%% XYZ 4806450 (TIME-TT)
+%% XYZ 4864920 (TIME-TT+IO)
+%% XYZ 337963 (S-THREADS-SUM)

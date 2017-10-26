@@ -1,0 +1,39 @@
+#!/bin/sh
+# SYNOPSIS typ2rdxdir <source directory name> <goal directory name>
+#
+# copy <source directory name> recursively to <goal directory name> and
+# convert all .typ files in <directory name> to .rdx files
+#
+
+ RDX="/home/buendgen/ReDuX"                    # ReDuX directory
+#^^^^^^^                      The previous line was modified by the ReDuX 
+#                             installation make file!
+RDXB=${RDX}/bin
+
+echo $RDXB
+
+if [ ! \( -d $1 -a -r $1 \) ]; then
+  echo "source directory does not exists!"
+  exit
+fi
+if [ -d $2 -o -f $2 ]; then
+  echo "goal path name exists all ready!"
+  exit
+fi
+
+#copy directory
+echo "copying $1 to $2 ..."
+cp -r $1 $2
+
+echo "converting ..."
+TYPES=` find $2 -name "*.typ" -print | sort | tr '\012' ' ' `
+
+for t in ${TYPES};  do 
+    echo $t
+    $RDXB/typ2rdx $t
+done
+
+echo "removing .typ files in $2 ..."
+for t in ${TYPES}; do
+    rm $t
+done

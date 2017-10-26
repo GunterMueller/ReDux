@@ -1,0 +1,9 @@
+[This function must be rewritten if used in a SACLIB environment.]
+
+     const TRUE = 1, FALSE = 0.
+
+                    b:=SFOL(S)
+[String fits on line.
+S is a character list. b = true if S fits on the current output line. ]
+     safe SFOL.
+(1)  [Test.] if OPOS+LENGTH(S) > RMARG then b:=FALSE else b:=TRUE ||

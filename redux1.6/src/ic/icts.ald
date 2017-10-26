@@ -1,0 +1,40 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICTS -- Test Sets using Top Set Trees
+   modulespecification: algorithms to compute d-top sets
+                        using - top set tree  generation algorithm
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : 18.10.88 
+                        17.9.92 CTOPS returns also the top set tree
+                        $Date: 1993/10/08 10:36:29 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.3 $
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+                        redux/ax, redux/co, redux/tp, redux/ic
+]                                                                      
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+[--------------------------------------------------------------------  
+     section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+
+                    CTOPS(C,V,R,d; T*,G) 
+[Top set by top set tree computation. 
+C is a set of constructors, V is the set of variables of the data type. 
+R is a term rewriting system whose left-hand sides in T(C,V) are linear 
+and d is a non-negative integer. 
+Then T* = GR(C,d) and is the respective top set tree.]
+
+(1)  [Initialize - separate contants from operators.] 
+     if PNTRC then STOUTL("TSTST");
+     F0:=(); F:=(); C':=C; while C' # () do
+     { ADV(C'; c,C'); k:=TKIND(c); if k = DCS then F0:=COMP(c,F0)
+       else if k = DOS then F:=COMP(c,F) else
+        { STOUTL("? unexpected error in TSTST.1"); HALT }
+     }.
+(2)  [Create topset tree.] G:=TSTCMP(F0,F,R,V,d). 
+(3)  [Extract topset from topset tree.] T':=TSTTRV(G,(),0,30); T*:=();
+     while T' # () do { ADV(T'; t,T'); if t # () then T*:=COMP(t,T*) }
+     ||

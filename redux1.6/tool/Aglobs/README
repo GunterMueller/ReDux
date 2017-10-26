@@ -1,0 +1,56 @@
+Directory aglobs
+================
+ 
+
+Contents:
+
+   aglobs:         ALDES externally defined variables
+                   SYNOPSIS
+                        aglobs [text]
+                   input (stdin): ALDES-source file
+                   output (stdout): For each externally declared
+                   variable, a line of the form 
+                   safe|global <variable name>
+                   or 
+                   safe|global <variable name> text
+                   if `text' is given is written to stdout. 
+                   bugs:-  assumes that at least 15 blanks preceede each
+                           algorithm name in the input file
+                        -  assumes that there are no non-blank
+                           characters between a end-of-algorithm sign (||)
+                           and the end of a line.
+                        -  indices of global array declarations are
+                           not written to stdout.
+                   executable file - suffix determines hardware
+                   architecture
+   aglobs.lex:     LEX-source for aglobs
+   rglobs:         ALDES/ReDuX externally defined variables in directory
+                   SYNOPSIS
+                        rglobs [ac|ax|co|ic|tc|to|tp|<directory>]
+
+                   output (stdout): All externally defined global variables, 
+                                    together with the type `safe' or `global' 
+                                    and the file they are declared in of the
+                                    ALDES sources of the ReDuX system.
+                                    If one of the options [ac|ax|co|ic|tc|to|tp]
+                                    is used only the according ReDuX subsystem 
+                                    is searched through, if <directory> is 
+                                    provided as second argument then <directory>
+                                    is scanned recursively for files which match
+                                    *.ald.
+
+                   A sorted list of all externally declared variables in the
+                   ReDuX system can be ontained by
+
+                               rglobs | sort +1
+
+                   Bugs: rglobs does by default not search in include files.
+
+Generation of aglobs:
+First, the LEX-file must be compiled to the C-file lex.yy.c:
+   lex aglobs.lex
+Then the C-file must be compiled to the executable program aglobs:
+   cc -o aglobs.<architecture> lex.yy.c -ll
+
+Porting ReDuX:
+   change variables RDXS and RDXB in rglobs

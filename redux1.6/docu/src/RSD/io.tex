@@ -1,0 +1,13 @@
+\section{The IO-Subsystem}
+
+The {\it io}-subsystems contains the i/o-package IO which can be
+\index{input-output}
+linked to the programs instead of the SAC-2 package IO.
+The \redux\  IO routines record all interactive i/o on
+output stream~9  thus produce a protocol of a program session.
+\index{protocol}
+Under \ALDES\ 3.7 this is by default a file called 
+$\langle$prog$\rangle${\tt .log} where $\langle$prog$\rangle$ is the name
+of the main program.
+With older versions of \ALDES\ this file is called {\tt file.9}.
+

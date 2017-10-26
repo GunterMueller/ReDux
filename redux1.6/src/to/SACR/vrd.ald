@@ -1,0 +1,7 @@
+                       v:=VRD()
+[Polynomial variable read.
+v is a string containing a variable name occuring in a QE-formula.] 
+   safe C.
+(1) C:=CREADB(); if ~LETTER(C) then {print "Error found by VRD.";
+    DIBUFF; stop}; v:=(); repeat v:=COMP(C,v); C:=CREAD() until
+    ~LETTER(C)/\~DIGIT(C); v:=INV(v); BKSP ||

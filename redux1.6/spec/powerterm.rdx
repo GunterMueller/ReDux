@@ -1,0 +1,27 @@
+%%  comment symbol
+DATATYPE POWERT;
+%%  DESCRIPTION power term peano specification of + and *
+%%  STATUS completed
+SORT
+	POWERT;
+CONST
+	0: POWERT;
+VAR
+	A, B, C, D, E: POWERT;
+OPERATOR
+	*: POWERT, POWERT -> POWERT;
+	+: POWERT, POWERT -> POWERT;
+	S: POWERT -> POWERT;
+	s: POWERT, POWERT -> POWERT;	%%  s(A,B) = S^A(B)
+NOTATION
+	S, s: FUNCTION;
+	*, +: INFIX;
+AXIOM
+  [1] (0 + A)==A;
+  [2] (S(B) + A)==S((B + A));
+  [3] (0 * A)==0;
+  [4] (S(B) * A)==((B * A) + A);
+  [5] s(0,A) == A;
+  [6] s(S(A),B) == S(s(A,B));
+END
+

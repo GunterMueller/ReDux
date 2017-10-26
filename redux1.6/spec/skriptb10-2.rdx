@@ -1,0 +1,14 @@
+DATATYPE beipiel;
+SORT S;
+CONST
+         a: S;
+OPERATOR
+         f: S, S -> S;
+NOTATION
+         f: FUNCTION;
+VAR
+         x, y, z: S;
+AXIOM
+        [1] f(a,a) == a;
+        [2] f(x,f(y,z)) == f(f(x,y),z);
+END

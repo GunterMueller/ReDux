@@ -1,0 +1,18 @@
+DATATYPE SORT;
+SORT
+	SORT;
+CONST
+	0: SORT;
+VAR
+	x, y, z: SORT;
+OPERATOR
+	f: SORT, SORT -> SORT;
+	g: SORT, SORT -> SORT;
+NOTATION
+	f, g: FUNCTION;
+AXIOM
+[1] f(f(x,y),f(0,0)) == 0;
+[2] g(g(0,0),g(x,y)) == 0;
+END
+; This Spexification stems from Kapur & Narendran & Zhang 1991, Ex 4.10
+; Their test set has size 21 despite their claiming the size of 17.

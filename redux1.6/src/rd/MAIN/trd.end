@@ -1,0 +1,54 @@
+
+[ *** end of global safe variables *** ]
+
+     safe DUNIT,CRT.    [i/o units.]
+     safe C^, c, c'.    [user input.]
+
+(1)  [Initialize ReDuX system.] BGNRWD(5).
+(2)  [Output breadth: 80 characters.] RMARG:=79.
+(3)  [Term generation trace off.] TGTRC:=0.
+(4)  [Use file.4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.] 
+     STOUTL("-><--><--><--><--><--><--><--><--><--><--><--><-");
+     STOUTL("|                                              |");
+     STOUTL("|    ReDuX - random term generation program    |");
+     STOUTL("V                                              V");
+     STOUTL("->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-");
+     BLINES(1); STOUTL("           [$Revision: 1.2 $]  ");
+     BLINES(1).
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=-CLOCK(); DT:=DTPRS(); t:=t+CLOCK();
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.").
+(8)  [Set input unit back to keyboard.] IUCHNG(CRT); ISIZE:=80.
+(9)  [Write data type.] BLINES(1); t:=-CLOCK(); DTWRT(DT); t:=t+CLOCK();
+     STROUT("Display time: "); GWRITE(t); STOUTL(" ms."); BLINES(1);
+     STOUTL("Ready? *"); READ; C^:=CREAD().
+(10) [Initialize menu variables.] c:=0; c':=0;
+     [Initialize signature descriptor.] SDINIT(DT); DIPOS:=0; DIDPT:=-1.
+(11) [Main menu.] BLINES(1); case c of
+       { 0 do { BLINES(1); c:=TRMENU(); BLINES(1); goto 11 };
+         1 do SDWRIT;
+         2 do GDWRTI;
+         3 do { GDINII() };
+         4 do { TENUM };
+         5 do { TRGENI() };
+         6 do { TRGNIH() };
+         7 do { TRSTAT() };
+         8 do { STROUT("The term generation trace is turned ");
+                if TGTRC then {
+                   TGTRC:=0; STOUTL("off.") }
+                else {
+                   TGTRC:=1; STOUTL("on.") }
+              };
+         9 do { STROUT("The garbage collection messages are turned ");
+                if GCM then {
+                   GCM:=0; STOUTL("off.") }
+                else {
+                   GCM:=1; STOUTL("on.") }
+              };
+         10 do QOPMOD;
+         11 do [Quit.] goto 99;
+        }; c':=c; c:=TRSMEN(); goto 11.
+(99) [Finish up.] ENDS ||
+

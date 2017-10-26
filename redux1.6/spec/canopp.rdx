@@ -1,0 +1,21 @@
+DATATYPE OP;
+SORT
+	OP;
+CONST
+	0: OP;
+VAR
+	A, B, C: OP;
+OPERATOR
+	OPP: OP -> OP;
+	SUCC: OP -> OP;
+	+: OP, OP -> OP;
+NOTATION
+	OPP, SUCC, +: FUNCTION;
+AXIOM
+ [1] OPP(0)==0;
+ [2] OPP(OPP(A))==A;
+ [3] SUCC(OPP(SUCC(A)))==OPP(A);
+ [4] +(0,A)==A;
+ [5] +(SUCC(A),B)==SUCC(+(A,B));
+ [6] +(OPP(A),B)==OPP(+(A,OPP(B)));
+END

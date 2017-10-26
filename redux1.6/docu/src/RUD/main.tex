@@ -1,0 +1,62 @@
+\documentstyle[twoside,titlepage]{article}
+\pagestyle{headings}
+ 
+\input{wide10r}
+\input{gramdef}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1ex}
+ 
+
+\def\null{\makebox[0mm]{}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{specification}{Specification}
+\newtheorem{definition}{Definition}
+\newtheorem{xmpl}{Example}
+
+\hyphenation{re-write com-ple-tion}
+
+\input{macros}
+
+
+\title{The \redux\  User Guide \\
+        {\large (Version 1.6)} }
+\author{Jochen Walter and Reinhard B\"{u}ndgen \\
+        Wilhelm-Schickard-Institut f\"{u}r Informatik, 
+        Universit\"{a}t T\"{u}bingen\\
+        D-72076 T\"{u}bingen,
+        Fed.\ Rep.\ of Germany\\
+  {\small $\langle\{$walter,buendgen$\}$@informatik.uni-tuebingen.de$\rangle$}}
+
+
+\begin{document}
+\maketitle
+%\begin{quote}
+%\small
+%{\bf Abstract:} \input{abst}
+%\end{quote}
+\tableofcontents
+\newpage
+
+\input{intro}
+\input{gen}
+\input{to}
+\input{tc}
+\input{ts}
+\input{ic}
+\input{ac}
+\input{ev}
+\input{trd}
+
+\begin{appendix}
+\input{traces}
+\input{syspars}
+\input{oldparser}
+\input{version}
+
+\bibliographystyle{alpha}
+\bibliography{rewrite,systems}
+\end{appendix}
+\end{document}

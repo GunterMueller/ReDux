@@ -1,0 +1,453 @@
+[Project:  ReDuX  AC-Completion 
+   module name        : ACCP -- Critical Pairs
+   modulespecification: Critical pair algorithms
+                        Only the superpositions at the positions of
+                        'flattened' terms are tried.
+                        * Contains also procedures to compute
+                          generalized critical pairs and
+                        * a critical pair subsumption test
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 17.11.89 7.11.89
+                        $Date: 1995/02/22 18:26:51 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.12 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include ac.h ]
+[ #include globs.h ]
+
+[ global UNIFC. safe UNIFC. [Unifier count.] ]
+
+[---------------------------------------------------------------------
+       Strategy & Normalization
+----------------------------------------------------------------------]
+     const
+     TNORM(T,A)=TIRDSE(T,A),
+               [TNORM computes a normal form of term T under
+                 the set of axioms A.]
+     STRATV(CP)=CPMSIZ(CP).
+               [STRATV computes the value of critical pair CP
+                according to the current strategy.]
+
+
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    C':=ACPAC(a1,A,R,x)
+[Axioms, critical pairs modulo AC.
+a1 is an axiom, A is a set of Axioms s.th. a1 is not in A. R is a list
+of axioms. x is a Boolean value.
+Then C' is the set of all non-confluent critical pairs between a1 and 
+the members of A (and their AC-extensions respectively). If x = TRUE 
+also the critical pairs between a1 and a copy of a1 are computed.
+The members of C' are normalized and tested for confluence using R 
+union a copy of a1 as a TRS.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("ACPAC");
+     if CPTRC > 0 then n1:=ANUM(a1); a~:=ACOPY(a1); R':=COMP(a~,R);
+     a^1:=AGET(a1,DXR); A':=A; l1:=ALHS(a1); C':=(); k1:=TKIND(l1); 
+     if TUSTAT(l1) = DAC then S1:=TSIGN(l1) else S1:=().
+(2)  [Trivial case.] if A' = () then goto 6.
+(3)  [Select rule.] ADV(A'; a,A'); a^:=AGET(a,DXR); 
+     [Trace.] if CPTRC > 0 then CPTRC0(n1,ANUM(a)). 
+(4)  [Superpose at top position.] C':=ACPTOP(a1,a,R',C'); 
+     if a^  # () then C':=ACPTOP(a1,a^,R',C');
+     if a^1 # () then C':=ACPTOP(a^1,a,R',C');
+     if a^1 # () /\ a^ # () then C':=ACPTOP(a^1,a^,R',C').
+(5)  [Superpose at internal positions.] 
+     if k1 = DOS then C':=AACPPS(a1,OARGLST(l1),a,a^,R',C',S1);
+     l:=ALHS(a); if TKIND(l) = DOS then
+     { if TUSTAT(l) = DAC then S:=TSIGN(l) else S:=();
+       C':=AACPPS(a,OARGLST(l),a1,a^1,R',C',S)
+     }; goto 2.
+(6)  [Reflexive critical pairs.] if ~x \/ k1 # DOS then return;
+     if CPTRC > 0 then CPTRC0(n1,n1); 
+     a2:=ACOPY(a1); C':=ACPTOP(a1,a2,R',C'); if a^1 # () then 
+     { a^2:=AGET(a2,DXR); C':=ACPTOP(a^1,a2,R',C'); 
+      C':=ACPTOP(a^1,a^2,R',C') 
+     }; C':=AACPPS(a2,OARGLST(ALHS(a2)),a1,a^1,R',C',S1) ||
+
+                    C':=ACPACG(a1,A,R,x)
+[Axioms, critical pairs modulo AC using generalized pairs.
+a1 is an axiom, A is a set of Axioms s.th. a1 is not in A. R is a list
+of axioms.  x is a Boolean value.
+Then C' is the set of all non-confluent critical pairs between a1 and 
+the members of A (and their AC-extensions respectively). If x = TRUE 
+also the critical pairs between a1 and a copy of a1 are computed.
+The members of C' are normalized and tested for confluence using R as
+a TRS. The critical pair computation is based on mgcis if possible.
+cf. R. Buendgen, 
+   "On Pots, Pans and Puddung or How to Generalise Critical Pairs",
+   Proc. CADE'94, LNCS 814, 1994.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("ACPACG");
+     if CPTRC > 0 then n1:=ANUM(a1); a~:=ACOPY(a1); R':=COMP(a~,R);
+     a^1:=AGET(a1,DXR); A':=A; l1:=ALHS(a1); C':=(); k1:=TKIND(l1); 
+     if TUSTAT(l1) = DAC then S1:=TSIGN(l1) else S1:=().
+(2)  [Trivial case.] if A' = () then goto 6.
+(3)  [Select rule.] ADV(A'; a,A'); a^:=AGET(a,DXR); 
+     [Trace.] if CPTRC > 0 then CPTRC0(n1,ANUM(a)). 
+(4)  [Superpose at top position.] C':=ACPTP1(a1,a,R',C'); 
+     if a^  # () then C':=ACPTP1(a1,a^,R',C');
+     if a^1 # () then C':=ACPTP1(a^1,a,R',C');
+     if a^1 # () /\ a^ # () then C':=ACPTP1(a^1,a^,R',C').
+(5)  [Superpose at internal positions.] 
+     if k1 = DOS then C':=ACPPS1(a1,OARGLST(l1),a,a^,R',C',S1);
+     l:=ALHS(a); if TKIND(l) = DOS then
+     { if TUSTAT(l) = DAC then S:=TSIGN(l) else S:=();
+       C':=ACPPS1(a,OARGLST(l),a1,a^1,R',C',S)
+     }; goto 2.
+(6)  [Reflexive critical pairs.] if ~x \/ k1 # DOS then return;
+     if CPTRC > 0 then CPTRC0(n1,n1); 
+     a2:=ACOPY(a1); C':=ACPTOP(a1,a2,R',C'); if a^1 # () then 
+     { a^2:=AGET(a2,DXR); C':=ACPTOP(a^1,a2,R',C'); 
+      C':=ACPTOP(a^1,a^2,R',C') 
+     }; C':=ACPPS1(a2,OARGLST(ALHS(a2)),a1,a^1,R',C',S1) [???] ||
+
+                    CPLCLE(L,a; L',L*)
+[List of critical pairs, clearance of matches modulo equational theory.
+L  is  a  list of critical pairs, a is an axiom. Then L* is the list of
+all critical pairs in L whose lhs or rhs contain an E-instance of the 
+lhs of a as subterm. L' = L minus L*, L is destroyed.]
+     safe L'',L''',r',t,b,l,l_.
+(1)  [Initialize.] L':=L; L*:=(); L'':=L'; a^:=AGET(a,DXR).
+(2)  [Trivial case.] if L''=() then return; 
+     l:=ALHS(a); l_:=ALLB(a); if a^ # () then l^:=ALHS(a^).
+(3)  [Disconnect top(L').] r':=FIRST(L''); t:=CPLHS(r'); 
+     TBVSLI(t; v~,l_1); RTI:=RTI-CLOCK(); b:=TSMTHE(l,t,v~,l_); 
+     RTI:=RTI+CLOCK(); if ~b /\ a^ # () then 
+     { RTI:=RTI-CLOCK(); b:=TSMTHE(l^,t,v~,l_); RTI:=RTI+CLOCK() }; 
+     if ~ b then { t:=CPRHS(r'); TBVSLI(t; v~,l_1); RTI:=RTI-CLOCK(); 
+                   b:=TSMTHE(l,t,v~,l_); RTI:=RTI+CLOCK()
+                 }; if ~b /\ a^ # () then 
+     { RTI:=RTI-CLOCK(); b:=TSMTHE(l^,t,v~,l_); RTI:=RTI+CLOCK() };
+     if b then {L':=RED(L'); RED(L''):=L*; L*:=L''; L'':=L'; goto 2}.
+(4)  [Loop.] L''':=L''; L'':=RED(L''); while L'' # () do
+     { r':=FIRST(L''); t:=CPLHS(r'); TBVSLI(t; v~,l_1);
+      RTI:=RTI-CLOCK(); b:=TSMTHE(l,t,v~,l_); RTI:=RTI+CLOCK(); 
+      if ~b /\ a^ # () then 
+      { RTI:=RTI-CLOCK(); b:=TSMTHE(l^,t,v~,l_); RTI:=RTI+CLOCK() }; 
+      if ~ b then
+      { t:=CPRHS(r'); TBVSLI(t; v~,l_1); RTI:=RTI-CLOCK(); 
+       b:=TSMTHE(l,t,v~,l_); RTI:=RTI+CLOCK()
+      }; if ~b /\ a^ # () then 
+      {RTI:=RTI-CLOCK(); b:=TSMTHE(l^,t,v~,l_); RTI:=RTI+CLOCK()}; if b 
+      then { RED(L'''):=RED(L'');RED(L''):=L*; L*:=L''; L'':=RED(L''') }
+      else { L''':=L''; L'':=RED(L'') } 
+     } ||
+
+                    CPLIST(P,p; P*,s)
+[Critical pair list, insert with subsumption test.
+P is an ordered list of critical pairs with ordering information such 
+that no pair in P subsumes a larger pair in P, p is a critical pair.
+Then P* is an ordered list of critical pairs in which P union {p}
+are not subsumed by a smaller pair. s = |P| +1 - |P*| is the number of
+deleted pairs.]
+
+(1)  [Initialize.] P':=P; P*:=P; s:=0; w:=CPW8(p); 
+     t1:=CPLHS(p); t2:=CPRHS(p); m1:=TSIZE(t1); m2:=TSIZE(t2);
+     TLRVLL(LIST2(t1,t2); V,l_).
+(2)  [Trivial case.] if P' = () then goto 4.
+(3)  [P subsumes p.] p':=FIRST(P'); if CPW8(p') <= w then
+     { [CP subsumption test.] 
+       if CPSTST(p',TSIZE(CPLHS(p')),TSIZE(CPRHS(p')),p,m1,m2,V) 
+                              then { s:=1; return };
+       P'':=RED(P'); if P'' = () then { RED(P'):=COMP(p,()); return };
+       P':=P''; goto 2
+      }.
+(4)  [Insert p.] if P' = P then 
+     { [at beginning of P.] P*:=COMP(p,P); P'':=P*;  goto 5} else
+     { P'':=P'; P':=RED(P'); RED(P''):=COMP(p,P'); P'':=RED(P'') }.
+(5)  [p subsumes pairs in P.] while P' # () do
+     { p':=FIRST(P'); 
+       if CPSTST(p,m1,m2,p',TSIZE(CPLHS(p')),TSIZE(CPRHS(p')),0)
+       then { [delete.] s:=s+1; RED(P''):=RED(P') } else P'':=RED(P'');
+       P':=RED(P');
+     } ||
+
+                    P*:=CPLOW8(P,O)
+[Critical pair list, update odering dependent weights.
+P is a list of critical pairs, O is a string denoting a term ordering.
+Then P* is P where for each critical pair (s,t) in P the weight of the 
+pair has been updated to   TSIZE(s), if s > t wrt. O,
+                           TSIZE(t), if t > s wrt. O,
+                           max(TSIZE(s),TSIZE(t)) else.]
+
+(1)  [Initialize.] P':=P; P*:=P.
+(2)  [Update weight of each pair in P.] while P' # () do
+     { ADV(P'; p,P'); c:=TPPO(p,O); 
+       if c = 'S' then CPW8(p):=TSIZE(CPLHS(p))
+       else if c = 'R' then CPW8(p):=TSIZE(CPRHS(p))
+       else  CPW8(p):=CPMSIZ(p); CPORIEN(p):=c
+     } ||
+
+                    b:=CPSTST(p1,m11,m12,p2,m21,m22,V2)
+[Critical pairs, subsumption test.
+p1 and p2 are critical pairs with order information.
+mi1 and mi2 are beta-integers denoting the sizes of the LHS and RHS of 
+pi resp. (for i in {1,2}); V2 is the set of Variables in p2.
+If the set V2 = 0 then the set of variables is assumed to be unknown.
+Then b= TRUE if p1 subsumes p2.]
+
+(1)  [Initialize.] b:=FALSE;
+     t11:=CPLHS(p1); t12:=CPRHS(p1); o1:=CPORIEN(p1);
+     t21:=CPLHS(p2); t22:=CPRHS(p2); o2:=CPORIEN(p2).
+[; STROUT("L1 :"); TLWRT(LIST2(t11,t12)); WRITE;
+ STROUT("L2 :"); TLWRT(LIST2(t21,t22)); WRITE.
+]
+(2)  [Get top operator information.]
+     k11:=TKIND(t11); t12:=TKIND(t12); s11:=TSIGN(t11); s12:=TSIGN(t12);
+     k21:=TKIND(t21); t22:=TKIND(t22); s21:=TSIGN(t21); s22:=TSIGN(t22).
+(3)  [Test straight, trivial cases.] 
+     if ((o1 = 'S' /\ o2 = 'R') \/ (o1 = 'R' /\ o2 = 'S')) then goto 5;
+     if k11 # DVS /\ s11 # s21 then goto 5;
+     if k21 # DVS /\ s12 # s22 then goto 5;
+     if m11 > m21 \/ m12 > m22 then goto 5.
+(4)  [Match straight.] L1:=LIST2(t11,t12); L2:=LIST2(t21,t22);
+     if V2 = 0 then TLRVLL(L2; V,l_) else V:=V2; 
+[ STOUTL(" *** 1 *** ");
+  STROUT("V  :"); TLWRT(V); WRITE;
+]
+     M:=TLMSE(L1,L2,V,TRUE); if M # () then { b :=TRUE; return }.
+(5)  [Test reverse, trivial cases.]
+     if o1 = o2 /\ (o1 = 'S' \/ o1 = 'R') then return;
+     if k11 # DVS /\ s11 # s22 then return;
+     if k21 # DVS /\ s12 # s21 then return;
+     if m11 > m22 \/ m12 > m21 then return.      
+(6)  [Match reverse.] L1:=LIST2(t11,t12); L2:=LIST2(t21,t22);
+     if V2 = 0 then TLRVLL(L1; V,l_) else V:=V2; 
+[ STOUTL(" *** 2 *** ");
+  STROUT("V  :"); TLWRT(V); WRITE;
+]
+     M:=TLMSE(L1,L2,V,TRUE); if M # () then { b :=TRUE; return } ||
+     
+     
+
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    C':=AACPPS(a1,A~,a2,a3,R,C,S)
+[Axioms, all critical pairs at proper subterms (AC).
+a1 and a2 are axioms, a3 is either the extension rule of a2 or a3 = (). 
+A~ is a tail part of an argument list of a subterm of of the left-hand 
+side of a1. R is a list of axioms. C is a list of critical pairs. S is
+TSIGN the term from which A~ is the tail part of the argument list if 
+S is an AC-operator otherwise S = ().
+Then C' is C augmented by the set of those critical pairs of (a1,a2) and 
+(a1,a3) which can be constructed by unifying any subterm of a term in A~ 
+with LHS(a2) or LHS(a3) and which cannot be resolved using R as a TRS 
+modulo AC. If a3 = () then critical pairs with a3 will not be created.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("AACPPS"); 
+     L:=A~; C':=C.
+(2)  [Trivial case.] if L = () then return.
+(3)  [Current subterm.] t:=FIRST(L); k:=TKIND(t); S':=TSIGN(t); 
+     if S' # S then [Unprotected position.] 
+      { if TUSTAT(t) # DAC then S':= ();
+       [Constant or variable.] if k = DVS \/ k = DCS then goto 5;
+       [Non-atomic or external term.] C':=ACPINT(a1,L,a2,R,C'); 
+       if a3 # () then C':=ACPINT(a1,L,a3,R,C')
+      }.
+(4)  [Inner recursion.] if k = DOS then 
+      C':=AACPPS(a1,OARGLST(t),a2,a3,R,C',S').
+(5)  [Outer recursion.] L:=RED(L); goto 2 ||
+
+                    C':=ACPPS1(a1,A~,a2,a3,R,C,S)
+[Axioms, all critical pairs at proper subterms (AC).
+a1 and a2 are axioms, a3 is either the extension rule of a2 or a3 = ().
+A~ is a tail part of an argument list of a subterm of of the left-hand
+side of a1. R is a list of axioms. C is a list of critical pairs. S is
+TSIGN the term from which A~ is the tail part of the argument list if
+S is an AC-operator otherwise S = ().
+Then C' is C augmented by the set of those critical pairs of (a1,a2) and
+(a1,a3) which can be constructed by unifying any subterm of a term in A~
+with LHS(a2) or LHS(a3) and which cannot be resolved using R as a TRS
+modulo AC. If a3 = () then critical pairs with a3 will not be created.
+!!! uses mgci]
+
+(1)  [Initialize.] if PNTRC then STOUTL("AACPPS");
+     L:=A~; C':=C.
+(2)  [Trivial case.] if L = () then return.
+(3)  [Current subterm.] t:=FIRST(L); k:=TKIND(t); S':=TSIGN(t);
+     if S' # S then [Unprotected position.]
+      { if TUSTAT(t) # DAC then S':= ();
+       [Constant or variable.] if k = DVS \/ k = DCS then goto 5;
+       [Non-atomic or external term.] C':=ACPIN1(a1,L,a2,R,C');
+       if a3 # () then C':=ACPIN1(a1,L,a3,R,C')
+      }.
+(4)  [Inner recursion.] if k = DOS then
+      C':=ACPPS1(a1,OARGLST(t),a2,a3,R,C',S').
+(5)  [Outer recursion.] L:=RED(L); goto 2 ||
+ 
+                    C':=ACPINT(a1,A~,a2,R,C)
+[Axioms, critical pairs at internal position (AC).
+a1 and a2 are axioms.  A~ is a tail part of an argument list of a 
+subterm of the left-hand side of a1. R is a list of axioms. C is a list 
+of critical pairs. 
+Then C' is C augmented by the set of those critical pairs of (a1,a2) 
+which can be constructed by unifying the first term in A~ with LHS(a2) 
+and which cannot be resolved using R as a TRS modulo AC.]
+     safe n1,l1,v1,r1,b,n2,l2,v2,r2,k'.
+(1)  [Initialize.] if PNTRC then STOUTL("ACPINT"); C':=C;
+     ADIS(a1; n1,l1,v1,r1,b); ADIS(a2; n2,l2,v2,r2,b); l*:=FIRST(A~).
+(2)  [Unify.] UC:=UC+1; UTI:=UTI-CLOCK(); 
+     M:=TLMGUE(LIST1(l*),LIST1(l2)); 
+     UTI:=UTI+CLOCK(); if M = () then return.
+(3)  [Create critical pairs.] while M # () do
+      {[Apply unifyer.]  ADV(M; m,M); SBAPPL(m);
+[ [Statistcs.] UNIFC:=UNIFC+1; ]
+       [Copy l1[l*<-r2]m and r1m.] FIRST(A~):=r2; [TKIND(l1) = DOS!]
+       TFCVS1(l1,(),(); c1,V0,V1); r':=TSFS(r1); k':=TKIND(r'); 
+       if k' = DVS then 
+        { c2 := ILPASS(r',V0,V1); if c2 = () then c2:=TCONS((),r') }
+       else if k' = DCS \/ k' = DXT then c2:=r' 
+       else TFCVS1(r',V0,V1; c2,V2,V3); 
+       [Undo unifyer.] SBDAPP(m); FIRST(A~):=l*;
+       [Trace.] if CPTRC > 1 then CPPTRC(c1,c2,a1,a2,l*,m);
+       [Test for confluence.] if TTO(c1,c2) # 0 then
+       { c*1:=TNORM(c1,R); 
+         if k' = DOS \/ k' =DXT then c*2:=TNORM(c2,R) else c*2:=c2;
+         [Add critical pair.] if TTO(c*1,c*2) # 0 then
+          { c':=CPCONS(c*1,c*2,n1,n2,ESS); [CPW8(c'):=STRATV(c');]
+            C':=COMP(c',C'); [Trace.] if CPTRC > 0 then CPTRC1(c')
+      }}  } ||
+
+                    C':=ACPIN1(a1,A~,a2,R,C)
+[Axioms, critical pairs at internal position (AC).
+a1 and a2 are axioms.  A~ is a tail part of an argument list of a
+subterm of the left-hand side of a1. R is a list of axioms. C is a list
+of critical pairs.
+Then C' is C augmented by the set of those critical pairs of (a1,a2)
+which can be constructed by unifying the first term in A~ with LHS(a2)
+and which cannot be resolved using R as a TRS modulo AC.
+!!! uses mgci.]
+     safe n1,l1,v1,r1,b1,b2,n2,l2,v2,r2,k'.
+(1)  [Initialize.] if PNTRC then STOUTL("ACPINT"); C':=C;
+     ADIS(a1; n1,l1,v1,r1,b1); ADIS(a2; n2,l2,v2,r2,b2); l*:=FIRST(A~).
+(2)  [Unify.] UC:=UC+1; UTI:=UTI-CLOCK();
+     M0:=TLMGUE(LIST1(l*),LIST1(l2)); 
+     UTI:=UTI+CLOCK(); if M0 = () then return;
+     if RED(M0) # () /\ ( b1 \/ ~INTMEM(l*,AGET(a1,DST)) )
+            then [l* non-atomic.] TCSIE(l*,M0; L*,M) else M:=M0.
+(3)  [Create critical pairs.] while M # () do
+      {[Apply unifyer.]  ADV(M; m,M); SBAPPL(m);
+[ [Statistcs.] UNIFC:=UNIFC+1; ]
+       [Copy l1[l*<-r2]m and r1m.] FIRST(A~):=r2; [TKIND(l1) = DOS!]
+       TFCVS1(l1,(),(); c1,V0,V1); r':=TSFS(r1); k':=TKIND(r');
+       if k' = DVS then
+        { c2 := ILPASS(r',V0,V1); if c2 = () then c2:=TCONS((),r') }
+       else if k' = DCS \/ k' = DXT then c2:=r'
+       else TFCVS1(r',V0,V1; c2,V2,V3);
+       [Undo unifyer.] SBDAPP(m); FIRST(A~):=l*;
+       [Trace.] if CPTRC > 1 then CPPTRC(c1,c2,a1,a2,l*,m);
+       [Test for confluence.] if TTO(c1,c2) # 0 then
+       { c*1:=TNORM(c1,R);
+         if k' = DOS \/ k' =DXT then c*2:=TNORM(c2,R) else c*2:=c2;
+         [Add critical pair.] if TTO(c*1,c*2) # 0 then
+          { c':=CPCONS(c*1,c*2,n1,n2,ESS); [CPW8(c'):=STRATV(c');]
+            C':=COMP(c',C'); [Trace.] if CPTRC > 0 then CPTRC1(c')
+      }}  } ||
+
+                    C':=ACPTOP(a1,a2,R,C)
+[Axioms, critical pairs at top position (AC).
+a1 and a2 are axioms. R is a list of axioms. C is a list of critical 
+pairs.
+Then C' is C union the set of those critical pairs of a1 and a2 which 
+are constructed by unifying the left-hand sides of a1 and a2 and which
+cannot be resolved using R as a TRS modulo AC.]
+     safe n1,l1,v1,r1,r',b,n2,l2,v2,r2,r'',k',k''.
+(1)  [Initialize.]if PNTRC then STOUTL("ACPTOP"); C':=C;
+     ADIS(a1; n1,l1,v1,r1,b); ADIS(a2; n2,l2,v2,r2,b).
+(2)  [Unify.] UC:=UC+1; UTI:=UTI-CLOCK(); 
+     M:=TLMGUE(LIST1(l1),LIST1(l2));
+     UTI:=UTI+CLOCK(); if M = () then return.
+(3)  [Create critical pairs.] while M # () do
+      {[Apply unifyer.]  ADV(M; m,M); SBAPPL(m);
+[ [Statistcs.] UNIFC:=UNIFC+1; ]
+       [Copy r2m and r1m.] V0:=(); V1:=(); r':=TSFS(r1); k':=TKIND(r');
+       if k' = DCS then c1:=r' else if k' = DVS 
+            then { c1:=TCONS((),r'); V0:=(r'); V1:=(c1) }
+            else TFCVS1(r',(),(); c1,V0,V1);
+       r'':=TSFS(r2); k'':=TKIND(r'');
+       if k'' = DCS  \/ k'' = DXT then c2:=r'' else if k'' = DVS then
+        { c2 := ILPASS(r'',V0,V1); if c2 = () then c2:=TCONS((),r'') }
+       else TFCVS1(r'',V0,V1; c2,V2,V3); [Undo unifyer.] SBDAPP(m);
+       [Trace.] if CPTRC > 1 then CPPTRC(c1,c2,a1,a2,l1,m);
+       [Confluence test.] if TTO(c1,c2) # 0 then
+       { if k' = DOS \/ k' = DXT then c*1:=TNORM(c1,R) else c*1:=c1; 
+         if k'' = DOS \/ k'' =DXT then c*2:=TNORM(c2,R) else c*2:=c2;
+         [Add critical pair.] if TTO(c*1,c*2) # 0 then
+          { c':=CPCONS(c*1,c*2,n1,n2,ESS); [CPW8(c'):=STRATV(c');]
+            C':=COMP(c',C'); [Trace.] if CPTRC > 0 then CPTRC1(c')
+      }}  } ||
+
+                    C':=ACPTP1(a1,a2,R,C)
+[Axioms, critical pairs at top position (AC).
+a1 and a2 are axioms. R is a list of axioms. C is a list of critical
+pairs.
+Then C' is C union the set of those critical pairs of a1 and a2 which
+are constructed by unifying the left-hand sides of a1 and a2 and which
+cannot be resolved using R as a TRS modulo AC.
+!!! uses mgci.]
+     safe n1,l1,v1,r1,r',b,n2,l2,v2,r2,r'',k',k''.
+(1)  [Initialize.]if PNTRC then STOUTL("ACPTOP"); C':=C;
+     ADIS(a1; n1,l1,v1,r1,b); ADIS(a2; n2,l2,v2,r2,b).
+(2)  [Unify.] UC:=UC+1; UTI:=UTI-CLOCK();
+     M0:=TLMGUE(LIST1(l1),LIST1(l2));
+     UTI:=UTI+CLOCK(); if M0 = () then return;
+     if RED(M0) # () then [l1 non-atomic.] TCSIE(l1,M0; L*,M) 
+                     else M:=M0.
+(3)  [Create critical pairs.] while M # () do
+      {[Apply unifyer.]  ADV(M; m,M); SBAPPL(m);
+[ [Statistcs.] UNIFC:=UNIFC+1; ]
+       [Copy r2m and r1m.] V0:=(); V1:=(); r':=TSFS(r1); k':=TKIND(r');
+       if k' = DCS then c1:=r' else if k' = DVS
+            then { c1:=TCONS((),r'); V0:=(r'); V1:=(c1) }
+            else TFCVS1(r',(),(); c1,V0,V1);
+       r'':=TSFS(r2); k'':=TKIND(r'');
+       if k'' = DCS  \/ k'' = DXT then c2:=r'' else if k'' = DVS then
+        { c2 := ILPASS(r'',V0,V1); if c2 = () then c2:=TCONS((),r'') }
+       else TFCVS1(r'',V0,V1; c2,V2,V3); [Undo unifyer.] SBDAPP(m);
+       [Trace.] if CPTRC > 1 then CPPTRC(c1,c2,a1,a2,l1,m);
+       [Confluence test.] if TTO(c1,c2) # 0 then
+       { if k' = DOS \/ k' = DXT then c*1:=TNORM(c1,R) else c*1:=c1;
+         if k'' = DOS \/ k'' =DXT then c*2:=TNORM(c2,R) else c*2:=c2;
+         [Add critical pair.] if TTO(c*1,c*2) # 0 then
+          { c':=CPCONS(c*1,c*2,n1,n2,ESS); [CPW8(c'):=STRATV(c');]
+            C':=COMP(c',C'); [Trace.] if CPTRC > 0 then CPTRC1(c')
+      }}  } ||
+
+[----------------------------------------------------------------------
+       Section 3  Output routines & trace routines
+----------------------------------------------------------------------]
+
+                    CPPTRC(c1,c2,a1,a2,t,m)
+[Critical pair proposal trace (priority 2).
+c1 and c2 are terms, a1 and a2 are axioms, t is a term
+and m is a substitution.]
+
+(1)  [Initialize.] STOUTL("Proposing a new critical pair ...").
+(2)  [Unifyer.] STOUTL("  using the unifying substitution:");
+     SBWRT(m).
+(3)  [Pair.] STROUT("  Pair:       "); TDIWRT(c1,(); N); STROUT("    ");
+     TDIWRT(c2,N; N); WRITE; STROUT("  from axioms "); 
+     RRWRT(ALHS(a1),ARHS(a1)); WRITE; STROUT("  and         "); 
+     RRWRT(ALHS(a2),ARHS(a2)); WRITE; STROUT("  at position "); 
+     TWRT(t); CWRITE('.'); WRITE ||
+
+                    CPTRC0(n1,n2)
+[Critical pair trace (priority 1).  n1 and n2 are nunbers of axioms.]
+
+(1) STROUT("Computing critical pairs between axioms no. ");
+    GWRITE(n1); STROUT(" and "); GWRITE(n2); STOUTL(" ...") ||
+
+                    CPTRC1(c')
+[Critical pair trace (priority 1).  c' is a critical pair.]
+
+(1)  STOUTL("Unresolved critical pair: "); CPWRT(c'); WRITE ||

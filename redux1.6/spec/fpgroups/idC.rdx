@@ -1,0 +1,30 @@
+DATATYPE ID;
+SORT
+	ID;
+CONST
+	0: ID;
+VAR
+	A, B, C, CAUX: ID;
+OPERATOR
+	a:  -> ID;
+	b:  -> ID;
+	c:  -> ID;
+	+: ID, ID -> ID;
+	I: ID -> ID;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+ [1] +(0,A) == A;
+ [2] +(I(A),A) == 0;
+ [3] +(+(A,B),C) == +(A,+(B,C));
+ [9] +(I(A),+(A,C)) == C;
+[12] +(A,0) == A;
+[13] +(A,I(A)) == 0;
+[14] I(0) == 0;
+[15] I(I(A)) == A;
+[16] +(A,+(I(A),C)) == C;
+[23] I(+(A,B)) == +(I(B),I(A));
+[47] c() == 0;
+[51] a() == 0;
+[53] b() == 0;
+END

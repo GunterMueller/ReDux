@@ -1,0 +1,74 @@
+\section{The \protect\redux\  Header Files} \label{ap:hd}
+
+The header files provide macros for access functions to substructures of
+most data types used in \redux\ and all global \redux-variables. 
+The macro techniques used are described in {\em The ReDuX System
+Documentation}.
+
+
+\subsection*{Global Variables: globs.h}
+\label{Ap:gv}
+The global, safe variables of \redux\ are defined in the header file
+{\tt globs.h}.
+\verbatiminput{incl/globs.h}
+
+\subsection*{tp.h}
+
+The header file {\tt tp.h} is the standard header file describing the data
+structures  {\em term}, {\em operator}, {\em axiom}, {\em data type},
+{\em critical pair}, {\em substitution}, {\em assignment list}
+and {\em variable dictionary}.
+\verbatiminput{incl/tp.h}
+
+\subsection*{parse.h}
+
+The header file {\tt parse.h} contains additional data types used in the
+new ReDuX parser.
+\verbatiminput{incl/parse.h}
+
+\subsection*{it.h}
+
+The header file {\tt it.h} contains additional data types used in the
+interpreter.
+\verbatiminput{incl/it.h}
+
+\subsection*{to.h}
+
+The header file {\tt to.h} contains additional data types
+needed for the polynomial interpretation orderings.
+\verbatiminput{incl/to.h}
+
+\subsection*{ic.h}
+
+The header file {\tt ic.h} contains additional data types used in the
+{\it ic}-subsystem only.
+It is based on the header file {\tt tp.h}
+\verbatiminput{incl/ic.h}
+
+\subsection*{rd.h}
+
+The header file {\tt rd.h} contains additional macros and global variables
+used in the {\it rd}-subsystem only.
+\verbatiminput{incl/rd.h}
+
+subsection*{ev.h}
+
+The header file {\tt ev.h} contains additional macros and global variables
+used in the {\it ev}-subsystem only.
+\verbatiminput{incl/ev.h}
+
+\subsection*{evmenu.h}
+
+The header file {\tt evmenu.h} contains additional macros and global variables
+used in the main program of the {\it ev}-subsystem only.
+It provedes symbolic names for menu choices.
+\verbatiminput{incl/evmenu.h}
+
+\subsection*{uc.h}
+
+The header file {\tt uc.h} contains additional macros and global variables
+used in the {\it uc}-subsystem only.
+\verbatiminput{incl/uc.h}
+
+
+

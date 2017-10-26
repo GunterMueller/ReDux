@@ -1,0 +1,472 @@
+From goebel@helios.informatik.uni-tuebingen.de Wed Oct 27 16:00:38 1993
+Return-Path: <goebel@helios.informatik.uni-tuebingen.de>
+Received: from macon.informatik.uni-tuebingen.de by orgel.informatik.uni-tuebingen.de (4.1/SMI-4.1)
+	id AA08810; Wed, 27 Oct 93 16:00:37 +0100
+Received: from helios.Informatik.Uni-Tuebingen.De by macon.informatik.uni-tuebingen.de (AIX 3.2/UCB 5.64/4.03)
+          id AA15296; Wed, 27 Oct 1993 16:00:09 +0100
+Received: by helios.informatik.uni-tuebingen.de (4.1/SMI-4.1)
+	id AA04940; Wed, 27 Oct 93 16:01:25 +0100
+Date: Wed, 27 Oct 93 16:01:25 +0100
+From: goebel@helios.informatik.uni-tuebingen.de (Manfred Goebel)
+Message-Id: <9310271501.AA04940@helios.informatik.uni-tuebingen.de>
+To: buendgen@informatik.uni-tuebingen.de
+Status: RO
+
+Hallo Reinhard, ich habe die Jim Christian Datentypen mal eingegeben.
+
+type JIMPi --> Das i steht fuer den paramemter n im paper.
+
+Manfred
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP1. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   I1(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(x,I1(x))  == E1
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP2. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(x,I1(x))  == E1
+5)  f(x,I2(x))  == E2
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP4. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   E3()-NAT.
+   E4()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT.
+   I3(NAT)-NAT.
+   I4(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(E3,x)     == x
+5)  f(E4,x)     == x
+6)  f(x,I1(x))  == E1
+7)  f(x,I2(x))  == E2
+8)  f(x,I3(x))  == E3
+9)  f(x,I4(x))  == E4
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP6. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   E3()-NAT.
+   E4()-NAT.
+   E5()-NAT.
+   E6()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT.
+   I3(NAT)-NAT.
+   I4(NAT)-NAT.
+   I5(NAT)-NAT.
+   I6(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(E3,x)     == x
+5)  f(E4,x)     == x
+6)  f(E5,x)     == x
+7)  f(E6,x)     == x
+8)  f(x,I1(x))  == E1
+9)  f(x,I2(x))  == E2
+10) f(x,I3(x))  == E3
+11) f(x,I4(x))  == E4
+12) f(x,I5(x))  == E5
+13) f(x,I6(x))  == E6
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP8. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   E3()-NAT.
+   E4()-NAT.
+   E5()-NAT.
+   E6()-NAT.
+   E7()-NAT.
+   E8()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT.
+   I3(NAT)-NAT.
+   I4(NAT)-NAT.
+   I5(NAT)-NAT.
+   I6(NAT)-NAT.
+   I7(NAT)-NAT.
+   I8(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(E3,x)     == x
+5)  f(E4,x)     == x
+6)  f(E5,x)     == x
+7)  f(E6,x)     == x
+8)  f(E7,x)     == x
+9)  f(E8,x)     == x
+10) f(x,I1(x))  == E1
+11) f(x,I2(x))  == E2
+12) f(x,I3(x))  == E3
+13) f(x,I4(x))  == E4
+14) f(x,I5(x))  == E5
+15) f(x,I6(x))  == E6
+16) f(x,I7(x))  == E7
+17) f(x,I8(x))  == E8
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP10. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   E3()-NAT.
+   E4()-NAT.
+   E5()-NAT.
+   E6()-NAT.
+   E7()-NAT.
+   E8()-NAT.
+   E9()-NAT.
+   E10()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT.
+   I3(NAT)-NAT.
+   I4(NAT)-NAT.
+   I5(NAT)-NAT.
+   I6(NAT)-NAT.
+   I7(NAT)-NAT.
+   I8(NAT)-NAT.
+   I9(NAT)-NAT.
+   I10(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(E3,x)     == x
+5)  f(E4,x)     == x
+6)  f(E5,x)     == x
+7)  f(E6,x)     == x
+8)  f(E7,x)     == x
+9)  f(E8,x)     == x
+10) f(E9,x)     == x
+11) f(E10,x)    == x
+12) f(x,I1(x))  == E1
+13) f(x,I2(x))  == E2
+14) f(x,I3(x))  == E3
+15) f(x,I4(x))  == E4
+16) f(x,I5(x))  == E5
+17) f(x,I6(x))  == E6
+18) f(x,I7(x))  == E7
+19) f(x,I8(x))  == E8
+20) f(x,I9(x))  == E9
+21) f(x,I10(x)) == E10
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP12.
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   E3()-NAT.
+   E4()-NAT.
+   E5()-NAT.
+   E6()-NAT.
+   E7()-NAT.
+   E8()-NAT.
+   E9()-NAT.
+   E10()-NAT.
+   E11()-NAT.
+   E12()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT.
+   I3(NAT)-NAT.
+   I4(NAT)-NAT.
+   I5(NAT)-NAT.
+   I6(NAT)-NAT.
+   I7(NAT)-NAT.
+   I8(NAT)-NAT.
+   I9(NAT)-NAT.
+   I10(NAT)-NAT.
+   I11(NAT)-NAT.
+   I12(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(E3,x)     == x
+5)  f(E4,x)     == x
+6)  f(E5,x)     == x
+7)  f(E6,x)     == x
+8)  f(E7,x)     == x
+9)  f(E8,x)     == x
+10) f(E9,x)     == x
+11) f(E10,x)    == x
+12) f(E11,x)    == x
+13) f(E12,x)    == x
+14) f(x,I1(x))  == E1
+15) f(x,I2(x))  == E2
+16) f(x,I3(x))  == E3
+17) f(x,I4(x))  == E4
+18) f(x,I5(x))  == E5
+19) f(x,I6(x))  == E6
+20) f(x,I7(x))  == E7
+21) f(x,I8(x))  == E8
+22) f(x,I9(x))  == E9
+23) f(x,I10(x)) == E10
+24) f(x,I11(x)) == E11
+25) f(x,I12(x)) == E12
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP16. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   E3()-NAT.
+   E4()-NAT.
+   E5()-NAT.
+   E6()-NAT.
+   E7()-NAT.
+   E8()-NAT.
+   E9()-NAT.
+   E10()-NAT.
+   E11()-NAT.
+   E12()-NAT.
+   E13()-NAT.
+   E14()-NAT.
+   E15()-NAT.
+   E16()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT.
+   I3(NAT)-NAT.
+   I4(NAT)-NAT.
+   I5(NAT)-NAT.
+   I6(NAT)-NAT.
+   I7(NAT)-NAT.
+   I8(NAT)-NAT.
+   I9(NAT)-NAT.
+   I10(NAT)-NAT.
+   I11(NAT)-NAT.
+   I12(NAT)-NAT.
+   I13(NAT)-NAT.
+   I14(NAT)-NAT.
+   I15(NAT)-NAT.
+   I16(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(E3,x)     == x
+5)  f(E4,x)     == x
+6)  f(E5,x)     == x
+7)  f(E6,x)     == x
+8)  f(E7,x)     == x
+9)  f(E8,x)     == x
+10) f(E9,x)     == x
+11) f(E10,x)    == x
+12) f(E11,x)    == x
+13) f(E12,x)    == x
+14) f(E13,x)    == x
+15) f(E14,x)    == x
+16) f(E15,x)    == x
+17) f(E16,x)    == x
+18) f(x,I1(x))  == E1
+19) f(x,I2(x))  == E2
+20) f(x,I3(x))  == E3
+21) f(x,I4(x))  == E4
+22) f(x,I5(x))  == E5
+23) f(x,I6(x))  == E6
+24) f(x,I7(x))  == E7
+25) f(x,I8(x))  == E8
+26) f(x,I9(x))  == E9
+27) f(x,I10(x)) == E10
+28) f(x,I11(x)) == E11
+29) f(x,I12(x)) == E12
+30) f(x,I13(x)) == E13
+31) f(x,I14(x)) == E14
+32) f(x,I15(x)) == E15
+33) f(x,I16(x)) == E16
+END
+
+--------------------------abschneiden------------------------------------------
+;
+TYPE JIMP24. 
+; AUTHOR Jim Christian
+; ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+VARS 
+   x,y,z-NAT
+OPS 
+   f(NAT,NAT)-NAT.
+   E1()-NAT.
+   E2()-NAT.
+   E3()-NAT.
+   E4()-NAT.
+   E5()-NAT.
+   E6()-NAT.
+   E7()-NAT.
+   E8()-NAT.
+   E9()-NAT.
+   E10()-NAT.
+   E11()-NAT.
+   E12()-NAT.
+   E13()-NAT.
+   E14()-NAT.
+   E15()-NAT.
+   E16()-NAT.
+   E17()-NAT.
+   E18()-NAT.
+   E19()-NAT.
+   E20()-NAT.
+   E21()-NAT.
+   E22()-NAT.
+   E23()-NAT.
+   E24()-NAT.
+   I1(NAT)-NAT.
+   I2(NAT)-NAT.
+   I3(NAT)-NAT.
+   I4(NAT)-NAT.
+   I5(NAT)-NAT.
+   I6(NAT)-NAT.
+   I7(NAT)-NAT.
+   I8(NAT)-NAT.
+   I9(NAT)-NAT.
+   I10(NAT)-NAT.
+   I11(NAT)-NAT.
+   I12(NAT)-NAT.
+   I13(NAT)-NAT.
+   I14(NAT)-NAT.
+   I15(NAT)-NAT.
+   I16(NAT)-NAT.
+   I17(NAT)-NAT.
+   I18(NAT)-NAT.
+   I19(NAT)-NAT.
+   I20(NAT)-NAT.
+   I21(NAT)-NAT.
+   I22(NAT)-NAT.
+   I23(NAT)-NAT.
+   I24(NAT)-NAT
+AXIOMS
+1)  f(f(x,y),z) == f(x,f(y,z))
+2)  f(E1,x)     == x
+3)  f(E2,x)     == x
+4)  f(E3,x)     == x
+5)  f(E4,x)     == x
+6)  f(E5,x)     == x
+7)  f(E6,x)     == x
+8)  f(E7,x)     == x
+9)  f(E8,x)     == x
+10) f(E9,x)     == x
+11) f(E10,x)    == x
+12) f(E11,x)    == x
+13) f(E12,x)    == x
+14) f(E13,x)    == x
+15) f(E14,x)    == x
+16) f(E15,x)    == x
+17) f(E16,x)    == x
+18) f(E17,x)    == x
+19) f(E18,x)    == x
+20) f(E19,x)    == x
+21) f(E20,x)    == x
+22) f(E21,x)    == x
+23) f(E22,x)    == x
+24) f(E23,x)    == x
+25) f(E24,x)    == x
+26) f(x,I1(x))  == E1
+27) f(x,I2(x))  == E2
+28) f(x,I3(x))  == E3
+29) f(x,I4(x))  == E4
+30) f(x,I5(x))  == E5
+31) f(x,I6(x))  == E6
+32) f(x,I7(x))  == E7
+33) f(x,I8(x))  == E8
+34) f(x,I9(x))  == E9
+35) f(x,I10(x)) == E10
+36) f(x,I11(x)) == E11
+37) f(x,I12(x)) == E12
+38) f(x,I13(x)) == E13
+39) f(x,I14(x)) == E14
+40) f(x,I15(x)) == E15
+41) f(x,I16(x)) == E16
+42) f(x,I17(x)) == E17
+43) f(x,I18(x)) == E18
+44) f(x,I19(x)) == E19
+45) f(x,I20(x)) == E20
+46) f(x,I21(x)) == E21
+47) f(x,I22(x)) == E22
+48) f(x,I23(x)) == E23
+49) f(x,I24(x)) == E24
+END
+
+--------------------------abschneiden------------------------------------------
+
+

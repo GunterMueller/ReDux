@@ -1,0 +1,26 @@
+DATATYPE NAT;
+SORT
+	NAT;
+CONST
+	0, 1: NAT;
+VAR
+	A, B, C, D, E: NAT;
+OPERATOR
+	+: NAT, NAT -> NAT;
+	GCD: NAT, NAT -> NAT;
+NOTATION
+	+, GCD: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(A,0)==A;
+[3] +(+(A,B),1)==+(1,+(A,B));
+[4] +(+(1,A),B)==+(1,+(A,B));
+[5] GCD(0,A)==A;
+[6] GCD(A,0)==A;
+[7] GCD(1,A)==1;
+[8] GCD(A,1)==1;
+[9] GCD(+(A,B),A)==GCD(A,B);
+[10] GCD(A,+(A,B))==GCD(A,B);
+[11] GCD(A,A)==A;
+END
+;This file is gcd.typ

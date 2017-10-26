@@ -1,0 +1,62 @@
+%% 
+DATATYPE HIERACHY;
+SORT
+	AGROUP, AMONOID, ARING, MMONOID;
+CONST
+	n3: ARING;
+	e3: ARING;
+VAR
+	v0, x0, y0, z0: AMONOID;
+	v1, x1, y1, z1: AGROUP;
+	v2, x2, y2, z2: MMONOID;
+	v3, x3, y3, z3: ARING;
+OPERATOR
+	n0:  -> AMONOID;
+	a0: AMONOID, AMONOID -> AMONOID;
+	n1:  -> AGROUP;
+	a1: AGROUP, AGROUP -> AGROUP;
+	i1: AGROUP -> AGROUP;
+	e2:  -> MMONOID;
+	m2: MMONOID, MMONOID -> MMONOID;
+	a3: ARING, ARING -> ARING;
+	i3: ARING -> ARING;
+	m3: ARING, ARING -> ARING;
+	c10: AGROUP -> AMONOID;
+	c31: ARING -> AGROUP;
+	c32: ARING -> MMONOID;
+NOTATION
+	a0, a1, i1, m2, a3, i3, m3, c10, c31, c32: FUNCTION;
+THEORY
+	a0, a1, m2, a3, m3: AC;
+AXIOM
+  [1] a0(n0,x0) == x0;
+
+  [2] a1(n1,x1) == x1;
+  [3] i1(n1)    == n1;
+  [4] i1(i1(x1)) == x1;
+  [5] a1(i1(x1),x1) == n1;
+  [6] i1(a1(x1,y1)) == a1(i1(x1),i1(y1));
+
+  [7] m2(e2,x2) == x2;
+
+  [8] a3(n3,x3) == x3;
+  [9] m3(n3,x3) == n3;
+ [10] m3(e3,x3) == x3;
+ [11] i3(n3) == n3;
+ [12] i3(i3(x3)) == x3;
+ [13] a3(i3(x3),x3) == n3;
+ [14] i3(a3(x3,y3)) == a3(i3(x3),i3(y3));
+ [15] m3(i3(x3),y3) == i3(m3(x3,y3));
+ [16] m3(x3,a3(y3,z3)) == a3(m3(x3,y3),m3(x3,z3));
+
+ [17] n0 == c10(n1);
+ [18] a0(c10(x1),c10(y1)) == c10(a1(x1,y1));
+
+ [19] n1 == c31(n3);
+ [20] a1(c31(x3),c31(y3)) == c31(a3(x3,y3));
+ [21] i1(c31(x3)) == c31(i3(x3));
+
+ [22] e2 == c32(e3);
+ [23] m2(c32(x3),c32(y3)) == c32(m3(x3,y3));
+  
+END

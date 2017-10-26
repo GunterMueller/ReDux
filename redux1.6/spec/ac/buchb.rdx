@@ -1,0 +1,34 @@
+DATATYPE BUCHB;
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1: KOEF;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, c, e: KOEF;
+	x, y, z: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+NOTATION
+	+, *, |, M, #, @: FUNCTION;
+THEORY
+	+, *, |, #, @: AC;
+AXIOM
+[1] M(0,x) == O;
+[2] #(M(a,x),M(b,x)) == M(+(a,b),x);
+[3] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+
+[4]#(p,O) == p;
+[5]@(p,O) == O;
+[6]@(p,M(1,I)) == p;
+[7]@(p,#(q,r)) == #(@(p,q),@(p,r));
+[8]|(x,I) == x;
+END
+; This file is buchb.typ 

@@ -1,0 +1,16 @@
+%% 
+DATATYPE DLATTICE;
+SORT
+	LTTC;
+VAR
+	x, X, Y, Z: LTTC;
+OPERATOR
+	U: LTTC, LTTC -> LTTC;
+	^: LTTC, LTTC -> LTTC;
+THEORY
+	U, ^: AC;
+AXIOM
+  [1] X ^ (X U Y) == X;
+  [2] X U (X ^ Y) == X;
+  [3] X U (Y ^ Z) == (X U Y) ^ (X U Z);
+END

@@ -1,0 +1,119 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICGNFD -- Ground normal forms - node Deletion 
+                                  algorithms for pruned top set trees
+   modulespecification: Algorithms to delete nodes from a pruned top
+                        set tree together with all node depending on
+                        the deleted nodes.
+   programmers        : Reinhard Buendgen, Hasko Eckhardt 
+   language           : aldes                                           
+   last change        : 24.10.88, 11.11.90 
+                        $Date: 1993/10/08 10:36:29 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.3 $
+   bugs               : non known
+   modules needed     : SAC2/low: fp, bs, lp, sy (low: complete);
+                        ReDuX/tp: dd, cy, wx     (tp : complete);
+                             /ic: gnfa
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+[--------------------------------------------------------------------  
+     section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+                    
+                    NPTSDL(n,G,D,D1,L2; G*,D*,D*1,L*)
+[Node of Pruned Top Set Tree, DeLete.
+ n is a node of the top set tree G, D is a list of the non-ground nodes
+ of the highest level (level k+1) of G; D1 is the list of nodes of level
+ k, which have not yet been expanded; L2= (L2 k+1, ..., L2 0), where the
+L2 i are lists of the unextendable nodes of level i.G*,D*,D*1 and L* are
+ G resp. D, L2 with the node n and dependent nodes deleted (-> NPTSDT).]
+
+(1)  [Initialize.] if PNTRC then STOUTL("NPTSDL"); G* := G;
+     L* := L2; D* := D; D*1 := D1; if NTSLAB(n) = () then return;
+     if DLTRC then { STROUT("deleted: "); NTSWRT(n) }; NTSLAB(n) := ();
+     if NTSFAT(n) = () then { G* := DELETE(n,G); return };
+     M := LIST1(n); N := LIST1(n); G* := G; ADV2(L*; l,l2,L').
+(2)  [Delete dependent nodes and collect their fathers.]
+     while M # () do 
+     { ADV(M; m,M); D' := NTSLCS(D*,m);
+       if D' # () then
+       { while D' # () do
+         { ADV(D'; d,D'); 
+           if DLTRC then { STROUT("deleted: "); NTSWRT(d) };
+           NTSLAB(d) := (); D* := DELETE(d,D*); m' := NTSFAT(d);
+           NTSSUC(m') := DELETE(d,NTSSUC(m')); if NTSSUC(m') = () then
+           { M := COMP(m',M); N := COMP(m',N) };
+           if NTSGRD(d) = UNEXT then l := DELETE(d,l)
+       } }
+       else { m' := NTSFAT(m);
+         NTSSUC(m') := DELETE(m,NTSSUC(m')); if NTSSUC(m') = () then
+         { M := COMP(m',M); N := COMP(m',N) }
+       }; D' := NTSLCS(D*1,m);
+       if D' # () then
+       { while D' # () do
+         { ADV(D'; d,D');
+           if DLTRC then { STROUT("deleted: "); NTSWRT(d) };
+           NTSLAB(d) := (); D*1 := DELETE(d,D*1); m' := NTSFAT(d);
+           NTSSUC(m') := DELETE(d,NTSSUC(m')); if NTSSUC(m') = () then
+           { M := COMP(m',M); N := COMP(m',N) };
+           if NTSGRD(d) = UNEXT then l2 := DELETE(d,l2)
+       } }
+       else { m' := NTSFAT(m);
+         NTSSUC(m') := DELETE(m,NTSSUC(m')); if NTSSUC(m') = () then
+         { M := COMP(m',M); N := COMP(m',N) }
+       }; L' := COMP(l2,L');
+       [Collect dependent unextendable nodes.]
+       SFIRST(L*,l); SRED(L*,L'); FINISH := FALSE;
+       while L' # () /\ ~FINISH do
+       { l := FIRST(L'); if l # () then 
+         { l' := FIRST(l);
+           if NTSLEV(l') <= NTSLEV(m) then FINISH := TRUE
+           else
+           { D' := NTSLCS(l,m); M := CCONC(D',M); N := CCONC(D',N);
+             while D' # () do
+             { ADV(D'; d,D'); l := DELETE(d,l) }
+         } }; SFIRST(L',l); L' := RED(L')
+     } }.
+(3)  [Delete next level of nodes.] while N # () do
+     { ADV(N; n',N); G' := NTSTDL(n',G*); G* := G' } ||
+
+                    NPTSDT(G,n,D,D1,L2; G*,D*,D*1,L*)
+[Node of pruned top set tree, delete (top level).
+G is a topset tree which is fully expanded up to level k and partially
+expanded up to level k + 1. n is a node of level k. D is the list of
+the nodes in G at level k+1; D is the list of nodes in level k, which
+have not yet been expanded. Then G* is G where n and all nodes in G
+depending on n are deleted. D* is the list of nodes in G* at level k+1.
+D*1 will be the list of nodes to be expanded.
+The label of all deleted nodes are marked with (). We say a node m
+depends on n if
+  - n is the only child of m or
+  - the label of n is a main subterm of the label of m or
+  - there exists a node p such that p depends on n and m depends on p.
+ 
+ L2 is the list of unextendable nodes.
+  L2 = (L2 k+1, ..., L2 0), where the L2 i are lists of the unextend-
+  able nodes of level i.                                          -HE-]
+
+(1)  [Initialize.] if PNTRC then STOUTL("NPTSDT");
+     G* := G; L* := L2; D* := D; D*1 := D1;
+     if NTSLAB(n) = () then return;
+     N:=LIST1(n); M:=LIST1(n); D':=D; L'':=L2; l := FIRST(L2).
+(2)  [Delete nodes in D which are dependent on n and collect their
+      fathers.] while M # () do
+     { ADV(M; m,M); D'' := NTSLCS(D',m);
+       while D'' # () do
+       { ADV(D''; d,D''); if DLTRC then {STROUT("del: "); NTSWRT(d)};
+         NTSLAB(d):=(); D':=DELETE(d,D'); if NTSGRD(d) = UNEXT then
+           l := DELETE(d,l);
+         m':=NTSFAT(d); NTSSUC(m'):=DELETE(d,NTSSUC(m'));
+         if NTSSUC(m') = () then { N:=COMP(m',N); M:=COMP(m',M) }
+     } }; D* := D'; SFIRST(L'',l).
+(3)  [Delete all other nodes which are dependent on n.] while N # () do
+     { ADV(N; n',N); NPTSDL(n',G*,D*,D*1,L''; G',D',D'',L');
+       G*:=G'; D* := D'; D*1 := D''; L'' := L'
+     }; L* := L'' ||

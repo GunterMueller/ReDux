@@ -1,0 +1,4 @@
+Table of contents files of all ALDES files in a directory like it.toc or 
+sac2.toc can be computed with
+    % fald <dir-name> |headers > new.toc
+

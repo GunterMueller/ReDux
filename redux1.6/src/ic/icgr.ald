@@ -1,0 +1,284 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICGR -- Ground Reducibility
+   modulespecification: algorithms to test inductively complete positions
+                        of a term.
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : 13.08.87, 19.7.88, 22.07.88 31.10.90 19.2.91
+                        safe in COVER was not effective unitl 19.2.91
+                        5.3.91: VARINT deleted, 8.3.91:
+                        Operators deleted from in Arg.List of TAPUWR
+                        Bug in COVER fixed (wrong treatment of constant
+                        depth) 15.3.91.
+                        UCTWR uses COVER based on [BK89]
+                        $Date: 1994/12/22 09:12:47 $
+                        by $Author: buendgen $
+   version            : 4, without labels                                  
+                        redesigned algorithm UCTWR                      
+                        new version of APUWR -> TAPUWR
+                        Formerly icgr2
+                        $Revision: 1.2.1.4 $
+   bugs               : none known 
+   restrictions       : - there must be at least 1 operator in the      
+                          datatype.                                     
+                         (else error in COVER)
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        redux/ax, redux/co, redux/tp, redux/tc
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+[In this module the following complex data structures are used:        
+
+An S-LIST is a list (x1, sx1, x2, sx2, ..., x sub n, sx sub n) where   
+         the x sub i are free variables and the sx sub i are terms not     
+         containing x sub i. The sx1, ... sx sub n have unique variable
+         representation. An S-LIST is used to describe which term
+         sequences a substitution can cover. All variables in the 
+         sx sub i have beeb consistently renamed away from {x1, ..., 
+         x sub n}.
+
+An SR-LIST is a list ((s1, r1), ...,(s sub n, r sub n)) where the  
+         s sub i are S-LISTs and the r sub i are rules.                
+]                                                                      
+                                                                       
+[--------------------------------------------------------------------  
+                                                                        
+   section 2   algorithms for export                                    
+                                                                        
+--------------------------------------------------------------------]
+ 
+ 
+                    S:=TAPUWR(t,R,C)                                    
+[Non-atomic term, all possible unifiers with rules. 
+t is a non-atomic term, R is a TRS and C is a list of constructors.
+Then S=((RHO sub 1, r sub 1),...(RHO sub n, r sub n)) is an SR-LIST 
+containing all rmgus RHO sub i between t and the left-hand side 
+of a rule r sub i in R s. th. the following holds:  
+ - if s in image(RHO sub i) then s in T(C,X).                        
+ - RHO sub i = rmgu(t,lhs(r sub i),V(lhs(r sub i))) where         
+   V(lhs(r sub i)) is the set var(t) without the set of variables x
+   where RHO sub i(x) = x and for all y, x in var(t), x is not in
+   var(rmgu(t,lhs(r sub i))(y)).]
+      safe R',b,LLB,r,l,r_,b1,V',v',A,b_,p,A*,a*.
+(1)  [Initialize.] R':=R; S:=(); TBVSLI(t; V,LLB); p:=t;
+     if PNTRC=1 then STOUTL("TAPUWR").
+(2)  [Trivial Case.] if R'=() then {if STRC=1 then MSTRC(t,S); return}.
+(3)  [Prepare rule.] ADV(R'; r,R'); l:=ALHS(r); r_:=ALLB(r); b:=TRUE;
+     if (LLB=FALSE) /\ (r_=FALSE) then b := FALSE;
+     [Unify l and t.] I*:=TNMGCI(t,l,b); if I* = () then goto 7;
+     [Restrict mgu on V.] V':=V; V~:=(); [Domain of rmgu.] D:=(); 
+     [Image of rmgu.] I:=(); [rmgu is valid if b1 = TRUE.] b1:=TRUE; 
+     while V' # () /\ b1 do
+     { ADV(V'; v',V'); A:=VARBIND(v');
+      [v' in range(mgu)?] if A # () then
+       if TOC(A,C) = FALSE then goto 7
+       else { D:=COMP(v',D); I:=COMP(A,I);
+             if r_ = FALSE then 
+             { TBVSLI(A; V_,b_); V~:=INTUNI(V~,INTINT(V,V_)) } 
+     }      }; V~1:=INTDIF(V~,D); D:=CCONC(V~1,D); I:=CCONC(V~1,I).
+(4)  [Build pseudo term from I to copy I with unique variable
+      representation.] P:=TCONS(I,p); TFCVS(P; P*,V*); A*:=OARGLST(P*).
+(5)  [Construct rmgu.] M:=(); while D # () do
+     { ADV(D; v*,D); 
+      if A*=() then STROUT("*** TAPUWR.5 cannot happen!") 
+      else { ADV(A*; a*,A*); M:=COMP2(v*,a*,M) }
+     }.
+(6)  [Construct SR-LIST.] S:=COMP(LIST2(M,r),S).
+(7)  [Ready for next rule.] UNDO(V); UNDO(ALHSV(r)); goto 2 ||
+ 
+                    RS:=IRPOS(t,R,C,G)                           
+[Inductively reducible position. 
+t is a non-atomic term, R is a set of rules, C is a set of operators 
+and constants and DT is the datatype; G is a (pruned) top set tree.
+If t is inductively reducible at its top position, then RS is the set 
+of rules in R by which all ground instances of t by normalized 
+substitutions are reducible at the top. Otherwise RS = ().] 
+     
+(1)  [Initialize.]  RS:=(); if PNTRC then STOUTL("IRPOS");
+     S:=TAPUWR(t,R,C).
+(2)  [Trivial case.] if S=() then return;
+     if CETRC=1 then { TWRT(t); WRITE }.
+(3)  [Reducibility test.] RS:=UCTWR(S,G) ||                      
+ 
+ 
+                    R*:=UCTWR(S,G)                             
+[Unifier completeness test with rules. 
+S is a non-empty SR-LIST (swr1,...,swr sub n). Each swr sub i is a
+list (S sub i, r sub i) where 
+S sub i = (x sub i1, sx sub i1,...,x sub ik, sx sub ik) with x sub ij 
+is a variable and sx sub ij is a term. G is a (pruned) top set tree.
+Then R* = () if the union of the substitutions described by the S sub i
+does not cover its universe. Otherwise R* is  a list of rules such that 
+r sub i is in R* if S sub i is needed to cover the universe of the 
+substitution set.]
+     [safe I', i, v.                        ]
+(1)  [Initialize.] R*:=(); if PNTRC=1 then STOUTL("UCTWR").
+(2)  [Triv. Case.] if S=() then return.
+(3)  [Extend S.]   SCWR(S; I,V); [ [TRC.] TLWRT(FIRST(FIRST(S))); ]
+     if V=() then { print"UCTWR.3: Warning: exceptional case in IC";
+                    R*:=LIST1(SECOND(FIRST(S))); return }.
+(4)  [Linearity check.] V*:=(); I':=I; while I' # () do
+     { ADV(I'; i,I'); T:=FIRST(i); V':=TLRNLV(T); V*:=CONC(V',V*) }.
+(5)  [Get tree in G with typ equal to typ of first term in I.]
+     N:=(); while V # () do
+     { ADV(V; v,V); N:=COMP(TSTGTS(G,TTYPE(v)),N) }; N:=INV(N).
+(6)  [Does I cover its universe?] COVER(I,V*,N; R*,C).
+(7)  [Counter example trace.] if CETRC # 0 /\ R* = () then MCETRC(I,C)||
+ 
+ 
+[--------------------------------------------------------------------- 
+ 
+   Section 3  auxiliary algorithms for internal use                    
+ 
+----------------------------------------------------------------------]
+ 
+ 
+                    t:=SASSOC(v,S)                                     
+[Substitution associate.                                               
+v is a variable, S is a list (x1, t1, ... , x sub n, t sub n)    
+then t= t sub i if i is the smallest index s. th. v = x sub i    
+otherwise t=().]
+     safe SASSOC.                                                       
+(1)  [Init.] S':=S; t:=().
+(2)  while S' # () do                                                  
+     { ADV(S'; x,S');
+      if v=x then { t:=FIRST(S'); return } else S':=RED(S')            
+     } ||                                                
+ 
+ 
+                    SCWR(S; S*,V)                                      
+[Complete substitution with rules.  S is a list (swr1,...,swr sub n) of
+substitutions with rules. Each swr sub i is a list (S sub il, r sub i)
+where each S sub i = (x sub i1, sx sub i1, ..., x sub ik, sx sub ik).
+Then V is a set of variables (v1,...,v sub m) occurring in the domains
+of the substitutions S sub i. Then S* is a list of the images of the   
+substitutions extended with regard to V with rules: S* = (scwr1,...,    
+scwr sub n) with scwr sub i = (S* sub i, r sub i) and S* sub i =   
+(sv sub i1,...,sv sub im) with sv sub il = v sub l if v sub l is not in
+S sub i.] 
+     safe S',x,V',v',t',s',s'1.                                     
+(1)  [Initialize.]  S':=S; S*:=(); V:=();
+     if PNTRC=1 then STOUTL("SCWR").
+(2)  [Collect variables.]  while S' # () do                            
+     {ADV(S'; s',S'); s'1:=FIRST(s');
+      while s'1 # () do                                                
+      { ADV (s'1; x,s'1); V:=INTUNI(LIST1(x),V); s'1:=RED(s'1) }         
+     }; S':=S.
+(3)  [For each s' in S'.] while S' # () do                            
+     { ADV(S'; s',S'); V':=V; S_*:=(); s'1:=FIRST(s');
+      [Iterate on V.] while V' # () do                                 
+      { ADV(V'; v',V'); [v' in s' ?] t':=SASSOC(v',s'1);
+       if t'=() then S_*:=COMP(v',S_*) else S_*:=COMP(t',S_*);
+      }; S_*:=INV(S_*); S*:=COMP(LIST2(S_*,SECOND(s')),S*) 
+     } ||                                                               
+ 
+                    V*:=TLRMV(T,V)
+[List of related terms, mark variables.
+T is a list of terms whose variables may be marked or free. Differnt
+terms in T may share common variables. V is a set of marked variables.
+Then V* is V union the variables occuring in T and the variables in T
+which do not occur in V and occur only once in T are marked with 1 all
+other variables in T are marked with 2. T and V are modified.]
+
+(1)  [Initialize.] T':=T; V*:=V.
+(2)  [Mark variables of each t in T.] while T' # () do
+     { ADV(T'; t,T'); k:=TKIND(t); if k = DVS then if VARBIND(t) = ()
+       then { VARBIND(t):=1; V*:=COMP(t,V*) } else VARBIND(t):=2;
+       if k = DOS then V*:=TLRMV(OARGLST(t),V*)
+     } ||
+
+                    V*:=TLRNLV(T)
+[List of related terms, non-linear variables.
+T is a list of free terms may share variables.
+Then V* is the set of (free) variables that occurs more than once in T.]
+
+(1)  [Initialize.] V*:=().
+(2)  [Mark varables.] V:=TLRMV(T,()).
+(3)  [Collect 1st non-linear variable.] while V # () do
+     { v:=FIRST(V); if VARBIND(v) = 2 then 
+                    { VARBIND(v):=(); V*:=V; V:=RED(V); goto 4 };
+       VARBIND(v):=(); V:=RED(V)
+     }; return.
+(4)  [Collect remaining variables.] V':=V*; while V # () do
+     { v:=FIRST(V); if VARBIND(v) = 2 then { RED(V'):=V; V':=V };
+       VARBIND(v):=(); V:=RED(V)
+     }; RED(V'):=() ||
+ 
+[-------------------------------------------------------------------   
+                                                                        
+   section 4  output algorithms                                         
+                                                                        
+--------------------------------------------------------------------]  
+ 
+ 
+                    WASTOP()                                           
+[Warning and stop.]
+(1)  WRITE.
+(2)  STOUTL(" *** Method failure in cover! "); 
+     STOUTL(" There are non-linear substitutions.").
+(3)  HALT||                                                            
+ 
+ 
+                    WCSD(d)                                            
+[Warning concerning substitution depth.]
+     safe C^.                                                                   
+(1)  WRITE; STOUTL(" *** Warning! ").
+(2)  STROUT("The depth of the deepest substitution is ");
+     GWRITE(d); CWRITE('.'); WRITE.
+(3)  STROUT("This is deeper or equal than ");
+     STOUTL("the depth of the current top set.").
+(4)  STOUTL("Continuation may demand a very expensive computation."). 
+(5)  STOUTL("do you still want to continue? [Y/N] *").
+(6)  READ; C^:=CREAD(); 
+     if C^ # 'Y' /\ C^ # 'y' /\ C^ # 'j' /\ C^ # 'J' then HALT||
+ 
+ 
+[--------------------------------------------------------------------- 
+ 
+   Section 4  trace messages                                            
+ 
+-----------------------------------------------------------------------]
+ 
+ 
+                    MCETRC(S,N) 
+[Message counter example trace.  
+S is a list of pairs where each pair consists of a list of terms and a 
+list of rules. N is a list of top set trees.] 
+     safe S',s,C^.
+(1)  [Write term lists in S] STOUTL("None of the following term lists"); 
+     S':=S; while S' # () do { ADV(S'; s,S'); TLWRT(FIRST(s)) };
+     STOUTL("s-matches"). 
+(2)  [Collect labels in N and write.] T:=(); N':=N; while N' # () do
+     { ADV(N'; n,N'); T:=COMP(NTSLAB(n),T) }; T:=INV(T); TLWRT(T); 
+     STOUTL("Ready? *"); READ; C^:=CREAD()||                       
+
+
+                    MFTRC(S) 
+[Message counter example trace cover failure.  
+S is a list of pairs where each pair consists of a list of terms and a 
+list of rules.] 
+     safe S',s,C^.
+(1)  STOUTL("The following term lists");
+     S':=S; while S' # () do                                           
+     { ADV(S'; s,S'); TLWRT(FIRST(s)) };
+     STOUTL("do not cover their universe.");
+     STOUTL("Ready? *"); READ; C^:=CREAD()||                       
+
+
+                    MSTRC(t,S)                                         
+[Message substitution trace.  
+Note that variables in substitution image have been renamed away from
+the names in the axiom.]                                           
+     safe S',s',s1,X,T,C^.
+(1)  N:=(); if S = () then STROUT("NO ");
+     STROUT("rmgus at "); TDIWRT(t,N; N); WRITE;
+     S':=S; while S' # () do                                           
+     {ADV(S'; s',S'); s1:=FIRST(s');
+      while s1 # () do                                                 
+      {ADV(s1; X,s1); ADV(s1; T,s1);
+       TDIWRT(X,N; N); STROUT("-->"); TDIWRT(T,N; N);WRITE;
+      }; [Write Axiom.] AXWRT(SECOND(s')); 
+     }; STOUTL("Ready? *"); READ; C^:=CREAD() ||                  

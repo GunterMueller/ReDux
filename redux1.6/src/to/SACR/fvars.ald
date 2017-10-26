@@ -1,0 +1,12 @@
+                     L:=FVARS(F) 
+[Formula variables. 
+F is a formula or term in prefix form.  
+L is the set of variables occurring in F.] 
+    const MINUS=21, EXP=25, NUM=26, VAR=27, NOTS=10. 
+    [global VARL. [removed 10.25.93 R.B.]]
+(1) [Decompose.] FDEC(F;F1,p,F2). 
+(2) [Basis] if p=NUM then {L:=(); return};  
+    if p=VAR then {L:=(F2); return}.    
+(3) [Recursion] if p=NOTS \/ p=MINUS\/ p>EXP then L:=FVARS(F1) else 
+    L:=USUN(FVARS(F1),FVARS(F2)) || 
+ 

@@ -1,0 +1,27 @@
+DATATYPE FIB;
+SORT
+	NAT, NPAIR;
+CONST
+	0: NAT;
+VAR
+	X, Y, N: NAT;
+	A: NPAIR;
+OPERATOR
+	S: NAT -> NAT;
+	+: NAT, NAT -> NAT;
+	FIB: NAT -> NAT;
+	G: NAT -> NPAIR;
+	PAIR: NAT, NAT -> NPAIR;
+	NP: NPAIR -> NPAIR;
+NOTATION
+	S, +, FIB, G, PAIR, NP: FUNCTION;
+AXIOM
+[1] +(0,X)==X;
+[2] +(S(X),Y)==S(+(X,Y));
+[3] FIB(0)==0;
+[4] FIB(S(0))==S(0);
+[5] FIB(S(S(X)))==+(FIB(S(X)),FIB(X));
+[6] NP(PAIR(X,Y))==PAIR(+(X,Y),X);
+[7] G(0)==PAIR(S(0),0);
+[8] G(S(X))==NP(G(X));
+END

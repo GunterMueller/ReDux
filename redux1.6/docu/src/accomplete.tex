@@ -1,0 +1,56 @@
+Figure~\ref{fi:accmpl}.
+\begin{figure}[ht]
+\begin{center}
+\fbox{
+\begin{minipage}{5.5in} %necessary if there is a footnote within the figure
+\begin{quote}
+\begin{center} ${\cal R} \leftarrow$ {\bf AC-COMPLETE}$({\cal E},\succ)$
+\end{center}
+[Completion procedure. \\
+$\cal E$ is a set of equations and $\succ$ is a terminating term ordering.
+Then ${\cal R}$ is a canonical term rewriting system with
+\( =_{\cal R} \; = \; =_{\cal E} \).]
+\begin{description}
+ \item[{(1) [Initialize.]}] \(  {\cal R} := \emptyset \).
+ \item[{(2) [Simplify.]}] {\bf while} the {\em simplify}-inference rule
+   applies {\bf do} \\
+  \( ({\cal E};{\cal R}) := Simplify(({\cal E};{\cal R})). \)
+ \item[{(3) [Delete.]}] {\bf while} the {\em delete}-inference rule
+   applies {\bf do} \\
+  \( ({\cal E};{\cal R}) := Delete(({\cal E};{\cal R})). \)
+ \item[{(4) [Stop?]}] {\bf if} \(  {\cal E} = \emptyset \) {\bf then return}
+      ${\cal R}$ and {\bf stop}.
+ \item[{(5) [Orient.]}] Let \( a \leftrightarrow b \in {\cal E} \) then
+      \( {\cal E} := {\cal E} \setminus \{ a \leftrightarrow b \} \); \\
+      {\bf if} \( a \succ b \) {\bf then} \(  \bgn l := a; r  := b \nd \) \\
+      {\bf elsif} \( b \succ a \) {\bf then} \(  \bgn l := b; r  := a \nd \) \\
+      {\bf else stop} with failure; \\
+      \( {\cal R} := {\cal R} \cup \{ l \rightarrow r \} \).
+ \item[{(6) [Extend.]}] 
+    \( {\cal R} := {\cal R} \cup \{ l \rightarrow r \} \; \cup \;
+    \) AC-extension of $l \rightarrow r$
+ \item[{(7) [Collapse.]}] {\bf while} the {\em collapse}-inference rule
+     applies {\bf do} \\
+    \( ({\cal E};{\cal R}) := Collapse(({\cal E};{\cal R})). \)
+ \item[{(8) [Subconnectedness criterion.]}] \null \\
+    \( {\cal E} := {\cal E} \setminus \{ \mbox{Equations originating from a
+    collapsed rule} \} \).
+ \item[{(9) [Compose.]}] {\bf while} the {\em compose}-inference rule
+   applies {\bf do} \\
+   \( ({\cal E};{\cal R}) := Compose(({\cal E};{\cal R})). \)
+ \item[{(10) [Deduce.]}] Compute all (generalized) $\cal R$-normalized
+      AC-critical pairs ${\cal P}$ of     $l \rightarrow r$ and rules
+    in $\cal R$. 
+ \item[{(11) [Subsumption test.]}] Delete pairs from $\cal P$ that are
+      subsumed by other pairs in $\cal P$.
+ \item[{(12) [Update $\cal E$.]}]
+        \( {\cal E} := {\cal E} \cup {\cal P} \)\footnote{Here we
+                                             identify pairs and equations.};
+     {\bf continue} with step 2. \hfill $\Box$
+\end{description}
+\end{quote}
+\end{minipage}
+}
+\end{center}
+\caption{Algorithm {\em AC-COMPLETE}} \label{fi:accmpl}
+\end{figure}

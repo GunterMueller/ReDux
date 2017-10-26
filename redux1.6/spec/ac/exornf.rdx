@@ -1,0 +1,24 @@
+DATATYPE BOOL;
+SORT
+	BOOL;
+CONST
+	0, 1: BOOL;
+VAR
+	x, X, Y, Z, X1, Y1, Z1: BOOL;
+OPERATOR
+	+: BOOL, BOOL -> BOOL;
+	*: BOOL, BOOL -> BOOL;
+	I: BOOL -> BOOL;
+NOTATION
+	+, *, I: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+[1] +(0,X)==X;
+[2] +(I(X),X)==0;
+[3] *(1,X)==X;
+[4] *(X,+(Y,Z))==+(*(X,Y),*(X,Z));
+[5] +(X,X)==0;
+[6] *(X,X)==X;
+END
+; This file is exornf.typ 

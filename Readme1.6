@@ -1,0 +1,51 @@
+ReDuX distribution:
+===================
+ This C based ReDuX distribution consists of 2 directories:
+     caldes3.7: the ALDES-C compiler (Version 3.7)
+     redux1.6:  the ReDuX System (Version 1.6)
+
+ To install ReDuX first install the ALDES-compiler (see caldes3.7/README) 
+ and then follow the installation directives for the ReDuX system
+ (see redux1.6/rinstall.dvi or redux1.6/README). 
+
+ General information:
+ The ALDES-C compiler produces a lot of warnings.  
+ Warnings No. 2 and 12 are harmless and need not alert you.
+ During the installation also some warnings no. 4 and no. 5 may occur. 
+ These warnings are harmless too.
+
+ The installation scripts have been tested on Sun4/10/Ultra (SunOS 4.1.3,
+ Solaris 2.5) and on PCs under Linux 2.x.
+ ReDuX has also been successfully installed on a IBM RS6000 (AIX),
+ on Sun3s, and on Solbourns (OS/MP) and on PCs under Linux. 
+ The ALDES compiler has also been installed (by hand) on DOS-machines.
+
+Getting ReDuX via ftp
+=====================
+On the ftp-server of the Wilhelm-Schickard-Institut
+(ftp.informatik.uni-tuebingen.de) ReDuX is stored in the directory
+"/pub/SR/ReDuX" which contains the files
+    README
+    caldes37.tgz
+    redux16.tgz
+
+After transferring these files to your machine, caldes37.tgz and redux16.tgz
+must first be decompressed using the gnu-tools gunzip or zcat and then
+unpack the tar-files caldes37.tar and redux16.tar:
+ % gunzip caldes37.tgz
+ % gunzip redux16.tgz
+ % cd  /usr/local              # go to installation directory,
+                               # /usr/local is the preferred one.
+                               # Assume caldes37.tar redux16.tar are 
+                               # in /tmp-install.
+ % tar xvf /tmp-install/caldes37.tar
+ % tar xvf /tmp-install/redux16.tar
+Now follow the installation guide lines in /usr/local/caldes3.7/README and
+/usr/local/redux1.6/rinstall.dvi or /usr/local/redux1.6/README.
+
+Note, even though /usr/local is the preferred installation directory, there
+is no problem installing ALDES and ReDuX at other places. You may however
+have to change some path names as indicated in the respective README files.
+There is also no problem to rename the ReDuX and ALDES directories
+it you update the path names as indicated in the README files.
+

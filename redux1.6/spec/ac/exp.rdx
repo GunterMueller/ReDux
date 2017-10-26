@@ -1,0 +1,36 @@
+%% 
+DATATYPE NAT;
+%% ORIGIN E. Paul (CAAP'84)
+%%        Proof by induction in equational theories with relations
+%%        between constructors
+%% DESCRIPTION Naturals with +, * and exponentation
+%% STATUS incomplete
+%%  so far no complete system found
+SORT
+	NAT;
+CONST
+	0, 1: NAT;
+VAR
+	a, b, c, d, e: NAT;
+OPERATOR
+	+: NAT, NAT -> NAT;
+	*: NAT, NAT -> NAT;
+	^: NAT, NAT -> NAT;
+NOTATION
+	+, *, ^: INFIX;
+THEORY
+	+, *: AC;
+AXIOM
+  [1] (0 + a) == a;
+  [2] (0 * a) == 0;
+  [3] (1 * a) == a;
+  [4] (a * (b + c)) == ((a * b) + (a * c));
+  [5] (a ^ 0) == 1;
+  [6] (a ^ 1) == a;
+  [7] (1 ^ a) == 1;
+  [8] (a ^ (b + c)) == ((a ^ b) * (a  ^ c));
+  [9] ((a *  b) ^ c) == ((a  ^ c) * (b ^ c));
+ [10] (a ^ (b * c)) == ((a ^ b) ^ c);
+END
+
+

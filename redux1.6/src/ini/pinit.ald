@@ -1,0 +1,23 @@
+[----------------------------------------------------------------------]
+[- This file contains initialization routines for the parser ----------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                    ITGLPR()
+[init global variables for parser.]
+(1) DOA:=SCONS("ASSOC"); PUT(DOA, KIND, GRSYM);
+    DOP:=SCONS("PREC"); PUT(DOP, KIND, GRSYM);
+    DLA:=SCONS("ALEFT"); PUT(DLA, KIND, GRSYM);
+    DRA:=SCONS("ARIGHT"); PUT(DRA, KIND, GRSYM);
+    DNA:=SCONS("ANONE"); PUT(DNA, KIND, GRSYM);
+    DFF:=SCONS("FUNC"); PUT(DFF, KIND, GRSYM);
+    DDF:=SCONS("DEFFIX"); PUT(DDF, KIND, GRSYM);
+    DBN:=SCONS("BRACKET"); PUT(DBN, KIND, GRSYM);
+    DAM:=SCONS("AMBIG"); PUT(DAM, KIND, GRSYM);
+    DBS:=((),DCS,DBN,(),(),DBN);
+    KBOW:=SCONS("KB-operator-weight");
+    KBOI:=SCONS("KB-operator-index") ||

@@ -1,0 +1,409 @@
+                    BEGIN4()
+[Begin 4.  BEGIN4 calls BEGIN3, then initializes the global
+variable NPFDS.]
+     safe BEGIN4.
+(1)  BEGIN3;  NPFDS:=10 ||
+                    IPCEVP(r,A;B,L)
+[Integral polynomial, choice of evaluation points.  A  is an r-variate
+integral polynomial, square-free in its main variable x, r>=1.  L is
+a list (l_1,...,l_{r-1}) of beta-integers, with L as small as
+possible in reverse lexicographic order with 0<1<-1<2<-2<... such that
+deg_x(A(x_1,...,x_{r-1},x))=deg_x(A(l_1,...,l_{r-1},x)), and A(l_1,...,
+l_{r-1},x) is the square-free univariate integral polynomial B.]
+[     safe e,r'.]
+(1)  [Initialize.]  r':=r-1;  A~:=A;  L:=().
+(2)  [Univariate.]  if r'=0 then { B:=A~;  return }.
+(3)  [Prepare to choose l_r'.]  l:=0;  ADV2(A~;e,a~,A_).
+(4)  [Evaluate a~ and A_ for x_r'=l.]  a:=IPEMV(r',a~,l);
+     if a=0 then go to  6;
+     if A_ # () then C:=IPEVAL(r'+1,A_,r',l) else C:=0;
+     if C=0 then
+     C:=();  C:=COMP2(e,a,C);  C':=IPDMV(r',C);  IPGCDC(r',C,C';D,E,F);
+     if PDEG(D) > 0 then go to  6.
+(5)  [Success.]  L:=COMP(l,L);  r':=r'-1;  A~:=C;  go to  2.
+(6)  [Try again.]  if l > 0 then l:=-l else l:=1-l;  go to  4||
+                    IPFAC(r,A;s,c,L)
+[Integral polynomial factorization.  A  is a non-zero integral
+polynomial in r variables, r>=1.  s=sign(A).  c is the integer
+content of A.  L is a list ((e_1,A_1),...,(e_k,A_k)), k>=0, where
+each e_i is a positive integer, the A_i 's are the distinct positive
+irreducible integral factors of A, and A=s*c*prod_{i=1}^{k} A_i^{e_i}.]
+[     safe e1,s*.]
+(1)  [r=1.]  if r=1 then { IUPFAC(A;s,c,L);  return }.
+(2)  [Compute sign, absolute value, content and primitive part.]
+     s:=IPSIGN(r,A);  A*:=IPABS(r,A);  IPCPP(r,A*;c*,A_).
+(3)  [Factor content.]  r':=r-1;  IPFAC(r',c*;s*,c,L*).
+(4)  [Compute square-free factorization of primitive part.]
+     if PDEG(A_)=0 then L_:=() else L_:=IPSF(r,A_).
+(5)  [Factor square-free factors and combine.]  L_:=INV(L_);  L:=();
+     while L_ # () do {  ADV(L_;P,L_);  FIRST2(P;e1,A1);
+     L1:=ISFPF(r,A1);  repeat { ADV(L1;A1,L1);
+     L:=COMP(LIST2(e1,A1),L) }  until L1=()  }.
+(6)  [Adjoin factors of content.]  L*:=INV(L*);  while L* # () do
+     { ADV(L*;P,L*);  FIRST2(P;e1,A1S);  A1:=LIST2(0,A1S);
+     L:=COMP(LIST2(e1,A1),L) } ||
+                    L':=IPFLC(r,M,I,A,L,D)
+[Integral polynomial factor list combine.  A  is a non-constant
+primitive r-variate integral polynomial, r>=1.  M is a positive 
+integer.  I is a list (d_1,...,d_{r-1}) of positive beta-digits.
+L is a list of monic factors of A  modulo the ideal J=(M, x_1^{d_1},...,
+x_{r-1}^{d_{r-1}}) such that if B is an integral factor
+of A, then H_{J}(B) is an associate of some product of elements
+of L.  D is either 0, or a characteristic set for the possible degrees
+of integral factors of A.  L' is a list of the primitive irreducible
+integral factors of A. ]
+[     safe d,i.]
+(1)  [Initialize.]  d:=1;  C:=A;  k:=LENGTH(L);  P:=PERMR(k);  
+     L_:=LPERM(L,P);  L':=();  r':=r-1.
+(2)  [Prepare polynomial.]  c:=PLDCF(C);  c*:=PTBCF(r',c);  c:=LIST2(
+     0,c);  C*:=IPPROD(r,c,C);  c_:=PTBCF(r,C*);  c*:=MIHOM(M,c*).
+(3)  [Done.]  if d > k/2 then { L':=COMP(C,L');  return };  L*:=L_;
+     S:=();  for i=1,...,d do { S:=COMP(L*,S);  L*:=RED(L*) }.
+(4)  [See if s is a factor.]  S*:=S;  a*:=c*;  d*:=0;  while S* # ()
+     do { ADV(S*;s,S*);  p:=FIRST(s);  d*:=d*+PDEG(p);  a*:=MIPROD(
+     M,a*,PTBCF(r,p)) };  a*:=SMFMI(M,a*);  if a*=0 /\ c_ # 0
+     then go to  5;  if (D=0 \/ IODD(IDP2(D,d*))=1) /\ (c_=0 \/ IREM(
+     c_,a*)=0) then {  S*:=S;  A*:=c;  while S* # () do { ADV(S*;s,
+     S*);  p:=FIRST(s);  A*:=MIPIPR(r,M,I,A*,p) };  A*:=SMFMIP(r,M,
+     A*);  IPQR(r,C*,A*;B*,R*);  if R*=0 then go to  6  }.
+(5)  [Advance to next set.]  S:=LEXNEX(S);  if S # () then go to  4;
+     d:=d+1;  go to  3.
+(6)  [Remove a factor.]  A*:=IPPP(r,A*);  L':=COMP(A*,L');  C:=IPQ(r,B*,
+     LIST2(0,PLDCF(A*)));  k:=k-d;  repeat {  ADV(S;s,S);  if s=L_
+     then L_:=RED(L_) else { x:=RED(s);  L_:=INV(L_);  s:=RED(s);  L_:=
+     INV(L_);  SRED(s,x) }  } until S=();  go to  2||
+                    a:=IPGFCB(r,A)
+[Integral polynomial Gelfond factor coefficient bound.  A  is an 
+integral polynomial in r variables, r>=1.  a=\deg_r(A)*2^h where 
+h=\lceil\sum_{i=1}^r \max(0,(2*\deg_i(A)-1)/2)\rceil.  a  is an
+integer.]
+[     safe h,n.]
+(1)  a:=IPSUMN(r,A);  V:=PDEGV(r,A);  h:=0;  repeat { ADV(V;n,V);
+     h:=h+MAX(0,2 * n-1) } until V=();  h:=(h+1)/2;  a:=IMP2(a,h) ||
+                    IPIQH(r,p,D,A_,B_,S_,T_,M,C;A,B)
+[Integral polynomial mod ideal quadratic Hensel lemma.  D is a list of
+positive beta-integers (d_1,...,d_{r-1}), r>=1.  A_, B_, S_ and T_
+belong to Z_p[x_1,...,x_{r-1},y]/(x_1^{d_1},...,x_{r-1}^{d_{r-1}}), with
+A_ monic, A_ *S_ +B_ *T_=1, deg_y(A_)>0 and p a prime beta-integer.  C 
+is an r-variate integral polynomial with A_*B_ congruent to C modulo 
+(p,x_1^{d_1},...,x_{r-1}^{d_{r-1}}).  M=p^j for some j>0.  A and B 
+belong to Z_M[x_1,...,x_{r-1},y]/(x_1^{d_1},...,x_{r-1}^{d_{r-1}}), A is
+monic, A and B are respectively congruent to A_ and B_ modulo
+(p,x_1^{d_1},...,x_{r-1}^{d_{r-1}}), deg(A)=deg(A_), and A*B is 
+congruent to C modulo (M,x_1^{d_1},...,x_{r-1}^{d_{r-1}}).]
+[     safe c.]
+(1)  [Initialize.]  q:=p;  A:=A_;  B:=B_;  S:=S_;  T:=T_;  
+     I:=PINV(0,1,r); if q=M then return.
+(2)  [Compute y,z.]  R:=MIPIPR(r,M,D,A,B);  R:=IPDIF(r,C,R);  U:=IPIQ(
+     r,R,q);  q*:=IPROD(q,q);  c:=ICOMP(q*,M);  if c > 0 then
+     { q~:=IQ(M,q);  A~:=MIPHOM(r,q~,A);  B~:=MIPHOM(r,q~,B);  S~:=
+     MIPHOM(r,q~,S);  T~:=MIPHOM(r,q~,T) } else { q~:=q;  A~:=A;
+     B~:=B;  S~:=S;  T~:=T };  U~:=MIPHOM(r,q~,U);
+     MIPISE(r,q~,D,A~,B~,S~,T~,U~;Y,Z).
+(3)  [Compute A*,B* and check for end.]  R:=IPIP(r,q,Z);  A*:=IPSUM(r,
+     A,R);  R:=IPIP(r,q,Y);  B*:=IPSUM(r,B,R);  if c >= 0 then { A:=A*;
+     B:=B*;  return }.
+(4)  [Compute Y1,Z1.]  R:=MIPIPR(r,q*,D,A*,S);  R':=MIPIPR(r,q*,D,B*,
+     T);  R:=MIPSUM(r,q*,R,R');  R:=MIPDIF(r,q*,R,I);
+     U1:=IPIQ(r,R,q);  MIPISE(r,q,D,A,B,S,T,U1;Y1,Z1).
+(5)  [Compute S*,T*.]  R:=IPIP(r,q,Y1);  S*:=MIPDIF(r,q*,S,R);  R:=
+     IPIP(r,q,Z1);  T*:=MIPDIF(r,q*,T,R).
+(6)  [Advance.]  q:=q*;  A:=A*;  B:=B*;  S:=S*;  T:=T*;  go to  2||
+                    L:=ISFPF(r,A)
+[Integral square-free polynomial factorization.  A  is a positive
+integral polynomial in r variables, r>=1, which with respect to its
+main variable is of positive degree, primitive, and square-free.  L is a
+list (A_1,...,A_k) of the distinct positive irreducible factors of A.]
+[     safe d,k,m,n,p,P,r,v.]
+(1)  [r=1.]  if r=1 then { L:=IUSFPF(A);  return }.
+(2)  [Evaluate to univariate polynomial, A*, and factor A*.]
+     IPCEVP(r,A;A*,T); A*:=IPABS(1,A*); A*:=IPPP(1,A*);  L*:=IUSFPF(A*).
+(3)  [A* irreducible.] if RED(L*) = () then { L:=LIST1(A);
+     return }.
+(4)  [Translate A to A' and find prime p not dividing discr(A*).]
+     T:=COMP(0,INV(T));  A':=IPTRAN(r,A,T);  P:=PRIME;  n:=PDEG(A*);
+     repeat {  if P=() then { print "PRIME list exhausted in ISFPF";
+     stop };  ADV(P;p,P);  B:=MPHOM(1,p,A*);  m:=PDEG(B);  if m=n
+     then { B':=MUPDER(p,B);  C:=MUPGCD(p,B,B');  k:=PDEG(C) }  }
+     until m=n /\ k=0.
+(5)  [Convert A* factors to monic factors modulo p.]  L':=();  repeat
+     { ADV(L*;A1S,L*);  A1P:=MPHOM(1,p,A1S);  A1P:=MPMON(1,p,A1P);
+     L':=COMP(A1P,L') } until L*=().
+(6)  [Compute a factor coefficient bound for a_'=a' * ldcf(A').]
+     a':=PLDCF(A');  A_':=IPPROD(r,A',LIST2(0,a'));  b:=IPGFCB(r,A_');
+     b:=IMP2(b,1);  M:=p;  while ICOMP(M,b) <= 0 do M:=IDPR(M,p).
+(7)  [Compute factor degree bounds.]  V:=PDEGV(r,A_');  D:=();
+     V:=RED(V);  repeat { ADV(V; v,V);  d:=v+1;  D:=COMP(d,D) }
+     until V=().
+(8)  [Lift modular factors.]  L:=MPIQHL(r,p,L',M,D,A').
+(9)  [Combine lifted factors.]  L':=IPFLC(r,M,D,A',L,0).
+(10)  [Translate a' factors to A factors.]  T':=();  repeat
+     { ADV(T;t,T);  T':=COMP(INEG(t),T') }  until T=();
+     T':=INV(T');
+     L:=();  repeat { ADV(L';A1P,L');  L:=COMP(IPTRAN(r,A1P,T'),L) }
+     until L'=() ||
+                    IUPFAC(A;s,c,L)
+[Integral univariate polynomial factorization.  A  is a non-zero
+integral univariate polynomial.  s=sign(A), c=cont(A).  L is a list
+((e_1,A_1),...,(e_k,A_k)), k>=0, where each e_i is a positive integer,
+e_1<=e_2<=...<=e_k, each A_i is an irreducible positive integral
+univariate polynomial, and A=s*c*prod_{i=1}^{k}A_i^{e_i}.]
+[     safe e1,s.]
+(1)  [Compute sign, content and primitive part.]
+     IPSCPP(1,A;s,c,A_).
+(2)  [Degree zero.] if PDEG(A) = 0 then { L:=();  return }.
+(3)  [Compute square-free factorization.] S:=IPSF(1,A_).
+(4)  [Factor square-free factors] S:=INV(S);  L:=();  repeat
+     {  ADV(S;P,S);  FIRST2(P;e1,A1);  L1:=IUSFPF(A1);  repeat
+     { ADV(L1;A1,L1);  L:=COMP(LIST2(e1,A1),L) } until L1 = ()  }
+     until S = () ||
+                    IUPFDS(A;p,F,C)
+[Integral univariate polynomial factor degree set.  A  is a non-zero
+square-free integral univariate polynomial.  C is the intersection 
+of the degree sets of factorizations over Z_p for as many as NPFDS 
+primes p (fewer only if SMPRM is exhausted or A  is proved irreducible).
+C is represented as a characteristic set.  p is the least examined prime
+in SMPRM which gave the smallest number of factors, and F is the 
+distinct degree factorization of A  over Z_p, unless A  is shown to be
+irreducible, in which case p=0, F=().]
+[     safe a,b,c,f,H,h,i,j,k,n,p,P,r,s.]
+(1)  [Initialize.]  p:=0;  P:=SMPRM;  n:=PDEG(A);  a:=PLDCF(A);  i:=0;
+     J:=LIST2(0,1); I:=CSUN(IMP2(1,n),1); n:=n+1; C:=IDIF(IMP2(1,n),1).
+(2)  [Try primes.]  while ~EQUAL(C,I) /\ i < NPFDS do {    if P=()
+     then { if p # 0 then return;
+     print "PRIME list exhausted in IUPFDS.";  stop };  ADV(P;r,P);
+     if IDREM(a,r) # 0 then {   B:=MPHOM(1,r,A);  B':=MUPDER(r,B);
+     if EQUAL(MUPGCD(r,B,B'),J) then {B':=MPMON(1,r,B); G:=MUPDDF(r,B');
+     H:=G;  L:=();  k:=0;  repeat { ADV(H;h,H);  FIRST2(h;f,b);  
+     c:=PDEG(b);  j:=c/f;  k:=k+j;  for s=1,...,j do L:=COMP(f,L) } 
+     until H=();  if k < n then { p:=r;  n:=k;  F:=G }; D:=CSFPAR(L);  
+     C:=CSINT(C,D);  i:=i+1  }   }    }.
+(3)  [Clean up.]  if EQUAL(C,I) then { p:=0;  F:=() } ||
+                    IUPQH(p,A_,B_,S_,T_,M,C;A,B)
+[Integral univariate polynomial quadratic Hensel lemma.  A_, B_, S_, 
+and T_ are univariate polynomials over Z_p, p a prime beta-integer, 
+with A_*S_+B_*T_=1, and deg(T_)<deg(A_).  C is a univariate integral
+polynomial with H_p(C)=A_*B_.  M=p^j for some j>0.  A  and B are 
+univariate polynomials over Z_M, with H_p(A)=A_, H_p(B)=B_, 
+ldcf(A)=ldcf(A_), deg(A)=deg(A_), and H_M(C)=A*B.]
+[     safe c.]
+(1)  [Initialize.]  q:=p;  A:=A_;  B:=B_;  S:=S_;  T:=T_;  I:=(0,1);
+     if q=M then return.
+(2)  [Compute y,z.]  R:=IPPROD(1,A,B);  R:=IPDIF(1,C,R); U:=IPIQ(1,R,q);
+     q*:=IPROD(q,q);  c:=ICOMP(q*,M);  if c > 0 then { q~:=IQ(M,
+     q);  A~:=MIPHOM(1,q~,A);  B~:=MIPHOM(1,q~,B);  S~:=MIPHOM(1,q~,S);
+     T~:=MIPHOM(1,q~,T) } else { q~:=q;  A~:=A;  B~:=B;  S~:=S;  T~:=T};
+     MIUPSE(q~,A~,B~,S~,T~,U;Y,Z).
+(3)  [Compute A*,B* and check for end.]  R:=IPIP(1,q,Z);  A*:=IPSUM(1,
+     A,R);  R:=IPIP(1,q,Y);  B*:=IPSUM(1,B,R);  if c >= 0 then { A:=A*;
+     B:=B*;  return }.
+(4)  [Compute Y1,Z1.]  R:=IPPROD(1,A*,S);  R':=IPPROD(1,B*,T);  
+     R:=IPSUM (1,R,R');  R:=IPDIF(1,R,I);  U1:=IPIQ(1,R,q);  
+     MIUPSE(q,A,B,S,T,U1;Y1,Z1).
+(5)  [Compute S*,T*.]  R:=IPIP(1,q,Y1);  S*:=MIPDIF(1,q*,S,R);  
+     R:=IPIP( 1,q,Z1);  T*:=MIPDIF(1,q*,T,R).
+(6)  [Advance.]  q:=q*;  A:=A*;  B:=B*;  S:=S*;  T:=T*;  go to  2||
+                    F':=IUPQHL(p,F,M,C)
+[Integral univariate polynomial quadratic Hensel lemma, list.  C is an
+integral univariate polynomial.  F is a list (f_1,...,f_r) of monic
+polynomials in Z_p[x] with H_p(C) similar to the product of the f_i,
+and gcd(f_i,f_j)=1 for 1<=i< j <= r, p a beta-prime not dividing
+ldcf(C).  M is a positive power of p.  F' is a list (f'_1,...,f'_r) of
+monic polynomials in Z_M[x] with H_M(C) similar to the product of the
+f'_i, H_p(f'_i)=f_i and deg(f'_i)=deg(f_i), for 1<=i<=r.]
+(1)  [Initialize.]  F':=();  F*:=F;  C':=MIPHOM(1,M,C);  B:=C'.
+(2)  [Lift factors.]  while RED(F*) # () do { ADV(F*;A_,F*);
+     C_:=MIPHOM(1,p,C');  B_:=MPQ(1,p,C_,A_);  MUPEGC(p,A_,B_;R,S_,T_);
+     IUPQH(p,A_,B_,S_,T_,M,C';A,B);  F':=COMP(A,F');  if RED(F*) # ()
+     then MIUPQR(M,C',A;C',R) };  MIUPQR(M,B,LIST2(0,PLDCF(B));Q,R);
+     F':=COMP(Q,F');  F':=INV(F') ||
+                    L:=IUSFPF(A)
+[Integral univariate square-free polynomial factorization.  A  is an
+integral univariate square-free polynomial which is positive, primitive
+and of positive degree.  L is a list (A_1,...,A_k) of the positive
+irreducible factors of A.]
+[     safe a,m1,n,n1,p.]
+(1)  [Compute distinct degree factorization f for suitable prime
+     p, and a factor degree set c.]  IUPFDS(A;p,F,C);  if p = 0
+     then { L:=LIST1(A); return }.
+(2)  [Factor distinct degree factors.]  G:=();  repeat
+    {  ADV(F;P,F);  FIRST2(P;n1,A1);  m1:=PDEG(A1);
+     if n1 = m1 then G:=COMP(A1,G) else { G1:=MUPFBL(p,A1);
+     G:=CONC(G1,G) }  } until F = ().
+(3)  [Compute coefficient bound.]  a:=PLDCF(A);  h:=IPSUMN(1,A);
+     n:=PDEG(A);  b:=IPROD(a,h);  b:=IMP2(b,n);  M:=p; 
+     while ICOMP(M,b) <= 0 do M:=IDPR(M,p).
+(4)  [Apply Hensel construction.]  G*:=IUPQHL(p,G,M,A).
+(5)  [Combine lifted factors.] L:=IPFLC(1,M,(),A,G*,C) ||
+                    M:=MCPMV(n,L)
+[Matrix of coefficients of polynomials, with respect to main variable.
+L is a list (L_1,...,L_k) of k>=1, non-zero polynomials with
+degrees less than n.  n is a positive beta-integer.  M is the matrix
+with m_{1i}+m_{2i}*x+...+m_{ni}*x^{n-1}=L_i for 1<=i<=k.]
+[     safe i,k,L*,M*.]
+(1)  L':=L;  M':=();  repeat { ADV(L';L*,L');  L'1:=DPFP(1,L*);
+     ADV(L'1;k,L'1);  for i=1,...,n-k-1 do L'1:=COMP(0,L'1);
+     M':=COMP(L'1,M') } until L'=();  M:=();  repeat {  M*:=M';
+     L':=();  repeat { L*:=FIRST(M*);  SFIRST(M*,RED(L*));
+     SRED(L*,L');  L':=L*;  M*:=RED(M*) } until M*=(); M:=COMP(L',M)  }
+     until FIRST(M')=() ||
+                    MIPISE(r,M,D,A,B,S,T,C;U,V)
+[Modular integral polynomial mod ideal, solution of equation.  M is a 
+positive integer.  D is a list (d_1,...,d_{r-1}) of positive 
+beta-integers, r>=1.  A,B,S,T and C belong to 
+Z_M[x_1,...,x_{r-1},y]/(x_1^{d_1}, ...,x_{r-1}^{d_{r-1}}), with 
+A  monic and of positive degree in y, and A*S+B*T=1.  U and V belong 
+to Z_M[x_1,...,x_{r-1},y] / (x_1^{d_1},...,x_{r-1}^{d_{r-1}}),
+A*U+B*V=C and deg_y(V)<deg_y(A).]
+(1)  W:=MIPIPR(r,M,D,T,C);  MMPIQR(r,M,D,W,A;Q,V); Y:=MIPIPR(r,M,D,S,C);
+     Z:=MIPIPR(r,M,D,B,Q);  U:=MIPSUM(r,M,Y,Z) ||
+                    MIUPSE(M,A,B,S,T,C;U,V)
+[Modular integral univariate polynomial, solution of equation.  M is a
+positive integer.  A, B, S, T and C belong to Z_M[x] with ldcf(A) a
+unit, deg(T)<deg(A) and A*S+B*T=1.  U and V are the unique elements
+of Z_M[x] such that A*U+B*V=C, with deg(V)<deg(A).]
+[     safe h,k,m,n.]
+(1)  n:=PDEG(C);  h:=PDEG(A);  k:=PDEG(B);  m:=MAX(n-h+1,k);
+     Y:=MIPPR(1,M,T,C);  MIUPQR(M,Y,A;Q,V);  J:=IUPTPR(m,S,C);
+     K:=IUPTPR(m,B,Q);  L:=IPSUM(1,J,K);  U:=MIPHOM(1,M,L) ||
+                    MPIQH(r,p,D,A_,B_,S_,T_,M,D',C;A,B)
+[Modular polynomial mod ideal, quadratic Hensel lemma.  p is a prime
+beta-integer. D=(d_1,...,d_{r-1}) and D'=(d'_1,...,d'_{r-1}) are lists 
+of positive beta-integers, r>=1.  A_, B_, S_, T_ belong to 
+Z_p[x_1,...,x_{r-1},y]/(x_1^{d_1},...,x_{r-1}^{d_{r-1}}), with A_ monic,
+A_*S_+B_*T_=1, and deg_y(A_)>0.  C is a r-variate integral polynomial, 
+with A_*B_ congruent to C modulo (p,x_1^{d_1},...,x_{r-1}^d_{r-1}).  
+M=p^j for some j>0.  A and B belong to 
+Z_M[x_1,...,x_{r-1},y]/(x_1^{d'_1},...,x_{r-1}^{d'_{r-1}}), with A  
+monic, A  and B are respectively congruent to A_ and B_ modulo 
+(p,x_1^{d_1},...,x_{r-1}^d_{r-1}), deg(A)=deg(A_), and A*B congruent 
+to C modulo (M,x_1^{d'_1},...,x_{r-1}^d'_{r-1}).]
+     safe d,i.
+(1)  [Initialize.]  D^:=D;  A:=A_;  B:=B_;  S:=S_; T:=T_; D'':=CINV(D');
+     i:=r-1;  C_:=MPHOM(r,p,C).
+(2)  [Lift in x_i.]  while i > 0 do { ADV(D'';d,D'');
+     MPIQHS(r,p,D^,A,B,S,T,i,d,C_;A*,B*,S*,T*,D*);  A:=A*;  B:=B*;
+     S:=S*;  T:=T*;  D^:=D*;  i:=i-1 }.
+(3)  [Lift to M.]  IPIQH(r,p,D',A*,B*,S,T,M,C;A,B) ||
+                    F':=MPIQHL(r,p,F,M,D,C)
+[Modular polynomial mod ideal quadratic Hensel lemma, list.  C is a
+r-variate integral polynomial.  F is a list (f_1,...,f_m) of monic
+univariate polynomials of positive degree over Z_p, with the product
+of the f_i(x) similar to C(0,...,0,x), and gcd(f_i,f_j)=1 for
+1<=i<j<=m, p a beta-prime not dividing ldcf(C).  M is a positive power
+of p. D is a list (d_1,...,d_{r-1}) of non-negative beta-integers.  F'
+is a list (f'_1,...,f'_m) of monic polynomials in Z_M[x_1,...,x_{r-1},
+x]/(x_1^{d_1},...,x_{r-1}^{d_{r-1}}), with C similar to the product of
+the f'_i, f'_i congruent to f_i, and deg_x(f'_i)=deg_x(f_i), for
+1<=i<=m.]
+(1)  [Initialize.]  F':=();  F*:=F;  C':=IPIHOM(r,D,C);  
+     C':=MIPHOM(r,M,C');  B:=C';  r':=r-1;  D':=();  for i=1,...,r' do 
+     D':=COMP(1,D').
+(2)  [Lift factors.]  while F* # () do { ADV(F*;A_,F*);  C_:=PUFP(r,C');
+     C_:=MIPHOM(1,p,C_);  B_:=MPQ(1,p,C_,A_);  MUPEGC(p,A_,B_;R,S_,T_); 
+     A_:=PINV(1,A_,r');  B_:=PINV(1,B_,r');  S_:=PINV(1,S_,r');  
+     T_:=PINV(1,T_,r');  MPIQH(r,p,D',A_,B_,S_,T_,M,D,C';A,B);
+     F':=COMP(A,F');  if F* # () then MMPIQR(r,M,D,C',A;C',R) };
+     F':=INV(F') ||
+                    MPIQHS(r,M,D,A_,B_,S_,T_,s,n,C;A,B,S,T,D')
+[Modular polynomial mod ideal, quadratic Hensel lemma, single variable.
+M is a positive integer.  D is a list of positive beta-integers 
+(d_1,...,d_{r-1}), r>=2.  A_, B_, S_, T_ belong to Z_M[x_1,...,
+x_{r-1},y]/(x_1^{d_1},...,x_{r-1}^{d_{r-1}}).  s is a positive integer
+less than r, and n is a non-negative beta-integer. C is an element of
+Z_M[x_1,...,x_{r-1},y].  A_ is monic.  A_*S_+B_*T_=1, A_*B_ is
+congruent to C, and deg_y(A_)>0.  A,B,S,T belong to 
+Z_M[x_1, ... ,x_{r-1},y]/(x_1^{d_1}, ... ,x_{s-1}^{d_{s-1}},
+x_s^n,x_{s+1}^{d_{s+1}}, ... ,x_{r-1}^{d_{r-1}}), with A*S+B*T=1, 
+deg_y(A)=deg_y(A_), A  monic, A*B congruent to C, and A  congruent 
+to A_, B congruent to B_, S congruent to S_, T congruent to T_.  
+D' is a list of non-negative beta-integers 
+(d_1,...,d_{s-1},n,d_{s+1},...,d_{r-1}).]
+[     safe d,D*,i.]
+(1)  [Initialize.]  A:=A_;  B:=B_;  S:=S_;  T:=T_;  I:=LIST2(0,1);  
+     I:= PINV(1,I,r-1);  D_:=D;  D*:=D;  D^:=();  for i=1,...,s-1 do 
+     { ADV(D*;d,D*);  D^:=COMP(d,D^) };  ADV(D*;d,D*);  D~:=COMP(n,D*);
+     D':=CINV(D^);  D':=CONC(D',D~).
+(2)  if d > n then { A:=IPIHOM(r,D',A);  B:=IPIHOM(r,D',B);  S:=
+     IPIHOM(r,D',S);  T:=IPIHOM(r,D',T) };  if d >= n then return.
+(3)  [Compute Y,Z.]  V:=MIPIPR(r,M,D',A,B);  V':=MIPDIF(r,M,C,V);  
+     U:=PDPV(r,V',s,d);  MIPISE(r,M,D_,A,B,S,T,U;Y,Z).
+(4)  [Compute A*,B* the liftings of A and B.]  Y_:=PDPV(r,Y,s,-d);
+     Z_:=PDPV(r,Z,s,-d);  A*:=MIPSUM(r,M,A,Z_);  B*:=MIPSUM(r,M,B,Y_).
+(5)  [Compute Y1,Z1.]  V:=MIPIPR(r,M,D',A*,S);  V':=MIPIPR(r,M,D',B*,T);
+     V'':=MIPSUM(r,M,V,V');  V:=MIPDIF(r,M,V'',I);  U1:=PDPV(r,V,s,d);
+     MIPISE(r,M,D_,A,B,S,T,U1;Y1,Z1).
+(6)  [Compute S*,T*.]  Y_:=PDPV(r,Y1,s,-d);  Z_:=PDPV(r,Z1,s,-d);
+     S*:=MIPDIF(r,M,S,Y_);  T*:=MIPDIF(r,M,T,Z_).
+(7)  [Update.]  d:=d+d;  D~:=COMP(d,D*);  D_:=CINV(D^); D_:=CONC(D_,D~);
+     A:=A*;  B:=B*;  S:=S*;  T:=T*;  go to  2||
+                    Q:=MUPBQP(p,A)
+[Modular univariate polynomial Berlekamp Q polynomials construction.
+p is a prime beta-integer.  A  is a univariate polynomial over Z_p
+with deg(A) >= 2.  Q is the list (Q_0,...,Q_{n-1}), where Q_i(x)=
+rem(x^{p*i},A(x)) and n=deg(A).]
+[     safe i,k,m,n.]
+(1)  [Initialize.]  k:=2;  while k <= p do k:=k+k; k:=k/2;  n:=FIRST(A);
+     A':=DPFP(1,A);  C:=(0,1); Q:=(C).
+(2)  [Compute Q_1.]  X:=LIST3(1,1,0);  B:=X;  m:=p-k;  repeat
+     {  B:=DMPPRD(1,p,B,B);  if FIRST(B) >= n then B:=DMUPNR(p,B,A');
+     k:=k/2;  if m >= k then { B:=DMPPRD(1,p,X,B);  if FIRST(B) >= n 
+     then B:=DMUPNR(p,B,A'); m:=m-k } } until k=1; Q:=COMP(PFDP(1,B),Q).
+(3)  [Compute Q_i.]  C:=B;  for i=2,...,n-1 do { C:=DMPPRD(1,p,B,C);  
+     if FIRST(C) >= n then C:=DMUPNR(p,C,A');  Q:=COMP(PFDP(1,C),Q) }; 
+     Q:=INV(Q) ||
+                    L:=MUPDDF(p,A)
+[Modular univariate polynomial distinct degree factorization.  p is
+a prime beta-integer.  A  is a monic square-free univariate polynomial
+over Z_p, with deg(A)>=2.  L is a list ((n_1,A_1), ... ,(n_k,A_k)) 
+where each n_i is a positive integer, n_1<n_2< ... <n_k, and A_i is the
+product of all irreducible monic factors of A of degree n_i.]
+[     safe b,e,i,k,n,Q',Q1.]
+(1)  [Initialize.]  Q:=MUPBQP(p,A);  B:=FIRST(RED(Q));  C:=A; L:=();  
+     k:=1;  X:=(1,1);  n:=FIRST(A).
+(2)  [Compute A_k.]  repeat {   W:=MPDIF(1,p,B,X);
+     D:=MUPGCD(p,W,C);  if FIRST(D) > 0 then { L1:=LIST2(k,D);
+     L:=COMP(L1,L);  C:=MPQ(1,p,C,D) };  k:=k+1;  e:=FIRST(C);
+     if e >= 2 * k then {  if k=2 then Q:=MCPMV(n,Q);
+     B:=DPFP(1,B);  ADV(B;e,B);  for i=1,...,n-e-1 do
+     B:=COMP(0,B);  B':=INV(B);  B:=();  Q':=Q;  repeat { ADV(Q';Q1,Q');
+     b:=VMPIP(0,p,B',Q1);  B:=COMP(b,B) } until Q'=();
+     e:=n-1;  while FIRST(B)=0 do { e:=e-1;  B:=RED(B) };
+     B:=COMP(e,B);  B:=PFDP(1,B)  } else {  if e > 0 then
+     { L1:=LIST2(e,C);  L:=COMP(L1,L) };  L:=INV(L);  return  }   }||
+                    L:=MUPFBL(p,A)
+[Modular univariate polynomial factorization Berlekamp algorithm.
+p is a prime beta-integer.  A  is a monic square-free univariate 
+polynomial, with deg(A)>=2. L is a list of all the monic irreducible
+factors of A  of positive degree.]
+[     safe a,i,j,n,Q',Q1.]
+(1)  [Construct the matrix Q-I.]  n:=FIRST(A);  Q:=MUPBQP(p,A);
+     Q:=MCPMV(n,Q);  Q':=Q;  for i=0,...,n-1 do { Q1:=FIRST(Q');
+     for j=1,...,i do Q1:=RED(Q1);  a:=FIRST(Q1);  a:=MDDIF(p,a,1);
+     SFIRST(Q1,a);  Q':=RED(Q') }.
+(2)  [Generate null space basis and convert to polynomials.]
+     B*:=MMDNSB(p,Q);  B:=();  repeat {  ADV(B*;B1,B*);  B1:=INV(B1);
+     i:=n-1;  while FIRST(B1)=0 do { i:=i-1;  B1:=RED(B1) };
+     B1:=COMP(i,B1);  B1:=PFDP(1,B1);  B:=COMP(B1,B)  } until B*=().
+(3)  [Factorize.]  L:=MUPFS(p,A,B,1) ||
+                    L:=MUPFS(p,A,B,d)
+[Modular univariate polynomial factorization, special.  p is a prime
+beta-integer. A  is a monic square-free polynomial in Z_p[x], deg(A)>=2.
+B is a list (B_1,...,B_r) of monic univariate polynomials over Z_p,
+which constitute a basis for the space of all polynomials C of degree
+less than deg(A) such that A  is a divisor of C^p-C.  Furthermore,
+B_1=1.  d is a positive beta-integer such that A  has no irreducible
+factor of degree less than d.  L is a list consisting of all the monic
+irreducible factors of A  of positive degree.]
+[     safe B',d,e,f,i,k,r,s.]
+(1)  [A irreducible.]  L:=(A);  r:=LENGTH(B);  if r=1
+     then return.
+(2)  [Factorize.]  B':=RED(B);  k:=1;  c:=(0,1);  repeat
+     {       L':=();  ADV(B';B1,B');  repeat {      ADV(L;A1,L);
+     e:=FIRST(A1);  if e > d then {     s:=0;  i:=0;  repeat
+     {    C:=MUPGCD(p,A1,B1);  f:=FIRST(C);  if f > 0 then
+     {   if f=e then s:=1 else {  L':=COMP(C,L');  A1:=MPQ(1,p,A1,C);
+     k:=k+1;  if k=r then { L':=COMP(A1,L');  L:=CONC(L',L);
+     return };  e:=FIRST(A1);  if e=d then s:=1  }   };
+     B1:=MPSUM(1,p,c,B1);  i:=i+1    } until i=p \/ s=1     };
+     L':=COMP(A1,L')      } until L=();  L:=L'       }||

@@ -1,0 +1,27 @@
+%% 
+DATATYPE RING;
+%%  AUTHOR Avenhaus, Denzinger
+%%  ORIGIN Distributing equational theorem proving, LNCS 690
+SORT
+	EL;
+CONST
+	0: EL;
+VAR
+	x, y, z: EL;
+OPERATOR
+	j: EL, EL -> EL;
+	f: EL, EL -> EL;
+	g: EL -> EL;
+NOTATION
+	j, f, g: FUNCTION;
+AXIOM
+[1]  j(0,x)      == x;
+[2]  j(x,0)      == x;
+[3]  j(x,g(x))   == 0;
+[4]  j(j(x,y),z) == j(x,j(y,z));
+[5]  f(f(x,y),z) == f(x,f(y,z));
+[6]  f(x,j(y,z)) == j(f(x,y),f(x,z));
+[7]  j(g(x),x)   == 0;
+[8]  j(x,y)      == j(y,x);
+[9]  f(j(x,y),z) == j(f(x,z),f(y,z));
+END

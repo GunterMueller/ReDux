@@ -1,0 +1,49 @@
+DATATYPE NLIST;
+SORT
+	BOOL, LIST, NAT;
+CONST
+	0: NAT;
+	nil: LIST;
+	f, t: BOOL;
+VAR
+	a, b, c, d: NAT;
+	L, N, M: LIST;
+	p, q: BOOL;
+OPERATOR
+	S: NAT -> NAT;
+	lt: NAT, NAT -> BOOL;
+	cons: NAT, LIST -> LIST;
+	enter: NAT, LIST -> LIST;
+	sort: LIST -> LIST;
+	if: BOOL, LIST, LIST -> LIST;
+	ordered: LIST -> BOOL;
+	imp: BOOL, BOOL -> BOOL;
+	and: BOOL, BOOL -> BOOL;
+	~: BOOL -> BOOL;
+NOTATION
+	S, lt, cons, enter, sort, ordered, imp, and, ~: FUNCTION;
+AXIOM
+[1] if(t,L,M) == L;
+[2] if(f,L,M) == M;
+
+[3] lt(a,0) == f;
+[4] lt(0,S(a)) == t;
+[5] lt(S(a),S(b)) == lt(a,b);
+
+[6] enter(a,nil) == cons(a,nil);
+[7] enter(a,cons(b,L)) == if(lt(a,b),cons(a,cons(b,L)),
+                                    cons(b,enter(a,L)));
+[8] sort(nil) == nil;
+[9] sort(cons(a,L)) == enter(a,sort(L));
+
+[10] imp(t,p) == p;
+[11] imp(f,p) == t;
+[12] and(t,p) == p;
+[13] and(f,p) == f;
+[14] ~(q) == imp(q,f);
+
+[15] ordered(nil) == t;
+[16] ordered(cons(a,nil)) == t;
+[17] ordered(cons(a,cons(b,L))) == and(~(lt(b,a)),ordered(cons(b,L)));
+END
+;This file is sort.typ

@@ -1,0 +1,10176 @@
+#include <stdlib.h>
+/* ##### ALDES ##### */
+int WRN,VRUSE,VRDEF,UZ210,UNSM,ULOC,TRACE,TOSM,TNU,TMU,TMPL,THSM,TCHI,
+TBTA1,TBETA,SYMTB,SYINT,STRCT,STP,STMHD,STCK,STAT,STACK[1000+1],SPCE,
+SPACE[25000+1],SNUM,SMPRM,ROLST,RILST,RETN,RETL,RECOV,REC,RCLST,PRIME,
+OPT[20+1],OPSM,OLST,OLEV,OFSM,NU,NOTSM,NLAB,NDEX,MU,LUNIT,LIST,LBUSE,
+LBDEF,LAB1,INDEX,ILST,GSYM,FUNIT,EXTSM,ERRA,ENDF,ELSM,DTNU,DTMU,DOSM,
+DCLHD,CHNGE,CHI,ATYPE,ASAFE,ANAME,ADVSM,ABUFF[256+1],ARGC,ALMAR,APOS,
+ARMAR,AUNIT,AVAIL,BETA,BETA1,CELLS,COUNT,CUNIT,DELTA,ECHO,EJECT,EPSIL,
+ETA,GCC,GCCC,GCM,IBUFF[256+1],IDTYP,ILINE,IPOS,ISIZE,IUNIT,LMARG,MUNIT,
+NAM,NPFDS,NU1,OBUFF[256+1],OLINE,OPOS,OUNIT,PRNTR,RHO,RINC,RMARG,RMULT,
+RTERM,SBASE,TABP2[64+1],TAU,TAU0,THETA,TIM,TRMAX,ZETA;
+char * ARGV[20];
+void main(argc, argv)
+int argc; char *argv[]; {
+extern int WRN,VRUSE,VRDEF,UZ210,UNSM,ULOC,TRACE,TOSM,TNU,TMU,TMPL,THSM,
+TCHI,TBTA1,TBETA,SYMTB,SYINT,STRCT,STP,STMHD,STCK,STAT,STACK[],SPCE,
+SPACE[],SNUM,SMPRM,ROLST,RILST,RETN,RETL,RECOV,REC,RCLST,PRIME,OPT[],
+OPSM,OLST,OLEV,OFSM,NU,NOTSM,NLAB,NDEX,MU,LUNIT,LIST,LBUSE,LBDEF,LAB1,
+INDEX,ILST,GSYM,FUNIT,EXTSM,ERRA,ENDF,ELSM,DTNU,DTMU,DOSM,DCLHD,CHNGE,
+CHI,ATYPE,ASAFE,ANAME,ADVSM,ABUFF[],ARGC,ALMAR,APOS,ARMAR,AUNIT,AVAIL,
+BETA,BETA1,CELLS,COUNT,CUNIT,DELTA,ECHO,EJECT,EPSIL,ETA,GCC,GCCC,GCM,
+IBUFF[],IDTYP,ILINE,IPOS,ISIZE,IUNIT,LMARG,MUNIT,NAM,NPFDS,NU1,OBUFF[],
+OLINE,OPOS,OUNIT,PRNTR,RHO,RINC,RMARG,RMULT,RTERM,SBASE,TABP2[],TAU,TAU0,
+THETA,TIM,TRMAX,ZETA;
+extern char * ARGV[];
+int ALG(),ISDECL();
+void ALDES(),BEGIN1(),BEGINA(),BEGINU(),BLINES(),CHC(),CWRIT3(),CWRIT6()
+,DCL(),ENDA(),FALG(),IUP(),ROBUFF(),SOBUFF(),WRITE();
+   for (ARGC=0;ARGC<argc;ARGC++) ARGV[ARGC]=argv[ARGC];
+ADVSM=1;
+DCLHD=2;
+DOSM=3;
+ELSM=4;
+ERRA=5;
+GSYM=6;
+ILST=7;
+LBDEF=8;
+LBUSE=9;
+NOTSM=10;
+OFSM=11;
+OLST=12;
+PRIME=13;
+RCLST=14;
+RETL=15;
+RILST=16;
+ROLST=17;
+SMPRM=18;
+STMHD=19;
+SYMTB=20;
+THSM=21;
+TMPL=22;
+TOSM=23;
+UNSM=24;
+UZ210=25;
+VRDEF=26;
+VRUSE=27;
+INDEX=0;
+MU=1000;
+NU=25000;
+CHI=128;
+IUP(27);
+IUP(2);
+BEGIN1();
+BEGINU();
+BEGINA();
+if (LIST < 1) goto _7;
+SOBUFF();
+CWRIT6(65,108,100,101,115,32);
+CWRIT6(118,32,51,46,55,44);
+CWRIT6(32,40,99,41,32,82);
+CWRIT6(71,75,76,32,49,57);
+CWRIT3(57,52,46);
+WRITE();
+ROBUFF();
+BLINES(2);
+_7: STACK[INDEX]=ISDECL(0);
+if (ENDF != 0) goto _10;
+if (STACK[INDEX] == 0) goto _9;
+DCL(STACK[INDEX]);
+CHC(46);
+goto _10;
+_9: STACK[INDEX - 1]=ALG();
+if (RECOV == 0) FALG(STACK[INDEX - 1]);
+CHC(124);
+CHC(124);
+_10: if (ENDF == 0) goto _7;
+ENDA();
+INDEX=INDEX - 2;
+exit(0);
+}
+/* ##### CREADC ##### */
+int CREADC()
+{
+int LL,C,R1V;
+extern int BETA,ENDF;
+int CREAD(),CREADC();
+_5: C=CREAD();
+if (ENDF == 0) goto _7;
+C=-BETA;
+goto _6;
+_7: if (C != 91) goto _13;
+LL=1;
+_12: C=CREAD();
+if (ENDF == 0) goto _8;
+C=-BETA;
+goto _6;
+_8: if (C != 93) goto _10;
+LL=LL - 1;
+goto _9;
+_10: if (C == 91) LL=LL + 1;
+_9: if (LL != 0) goto _12;
+C=32;
+_13: if (C == 32) goto _5;
+_6: R1V=C;
+return(R1V);
+}
+/* ##### SE ##### */
+int SE(S)
+int S;
+{
+int SP,L,J2Y,J1Y,R1V;
+extern int BETA,BETA1,GSYM,SNUM,SPACE[],STACK[];
+int SCONC(),SE(),STSRCH();
+SP=S;
+if (SNUM < 0) goto _11;
+J2Y=SPACE[S - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+L=STSRCH(STACK[GSYM],J1Y);
+if (L == BETA) goto _10;
+J2Y=SPACE[L - BETA] - BETA;
+J1Y=SPACE[J2Y];
+SP=SCONC(S,J1Y);
+goto _11;
+_10: SP=S;
+_11: R1V=SP;
+return(R1V);
+}
+/* ##### SOPT ##### */
+void SOPT(NL,TL)
+int TL,NL;
+{
+int S,J4Y,J3Y,J2Y,J1Y,IL;
+extern int BETA,CUNIT,ECHO,FUNIT,GCM,IBUFF[],INDEX,ISIZE,IUNIT,LIST,
+LMARG,LUNIT,MUNIT,OLEV,OPT[],OUNIT,RHO,RMARG,STACK[],STRCT,SYINT,TMU,TNU,
+TRACE;
+int CONC(),ENTER(),GET(),LIST1(),LIST5(),SYMBOL();
+void CLOUT(),ERROR(),PUT(),REMPRP(),SOPT(),UWRIT1(),UWRITE(),IUP();
+IUP(2);
+if (OPT[13] == 0) goto _7;
+STACK[INDEX]=LIST5(83,79,80,84,62);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRIT1(NL);
+UWRITE(TL);
+_7: J1Y=SYMBOL(NL);
+if (J1Y == 0) goto _10;
+J1Y=GET(NL,TL);
+if (J1Y != BETA) goto _8;
+ERROR(2,NL);
+goto _21;
+_8: REMPRP(NL,TL);
+goto _21;
+_10: J4Y=NL + 1;
+switch (J4Y)
+ {
+  case 1: goto _22;
+  case 2: goto _23;
+  case 3: goto _24;
+  case 4: goto _25;
+  case 5: goto _26;
+  case 6: goto _27;
+  case 7: goto _28;
+  case 8: goto _29;
+  case 9: goto _30;
+  case 10: goto _31;
+  case 11: goto _32;
+  case 12: goto _33;
+  case 13: goto _34;
+  case 14: goto _35;
+  case 15: goto _36;
+  case 16: goto _37;
+  case 17: goto _38;
+  case 18: goto _39;
+  case 19: goto _40;
+  case 20: goto _41;
+ };
+goto _21;
+_41: if (TL == 0) goto _19;
+if (TL != 20) goto _18;
+_19: if (TL != 20) goto _14;
+S=1;
+goto _15;
+_14: S=0;
+_15: IL=1;
+J3Y=20;
+_16: if (IL > J3Y) goto _21;
+OPT[IL]=S;
+IL=IL + 1;
+goto _16;
+_18: OPT[TL]=1 - OPT[TL];
+goto _21;
+_40: TNU=TL;
+STACK[INDEX]=LIST5(83,80,65,67,69);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+STACK[INDEX - 1]=LIST1(TL);
+PUT(STACK[INDEX],5,STACK[INDEX - 1]);
+goto _21;
+_39: RHO=TL;
+goto _21;
+_38: GCM=TL;
+goto _21;
+_37: TMU=TL;
+STACK[INDEX]=LIST5(83,84,65,67,75);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+STACK[INDEX - 1]=LIST1(TL);
+PUT(STACK[INDEX],5,STACK[INDEX - 1]);
+goto _21;
+_36: LMARG=TL;
+goto _21;
+_35: RMARG=TL;
+goto _21;
+_34: IL=ISIZE;
+J2Y=TL;
+_12: if (IL > J2Y) goto _13;
+IBUFF[IL]=32;
+IL=IL + 1;
+goto _12;
+_13: ISIZE=TL;
+goto _21;
+_33: OUNIT=TL;
+goto _21;
+_32: MUNIT=TL;
+goto _21;
+_31: LUNIT=TL;
+goto _21;
+_30: FUNIT=TL;
+goto _21;
+_29: IUNIT=TL;
+goto _21;
+_28: CUNIT=TL;
+goto _21;
+_27: OLEV=TL;
+goto _21;
+_26: SYINT=TL;
+goto _21;
+_25: TRACE=TL;
+goto _21;
+_24: STRCT=TL;
+goto _21;
+_23: LIST=TL;
+if (TL == 3) ECHO=1;
+goto _21;
+_22: ECHO=TL;
+_21: INDEX=INDEX - 2;
+return;
+}
+/* ##### WARN ##### */
+void WARN(NL,S,T)
+int T,S,NL;
+{
+int SP,SL,J1Y;
+extern int ANAME,BETA,BETA1,INDEX,LIST,LMARG,OPOS,SNUM,SPACE[],STACK[],
+STRCT,WRN;
+int CONC(),ISORN(),LIST1(),LIST10(),LIST2(),LIST3(),LIST4(),LIST5();
+void AWRITE(),BLINES(),CLOUT(),CWRITE(),ROBUFF(),SOBUFF(),TAB(),UOWRT1()
+,UWRIT1(),WARN(),WRITE(),IUP();
+IUP(2);
+if (LIST == 0) goto _7;
+if (STRCT <= 0) goto _7;
+if (STRCT != 1) goto _8;
+if (NL == 2) goto _7;
+if (NL == 12) goto _7;
+_8: SOBUFF();
+SP=S;
+_2: BLINES(1);
+STACK[INDEX]=LIST10(42,42,42,32,87,97,114,110,105,110);
+STACK[INDEX - 1]=LIST5(103,32,40,110,111);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(46,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(NL);
+STACK[INDEX]=LIST3(41,58,32);
+CLOUT(STACK[INDEX]);
+WRN=WRN + 1;
+switch (NL)
+ {
+  case 1: goto _22;
+  case 2: goto _23;
+  case 3: goto _24;
+  case 4: goto _25;
+  case 5: goto _26;
+  case 6: goto _27;
+  case 7: goto _28;
+  case 8: goto _29;
+  case 9: goto _30;
+  case 10: goto _31;
+  case 11: goto _32;
+  case 12: goto _33;
+  case 13: goto _34;
+ };
+goto _21;
+_34: STACK[INDEX]=LIST10(84,104,101,32,115,121,109,98,111,108);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(S);
+if (J1Y == 0) goto _19;
+UOWRT1(S);
+goto _20;
+_19: UWRIT1(S);
+_20: STACK[INDEX]=LIST10(105,115,32,116,114,117,110,99,97,116);
+STACK[INDEX - 1]=LIST5(101,100,32,116,111);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(T);
+STACK[INDEX]=LIST10(32,99,104,97,114,97,99,116,101,114);
+STACK[INDEX - 1]=LIST1(115);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_33: UWRIT1(T);
+STACK[INDEX]=LIST10(111,99,99,117,114,115,32,97,115,32);
+STACK[INDEX - 1]=LIST10(98,111,116,104,32,105,110,112,117,116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(32,97,110,100,32,111,117,116,112,117);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(116,32,105,110,32,116,104,101,32,99);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(97,108,108,32,116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(111,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(S);
+if (J1Y == 0) goto _17;
+UOWRT1(S);
+goto _21;
+_17: UWRIT1(S);
+goto _21;
+_32: UOWRT1(S);
+STACK[INDEX]=LIST10(105,115,32,110,111,116,32,97,32,112);
+STACK[INDEX - 1]=LIST10(114,111,112,101,114,32,97,108,103,111);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(114,105,116,104,109,32,110,97,109,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_31: STACK[INDEX]=LIST10(84,104,101,32,97,108,103,111,114,105);
+STACK[INDEX - 1]=LIST5(116,104,109,32,110);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST4(97,109,101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UOWRT1(S);
+STACK[INDEX]=LIST10(115,104,111,117,108,100,32,98,101,32);
+STACK[INDEX - 1]=LIST10(105,110,32,117,112,112,101,114,32,99);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(97,115,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_30: UWRIT1(S);
+STACK[INDEX]=LIST10(105,115,32,110,111,116,32,97,32,112);
+STACK[INDEX - 1]=LIST10(114,111,112,101,114,32,108,111,99,97);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(108,32,118,97,114,105,97,98,108,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(32,110,97,109,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_29: UOWRT1(S);
+STACK[INDEX]=LIST10(105,115,32,110,111,116,32,97,32,112);
+STACK[INDEX - 1]=LIST10(114,111,112,101,114,32,103,108,111,98);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(97,108,32,118,97,114,105,97,98,108);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(101,32,110,97,109);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_28: STACK[INDEX]=LIST10(65,110,32,97,108,103,111,114,105,116);
+STACK[INDEX - 1]=LIST10(104,109,32,115,112,101,99,105,102,105);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(99,97,116,105,111,110,32,105,115,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(109,105,115,115,105);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(110,103);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_27: STACK[INDEX]=LIST10(65,32,115,116,101,112,32,99,111,109);
+STACK[INDEX - 1]=LIST10(109,101,110,116,32,105,115,32,109,105);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(115,115,105,110,103);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_26: STACK[INDEX]=LIST10(83,116,101,112,110,117,109,98,101,114);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(S);
+STACK[INDEX]=LIST10(32,105,115,32,111,117,116,32,111,102);
+STACK[INDEX - 1]=LIST5(32,111,114,100,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(114);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_25: SL=SPACE[SP - BETA1];
+SP=SPACE[SP - BETA];
+STACK[INDEX]=LIST10(84,104,101,32,105,110,112,117,116,32);
+STACK[INDEX - 1]=LIST10(112,97,114,97,109,101,116,101,114,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UOWRT1(SL);
+STACK[INDEX]=LIST10(105,115,32,110,101,118,101,114,32,117);
+STACK[INDEX - 1]=LIST3(115,101,100);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_24: SL=SPACE[SP - BETA1];
+SP=SPACE[SP - BETA];
+STACK[INDEX]=LIST10(84,104,101,32,111,117,116,112,117,116);
+STACK[INDEX - 1]=LIST10(32,112,97,114,97,109,101,116,101,114);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UOWRT1(SL);
+STACK[INDEX]=LIST10(105,115,32,110,101,118,101,114,32,100);
+STACK[INDEX - 1]=LIST5(101,102,105,110,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(100);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_23: SL=SPACE[SP - BETA1];
+SP=SPACE[SP - BETA];
+STACK[INDEX]=LIST10(84,104,101,32,108,111,99,97,108,32);
+STACK[INDEX - 1]=LIST5(118,97,114,105,97);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST4(98,108,101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UOWRT1(SL);
+STACK[INDEX]=LIST10(105,115,32,100,101,102,105,110,101,100);
+STACK[INDEX - 1]=LIST10(32,98,117,116,32,110,101,118,101,114);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(32,117,115,101,100);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _21;
+_22: SL=SPACE[SP - BETA1];
+SP=SPACE[SP - BETA];
+STACK[INDEX]=LIST10(84,104,101,32,108,111,99,97,108,32);
+STACK[INDEX - 1]=LIST5(118,97,114,105,97);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST4(98,108,101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UOWRT1(SL);
+STACK[INDEX]=LIST10(105,115,32,117,115,101,100,32,98,117);
+STACK[INDEX - 1]=LIST10(116,32,110,101,118,101,114,32,100,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(102,105,110,101,100);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+_21: if (OPOS > LMARG) WRITE();
+TAB(4);
+if (NL == 12) goto _38;
+if (NL == 6) goto _38;
+if (NL != 8) goto _37;
+_38: STACK[INDEX]=LIST5(32,105,110,32,115);
+STACK[INDEX - 1]=LIST4(116,101,112,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRIT1(SNUM);
+STACK[INDEX]=LIST3(111,102,32);
+CLOUT(STACK[INDEX]);
+UWRIT1(ANAME);
+goto _39;
+_37: STACK[INDEX]=LIST10(32,105,110,32,97,108,103,111,114,105);
+STACK[INDEX - 1]=LIST4(116,104,109,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRIT1(ANAME);
+_39: OPOS=OPOS - 1;
+CWRITE(46);
+if (OPOS > LMARG) WRITE();
+if (NL > 4) goto _42;
+if (SP != BETA) goto _2;
+_42: ROBUFF();
+_7: INDEX=INDEX - 2;
+return;
+}
+/* ##### ARGNO ##### */
+int ARGNO()
+{
+int N,J1Y,R1V;
+int ARGNO(),IO();
+J1Y=-1;
+N=IO(J1Y,4);
+R1V=N;
+return(R1V);
+}
+/* ##### BEGIN0 ##### */
+void BEGIN0()
+{
+extern int CUNIT,ECHO,EJECT,ILINE,IPOS,ISIZE,IUNIT,LUNIT,MUNIT,OLINE,
+OPOS,OUNIT,PRNTR,RMARG,TAU0;
+int CLOCK();
+void BEGIN0(),SLMARG();
+int RL;
+TAU0=CLOCK();
+IUNIT=5;
+CUNIT=3;
+ISIZE=80;
+IPOS=ISIZE;
+ECHO=0;
+RL=IO(0,8); /* Initialize IO */
+MUNIT=0;
+OUNIT=6;
+PRNTR=6;
+LUNIT=0;
+RMARG=131;
+SLMARG(0);
+ILINE=0;
+OLINE=0;
+EJECT=0;
+OPOS=0;
+return;
+}
+/* ##### BKSP1 ##### */
+void BKSP1(I)
+int I;
+{
+extern int IPOS;
+void BKSP1();
+if (IPOS > I) goto _5;
+IPOS=0;
+goto _6;
+_5: IPOS=I;
+_6: return;
+}
+/* ##### BLINES ##### */
+void BLINES(NL)
+int NL;
+{
+int J1Y,IL;
+extern int LMARG,OPOS;
+void BLINES(),CWRITE(),WRITE();
+if (OPOS > LMARG) WRITE();
+IL=1;
+J1Y=NL;
+_7: if (IL > J1Y) goto _8;
+CWRITE(32);
+WRITE();
+IL=IL + 1;
+goto _7;
+_8: return;
+}
+/* ##### CLOSE ##### */
+void CLOSE(U)
+int U;
+{
+int NL;
+int IO();
+void CLOSE();
+NL=IO(U,6);
+return;
+}
+/* ##### CREAD ##### */
+int CREAD()
+{
+int CL,R1V;
+extern int IBUFF[],IPOS,ISIZE;
+int CREAD();
+void READ();
+if (IPOS >= ISIZE) READ();
+IPOS=IPOS + 1;
+CL=IBUFF[IPOS];
+R1V=CL;
+return(R1V);
+}
+/* ##### CREADB ##### */
+int CREADB()
+{
+int CL,R1V;
+int CREAD(),CREADB();
+_3: CL=CREAD();
+if (CL == 32) goto _3;
+R1V=CL;
+return(R1V);
+}
+/* ##### CWRIT2 ##### */
+void CWRIT2(CL1,CL2)
+int CL2,CL1;
+{
+void CWRIT2(),CWRITE();
+CWRITE(CL1);
+CWRITE(CL2);
+return;
+}
+/* ##### CWRIT3 ##### */
+void CWRIT3(CL1,CL2,CL3)
+int CL3,CL2,CL1;
+{
+void CWRIT3(),CWRITE();
+CWRITE(CL1);
+CWRITE(CL2);
+CWRITE(CL3);
+return;
+}
+/* ##### CWRIT4 ##### */
+void CWRIT4(CL1,CL2,CL3,CL4)
+int CL4,CL3,CL2,CL1;
+{
+void CWRIT4(),CWRITE();
+CWRITE(CL1);
+CWRITE(CL2);
+CWRITE(CL3);
+CWRITE(CL4);
+return;
+}
+/* ##### CWRIT5 ##### */
+void CWRIT5(CL1,CL2,CL3,CL4,CL5)
+int CL5,CL4,CL3,CL2,CL1;
+{
+void CWRIT5(),CWRITE();
+CWRITE(CL1);
+CWRITE(CL2);
+CWRITE(CL3);
+CWRITE(CL4);
+CWRITE(CL5);
+return;
+}
+/* ##### CWRIT6 ##### */
+void CWRIT6(CL1,CL2,CL3,CL4,CL5,CL6)
+int CL6,CL5,CL4,CL3,CL2,CL1;
+{
+void CWRIT6(),CWRITE();
+CWRITE(CL1);
+CWRITE(CL2);
+CWRITE(CL3);
+CWRITE(CL4);
+CWRITE(CL5);
+CWRITE(CL6);
+return;
+}
+/* ##### CWRITE ##### */
+void CWRITE(CL)
+int CL;
+{
+extern int OBUFF[],OPOS,RMARG;
+void CWRITE(),WRITE();
+OPOS=OPOS + 1;
+OBUFF[OPOS]=CL;
+if (OPOS >= RMARG) WRITE();
+return;
+}
+/* ##### DIBUFF ##### */
+void DIBUFF()
+{
+int J2Y,J1Y,IL;
+extern int IBUFF[],ILINE,IPOS,ISIZE,LMARG,OPOS;
+void CWRIT6(),CWRITE(),DIBUFF(),ROBUFF(),SOBUFF(),WRITE();
+if (ILINE <= 0) goto _5;
+SOBUFF();
+CWRIT6(73,110,112,117,116,32);
+CWRIT6(98,117,102,102,101,114);
+CWRIT6(32,102,111,108,108,111);
+CWRIT6(119,115,44,32,108,97);
+CWRIT6(115,116,32,99,104,97);
+CWRIT6(114,97,99,116,101,114);
+CWRIT6(32,114,101,97,100,32);
+CWRIT6(117,110,100,101,114,115);
+CWRIT6(99,111,114,101,100,46);
+WRITE();
+ROBUFF();
+SOBUFF();
+IL=1;
+J1Y=ISIZE;
+_6: if (IL > J1Y) goto _7;
+CWRITE(IBUFF[IL]);
+IL=IL + 1;
+goto _6;
+_7: if (OPOS > LMARG) WRITE();
+IL=1;
+J2Y=IPOS - 1;
+_10: if (IL > J2Y) goto _11;
+CWRITE(32);
+IL=IL + 1;
+goto _10;
+_11: CWRITE(94);
+if (OPOS > LMARG) WRITE();
+ROBUFF();
+_5: return;
+}
+/* ##### END0 ##### */
+void END0()
+{
+int J1Y;
+extern int LMARG,MUNIT,OPOS,OUNIT,TAU0;
+int CLOCK();
+void CWRIT3(),CWRIT4(),CWRIT5(),CWRITE(),END0(),GWRITE(),WRITE();
+if (OPOS > LMARG) WRITE();
+OUNIT=MUNIT;
+CWRIT5(84,111,116,97,108);
+CWRITE(32);
+CWRIT4(116,105,109,101);
+CWRITE(32);
+J1Y=CLOCK();
+J1Y=J1Y - TAU0;
+GWRITE(J1Y);
+CWRITE(32);
+CWRIT3(109,115,46);
+if (OPOS > LMARG) WRITE();
+return;
+}
+/* ##### EXPF ##### */
+int EXPF(AL,BL)
+int BL,AL;
+{
+int J1Y,IL,CL,R1V;
+int EXPF();
+CL=1;
+IL=1;
+J1Y=BL;
+_5: if (IL > J1Y) goto _6;
+CL=AL * CL;
+IL=IL + 1;
+goto _5;
+_6: R1V=CL;
+return(R1V);
+}
+/* ##### GREAD ##### */
+int GREAD()
+{
+int SL,J2Y,J1Y,CL0,CL,AL,R1V;
+extern int IPOS;
+int CREAD(),CREADB(),GREAD();
+void CWRIT3(),CWRIT6(),DIBUFF(),ROBUFF(),SOBUFF(),WRITE();
+SL=1;
+CL=CREADB();
+if (CL != 43) goto _8;
+CL=CREADB();
+goto _7;
+_8: if (CL != 45) goto _7;
+CL=CREADB();
+SL=-1;
+_7: if (48 > CL) goto _11;
+if (CL > 57) goto _11;
+J1Y=1;
+goto _12;
+_11: J1Y=0;
+_12: if (J1Y == 0) goto _3;
+AL=0;
+CL0=48;
+_13: J1Y=10 * AL;
+J2Y=CL - CL0;
+AL=J1Y + J2Y;
+CL=CREAD();
+if (48 > CL) goto _15;
+if (CL > 57) goto _15;
+J1Y=1;
+goto _16;
+_15: J1Y=0;
+_16: if (J1Y != 0) goto _13;
+IPOS=IPOS - 1;
+AL=SL * AL;
+goto _6;
+_3: SOBUFF();
+CWRIT6(69,114,114,111,114,32);
+CWRIT6(102,111,117,110,100,32);
+CWRIT6(98,121,32,71,82,69);
+CWRIT3(65,68,46);
+WRITE();
+ROBUFF();
+DIBUFF();
+exit(1);
+_6: R1V=AL;
+return(R1V);
+}
+/* ##### GWRITE ##### */
+void GWRITE(AL)
+int AL;
+{
+int QL,N,J1Y,ALP,D[20+1];
+void CWRITE(),GWRITE();
+if (AL >= 0) goto _7;
+ALP=-AL;
+CWRITE(45);
+goto _8;
+_7: ALP=AL;
+_8: N=0;
+_9: QL=ALP / 10;
+N=N + 1;
+J1Y=10 * QL;
+J1Y=ALP - J1Y;
+D[N]=J1Y + 48;
+ALP=QL;
+if (ALP != 0) goto _9;
+_3: CWRITE(D[N]);
+N=N - 1;
+if (N != 0) goto _3;
+return;
+}
+/* ##### INPUT ##### */
+void INPUT()
+{
+int NL,J1Y,IL;
+extern int ECHO,ENDF,IBUFF[],ISIZE,IUNIT,MUNIT,OBUFF[],OPOS,OUNIT,RMARG;
+int IO();
+void INPUT(),OUTPUT(),ROBUFF(),SOBUFF();
+NL=IO(IUNIT,0);
+if (NL == 0) goto _10;
+if (ECHO != 1) goto _10;
+SOBUFF();
+OPOS=ISIZE - 1;
+OUNIT=MUNIT;
+RMARG=72;
+IL=1;
+J1Y=OPOS;
+_8: if (IL > J1Y) goto _9;
+OBUFF[IL]=IBUFF[IL];
+IL=IL + 1;
+goto _8;
+_9: OUTPUT();
+ROBUFF();
+goto _7;
+_10: if (NL != 0) goto _7;
+if (ENDF != 0) goto _7;
+exit(1);
+_7: return;
+}
+/* ##### IUP ##### */
+void IUP(NL)
+int NL;
+{
+int J2Y,J1Y,IL;
+extern int INDEX,MU,STACK[];
+void IUP(),PSOFM();
+INDEX=INDEX + NL;
+if (INDEX <= MU) goto _6;
+PSOFM();
+exit(1);
+_6: J2Y=INDEX - NL;
+IL=J2Y + 1;
+J1Y=INDEX;
+_7: if (IL > J1Y) goto _8;
+STACK[IL]=0;
+IL=IL + 1;
+goto _7;
+_8: return;
+}
+/* ##### OUTPUT ##### */
+void OUTPUT()
+{
+int NL,J1Y;
+extern int LUNIT,MUNIT,OUNIT;
+int IO();
+void OUTPUT();
+J1Y=IO(OUNIT,2);
+if (J1Y == 0) exit(1);
+if (OUNIT != MUNIT) goto _7;
+if (MUNIT == LUNIT) goto _7;
+if (LUNIT > 0) NL=IO(LUNIT,2);
+_7: return;
+}
+/* ##### PSOFM ##### */
+void PSOFM()
+{
+void CWRIT2(),CWRIT6(),PSOFM(),ROBUFF(),SOBUFF(),WRITE();
+SOBUFF();
+CWRIT6(83,84,65,67,75,32);
+CWRIT6(111,118,101,114,102,108);
+CWRIT2(111,119);
+WRITE();
+ROBUFF();
+return;
+}
+/* ##### READ ##### */
+void READ()
+{
+extern int ENDF,ILINE,IPOS;
+void INPUT(),READ();
+INPUT();
+IPOS=0;
+if (ENDF == 0) ILINE=ILINE + 1;
+return;
+}
+/* ##### ROBUFF ##### */
+void ROBUFF()
+{
+int J1Y,IL;
+extern int ABUFF[],ALMAR,APOS,ARMAR,AUNIT,LMARG,OBUFF[],OPOS,OUNIT,RMARG;
+void ROBUFF();
+IL=1;
+J1Y=APOS;
+_5: if (IL > J1Y) goto _6;
+OBUFF[IL]=ABUFF[IL];
+IL=IL + 1;
+goto _5;
+_6: OPOS=APOS;
+LMARG=ALMAR;
+RMARG=ARMAR;
+OUNIT=AUNIT;
+return;
+}
+/* ##### SLMARG ##### */
+void SLMARG(NL)
+int NL;
+{
+int J1Y,IL;
+extern int LMARG,OPOS;
+void CWRITE(),SLMARG();
+LMARG=NL;
+OPOS=0;
+IL=1;
+J1Y=NL;
+_5: if (IL > J1Y) goto _6;
+CWRITE(32);
+IL=IL + 1;
+goto _5;
+_6: return;
+}
+/* ##### SOBUFF ##### */
+void SOBUFF()
+{
+int J1Y,IL;
+extern int ABUFF[],ALMAR,APOS,ARMAR,AUNIT,LMARG,MUNIT,OBUFF[],OPOS,OUNIT,
+RMARG;
+void SOBUFF();
+IL=1;
+J1Y=OPOS;
+_5: if (IL > J1Y) goto _6;
+ABUFF[IL]=OBUFF[IL];
+IL=IL + 1;
+goto _5;
+_6: APOS=OPOS;
+ALMAR=LMARG;
+ARMAR=RMARG;
+AUNIT=OUNIT;
+OPOS=0;
+LMARG=0;
+RMARG=80;
+OUNIT=MUNIT;
+return;
+}
+/* ##### TAB ##### */
+void TAB(NL)
+int NL;
+{
+int J1Y;
+extern int LMARG,OPOS,RMARG;
+void CWRITE(),TAB();
+if (LMARG > NL) goto _7;
+J1Y=RMARG + 1;
+if (NL > J1Y) goto _7;
+_2: J1Y=NL - 1;
+if (OPOS == J1Y) goto _7;
+CWRITE(32);
+goto _2;
+_7: return;
+}
+/* ##### UCASE ##### */
+int UCASE(CL)
+int CL;
+{
+int J1Y,C,R1V;
+int UCASE();
+if (97 > CL) goto _5;
+if (CL > 122) goto _5;
+J1Y=97 - 65;
+C=CL - J1Y;
+goto _6;
+_5: C=CL;
+_6: R1V=C;
+return(R1V);
+}
+/* ##### WRITE ##### */
+void WRITE()
+{
+int J1Y,IL;
+extern int LMARG,OBUFF[],OLINE,OPOS;
+void OUTPUT(),WRITE();
+OUTPUT();
+IL=1;
+J1Y=LMARG;
+_7: if (IL > J1Y) goto _8;
+OBUFF[IL]=32;
+IL=IL + 1;
+goto _7;
+_8: OPOS=LMARG;
+OLINE=OLINE + 1;
+return;
+}
+/* ##### AWVB ##### */
+int AWVB(S)
+int S;
+{
+int J1Y,FL,BLP,BL,R1V;
+extern int BETA,BETA1,SPACE[];
+int ATOM(),AWVB(),GET();
+BL=GET(S,5);
+_2: if (BL == BETA) goto _10;
+BLP=SPACE[BL - BETA1];
+BL=SPACE[BL - BETA];
+J1Y=ATOM(BLP);
+if (J1Y != 0) goto _2;
+FL=1;
+goto _5;
+_10: FL=0;
+_5: R1V=FL;
+return(R1V);
+}
+/* ##### CAWRIT ##### */
+void CAWRIT(A)
+int A;
+{
+int Q,N,J1Y,AP,D[20+1];
+void CAWRIT(),CCWRIT();
+if (A >= 0) goto _7;
+AP=-A;
+CCWRIT(45);
+goto _8;
+_7: AP=A;
+_8: N=0;
+_9: Q=AP / 10;
+N=N + 1;
+J1Y=10 * Q;
+J1Y=AP - J1Y;
+D[N]=J1Y + 48;
+AP=Q;
+if (AP != 0) goto _9;
+_3: CCWRIT(D[N]);
+N=N - 1;
+if (N != 0) goto _3;
+return;
+}
+/* ##### CBWRIT ##### */
+void CBWRIT()
+{
+int RL,P,J3Y,J2Y,J1Y,IL,OBUFF2[256+1];
+extern int OBUFF[],OPOS,RMARG;
+void CBWRIT(),CWRITE(),WRITE();
+P=OPOS;
+RL=OPOS;
+if (OPOS < RMARG) goto _39;
+if (OBUFF[OPOS] == 32) goto _39;
+if (65 > OBUFF[OPOS]) goto _33;
+if (OBUFF[OPOS] <= 90) goto _34;
+_33: if (97 > OBUFF[OPOS]) goto _35;
+if (OBUFF[OPOS] > 122) goto _35;
+_34: J1Y=1;
+goto _36;
+_35: J1Y=0;
+_36: if (J1Y != 0) goto _28;
+if (48 > OBUFF[OPOS]) goto _30;
+if (OBUFF[OPOS] > 57) goto _30;
+J1Y=1;
+goto _31;
+_30: J1Y=0;
+_31: if (J1Y != 0) goto _28;
+if (OBUFF[OPOS] != 34) goto _27;
+_28: RL=RL - 1;
+if (RL == 1) goto _18;
+if (65 > OBUFF[RL]) goto _12;
+if (OBUFF[RL] <= 90) goto _13;
+_12: if (97 > OBUFF[RL]) goto _14;
+if (OBUFF[RL] > 122) goto _14;
+_13: J1Y=1;
+goto _15;
+_14: J1Y=0;
+_15: if (J1Y != 0) goto _28;
+if (48 > OBUFF[RL]) goto _9;
+if (OBUFF[RL] > 57) goto _9;
+J1Y=1;
+goto _10;
+_9: J1Y=0;
+_10: if (J1Y != 0) goto _28;
+if (OBUFF[RL] == 34) goto _28;
+goto _18;
+_27: RL=RL - 1;
+if (RL == 1) goto _18;
+if (65 > OBUFF[RL]) goto _23;
+if (OBUFF[RL] <= 90) goto _24;
+_23: if (97 > OBUFF[RL]) goto _25;
+if (OBUFF[RL] > 122) goto _25;
+_24: J1Y=1;
+goto _26;
+_25: J1Y=0;
+_26: if (J1Y != 0) goto _18;
+if (48 > OBUFF[RL]) goto _20;
+if (OBUFF[RL] > 57) goto _20;
+J1Y=1;
+goto _21;
+_20: J1Y=0;
+_21: if (J1Y != 0) goto _18;
+if (OBUFF[RL] == 34) goto _18;
+if (OBUFF[RL] != 32) goto _27;
+_18: if (RL != 1) goto _40;
+RL=P;
+goto _39;
+_40: IL=RL + 1;
+J2Y=P;
+_38: if (IL > J2Y) goto _39;
+OBUFF2[IL - RL]=OBUFF[IL];
+IL=IL + 1;
+goto _38;
+_39: OPOS=RL;
+WRITE();
+if (RL == P) goto _44;
+IL=1;
+J3Y=P - RL;
+_43: if (IL > J3Y) goto _44;
+CWRITE(OBUFF2[IL]);
+IL=IL + 1;
+goto _43;
+_44: return;
+}
+/* ##### CCALL ##### */
+void CCALL(L,DL)
+int DL,L;
+{
+int OL,O,J1Y,IP,IL,I,FL,BL;
+extern int ANAME,BETA,BETA1,OPSM,SPACE[];
+int ACOMP(),GET(),SYMBOL();
+void CCALL(),CCWRIT(),CLOUT(),CSWRIT(),CTERMW(),CWRIT2(),CWRITE(),FIRST3(
+);
+FIRST3(L,&(FL),&(I),&(O));
+J1Y=GET(FL,14);
+if (J1Y != BETA) goto _7;
+CSWRIT(6,FL);
+goto _8;
+_7: CSWRIT(20,FL);
+_8: J1Y=ACOMP(FL,OPSM);
+if (J1Y != 0) goto _9;
+BL=1;
+goto _10;
+_9: BL=0;
+_10: IP=I;
+CCWRIT(40);
+_20: if (IP == BETA) goto _21;
+IL=SPACE[IP - BETA1];
+IP=SPACE[IP - BETA];
+J1Y=SYMBOL(IL);
+if (J1Y == 0) goto _13;
+J1Y=ACOMP(ANAME,IL);
+if (J1Y != 0) goto _13;
+IL=GET(IL,0);
+J1Y=SYMBOL(IL);
+if (J1Y == 0) goto _13;
+OL=GET(IL,1);
+if (OL != BETA) IL=OL;
+_13: if (BL == 0) goto _17;
+if (IP == BETA) goto _16;
+_17: CTERMW(IL,DL);
+goto _18;
+_16: CWRITE(34);
+CLOUT(SPACE[IL - BETA]);
+CWRITE(34);
+_18: if (IP != BETA) CCWRIT(44);
+goto _20;
+_21: if (I == BETA) goto _22;
+if (O != BETA) CCWRIT(44);
+_22: if (O == BETA) goto _27;
+OL=SPACE[O - BETA1];
+O=SPACE[O - BETA];
+CWRIT2(38,40);
+CTERMW(OL,DL);
+CWRITE(41);
+if (O != BETA) CCWRIT(44);
+goto _22;
+_27: CCWRIT(41);
+return;
+}
+/* ##### CCHDW ##### */
+void CCHDW(L)
+int L;
+{
+int J2Y,J1Y;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int LIST10(),THIRD();
+void CCHDW(),CCWRIT(),CLOUT(),CSWRIT(),CWRIT4(),CWRIT5(),FIRST3(),IUP();
+IUP(9);
+STACK[INDEX]=SPACE[L - BETA1];
+STACK[INDEX - 1]=SPACE[L - BETA];
+if (STACK[INDEX] != 11) goto _16;
+J1Y=SPACE[STACK[INDEX - 1] - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+J1Y=SPACE[STACK[INDEX - 2] - BETA] - BETA1;
+STACK[INDEX - 3]=SPACE[J1Y];
+J1Y=SPACE[STACK[INDEX - 1] - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+STACK[INDEX - 4]=THIRD(STACK[INDEX - 2]);
+STACK[INDEX - 5]=BETA;
+goto _17;
+_16: FIRST3(STACK[INDEX - 1],&(STACK[INDEX - 3]),&(STACK[INDEX - 4]),&(
+STACK[INDEX - 5]));
+_17: J2Y=STACK[INDEX];
+switch (J2Y)
+ {
+  case 1: goto _19;
+  case 2: goto _20;
+  case 3: goto _18;
+  case 4: goto _18;
+  case 5: goto _18;
+  case 6: goto _18;
+  case 7: goto _18;
+  case 8: goto _18;
+  case 9: goto _18;
+  case 10: goto _18;
+  case 11: goto _21;
+ };
+goto _18;
+_21: CWRIT4(105,110,116,32);
+CSWRIT(6,STACK[INDEX - 3]);
+goto _18;
+_20: CWRIT5(118,111,105,100,32);
+CSWRIT(6,STACK[INDEX - 3]);
+goto _18;
+_19: CWRIT5(118,111,105,100,32);
+CWRIT4(109,97,105,110);
+_18: STACK[INDEX - 6]=STACK[INDEX - 4];
+CCWRIT(40);
+_25: if (STACK[INDEX - 6] == BETA) goto _26;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+CSWRIT(6,STACK[INDEX - 7]);
+if (STACK[INDEX - 6] != BETA) CCWRIT(44);
+goto _25;
+_26: if (STACK[INDEX] != 1) goto _27;
+STACK[INDEX - 2]=LIST10(97,114,103,99,44,32,97,114,103,118);
+CLOUT(STACK[INDEX - 2]);
+_27: if (STACK[INDEX - 4] == BETA) goto _28;
+if (STACK[INDEX - 5] != BETA) CCWRIT(44);
+_28: if (STACK[INDEX - 5] == BETA) goto _33;
+STACK[INDEX - 8]=SPACE[STACK[INDEX - 5] - BETA1];
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 5] - BETA];
+CSWRIT(6,STACK[INDEX - 8]);
+if (STACK[INDEX - 5] != BETA) CCWRIT(44);
+goto _28;
+_33: CCWRIT(41);
+INDEX=INDEX - 9;
+return;
+}
+/* ##### CCTLWR ##### */
+void CCTLWR(N)
+int N;
+{
+void CBWRIT(),CCTLWR(),CSWRIT(),CWRIT3(),CWRIT6();
+CWRIT3(47,42,32);
+CWRIT6(35,35,35,35,35,32);
+CSWRIT(66,N);
+CWRIT6(32,35,35,35,35,35);
+CWRIT3(32,42,47);
+CBWRIT();
+return;
+}
+/* ##### CCWRIT ##### */
+void CCWRIT(C)
+int C;
+{
+extern int OBUFF[],OPOS;
+void CBWRIT(),CCWRIT();
+if (OPOS >= 72) CBWRIT();
+OPOS=OPOS + 1;
+OBUFF[OPOS]=C;
+return;
+}
+/* ##### CDCLW ##### */
+void CDCLW(DL,D)
+int D,DL;
+{
+int LL,L,J3Y,J2Y,J1Y;
+extern int BETA,BETA1,SPACE[];
+int AWVB(),SYMBOL();
+void CBWRIT(),CDCLW(),CSWRIT(),CTERMW(),CWRIT2(),CWRIT4(),CWRIT5(),
+CWRIT6(),CWRITE();
+if (D == BETA) goto _5;
+L=D;
+J3Y=DL - 99;
+switch (J3Y)
+ {
+  case 1: goto _62;
+  case 2: goto _63;
+  case 3: goto _64;
+  case 4: goto _65;
+  case 5: goto _61;
+  case 6: goto _66;
+  case 7: goto _67;
+ };
+goto _60;
+_67: CWRIT5(118,111,105,100,32);
+_58: if (L == BETA) goto _60;
+LL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+CSWRIT(6,LL);
+CWRIT2(40,41);
+if (L != BETA) goto _56;
+CWRITE(59);
+goto _58;
+_56: CWRITE(44);
+goto _58;
+_66: CWRIT4(105,110,116,32);
+_52: if (L == BETA) goto _60;
+LL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+CSWRIT(6,LL);
+CWRIT2(40,41);
+if (L != BETA) goto _50;
+CWRITE(59);
+goto _52;
+_50: CWRITE(44);
+goto _52;
+_65: CWRIT6(101,120,116,101,114,110);
+CWRIT5(32,105,110,116,32);
+_46: if (L == BETA) goto _60;
+LL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+CTERMW(LL,2);
+if (L != BETA) goto _44;
+CWRITE(59);
+goto _46;
+_44: CWRITE(44);
+goto _46;
+_64: CWRIT4(105,110,116,32);
+_40: if (L == BETA) goto _60;
+LL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+J1Y=SYMBOL(LL);
+if (J1Y != 0) goto _34;
+J2Y=SPACE[LL - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+J1Y=AWVB(J1Y);
+if (J1Y == 0) goto _34;
+CWRITE(42);
+J2Y=SPACE[LL - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+CSWRIT(6,J1Y);
+goto _37;
+_34: CTERMW(LL,1);
+_37: if (L != BETA) goto _38;
+CWRITE(59);
+goto _40;
+_38: CWRITE(44);
+goto _40;
+_63: CWRIT4(105,110,116,32);
+_28: if (L == BETA) goto _60;
+LL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+CWRITE(42);
+CSWRIT(6,LL);
+if (L != BETA) goto _26;
+CWRITE(59);
+goto _28;
+_26: CWRITE(44);
+goto _28;
+_62: CWRIT4(105,110,116,32);
+_22: if (L == BETA) goto _60;
+LL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+J1Y=SYMBOL(LL);
+if (J1Y != 0) goto _16;
+J2Y=SPACE[LL - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+J1Y=AWVB(J1Y);
+if (J1Y == 0) goto _16;
+CWRITE(42);
+J2Y=SPACE[LL - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+CSWRIT(6,J1Y);
+goto _19;
+_16: CTERMW(LL,2);
+_19: if (L != BETA) goto _20;
+CWRITE(59);
+goto _22;
+_20: CWRITE(44);
+goto _22;
+_61: CWRIT4(105,110,116,32);
+_10: if (L == BETA) goto _60;
+LL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+CTERMW(LL,1);
+if (L != BETA) goto _8;
+CWRITE(59);
+goto _10;
+_8: CWRITE(44);
+goto _10;
+_60: CBWRIT();
+_5: return;
+}
+/* ##### CLAB ##### */
+int CLAB(L)
+int L;
+{
+int J1Y,BL,R1V;
+int ATOM(),CLAB();
+void CAWRIT(),CWRIT2(),CWRITE();
+J1Y=ATOM(L);
+if (J1Y == 0) goto _5;
+BL=1;
+CWRITE(95);
+CAWRIT(L);
+CWRIT2(58,32);
+goto _6;
+_5: BL=0;
+_6: R1V=BL;
+return(R1V);
+}
+/* ##### CREL ##### */
+void CREL(AL)
+int AL;
+{
+int J1Y;
+void CCWRIT(),CREL();
+CCWRIT(32);
+J1Y=AL - 14;
+switch (J1Y)
+ {
+  case 1: goto _8;
+  case 2: goto _9;
+  case 3: goto _10;
+  case 4: goto _11;
+  case 5: goto _12;
+  case 6: goto _13;
+ };
+goto _7;
+_13: CCWRIT(62);
+CCWRIT(61);
+goto _7;
+_12: CCWRIT(60);
+goto _7;
+_11: CCWRIT(60);
+CCWRIT(61);
+goto _7;
+_10: CCWRIT(62);
+goto _7;
+_9: CCWRIT(33);
+CCWRIT(61);
+goto _7;
+_8: CCWRIT(61);
+CCWRIT(61);
+_7: CCWRIT(32);
+return;
+}
+/* ##### CSTAT ##### */
+void CSTAT(L,FL,DL)
+int DL,FL,L;
+{
+int V,NL,LP,L0,J2Y,J1Y,CL0,CL,C,BL,B,AL,A;
+extern int BETA,BETA1,SNUM,SPACE[];
+int ACOMP(),GET();
+void ADV3(),CAWRIT(),CBWRIT(),CCALL(),CCWRIT(),CREL(),CSTAT(),CSWRIT(),
+CTERMW(),CWRIT2(),CWRIT3(),CWRIT4(),CWRIT5(),CWRIT6(),CWRITE(),TAB();
+L0=L;
+_2: AL=SPACE[L0 - BETA1];
+LP=SPACE[L0 - BETA];
+V=LP;
+if (LP == BETA) goto _11;
+BL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+_11: if (AL >= 12) goto _13;
+SNUM=1;
+goto _14;
+_13: SNUM=0;
+_14: J2Y=AL - 1;
+switch (J2Y)
+ {
+  case 1: goto _26;
+  case 2: goto _25;
+  case 3: goto _25;
+  case 4: goto _27;
+  case 5: goto _28;
+  case 6: goto _29;
+  case 7: goto _30;
+  case 8: goto _25;
+  case 9: goto _31;
+  case 10: goto _32;
+ };
+goto _25;
+_32: if (FL <= 0) goto _23;
+J1Y=ACOMP(BL,FL);
+if (J1Y != 0) goto _23;
+CWRIT3(82,49,86);
+goto _24;
+_23: CTERMW(BL,DL);
+_24: CCWRIT(61);
+CTERMW(SPACE[LP - BETA1],DL);
+goto _25;
+_31: CWRIT5(103,111,116,111,32);
+CWRITE(95);
+CAWRIT(BL);
+goto _25;
+_30: CWRIT6(114,101,116,117,114,110);
+if (FL <= 0) goto _25;
+CWRITE(40);
+CWRIT3(82,49,86);
+CWRITE(41);
+goto _25;
+_29: if (FL >= 0) goto _20;
+CL=48;
+goto _21;
+_20: CL=49;
+_21: CWRIT4(101,120,105,116);
+CWRIT3(40,CL,41);
+goto _25;
+_28: CWRIT6(115,119,105,116,99,104);
+CWRIT2(32,40);
+J1Y=GET(BL,100);
+if (J1Y == 1) CWRITE(42);
+CSWRIT(6,BL);
+CWRITE(41);
+CBWRIT();
+CWRIT2(32,123);
+CBWRIT();
+NL=1;
+CL=LP;
+_18: if (CL == BETA) goto _19;
+CL0=SPACE[CL - BETA1];
+CL=SPACE[CL - BETA];
+TAB(3);
+CWRIT5(99,97,115,101,32);
+CAWRIT(NL);
+CWRIT2(58,32);
+CWRIT5(103,111,116,111,32);
+CWRITE(95);
+CAWRIT(CL0);
+CWRITE(59);
+CBWRIT();
+NL=NL + 1;
+goto _18;
+_19: CWRIT2(32,125);
+goto _25;
+_27: ADV3(BL,&(A),&(B),&(C),&(BL));
+CWRIT4(105,102,32,40);
+CTERMW(B,DL);
+CREL(A);
+CTERMW(C,DL);
+CWRITE(41);
+CWRITE(32);
+L0=SPACE[LP - BETA1];
+goto _2;
+_26: CCALL(V,DL);
+_25: CWRITE(59);
+return;
+}
+/* ##### CSWRIT ##### */
+void CSWRIT(NL,S)
+int S,NL;
+{
+int Q,NLP,NLH,N,L,J1Y,DL,CL,AL;
+extern int ANAME,BETA,BETA1,CHI,INDEX,LIST,LMARG,OPOS,SBASE,SNUM,SPACE[]
+,STACK[],STRCT,WRN;
+int CONC(),ISORN(),LIST1(),LIST10(),LIST3(),LIST4();
+void BLINES(),CCWRIT(),CLOUT(),CSWRIT(),CWRITE(),ROBUFF(),SOBUFF(),TAB()
+,UOWRT1(),UWRIT1(),WARN(),WRITE(),IUP();
+IUP(2);
+J1Y=SPACE[S - BETA] - BETA1;
+L=SPACE[J1Y];
+CL=CHI + 1;
+NLP=NL;
+if (NL != 6) goto _9;
+N=8;
+goto _10;
+_9: N=6;
+_10: if (NLP == 6) NLP=N;
+NLH=0;
+_2: DL=SBASE / CL;
+AL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+_13: Q=AL / DL;
+J1Y=Q - 1;
+CCWRIT(J1Y);
+J1Y=Q * DL;
+AL=AL - J1Y;
+DL=DL / CL;
+NLP=NLP - 1;
+NLH=NLH + 1;
+if (AL == 0) goto _15;
+if (NLP != 0) goto _13;
+_15: if (L == BETA) goto _17;
+if (NLP != 0) goto _2;
+_17: if (SNUM <= 0) goto _25;
+if (L != BETA) goto _26;
+if (AL == 0) goto _25;
+_26: WARN(13,S,N);
+goto _24;
+_25: if (SNUM <= 0) goto _24;
+if (NLH <= NL) goto _24;
+if (LIST == 0) goto _24;
+if (STRCT <= 0) goto _24;
+SOBUFF();
+BLINES(1);
+STACK[INDEX]=LIST10(42,42,42,32,87,97,114,110,105,110);
+STACK[INDEX - 1]=LIST3(103,58,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+WRN=WRN + 1;
+STACK[INDEX]=LIST10(84,104,101,32,115,121,109,98,111,108);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(S);
+if (J1Y == 0) goto _18;
+UOWRT1(S);
+goto _19;
+_18: UWRIT1(S);
+_19: STACK[INDEX]=LIST10(99,111,110,116,97,105,110,115,32,109);
+STACK[INDEX - 1]=LIST10(111,114,101,32,116,104,97,110,32,54);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(32,99,104,97,114,97,99,116,101,114);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(115);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+TAB(4);
+STACK[INDEX]=LIST10(32,105,110,32,97,108,103,111,114,105);
+STACK[INDEX - 1]=LIST4(116,104,109,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRIT1(ANAME);
+OPOS=OPOS - 1;
+CWRITE(46);
+if (OPOS > LMARG) WRITE();
+ROBUFF();
+_24: INDEX=INDEX - 2;
+return;
+}
+/* ##### CTERMW ##### */
+void CTERMW(AL,DL)
+int DL,AL;
+{
+int J3Y,J2Y,J1Y;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ATOM(),AWVB(),GET(),LENGTH(),SYMBOL();
+void CAWRIT(),CCWRIT(),CSWRIT(),CTERMW(),CWRIT2(),CWRIT3(),CWRIT4(),
+CWRITE(),IUP();
+IUP(8);
+J1Y=ATOM(AL);
+if (J1Y != 0) goto _8;
+if (AL != BETA) goto _7;
+_8: CAWRIT(AL);
+goto _45;
+_7: J1Y=SYMBOL(AL);
+if (J1Y == 0) goto _10;
+J1Y=GET(AL,100);
+if (J1Y == 1) CWRITE(42);
+CSWRIT(6,AL);
+goto _45;
+_10: STACK[INDEX]=SPACE[AL - BETA1];
+STACK[INDEX - 2]=SPACE[AL - BETA];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+if (STACK[INDEX - 2] == BETA) goto _17;
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+goto _16;
+_17: if (STACK[INDEX] == 45) STACK[INDEX]=44;
+_16: if (STACK[INDEX] == BETA) STACK[INDEX]=46;
+J3Y=STACK[INDEX] - 37;
+switch (J3Y)
+ {
+  case 1: goto _49;
+  case 2: goto _45;
+  case 3: goto _45;
+  case 4: goto _45;
+  case 5: goto _48;
+  case 6: goto _48;
+  case 7: goto _47;
+  case 8: goto _48;
+  case 9: goto _46;
+  case 10: goto _48;
+ };
+goto _45;
+_49: STACK[INDEX - 4]=GET(STACK[INDEX - 1],5);
+if (STACK[INDEX - 4] != BETA) goto _43;
+CSWRIT(6,STACK[INDEX - 1]);
+CCWRIT(40);
+_23: if (STACK[INDEX - 3] == BETA) goto _24;
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+CTERMW(STACK[INDEX - 5],DL);
+if (STACK[INDEX - 3] != BETA) CCWRIT(44);
+goto _23;
+_24: CCWRIT(41);
+goto _45;
+_43: J1Y=AWVB(STACK[INDEX - 1]);
+if (J1Y == 0) goto _41;
+CWRIT2(42,40);
+CSWRIT(6,STACK[INDEX - 1]);
+CWRITE(43);
+J1Y=STACK[INDEX - 4] - BETA;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX - 6]=1;
+J2Y=LENGTH(STACK[INDEX - 1]);
+_25: if (STACK[INDEX - 6] > J2Y) goto _26;
+CWRITE(40);
+STACK[INDEX - 6]=STACK[INDEX - 6] + 1;
+goto _25;
+_26: STACK[INDEX - 6]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+CTERMW(STACK[INDEX - 6],DL);
+_33: if (STACK[INDEX - 3] == BETA) goto _34;
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 1] - BETA1];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 1] - BETA];
+CWRIT3(41,42,40);
+CTERMW(STACK[INDEX - 7],DL);
+CWRIT4(43,49,41,43);
+CTERMW(STACK[INDEX - 6],DL);
+goto _33;
+_34: CWRITE(41);
+goto _45;
+_41: CSWRIT(6,STACK[INDEX - 1]);
+if (DL != 2) goto _35;
+J1Y=STACK[INDEX - 3] - BETA;
+STACK[INDEX - 3]=SPACE[J1Y];
+CWRIT2(91,93);
+_35: if (STACK[INDEX - 3] == BETA) goto _45;
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+CWRITE(91);
+CTERMW(STACK[INDEX - 5],DL);
+if (DL != 0) CWRIT2(43,49);
+CWRITE(93);
+goto _35;
+_48: CTERMW(STACK[INDEX - 1],DL);
+CWRITE(32);
+CCWRIT(STACK[INDEX]);
+CWRITE(32);
+CTERMW(STACK[INDEX - 3],DL);
+goto _45;
+_47: CCWRIT(45);
+CTERMW(STACK[INDEX - 1],DL);
+goto _45;
+_46: CAWRIT(STACK[INDEX - 1]);
+_45: INDEX=INDEX - 8;
+return;
+}
+/* ##### FALG ##### */
+void FALG(L)
+int L;
+{
+int U,R,LP,LL0,LL,J1Y;
+extern int BETA,BETA1,FUNIT,GSYM,INDEX,LMARG,OPOS,OPT[],OUNIT,RMARG,
+SPACE[],STACK[],SYINT,SYMTB;
+int CLAB(),CONC(),LIST1(),LIST10(),LIST5();
+void CBWRIT(),CCHDW(),CCTLWR(),CDCLW(),CLOUT(),CSTAT(),CWRITE(),FALG(),
+FUWRIT(),WRITE(),XFD(),IUP();
+IUP(11);
+if (SYINT == 2) goto _16;
+if (L == BETA) goto _16;
+R=RMARG;
+RMARG=72;
+U=OUNIT;
+OPOS=0;
+LMARG=0;
+if (OPT[15] == 0) goto _17;
+FUWRIT(L);
+goto _13;
+_17: OUNIT=FUNIT;
+XFD(L,&(STACK[INDEX]),&(STACK[INDEX - 1]),&(STACK[INDEX - 2]),&(STACK[
+INDEX - 3]),&(STACK[INDEX - 4]),&(STACK[INDEX - 5]),&(STACK[INDEX - 6]),&
+(STACK[INDEX - 7]));
+LL=SPACE[L - BETA1];
+LP=SPACE[L - BETA];
+STACK[INDEX - 8]=SPACE[LL - BETA1];
+LL=SPACE[LL - BETA];
+if (STACK[INDEX - 8] != 11) goto _26;
+J1Y=SPACE[LL - BETA] - BETA1;
+STACK[INDEX - 9]=SPACE[J1Y];
+J1Y=SPACE[STACK[INDEX - 9] - BETA] - BETA1;
+STACK[INDEX - 9]=SPACE[J1Y];
+CCTLWR(STACK[INDEX - 9]);
+goto _27;
+_26: CCTLWR(SPACE[LL - BETA1]);
+_27: if (STACK[INDEX - 8] != 1) goto _28;
+CDCLW(104,STACK[INDEX - 4]);
+STACK[INDEX - 9]=LIST10(99,104,97,114,32,42,32,65,82,71);
+STACK[INDEX - 10]=LIST5(86,91,50,48,93);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+STACK[INDEX - 10]=LIST1(59);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+CLOUT(STACK[INDEX - 9]);
+WRITE();
+_28: CCHDW(SPACE[L - BETA1]);
+CBWRIT();
+CDCLW(100,STACK[INDEX - 1]);
+if (STACK[INDEX - 8] != 1) goto _29;
+STACK[INDEX - 9]=LIST10(105,110,116,32,97,114,103,99,59,32);
+STACK[INDEX - 10]=LIST10(99,104,97,114,32,42,97,114,103,118);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+STACK[INDEX - 10]=LIST5(91,93,59,32,123);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+CLOUT(STACK[INDEX - 9]);
+WRITE();
+_29: CDCLW(101,STACK[INDEX - 2]);
+if (STACK[INDEX - 8] == 1) goto _30;
+CWRITE(123);
+CBWRIT();
+_30: CDCLW(102,STACK[INDEX - 3]);
+CDCLW(103,STACK[INDEX - 4]);
+if (STACK[INDEX - 8] != 1) goto _31;
+STACK[INDEX - 9]=LIST10(101,120,116,101,114,110,32,99,104,97);
+STACK[INDEX - 10]=LIST10(114,32,42,32,65,82,71,86,91,93);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+STACK[INDEX - 10]=LIST1(59);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+CLOUT(STACK[INDEX - 9]);
+WRITE();
+_31: CDCLW(105,STACK[INDEX - 5]);
+CDCLW(106,STACK[INDEX - 6]);
+if (STACK[INDEX - 8] != 1) goto _32;
+STACK[INDEX - 9]=LIST10(32,32,32,102,111,114,32,40,65,82);
+STACK[INDEX - 10]=LIST10(71,67,61,48,59,65,82,71,67,60);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+STACK[INDEX - 10]=LIST10(97,114,103,99,59,65,82,71,67,43);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+STACK[INDEX - 10]=LIST10(43,41,32,65,82,71,86,91,65,82);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+STACK[INDEX - 10]=LIST10(71,67,93,61,97,114,103,118,91,65);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+STACK[INDEX - 10]=LIST5(82,71,67,93,59);
+STACK[INDEX - 9]=CONC(STACK[INDEX - 9],STACK[INDEX - 10]);
+CLOUT(STACK[INDEX - 9]);
+WRITE();
+_32: LP=STACK[INDEX - 7];
+_38: if (LP == BETA) goto _39;
+LL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+if (LP != BETA) goto _35;
+if (STACK[INDEX - 8] == 1) STACK[INDEX]=-1;
+_35: J1Y=CLAB(LL);
+if (J1Y != 0) goto _38;
+LL0=SPACE[LL - BETA1];
+if (2 > LL0) goto _38;
+if (LL0 > 16) goto _38;
+CSTAT(LL,STACK[INDEX],0);
+CBWRIT();
+goto _38;
+_39: CWRITE(125);
+CBWRIT();
+_13: OUNIT=U;
+RMARG=R;
+_16: INDEX=INDEX - 11;
+return;
+}
+/* ##### FUWRIT ##### */
+void FUWRIT(L)
+int L;
+{
+int LP,J1Y,AL;
+extern int BETA,BETA1,LMARG,OPOS,SPACE[];
+int ATOM();
+void CWRITE(),FUWRIT(),TAB(),UWRIT1(),UWRITE(),WRITE();
+if (L == BETA) goto _7;
+J1Y=ATOM(L);
+if (J1Y == 0) goto _6;
+_7: UWRITE(L);
+goto _16;
+_6: CWRITE(40);
+LP=L;
+_15: if (LP == BETA) goto _16;
+AL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+J1Y=ATOM(AL);
+if (J1Y == 0) goto _13;
+UWRIT1(AL);
+goto _15;
+_13: TAB(4);
+UWRIT1(AL);
+if (LP == BETA) CWRITE(41);
+if (OPOS > LMARG) WRITE();
+goto _15;
+_16: return;
+}
+/* ##### LSRCHI ##### */
+int LSRCHI(SL,L)
+int L,SL;
+{
+int LP,J2Y,J1Y,CL,R1V;
+extern int BETA,BETA1,SPACE[];
+int ACOMP(),LSRCHI(),SYMBOL();
+LP=L;
+_2: if (LP == BETA) goto _13;
+CL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+J1Y=SYMBOL(CL);
+if (J1Y == 0) goto _8;
+J1Y=ACOMP(CL,SL);
+if (J1Y == 0) goto _5;
+_8: J1Y=SYMBOL(CL);
+if (J1Y != 0) goto _2;
+J2Y=SPACE[CL - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+J1Y=ACOMP(J1Y,SL);
+if (J1Y == 0) goto _5;
+goto _2;
+_13: CL=0;
+_5: R1V=CL;
+return(R1V);
+}
+/* ##### XFD ##### */
+void XFD(L,FLP,IP,OP,LH,GH,FH,PH,S)
+int L;
+int *FLP,*IP,*OP,*LH,*GH,*FH,*PH,*S;
+{
+int J2Y,J1Y;
+extern int BETA,BETA1,GSYM,INDEX,SPACE[],STACK[],STP,SYMTB,TBTA1,TCHI,
+TMU,TNU;
+int ACOMP(),ATOM(),CCONC(),COMP(),CONC(),ENTER(),GET(),INV(),LIST1(),
+LIST10(),LIST2(),LIST3(),LIST4(),LIST5(),LSRCHI(),STINS(),SYMBOL(),THIRD(
+);
+void CLOUT(),PUT(),WRITE(),XFD(),IUP();
+IUP(29);
+STACK[INDEX]=SPACE[L - BETA1];
+J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] != 11) goto _19;
+STACK[INDEX - 1]=THIRD(STACK[INDEX]);
+J1Y=SPACE[STACK[INDEX - 1] - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+goto _18;
+_19: J1Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+_18: J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] == 1) goto _22;
+J1Y=GET(STACK[INDEX - 2],30);
+if (J1Y == BETA) goto _21;
+_22: J1Y=GET(STP,30);
+if (J1Y != BETA) goto _21;
+PUT(STP,30,1);
+STACK[INDEX - 1]=LIST10(35,105,110,99,108,117,100,101,32,60);
+STACK[INDEX - 3]=LIST5(115,116,100,108,105);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST4(98,46,104,62);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+CLOUT(STACK[INDEX - 1]);
+WRITE();
+_21: J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] == 2) STACK[INDEX - 2]=0;
+J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] > 2) goto _24;
+STACK[INDEX - 4]=THIRD(STACK[INDEX]);
+J1Y=STACK[INDEX] - BETA;
+STACK[INDEX - 5]=THIRD(SPACE[J1Y]);
+goto _25;
+_24: STACK[INDEX - 1]=THIRD(STACK[INDEX]);
+STACK[INDEX - 4]=THIRD(STACK[INDEX - 1]);
+STACK[INDEX - 5]=BETA;
+_25: STACK[INDEX - 6]=STACK[INDEX - 5];
+_28: if (STACK[INDEX - 6] == BETA) goto _29;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+PUT(STACK[INDEX - 7],100,1);
+goto _28;
+_29: STACK[INDEX - 8]=BETA;
+STACK[INDEX - 9]=BETA;
+STACK[INDEX - 10]=BETA;
+STACK[INDEX - 11]=BETA;
+STACK[INDEX - 12]=BETA;
+STACK[INDEX - 13]=BETA;
+STACK[INDEX - 14]=BETA;
+STACK[INDEX - 6]=SPACE[L - BETA];
+_42: if (STACK[INDEX - 6] == BETA) goto _43;
+J1Y=STACK[INDEX - 6] - BETA1;
+J1Y=ATOM(SPACE[J1Y]);
+if (J1Y != 0) goto _40;
+J1Y=STACK[INDEX - 6] - BETA1;
+J1Y=SPACE[J1Y] - BETA1;
+if (2 > SPACE[J1Y]) goto _39;
+J1Y=STACK[INDEX - 6] - BETA1;
+J1Y=SPACE[J1Y] - BETA1;
+if (SPACE[J1Y] > 11) goto _39;
+_40: STACK[INDEX - 14]=STACK[INDEX - 6];
+STACK[INDEX - 6]=BETA;
+goto _42;
+_39: STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+J1Y=STACK[INDEX - 7] - BETA1;
+J2Y=SPACE[J1Y] - 11;
+switch (J2Y)
+ {
+  case 1: goto _33;
+  case 2: goto _34;
+  case 3: goto _35;
+  case 4: goto _36;
+  case 5: goto _37;
+  case 6: goto _38;
+ };
+goto _42;
+_38: J1Y=STACK[INDEX - 7] - BETA;
+STACK[INDEX - 13]=CCONC(STACK[INDEX - 13],SPACE[J1Y]);
+goto _42;
+_37: J1Y=STACK[INDEX - 7] - BETA;
+STACK[INDEX - 12]=CCONC(STACK[INDEX - 12],SPACE[J1Y]);
+goto _42;
+_36: J1Y=STACK[INDEX - 7] - BETA;
+STACK[INDEX - 11]=CCONC(STACK[INDEX - 11],SPACE[J1Y]);
+goto _42;
+_35: J1Y=STACK[INDEX - 7] - BETA;
+STACK[INDEX - 10]=CCONC(STACK[INDEX - 10],SPACE[J1Y]);
+goto _42;
+_34: J1Y=STACK[INDEX - 7] - BETA;
+STACK[INDEX - 9]=CCONC(STACK[INDEX - 9],SPACE[J1Y]);
+goto _42;
+_33: J1Y=STACK[INDEX - 7] - BETA;
+STACK[INDEX - 8]=CCONC(STACK[INDEX - 8],SPACE[J1Y]);
+goto _42;
+_43: STACK[INDEX - 6]=STACK[INDEX - 4];
+STACK[INDEX - 4]=BETA;
+_48: if (STACK[INDEX - 6] == BETA) goto _49;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+STACK[INDEX - 15]=LSRCHI(STACK[INDEX - 7],STACK[INDEX - 8]);
+if (STACK[INDEX - 15] == 0) goto _46;
+STACK[INDEX - 4]=COMP(STACK[INDEX - 15],STACK[INDEX - 4]);
+goto _48;
+_46: STACK[INDEX - 4]=COMP(STACK[INDEX - 7],STACK[INDEX - 4]);
+goto _48;
+_49: STACK[INDEX - 6]=STACK[INDEX - 8];
+_55: if (STACK[INDEX - 6] == BETA) goto _56;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+J1Y=SPACE[STACK[INDEX - 7] - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX - 15]=LSRCHI(STACK[INDEX - 1],STACK[INDEX - 4]);
+if (STACK[INDEX - 15] == 0) STACK[INDEX - 13]=COMP(STACK[INDEX - 7],
+STACK[INDEX - 13]);
+goto _55;
+_56: STACK[INDEX - 6]=STACK[INDEX - 9];
+_60: if (STACK[INDEX - 6] == BETA) goto _61;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+J1Y=SYMBOL(STACK[INDEX - 7]);
+if (J1Y == 0) STACK[INDEX - 8]=COMP(STACK[INDEX - 7],STACK[INDEX - 8]);
+goto _60;
+_61: J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] != 11) goto _62;
+STACK[INDEX - 1]=LIST3(82,49,86);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 13]=COMP(STACK[INDEX - 1],STACK[INDEX - 13]);
+_62: J1Y=SPACE[L - BETA1] - BETA1;
+if (SPACE[J1Y] != 1) goto _10;
+STACK[INDEX - 1]=LIST5(65,66,85,70,70);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 3]=LIST1(256);
+STACK[INDEX - 1]=LIST3(38,STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST4(65,82,71,67);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 16]=LIST5(65,76,77,65,82);
+STACK[INDEX - 16]=ENTER(STACK[INDEX - 16]);
+STACK[INDEX - 17]=LIST4(65,80,79,83);
+STACK[INDEX - 17]=ENTER(STACK[INDEX - 17]);
+STACK[INDEX - 18]=LIST5(65,82,77,65,82);
+STACK[INDEX - 18]=ENTER(STACK[INDEX - 18]);
+STACK[INDEX - 19]=LIST5(65,85,78,73,84);
+STACK[INDEX - 19]=ENTER(STACK[INDEX - 19]);
+STACK[INDEX - 20]=LIST5(65,86,65,73,76);
+STACK[INDEX - 20]=ENTER(STACK[INDEX - 20]);
+STACK[INDEX - 21]=LIST4(66,69,84,65);
+STACK[INDEX - 21]=ENTER(STACK[INDEX - 21]);
+STACK[INDEX - 22]=LIST5(66,69,84,65,49);
+STACK[INDEX - 22]=ENTER(STACK[INDEX - 22]);
+STACK[INDEX - 23]=LIST5(67,69,76,76,83);
+STACK[INDEX - 23]=ENTER(STACK[INDEX - 23]);
+STACK[INDEX - 1]=LIST10(STACK[INDEX - 1],STACK[INDEX - 3],STACK[INDEX - 
+16],STACK[INDEX - 17],STACK[INDEX - 18],STACK[INDEX - 19],STACK[INDEX - 
+20],STACK[INDEX - 21],STACK[INDEX - 22],STACK[INDEX - 23]);
+STACK[INDEX - 3]=LIST3(67,72,73);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 16]=LIST5(67,79,85,78,84);
+STACK[INDEX - 16]=ENTER(STACK[INDEX - 16]);
+STACK[INDEX - 17]=LIST5(67,85,78,73,84);
+STACK[INDEX - 17]=ENTER(STACK[INDEX - 17]);
+STACK[INDEX - 18]=LIST5(68,69,76,84,65);
+STACK[INDEX - 18]=ENTER(STACK[INDEX - 18]);
+STACK[INDEX - 19]=LIST4(69,67,72,79);
+STACK[INDEX - 19]=ENTER(STACK[INDEX - 19]);
+STACK[INDEX - 20]=LIST5(69,74,69,67,84);
+STACK[INDEX - 20]=ENTER(STACK[INDEX - 20]);
+STACK[INDEX - 21]=LIST4(69,78,68,70);
+STACK[INDEX - 21]=ENTER(STACK[INDEX - 21]);
+STACK[INDEX - 22]=LIST5(69,80,83,73,76);
+STACK[INDEX - 22]=ENTER(STACK[INDEX - 22]);
+STACK[INDEX - 23]=LIST3(69,84,65);
+STACK[INDEX - 23]=ENTER(STACK[INDEX - 23]);
+STACK[INDEX - 24]=LIST3(71,67,67);
+STACK[INDEX - 24]=ENTER(STACK[INDEX - 24]);
+STACK[INDEX - 3]=LIST10(STACK[INDEX - 3],STACK[INDEX - 16],STACK[INDEX - 
+17],STACK[INDEX - 18],STACK[INDEX - 19],STACK[INDEX - 20],STACK[INDEX - 
+21],STACK[INDEX - 22],STACK[INDEX - 23],STACK[INDEX - 24]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST4(71,67,67,67);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 16]=LIST3(71,67,77);
+STACK[INDEX - 16]=ENTER(STACK[INDEX - 16]);
+STACK[INDEX - 17]=LIST5(73,66,85,70,70);
+STACK[INDEX - 17]=ENTER(STACK[INDEX - 17]);
+STACK[INDEX - 18]=LIST1(256);
+STACK[INDEX - 17]=LIST3(38,STACK[INDEX - 17],STACK[INDEX - 18]);
+STACK[INDEX - 18]=LIST5(73,68,84,89,80);
+STACK[INDEX - 18]=ENTER(STACK[INDEX - 18]);
+STACK[INDEX - 19]=LIST5(73,76,73,78,69);
+STACK[INDEX - 19]=ENTER(STACK[INDEX - 19]);
+STACK[INDEX - 20]=LIST5(73,78,68,69,88);
+STACK[INDEX - 20]=ENTER(STACK[INDEX - 20]);
+STACK[INDEX - 21]=LIST4(73,80,79,83);
+STACK[INDEX - 21]=ENTER(STACK[INDEX - 21]);
+STACK[INDEX - 22]=LIST5(73,83,73,90,69);
+STACK[INDEX - 22]=ENTER(STACK[INDEX - 22]);
+STACK[INDEX - 23]=LIST5(73,85,78,73,84);
+STACK[INDEX - 23]=ENTER(STACK[INDEX - 23]);
+STACK[INDEX - 24]=LIST5(76,77,65,82,71);
+STACK[INDEX - 24]=ENTER(STACK[INDEX - 24]);
+STACK[INDEX - 3]=LIST10(STACK[INDEX - 3],STACK[INDEX - 16],STACK[INDEX - 
+17],STACK[INDEX - 18],STACK[INDEX - 19],STACK[INDEX - 20],STACK[INDEX - 
+21],STACK[INDEX - 22],STACK[INDEX - 23],STACK[INDEX - 24]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST5(76,85,78,73,84);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 16]=LIST2(77,85);
+STACK[INDEX - 16]=ENTER(STACK[INDEX - 16]);
+STACK[INDEX - 17]=LIST5(77,85,78,73,84);
+STACK[INDEX - 17]=ENTER(STACK[INDEX - 17]);
+STACK[INDEX - 18]=LIST3(78,65,77);
+STACK[INDEX - 18]=ENTER(STACK[INDEX - 18]);
+STACK[INDEX - 19]=LIST5(78,80,70,68,83);
+STACK[INDEX - 19]=ENTER(STACK[INDEX - 19]);
+STACK[INDEX - 20]=LIST2(78,85);
+STACK[INDEX - 20]=ENTER(STACK[INDEX - 20]);
+STACK[INDEX - 21]=LIST3(78,85,49);
+STACK[INDEX - 21]=ENTER(STACK[INDEX - 21]);
+STACK[INDEX - 22]=LIST5(79,66,85,70,70);
+STACK[INDEX - 22]=ENTER(STACK[INDEX - 22]);
+STACK[INDEX - 23]=LIST1(256);
+STACK[INDEX - 22]=LIST3(38,STACK[INDEX - 22],STACK[INDEX - 23]);
+STACK[INDEX - 23]=LIST5(79,76,73,78,69);
+STACK[INDEX - 23]=ENTER(STACK[INDEX - 23]);
+STACK[INDEX - 24]=LIST4(79,80,79,83);
+STACK[INDEX - 24]=ENTER(STACK[INDEX - 24]);
+STACK[INDEX - 3]=LIST10(STACK[INDEX - 3],STACK[INDEX - 16],STACK[INDEX - 
+17],STACK[INDEX - 18],STACK[INDEX - 19],STACK[INDEX - 20],STACK[INDEX - 
+21],STACK[INDEX - 22],STACK[INDEX - 23],STACK[INDEX - 24]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST5(79,85,78,73,84);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 16]=LIST5(80,82,78,84,82);
+STACK[INDEX - 16]=ENTER(STACK[INDEX - 16]);
+STACK[INDEX - 17]=LIST3(82,72,79);
+STACK[INDEX - 17]=ENTER(STACK[INDEX - 17]);
+STACK[INDEX - 18]=LIST4(82,73,78,67);
+STACK[INDEX - 18]=ENTER(STACK[INDEX - 18]);
+STACK[INDEX - 19]=LIST5(82,77,65,82,71);
+STACK[INDEX - 19]=ENTER(STACK[INDEX - 19]);
+STACK[INDEX - 20]=LIST5(82,77,85,76,84);
+STACK[INDEX - 20]=ENTER(STACK[INDEX - 20]);
+STACK[INDEX - 21]=LIST5(82,84,69,82,77);
+STACK[INDEX - 21]=ENTER(STACK[INDEX - 21]);
+STACK[INDEX - 22]=LIST5(83,66,65,83,69);
+STACK[INDEX - 22]=ENTER(STACK[INDEX - 22]);
+STACK[INDEX - 23]=LIST5(83,80,65,67,69);
+STACK[INDEX - 23]=ENTER(STACK[INDEX - 23]);
+STACK[INDEX - 24]=LIST1(40000);
+STACK[INDEX - 23]=LIST3(38,STACK[INDEX - 23],STACK[INDEX - 24]);
+STACK[INDEX - 24]=LIST5(83,84,65,67,75);
+STACK[INDEX - 24]=ENTER(STACK[INDEX - 24]);
+STACK[INDEX - 25]=LIST1(1000);
+STACK[INDEX - 24]=LIST3(38,STACK[INDEX - 24],STACK[INDEX - 25]);
+STACK[INDEX - 3]=LIST10(STACK[INDEX - 3],STACK[INDEX - 16],STACK[INDEX - 
+17],STACK[INDEX - 18],STACK[INDEX - 19],STACK[INDEX - 20],STACK[INDEX - 
+21],STACK[INDEX - 22],STACK[INDEX - 23],STACK[INDEX - 24]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST5(84,65,66,80,50);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 16]=LIST1(64);
+STACK[INDEX - 3]=LIST3(38,STACK[INDEX - 3],STACK[INDEX - 16]);
+STACK[INDEX - 16]=LIST3(84,65,85);
+STACK[INDEX - 16]=ENTER(STACK[INDEX - 16]);
+STACK[INDEX - 17]=LIST4(84,65,85,48);
+STACK[INDEX - 17]=ENTER(STACK[INDEX - 17]);
+STACK[INDEX - 18]=LIST5(84,72,69,84,65);
+STACK[INDEX - 18]=ENTER(STACK[INDEX - 18]);
+STACK[INDEX - 19]=LIST3(84,73,77);
+STACK[INDEX - 19]=ENTER(STACK[INDEX - 19]);
+STACK[INDEX - 3]=LIST5(STACK[INDEX - 3],STACK[INDEX - 16],STACK[INDEX - 
+17],STACK[INDEX - 18],STACK[INDEX - 19]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST5(84,82,77,65,88);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 16]=LIST4(90,69,84,65);
+STACK[INDEX - 16]=ENTER(STACK[INDEX - 16]);
+STACK[INDEX - 3]=LIST2(STACK[INDEX - 3],STACK[INDEX - 16]);
+STACK[INDEX - 6]=CONC(STACK[INDEX - 1],STACK[INDEX - 3]);
+_71: if (STACK[INDEX - 6] == BETA) goto _72;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+J1Y=SYMBOL(STACK[INDEX - 7]);
+if (J1Y == 0) goto _67;
+STACK[INDEX - 15]=STACK[INDEX - 7];
+goto _66;
+_67: J1Y=SPACE[STACK[INDEX - 7] - BETA] - BETA1;
+STACK[INDEX - 15]=SPACE[J1Y];
+_66: J1Y=LSRCHI(STACK[INDEX - 15],STACK[INDEX - 9]);
+if (J1Y != 0) goto _71;
+STACK[INDEX - 9]=COMP(STACK[INDEX - 7],STACK[INDEX - 9]);
+if (STACK[INDEX - 7] == STACK[INDEX - 15]) goto _71;
+STACK[INDEX - 1]=THIRD(STACK[INDEX - 7]);
+PUT(STACK[INDEX - 15],5,STACK[INDEX - 1]);
+STACK[INDEX - 8]=COMP(STACK[INDEX - 7],STACK[INDEX - 8]);
+goto _71;
+_72: STACK[INDEX - 9]=INV(STACK[INDEX - 9]);
+_10: STACK[INDEX - 26]=STACK[SYMTB];
+STACK[SYMTB]=STACK[GSYM];
+STACK[INDEX - 6]=STACK[INDEX - 13];
+STACK[INDEX - 13]=BETA;
+_81: if (STACK[INDEX - 6] == BETA) goto _82;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+J1Y=SYMBOL(STACK[INDEX - 7]);
+if (J1Y == 0) goto _79;
+J1Y=SPACE[STACK[INDEX - 7] - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX - 1]=STINS(STACK[INDEX - 1]);
+J1Y=GET(STACK[INDEX - 1],2);
+if (J1Y == BETA) goto _75;
+STACK[INDEX - 10]=COMP(STACK[INDEX - 7],STACK[INDEX - 10]);
+goto _81;
+_75: STACK[INDEX - 13]=COMP(STACK[INDEX - 7],STACK[INDEX - 13]);
+goto _81;
+_79: STACK[INDEX - 13]=COMP(STACK[INDEX - 7],STACK[INDEX - 13]);
+goto _81;
+_82: STACK[SYMTB]=STACK[INDEX - 26];
+J1Y=ATOM(TBTA1);
+if (J1Y == 0) goto _88;
+STACK[INDEX - 1]=LIST4(66,69,84,65);
+STACK[INDEX - 27]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(66,69,84,65,49);
+STACK[INDEX - 28]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 6]=STACK[INDEX - 9];
+STACK[INDEX - 9]=BETA;
+_87: if (STACK[INDEX - 6] == BETA) goto _88;
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+J1Y=SYMBOL(STACK[INDEX - 7]);
+if (J1Y == 0) goto _86;
+J1Y=ACOMP(STACK[INDEX - 7],STACK[INDEX - 27]);
+if (J1Y == 0) goto _87;
+J1Y=ACOMP(STACK[INDEX - 7],STACK[INDEX - 28]);
+if (J1Y == 0) goto _87;
+_86: STACK[INDEX - 9]=COMP(STACK[INDEX - 7],STACK[INDEX - 9]);
+goto _87;
+_88: *S=STACK[INDEX - 14];
+*PH=STACK[INDEX - 12];
+*FH=STACK[INDEX - 10];
+*GH=STACK[INDEX - 9];
+*LH=STACK[INDEX - 13];
+*OP=STACK[INDEX - 5];
+*IP=STACK[INDEX - 4];
+*FLP=STACK[INDEX - 2];
+INDEX=INDEX - 29;
+return;
+}
+/* ##### GCLNGO ##### */
+void GCLNGO(AL,P0,P,P1,G1,G)
+int G1,P1,P,P0,AL;
+int *G;
+{
+int SL,PPP,PP,NLP,NL,L,J1Y,ALP;
+extern int BETA,BETA1,CHNGE,INDEX,SPACE[],STACK[];
+int ATOM(),COMP(),THIRD();
+void GCLNGO(),IUP();
+IUP(1);
+ALP=AL;
+SL=SPACE[ALP - BETA1];
+STACK[INDEX]=G1;
+if (SL != 5) goto _7;
+ALP=THIRD(AL);
+SL=SPACE[ALP - BETA1];
+_7: if (SL != 10) goto _12;
+STACK[INDEX]=COMP(SPACE[ALP - BETA],STACK[INDEX]);
+goto _11;
+_12: if (SL != 6) goto _11;
+J1Y=SPACE[ALP - BETA] - BETA;
+L=SPACE[J1Y];
+_9: STACK[INDEX]=COMP(L,STACK[INDEX]);
+L=SPACE[L - BETA];
+if (L != BETA) goto _9;
+_11: if (SPACE[AL - BETA1] == 5) goto _29;
+if (SL == 6) goto _29;
+PP=P1;
+_16: if (PP == BETA) goto _17;
+J1Y=ATOM(SPACE[PP - BETA1]);
+if (J1Y != 0) goto _17;
+PP=SPACE[PP - BETA];
+SPACE[P - BETA]=PP;
+goto _16;
+_17: J1Y=SPACE[AL - BETA] - BETA1;
+NL=SPACE[J1Y];
+NLP=SPACE[PP - BETA1];
+PPP=SPACE[PP - BETA];
+_21: J1Y=ATOM(NLP);
+if (J1Y == 0) goto _29;
+if (NLP == NL) goto _26;
+NLP=SPACE[PPP - BETA1];
+PPP=SPACE[PPP - BETA];
+goto _21;
+_26: CHNGE=1;
+SPACE[P0 - BETA]=PP;
+J1Y=STACK[INDEX] - BETA;
+STACK[INDEX]=SPACE[J1Y];
+_29: *G=STACK[INDEX];
+INDEX=INDEX - 1;
+return;
+}
+/* ##### GCLNIF ##### */
+void GCLNIF(AL,P0,P,P1,G1,G)
+int G1,P1,P,P0,AL;
+int *G;
+{
+int SL,S,PPP,PP,NLP,NL,J1Y,BL;
+extern int BETA,BETA1,CHNGE,OLEV,SPACE[];
+int ATOM(),GNREL();
+void FIRST2(),GCLNGO(),GCLNIF();
+FIRST2(SPACE[AL - BETA],&(BL),&(S));
+FIRST2(S,&(SL),&(NL));
+*G=G1;
+if (SL != 10) goto _34;
+if (OLEV < 1) goto _23;
+J1Y=ATOM(SPACE[P1 - BETA1]);
+if (J1Y != 0) goto _23;
+if (SPACE[P1 - BETA1] == BETA) goto _23;
+J1Y=SPACE[P1 - BETA1] - BETA1;
+if (SPACE[J1Y] == 5) goto _23;
+if (SPACE[P1 - BETA] == BETA) goto _23;
+NLP=SPACE[SPACE[P1 - BETA] - BETA1];
+PP=SPACE[SPACE[P1 - BETA] - BETA];
+_9: J1Y=ATOM(NLP);
+if (J1Y == 0) goto _23;
+if (NLP == NL) goto _20;
+NLP=SPACE[PP - BETA1];
+PP=SPACE[PP - BETA];
+goto _9;
+_20: PP=SPACE[P1 - BETA];
+SPACE[P1 - BETA]=BETA;
+SPACE[SPACE[AL - BETA] - BETA]=P1;
+SPACE[P - BETA]=PP;
+J1Y=GNREL(SPACE[BL - BETA1]);
+SPACE[BL - BETA1]=J1Y;
+FIRST2(SPACE[AL - BETA],&(BL),&(S));
+FIRST2(S,&(SL),&(NL));
+if (SL != 10) goto _34;
+_23: PP=SPACE[P - BETA];
+NLP=SPACE[PP - BETA1];
+PPP=SPACE[PP - BETA];
+_26: J1Y=ATOM(NLP);
+if (J1Y == 0) goto _34;
+if (NLP == NL) goto _31;
+NLP=SPACE[PPP - BETA1];
+PPP=SPACE[PPP - BETA];
+goto _26;
+_31: CHNGE=1;
+SPACE[P0 - BETA]=PP;
+goto _7;
+_34: GCLNGO(AL,P0,P,PP,G1,&(*G));
+_7: return;
+}
+/* ##### GCLNLB ##### */
+void GCLNLB(AL,P0,P,P1,L1,L)
+int L1,P1,P,P0,AL;
+int *L;
+{
+int PP,PL0,PL,J1Y;
+extern int BETA,BETA1,CHNGE,INDEX,SPACE[],STACK[];
+int ATOM(),COMP2();
+void GCLNLB(),IUP();
+IUP(2);
+PP=P1;
+STACK[INDEX]=L1;
+_2: PL=SPACE[PP - BETA1];
+J1Y=ATOM(PL);
+if (J1Y == 0) goto _3;
+STACK[INDEX]=COMP2(PL,AL,STACK[INDEX]);
+PP=SPACE[PP - BETA];
+SPACE[P - BETA]=PP;
+goto _2;
+_3: if (SPACE[PL - BETA1] != 10) goto _17;
+CHNGE=1;
+J1Y=SPACE[PL - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX]=COMP2(AL,STACK[INDEX - 1],STACK[INDEX]);
+J1Y=ATOM(SPACE[P0 - BETA1]);
+if (J1Y != 0) goto _13;
+if (SPACE[P0 - BETA1] == BETA) goto _13;
+J1Y=SPACE[P0 - BETA1] - BETA1;
+PL0=SPACE[J1Y];
+if (PL0 == 10) goto _14;
+if (PL0 == 6) goto _14;
+if (PL0 != 7) goto _13;
+_14: PP=SPACE[PP - BETA];
+J1Y=ATOM(SPACE[PP - BETA1]);
+if (J1Y == 0) goto _14;
+_13: SPACE[P0 - BETA]=PP;
+_17: *L=STACK[INDEX];
+INDEX=INDEX - 2;
+return;
+}
+/* ##### GCLNM ##### */
+int GCLNM(Q)
+int Q;
+{
+int PP,P0,P,LL,J1Y,GP,GL,BL,AL,R1V;
+extern int ANAME,BETA,BETA1,CHNGE,INDEX,OPT[],SPACE[],STACK[];
+int ASSOC(),ATOM(),COMP(),CONC(),GCLNM(),LIST10(),LIST4(),LIST5(),MEMBER(
+);
+void CLOUT(),GCLNGO(),GCLNIF(),GCLNLB(),UWRITE(),IUP();
+IUP(7);
+if (OPT[8] == 0) goto _9;
+STACK[INDEX]=LIST10(71,67,76,78,77,32,101,110,116,101);
+STACK[INDEX - 1]=LIST5(114,105,110,103,58);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRITE(Q);
+_9: STACK[INDEX - 2]=Q;
+_2: CHNGE=0;
+STACK[INDEX - 3]=BETA;
+STACK[INDEX - 4]=BETA;
+P=STACK[INDEX - 2];
+P0=P;
+_26: if (P == BETA) goto _27;
+AL=SPACE[P - BETA1];
+PP=SPACE[P - BETA];
+J1Y=ATOM(AL);
+if (J1Y == 0) goto _22;
+GCLNLB(AL,P0,P,PP,STACK[INDEX - 3],&(STACK[INDEX - 3]));
+goto _15;
+_22: BL=SPACE[AL - BETA1];
+if (BL == 10) goto _20;
+if (BL != 6) goto _19;
+_20: GCLNGO(AL,P0,P,PP,STACK[INDEX - 4],&(STACK[INDEX - 4]));
+goto _15;
+_19: if (BL != 5) goto _17;
+GCLNIF(AL,P0,P,PP,STACK[INDEX - 4],&(STACK[INDEX - 4]));
+goto _15;
+_17: if (BL != 7) goto _15;
+_12: if (PP == BETA) goto _13;
+J1Y=ATOM(SPACE[PP - BETA1]);
+if (J1Y != 0) goto _13;
+PP=SPACE[PP - BETA];
+goto _12;
+_13: SPACE[P - BETA]=PP;
+_15: if (P != SPACE[P0 - BETA]) goto _24;
+P0=P;
+P=SPACE[P - BETA];
+goto _26;
+_24: P=SPACE[P0 - BETA];
+goto _26;
+_27: STACK[INDEX - 5]=STACK[INDEX - 4];
+if (STACK[INDEX - 3] == BETA) goto _35;
+_34: if (STACK[INDEX - 4] == BETA) goto _35;
+GL=SPACE[STACK[INDEX - 4] - BETA1];
+GP=SPACE[STACK[INDEX - 4] - BETA];
+LL=ASSOC(SPACE[GL - BETA1],STACK[INDEX - 3]);
+if (LL == BETA) goto _32;
+SPACE[GL - BETA1]=SPACE[LL - BETA1];
+goto _34;
+_32: STACK[INDEX - 4]=GP;
+goto _34;
+_35: STACK[INDEX - 4]=STACK[INDEX - 5];
+STACK[INDEX - 6]=BETA;
+_39: if (STACK[INDEX - 4] == BETA) goto _40;
+GL=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+STACK[INDEX - 6]=COMP(SPACE[GL - BETA1],STACK[INDEX - 6]);
+goto _39;
+_40: P=STACK[INDEX - 2];
+P0=STACK[INDEX - 2];
+_47: if (P == BETA) goto _48;
+AL=SPACE[P - BETA1];
+PP=SPACE[P - BETA];
+J1Y=ATOM(AL);
+if (J1Y == 0) goto _45;
+J1Y=MEMBER(AL,STACK[INDEX - 6]);
+if (J1Y != 0) goto _45;
+SPACE[P0 - BETA]=PP;
+goto _46;
+_45: P0=P;
+_46: P=PP;
+goto _47;
+_48: if (CHNGE != 0) goto _2;
+if (OPT[8] == 0) goto _49;
+STACK[INDEX]=LIST10(71,67,76,78,77,32,108,101,97,118);
+STACK[INDEX - 1]=LIST4(105,110,103,58);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRITE(STACK[INDEX - 2]);
+_49: R1V=STACK[INDEX - 2];
+INDEX=INDEX - 7;
+return(R1V);
+}
+/* ##### GNREL ##### */
+int GNREL(PL)
+int PL;
+{
+int NL,J2Y,J1Y,R1V;
+int GNREL();
+J2Y=PL / 2;
+J2Y=2 * J2Y;
+J1Y=PL - J2Y;
+if (J1Y >= 0) goto _8;
+J1Y=0;
+goto _9;
+_8: J1Y=1 - J1Y;
+_9: if (J1Y == 0) goto _5;
+NL=PL - 1;
+goto _10;
+_5: NL=PL + 1;
+_10: R1V=NL;
+return(R1V);
+}
+/* ##### GDCL0 ##### */
+void GDCL0(S)
+int S;
+{
+int SP,NLP,NL0,NL,J2Y,J1Y;
+extern int BETA,BETA1,GSYM,ILST,INDEX,OPT[],SNUM,SPACE[],STACK[];
+int CONC(),GET(),GVAL(),ISVAR(),LIST2(),LIST4(),LIST5(),SMEMB(),STSRCH()
+,SYMBOL(),THIRD();
+void CLOUT(),ERROR(),FIRST2(),GDCL0(),PUT(),SOPT(),UWRIT1(),UWRITE(),IUP(
+);
+IUP(9);
+NL=SPACE[S - BETA1];
+SP=SPACE[S - BETA];
+NL0=NL;
+_2: STACK[INDEX]=SPACE[SP - BETA1];
+NL=NL0;
+NLP=0;
+_3: J2Y=NL - 11;
+switch (J2Y)
+ {
+  case 1: goto _38;
+  case 2: goto _40;
+  case 3: goto _39;
+  case 4: goto _42;
+  case 5: goto _41;
+  case 6: goto _43;
+ };
+goto _37;
+_43: J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y != 0) goto _35;
+NLP=NL;
+NL=12;
+goto _3;
+_35: PUT(STACK[INDEX],4,1);
+if (SNUM >= 0) goto _37;
+NL=13;
+goto _3;
+_42: J1Y=STACK[INDEX] - BETA;
+STACK[INDEX]=SPACE[J1Y];
+J1Y=STACK[INDEX] - BETA;
+STACK[INDEX - 1]=GVAL(SPACE[J1Y]);
+FIRST2(STACK[INDEX],&(STACK[INDEX - 2]),&(STACK[INDEX - 1]));
+STACK[INDEX]=STACK[INDEX - 2];
+J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y != 0) goto _28;
+ERROR(1,0);
+goto _8;
+_28: if (SNUM != 0) goto _31;
+J1Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+STACK[INDEX - 6]=SPACE[J1Y];
+STACK[INDEX]=STSRCH(STACK[GSYM],STACK[INDEX - 6]);
+_31: J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y != 0) goto _32;
+ERROR(1,0);
+goto _8;
+_32: STACK[INDEX - 7]=GET(STACK[INDEX],6);
+if (STACK[INDEX - 7] != BETA) goto _33;
+SOPT(STACK[INDEX],STACK[INDEX - 1]);
+goto _37;
+_33: SOPT(STACK[INDEX - 7],STACK[INDEX - 1]);
+goto _37;
+_41: PUT(STACK[INDEX],7,SNUM);
+goto _37;
+_40: J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y != 0) goto _27;
+NLP=NL;
+NL=12;
+goto _3;
+_27: PUT(STACK[INDEX],3,1);
+goto _37;
+_39: J1Y=STACK[INDEX] - BETA;
+STACK[INDEX]=SPACE[J1Y];
+J1Y=STACK[INDEX] - BETA;
+STACK[INDEX - 5]=GVAL(SPACE[J1Y]);
+FIRST2(STACK[INDEX],&(STACK[INDEX - 2]),&(STACK[INDEX - 1]));
+STACK[INDEX]=STACK[INDEX - 2];
+J1Y=ISVAR(STACK[INDEX]);
+if (J1Y == 0) goto _8;
+J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y != 0) goto _26;
+STACK[INDEX - 6]=THIRD(STACK[INDEX]);
+STACK[INDEX - 1]=LIST2(STACK[INDEX - 6],STACK[INDEX - 1]);
+J1Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+PUT(STACK[INDEX],2,2);
+_26: PUT(STACK[INDEX],1,STACK[INDEX - 1]);
+goto _37;
+_38: J1Y=ISVAR(STACK[INDEX]);
+if (J1Y == 0) goto _8;
+J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y != 0) goto _20;
+STACK[INDEX - 1]=GVAL(SP);
+J1Y=STACK[INDEX] - BETA;
+FIRST2(SPACE[J1Y],&(STACK[INDEX - 2]),&(STACK[INDEX - 3]));
+STACK[INDEX]=STACK[INDEX - 2];
+STACK[INDEX - 1]=STACK[INDEX - 3];
+_18: if (STACK[INDEX - 1] == BETA) goto _21;
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 1] - BETA1];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 1] - BETA];
+if (STACK[INDEX - 4] >= 1) goto _13;
+ERROR(3,STACK[INDEX]);
+goto _8;
+_13: J1Y=SYMBOL(STACK[INDEX - 4]);
+if (J1Y == 0) goto _18;
+if (SNUM >= 0) goto _15;
+ERROR(5,STACK[INDEX]);
+goto _8;
+_15: J1Y=SMEMB(STACK[INDEX - 4],STACK[ILST]);
+if (J1Y != 0) goto _18;
+ERROR(8,STACK[INDEX]);
+goto _8;
+_20: STACK[INDEX - 3]=0;
+_21: PUT(STACK[INDEX],5,STACK[INDEX - 3]);
+PUT(STACK[INDEX],2,2);
+if (NLP == 0) goto _22;
+NL=NLP;
+NLP=0;
+goto _3;
+_22: if (SNUM >= 0) goto _37;
+NL=13;
+goto _3;
+_37: if (OPT[9] != 1) goto _46;
+UWRIT1(STACK[INDEX]);
+STACK[INDEX - 6]=LIST5(100,101,99,108,97);
+STACK[INDEX - 8]=LIST4(114,101,100,32);
+STACK[INDEX - 6]=CONC(STACK[INDEX - 6],STACK[INDEX - 8]);
+CLOUT(STACK[INDEX - 6]);
+J1Y=SPACE[STACK[INDEX] - BETA] - BETA;
+STACK[INDEX - 6]=SPACE[J1Y];
+UWRITE(STACK[INDEX - 6]);
+_46: SP=SPACE[SP - BETA];
+if (SP != BETA) goto _2;
+_8: INDEX=INDEX - 9;
+return;
+}
+/* ##### GDIM ##### */
+void GDIM(VL,D,U,O)
+int D,VL;
+int *U,*O;
+{
+int SL,RL,NL,KL,J1Y,DP,DL;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ATOM(),COMP(),COMP2(),LIST1(),LIST3();
+void GDIM(),IUP();
+IUP(5);
+DP=D;
+STACK[INDEX]=BETA;
+RL=1;
+NL=0;
+KL=0;
+_13: if (DP == BETA) goto _14;
+DL=SPACE[DP - BETA1];
+DP=SPACE[DP - BETA];
+NL=NL + 1;
+J1Y=ATOM(DL);
+if (J1Y == 0) goto _11;
+RL=RL * DL;
+KL=KL + 1;
+goto _13;
+_11: STACK[INDEX]=COMP(DL,STACK[INDEX]);
+goto _13;
+_14: if (KL != NL) goto _19;
+STACK[INDEX - 1]=RL;
+SL=0;
+DP=SPACE[D - BETA];
+_17: if (DP == BETA) goto _18;
+DL=SPACE[DP - BETA1];
+DP=SPACE[DP - BETA];
+J1Y=SL + 1;
+SL=J1Y * DL;
+goto _17;
+_18: STACK[INDEX - 2]=SL;
+goto _35;
+_19: if (NL != 1) goto _20;
+J1Y=STACK[INDEX] - BETA1;
+STACK[INDEX - 3]=LIST3(11,VL,SPACE[J1Y]);
+STACK[INDEX - 1]=LIST1(STACK[INDEX - 3]);
+STACK[INDEX - 2]=0;
+goto _35;
+_20: if (KL != 0) goto _26;
+DL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+RL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+goto _25;
+_26: DL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_25: STACK[INDEX - 3]=LIST3(42,DL,RL);
+STACK[INDEX - 3]=LIST3(11,VL,STACK[INDEX - 3]);
+STACK[INDEX - 1]=LIST1(STACK[INDEX - 3]);
+_30: if (STACK[INDEX] == BETA) goto _31;
+DL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+STACK[INDEX - 3]=LIST3(42,VL,DL);
+STACK[INDEX - 3]=LIST3(11,VL,STACK[INDEX - 3]);
+STACK[INDEX - 1]=COMP(STACK[INDEX - 3],STACK[INDEX - 1]);
+goto _30;
+_31: DP=SPACE[D - BETA];
+STACK[INDEX - 3]=LIST3(11,VL,SPACE[DP - BETA1]);
+STACK[INDEX - 2]=LIST1(STACK[INDEX - 3]);
+DP=SPACE[DP - BETA];
+_34: if (DP == BETA) goto _35;
+DL=SPACE[DP - BETA1];
+DP=SPACE[DP - BETA];
+STACK[INDEX - 3]=LIST3(42,VL,DL);
+STACK[INDEX - 3]=LIST3(11,VL,STACK[INDEX - 3]);
+STACK[INDEX - 4]=LIST3(43,VL,1);
+STACK[INDEX - 4]=LIST3(11,VL,STACK[INDEX - 4]);
+STACK[INDEX - 2]=COMP2(STACK[INDEX - 3],STACK[INDEX - 4],STACK[INDEX - 2]
+);
+goto _34;
+_35: *O=STACK[INDEX - 2];
+*U=STACK[INDEX - 1];
+INDEX=INDEX - 5;
+return;
+}
+/* ##### GDL ##### */
+void GDL(A,F,G,I,K,P)
+int *A,*F,*G,*I,*K,*P;
+{
+int S,J2Y,J1Y,BL,AL,R[5+1];
+extern int ANAME,ASAFE,ATYPE,BETA,BETA1,EXTSM,ILST,INDEX,LMARG,OLST,OPOS,
+OPT[],SPACE[],STACK[],SYMTB;
+int COMP(),CONC(),GET(),ISDIMS(),LIST1(),LIST2(),LIST3(),LIST5(),SMEMB()
+,STLST();
+void BLINES(),CLOUT(),ERROR(),GDL(),STWRT(),TAB(),UWRITE(),WRITE(),IUP()
+;
+IUP(13);
+STACK[INDEX]=BETA;
+STACK[INDEX - 1]=BETA;
+STACK[INDEX - 2]=BETA;
+STACK[INDEX - 3]=BETA;
+STACK[INDEX - 4]=BETA;
+STACK[INDEX - 5]=BETA;
+STACK[INDEX - 6]=STLST(STACK[SYMTB]);
+STACK[INDEX - 7]=GET(EXTSM,5);
+if (OPT[10] != 1) goto _10;
+STACK[INDEX - 8]=LIST5(71,68,76,32,62);
+STACK[INDEX - 9]=LIST1(32);
+STACK[INDEX - 8]=CONC(STACK[INDEX - 8],STACK[INDEX - 9]);
+CLOUT(STACK[INDEX - 8]);
+if (OPOS > LMARG) WRITE();
+STACK[INDEX - 8]=LIST2(85,61);
+CLOUT(STACK[INDEX - 8]);
+UWRITE(STACK[INDEX - 6]);
+STACK[INDEX - 8]=LIST2(87,61);
+CLOUT(STACK[INDEX - 8]);
+UWRITE(STACK[INDEX - 7]);
+TAB(10);
+STACK[INDEX - 8]=LIST5(83,89,77,84,66);
+CLOUT(STACK[INDEX - 8]);
+if (OPOS > LMARG) WRITE();
+STWRT(STACK[SYMTB]);
+BLINES(1);
+_10: if (STACK[INDEX - 6] == BETA) goto _48;
+S=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 6] - BETA];
+STACK[INDEX - 10]=1;
+J2Y=5;
+_13: if (STACK[INDEX - 10] > J2Y) goto _14;
+J1Y=STACK[INDEX - 10];
+R[J1Y]=BETA;
+STACK[INDEX - 10]=STACK[INDEX - 10] + 1;
+goto _13;
+_14: R[1]=-BETA;
+J1Y=SPACE[S - BETA] - BETA;
+STACK[INDEX - 11]=SPACE[J1Y];
+_16: if (STACK[INDEX - 11] == BETA) goto _25;
+AL=SPACE[STACK[INDEX - 11] - BETA1];
+STACK[INDEX - 11]=SPACE[STACK[INDEX - 11] - BETA];
+BL=SPACE[STACK[INDEX - 11] - BETA1];
+STACK[INDEX - 11]=SPACE[STACK[INDEX - 11] - BETA];
+if (1 > AL) goto _16;
+if (AL > 5) goto _16;
+if (R[AL] < 0) goto _22;
+J1Y=R[AL];
+goto _23;
+_22: J1Y=-R[AL];
+_23: if (J1Y == BETA) R[AL]=BL;
+goto _16;
+_25: J1Y=-BETA;
+if (R[1] == J1Y) goto _45;
+if (R[1] == S) goto _45;
+J1Y=SMEMB(S,STACK[ILST]);
+if (J1Y != 0) goto _27;
+J1Y=SMEMB(S,STACK[OLST]);
+if (J1Y == 0) goto _10;
+_27: STACK[INDEX - 3]=COMP(S,STACK[INDEX - 3]);
+goto _10;
+_45: if (R[2] == 4) goto _43;
+if (ANAME != S) goto _42;
+if (ATYPE > 2) goto _42;
+_43: STACK[INDEX - 5]=COMP(S,STACK[INDEX - 5]);
+goto _10;
+_42: if (R[2] == 3) goto _40;
+if (ANAME != S) goto _39;
+if (ATYPE != 11) goto _39;
+_40: STACK[INDEX - 1]=COMP(S,STACK[INDEX - 1]);
+goto _10;
+_39: if (R[5] != 0) goto _37;
+ERROR(3,S);
+goto _48;
+_37: if (R[3] != 1) goto _35;
+if (R[5] == BETA) goto _28;
+if (R[4] != 1) goto _28;
+J1Y=ISDIMS(S,R[5],0);
+if (J1Y == 0) goto _48;
+STACK[INDEX - 12]=LIST3(38,S,R[5]);
+goto _29;
+_28: STACK[INDEX - 12]=S;
+_29: if (STACK[INDEX - 7] == BETA) goto _30;
+if (R[4] == 1) goto _30;
+J1Y=SMEMB(S,STACK[INDEX - 7]);
+if (J1Y != 0) goto _30;
+ERROR(4,S);
+goto _48;
+_30: STACK[INDEX - 2]=COMP(STACK[INDEX - 12],STACK[INDEX - 2]);
+goto _31;
+_35: if (R[5] == BETA) goto _32;
+if (R[4] == 1) goto _33;
+if (ASAFE != 1) goto _32;
+J1Y=SMEMB(S,STACK[ILST]);
+if (J1Y != 0) goto _32;
+_33: J1Y=ISDIMS(S,R[5],0);
+if (J1Y == 0) goto _48;
+STACK[INDEX - 8]=LIST3(38,S,R[5]);
+STACK[INDEX]=COMP(STACK[INDEX - 8],STACK[INDEX]);
+goto _31;
+_32: J1Y=SMEMB(S,STACK[ILST]);
+if (J1Y != 0) goto _31;
+J1Y=SMEMB(S,STACK[OLST]);
+if (J1Y == 0) STACK[INDEX - 4]=COMP(S,STACK[INDEX - 4]);
+_31: STACK[INDEX - 3]=COMP(S,STACK[INDEX - 3]);
+goto _10;
+_48: *P=STACK[INDEX - 5];
+*K=STACK[INDEX - 4];
+*I=STACK[INDEX - 3];
+*G=STACK[INDEX - 2];
+*F=STACK[INDEX - 1];
+*A=STACK[INDEX];
+INDEX=INDEX - 13;
+return;
+}
+/* ##### GDLU ##### */
+void GDLU(A,F,G,I,K,P,D,U,B)
+int P,K,I,G,F,A;
+int *D,*U,*B;
+{
+int V,SS,N,JL2,JL1,J1Y,HL,EP,DL,AP,AL;
+extern int BETA,BETA1,ILST,INDEX,SPACE[],STACK[],ULOC;
+int ATOM(),CCONC(),COMP(),COMP2(),COMP3(),ENTER(),GET(),GNVAR(),INV(),
+LIST1(),LIST3(),LIST4(),LIST5(),SE(),SMEMB();
+void ADV3(),GDIM(),GDLU(),IUP();
+IUP(16);
+JL1=GNVAR(1);
+STACK[INDEX]=BETA;
+STACK[INDEX - 1]=BETA;
+STACK[INDEX - 2]=BETA;
+STACK[INDEX - 3]=BETA;
+AP=K;
+STACK[INDEX - 4]=K;
+STACK[INDEX - 5]=G;
+STACK[INDEX - 6]=I;
+STACK[INDEX - 7]=P;
+_16: if (AP == BETA) goto _17;
+AL=SPACE[AP - BETA1];
+AP=SPACE[AP - BETA];
+DL=GET(AL,5);
+if (DL == BETA) goto _16;
+J1Y=SMEMB(AL,STACK[ILST]);
+if (J1Y != 0) goto _16;
+GDIM(JL1,DL,&(STACK[INDEX - 8]),&(STACK[INDEX - 9]));
+J1Y=ATOM(STACK[INDEX - 8]);
+if (J1Y == 0) goto _13;
+STACK[INDEX]=COMP3(AL,STACK[INDEX - 8],STACK[INDEX - 9],STACK[INDEX]);
+goto _16;
+_13: STACK[INDEX - 1]=COMP3(AL,STACK[INDEX - 8],STACK[INDEX - 9],STACK[
+INDEX - 1]);
+goto _16;
+_17: if (ULOC != 0) goto _20;
+if (STACK[INDEX] != BETA) goto _20;
+if (STACK[INDEX - 1] == BETA) goto _18;
+_20: STACK[INDEX - 10]=LIST5(73,78,68,69,88);
+STACK[INDEX - 10]=ENTER(STACK[INDEX - 10]);
+N=SE(STACK[INDEX - 10]);
+J1Y=SMEMB(N,STACK[INDEX - 5]);
+if (J1Y != 0) goto _18;
+STACK[INDEX - 5]=COMP(N,STACK[INDEX - 5]);
+STACK[INDEX - 6]=COMP(N,STACK[INDEX - 6]);
+_18: HL=ULOC;
+_21: if (STACK[INDEX] == BETA) goto _22;
+ADV3(STACK[INDEX],&(V),&(STACK[INDEX - 8]),&(STACK[INDEX - 9]),&(STACK[
+INDEX]));
+HL=HL + STACK[INDEX - 8];
+J1Y=HL + STACK[INDEX - 9];
+STACK[INDEX - 10]=LIST3(45,N,J1Y);
+STACK[INDEX - 10]=LIST3(11,V,STACK[INDEX - 10]);
+STACK[INDEX - 2]=COMP(STACK[INDEX - 10],STACK[INDEX - 2]);
+goto _21;
+_22: if (STACK[INDEX - 1] == BETA) goto _26;
+ADV3(STACK[INDEX - 1],&(V),&(STACK[INDEX - 8]),&(STACK[INDEX - 9]),&(EP)
+);
+if (HL == 0) goto _23;
+STACK[INDEX - 11]=LIST3(43,JL1,HL);
+goto _24;
+_23: STACK[INDEX - 11]=JL1;
+_24: JL2=GNVAR(1);
+STACK[INDEX - 6]=COMP2(JL1,JL2,STACK[INDEX - 6]);
+STACK[INDEX - 4]=COMP2(JL1,JL2,STACK[INDEX - 4]);
+STACK[INDEX - 10]=LIST3(11,V,JL2);
+STACK[INDEX - 12]=LIST3(11,JL2,STACK[INDEX - 11]);
+STACK[INDEX - 3]=COMP2(STACK[INDEX - 10],STACK[INDEX - 12],STACK[INDEX - 
+8]);
+_25: if (EP == BETA) goto _26;
+ADV3(EP,&(V),&(STACK[INDEX - 8]),&(STACK[INDEX - 9]),&(EP));
+STACK[INDEX - 10]=LIST3(11,V,JL2);
+STACK[INDEX - 12]=LIST3(43,JL2,JL1);
+STACK[INDEX - 12]=LIST3(11,JL2,STACK[INDEX - 12]);
+STACK[INDEX - 13]=CCONC(STACK[INDEX - 8],STACK[INDEX - 3]);
+STACK[INDEX - 3]=COMP2(STACK[INDEX - 10],STACK[INDEX - 12],STACK[INDEX - 
+13]);
+goto _25;
+_26: if (STACK[INDEX - 1] == BETA) JL2=HL;
+if (JL2 == 0) goto _30;
+STACK[INDEX - 10]=LIST3(73,85,80);
+STACK[INDEX - 10]=ENTER(STACK[INDEX - 10]);
+SS=SE(STACK[INDEX - 10]);
+J1Y=SMEMB(SS,P);
+if (J1Y == 0) STACK[INDEX - 7]=COMP(SS,STACK[INDEX - 7]);
+STACK[INDEX - 10]=LIST1(JL2);
+STACK[INDEX - 10]=LIST4(2,SS,STACK[INDEX - 10],BETA);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 10],STACK[INDEX - 3]);
+_30: if (STACK[INDEX - 1] == BETA) goto _34;
+ADV3(STACK[INDEX - 1],&(V),&(STACK[INDEX - 8]),&(STACK[INDEX - 9]),&(
+STACK[INDEX - 1]));
+if (STACK[INDEX - 9] != 0) goto _31;
+STACK[INDEX - 10]=LIST3(45,N,V);
+STACK[INDEX - 10]=LIST3(11,V,STACK[INDEX - 10]);
+STACK[INDEX - 2]=COMP(STACK[INDEX - 10],STACK[INDEX - 2]);
+goto _30;
+_31: STACK[INDEX - 10]=LIST3(45,N,V);
+STACK[INDEX - 10]=LIST3(11,V,STACK[INDEX - 10]);
+STACK[INDEX - 12]=LIST3(43,V,JL1);
+STACK[INDEX - 12]=LIST3(11,V,STACK[INDEX - 12]);
+STACK[INDEX - 13]=CCONC(STACK[INDEX - 9],STACK[INDEX - 2]);
+STACK[INDEX - 2]=COMP2(STACK[INDEX - 10],STACK[INDEX - 12],STACK[INDEX - 
+13]);
+goto _30;
+_34: STACK[INDEX - 10]=CCONC(STACK[INDEX - 2],STACK[INDEX - 3]);
+STACK[INDEX - 8]=INV(STACK[INDEX - 10]);
+if (JL2 == 0) goto _35;
+STACK[INDEX - 10]=LIST3(45,N,JL2);
+STACK[INDEX - 10]=LIST3(11,N,STACK[INDEX - 10]);
+STACK[INDEX - 14]=LIST1(STACK[INDEX - 10]);
+goto _36;
+_35: STACK[INDEX - 14]=BETA;
+_36: STACK[INDEX - 15]=BETA;
+if (STACK[INDEX - 7] == BETA) goto _37;
+STACK[INDEX - 10]=INV(STACK[INDEX - 7]);
+STACK[INDEX - 10]=COMP(16,STACK[INDEX - 10]);
+STACK[INDEX - 15]=COMP(STACK[INDEX - 10],STACK[INDEX - 15]);
+_37: if (F == BETA) goto _38;
+STACK[INDEX - 10]=INV(F);
+STACK[INDEX - 10]=COMP(14,STACK[INDEX - 10]);
+STACK[INDEX - 15]=COMP(STACK[INDEX - 10],STACK[INDEX - 15]);
+_38: if (STACK[INDEX - 5] == BETA) goto _39;
+STACK[INDEX - 10]=INV(STACK[INDEX - 5]);
+STACK[INDEX - 10]=COMP(13,STACK[INDEX - 10]);
+STACK[INDEX - 15]=COMP(STACK[INDEX - 10],STACK[INDEX - 15]);
+_39: if (A == BETA) goto _40;
+STACK[INDEX - 10]=INV(A);
+STACK[INDEX - 10]=COMP(12,STACK[INDEX - 10]);
+STACK[INDEX - 15]=COMP(STACK[INDEX - 10],STACK[INDEX - 15]);
+_40: if (STACK[INDEX - 6] == BETA) goto _41;
+STACK[INDEX - 10]=INV(STACK[INDEX - 6]);
+STACK[INDEX - 10]=COMP(15,STACK[INDEX - 10]);
+STACK[INDEX - 15]=COMP(STACK[INDEX - 10],STACK[INDEX - 15]);
+_41: if (STACK[INDEX - 4] == BETA) goto _42;
+STACK[INDEX - 10]=INV(STACK[INDEX - 4]);
+STACK[INDEX - 10]=COMP(17,STACK[INDEX - 10]);
+STACK[INDEX - 15]=COMP(STACK[INDEX - 10],STACK[INDEX - 15]);
+_42: STACK[INDEX - 15]=INV(STACK[INDEX - 15]);
+*B=STACK[INDEX - 14];
+*U=STACK[INDEX - 8];
+*D=STACK[INDEX - 15];
+INDEX=INDEX - 16;
+return;
+}
+/* ##### GDUGMA ##### */
+int GDUGMA()
+{
+int S,J1Y,IL,EL,DL,R1V;
+extern int BETA,BETA1,DTMU,DTNU,EXTSM,GSYM,INDEX,SPACE[],STACK[],SYMTB,
+TCHI,TMU,TNU;
+int ATOM(),COMP(),COMP2(),ENTER(),GDUGMA(),GET(),INV(),LIST1(),LIST2(),
+LIST3(),LIST4(),LIST5(),SE(),STINS(),STLST();
+void ERROR(),PUT(),IUP();
+IUP(7);
+STACK[INDEX]=STLST(STACK[GSYM]);
+_14: if (STACK[INDEX] == BETA) goto _15;
+S=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+J1Y=GET(S,4);
+if (J1Y == 1) goto _14;
+J1Y=GET(S,3);
+if (J1Y != 1) goto _14;
+J1Y=SPACE[S - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX - 1]=STINS(STACK[INDEX - 1]);
+S=SE(STACK[INDEX - 1]);
+goto _14;
+_15: STACK[INDEX - 2]=BETA;
+STACK[INDEX]=STLST(STACK[SYMTB]);
+_19: if (STACK[INDEX] == BETA) goto _20;
+S=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+J1Y=GET(S,4);
+if (J1Y == 1) goto _19;
+J1Y=GET(S,3);
+if (J1Y == 1) STACK[INDEX - 2]=COMP(S,STACK[INDEX - 2]);
+goto _19;
+_20: STACK[INDEX - 2]=INV(STACK[INDEX - 2]);
+PUT(EXTSM,5,STACK[INDEX - 2]);
+STACK[INDEX - 3]=BETA;
+IL=0;
+_25: if (STACK[INDEX - 2] == BETA) goto _26;
+S=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+J1Y=GET(S,5);
+if (J1Y == BETA) goto _23;
+STACK[INDEX]=COMP(S,STACK[INDEX]);
+goto _25;
+_23: IL=IL + 1;
+STACK[INDEX - 1]=LIST3(11,S,IL);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 1],STACK[INDEX - 3]);
+goto _25;
+_26: STACK[INDEX]=INV(STACK[INDEX]);
+_36: if (STACK[INDEX] == BETA) goto _37;
+S=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+STACK[INDEX - 1]=LIST3(11,S,IL);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 4]=GET(S,5);
+DL=1;
+_33: J1Y=ATOM(STACK[INDEX - 4]);
+if (J1Y != 0) goto _34;
+if (STACK[INDEX - 4] == BETA) goto _34;
+EL=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+J1Y=ATOM(EL);
+if (J1Y != 0) goto _31;
+ERROR(5,S);
+goto _8;
+_31: DL=DL * EL;
+goto _33;
+_34: IL=IL + DL;
+if (IL <= TMU) goto _36;
+ERROR(6,S);
+goto _8;
+_37: if (TNU == DTNU) goto _38;
+STACK[INDEX - 1]=LIST5(83,80,65,67,69);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+DL=SE(STACK[INDEX - 1]);
+_38: if (TMU == DTMU) goto _39;
+STACK[INDEX - 1]=LIST5(83,84,65,67,75);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+DL=SE(STACK[INDEX - 1]);
+_39: STACK[INDEX - 1]=LIST5(73,78,68,69,88);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 1]=SE(STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(11,STACK[INDEX - 1],0);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 1],STACK[INDEX - 3]);
+STACK[INDEX - 1]=LIST2(78,85);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 1]=SE(STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(11,STACK[INDEX - 1],TNU);
+STACK[INDEX - 5]=LIST2(77,85);
+STACK[INDEX - 5]=ENTER(STACK[INDEX - 5]);
+STACK[INDEX - 5]=SE(STACK[INDEX - 5]);
+STACK[INDEX - 5]=LIST3(11,STACK[INDEX - 5],TMU);
+STACK[INDEX - 3]=COMP2(STACK[INDEX - 1],STACK[INDEX - 5],STACK[INDEX - 3]
+);
+STACK[INDEX - 1]=LIST3(67,72,73);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 1]=SE(STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(11,STACK[INDEX - 1],TCHI);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 1],STACK[INDEX - 3]);
+if (IL == 0) goto _40;
+STACK[INDEX - 1]=LIST3(73,85,80);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 6]=SE(STACK[INDEX - 1]);
+PUT(STACK[INDEX - 6],2,4);
+STACK[INDEX - 1]=LIST1(IL);
+STACK[INDEX - 1]=LIST4(2,STACK[INDEX - 6],STACK[INDEX - 1],BETA);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 1],STACK[INDEX - 3]);
+_40: STACK[INDEX - 3]=INV(STACK[INDEX - 3]);
+_8: R1V=STACK[INDEX - 3];
+INDEX=INDEX - 7;
+return(R1V);
+}
+/* ##### GENT ##### */
+void GENT(E)
+int E;
+{
+int S,J1Y;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ATOM(),STINS(),SYMBOL();
+void GENT(),IUP();
+IUP(1);
+if (E == BETA) goto _6;
+J1Y=ATOM(E);
+if (J1Y != 0) goto _6;
+J1Y=SYMBOL(E);
+if (J1Y != 1) goto _13;
+J1Y=SPACE[E - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+S=STINS(STACK[INDEX]);
+J1Y=SPACE[E - BETA] - BETA;
+STACK[INDEX]=SPACE[J1Y];
+SPACE[SPACE[S - BETA] - BETA]=STACK[INDEX];
+goto _6;
+_13: GENT(SPACE[E - BETA1]);
+GENT(SPACE[E - BETA]);
+_6: INDEX=INDEX - 1;
+return;
+}
+/* ##### GNVAR ##### */
+int GNVAR(SL)
+int SL;
+{
+int S,J1Y,R1V;
+extern int BETA,BETA1,INDEX,NAM,NDEX,SPACE[],STACK[],STCK,ULOC;
+int GENSYM(),GNVAR(),LIST1(),LIST3(),SE(),STINS();
+void PUT(),IUP();
+IUP(2);
+if (SL != 1) goto _6;
+STACK[INDEX]=GENSYM();
+PUT(STACK[INDEX],4,1);
+goto _5;
+_6: STACK[INDEX]=NDEX;
+S=STCK;
+if (ULOC == 0) goto _11;
+STACK[INDEX]=LIST3(45,STACK[INDEX],ULOC);
+goto _12;
+_11: J1Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX - 1]=STINS(STACK[INDEX - 1]);
+STACK[INDEX]=SE(STACK[INDEX - 1]);
+J1Y=SPACE[S - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX - 1]=STINS(STACK[INDEX - 1]);
+S=SE(STACK[INDEX - 1]);
+_12: STACK[INDEX - 1]=LIST1(STACK[INDEX]);
+STACK[INDEX]=LIST3(38,S,STACK[INDEX - 1]);
+ULOC=ULOC + 1;
+_5: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### GVAL ##### */
+int GVAL(S)
+int S;
+{
+int J2Y,J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ATOM(),GET(),GVAL(),GVINL(),SYMBOL();
+void ERROR(),IUP();
+IUP(9);
+STACK[INDEX]=SPACE[S - BETA1];
+STACK[INDEX - 1]=STACK[INDEX];
+if (STACK[INDEX] == BETA) goto _46;
+J1Y=ATOM(STACK[INDEX]);
+if (J1Y != 0) goto _46;
+J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] == 0) goto _46;
+J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] != BETA) goto _13;
+J1Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+SPACE[S - BETA1]=STACK[INDEX - 2];
+goto _46;
+_13: J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y == 0) goto _15;
+STACK[INDEX - 3]=GET(STACK[INDEX],1);
+if (STACK[INDEX - 3] == BETA) goto _14;
+if (STACK[INDEX - 3] == STACK[INDEX]) goto _14;
+STACK[INDEX - 4]=GVINL(S,STACK[INDEX - 3],1);
+STACK[INDEX - 1]=GVAL(S);
+_14: STACK[INDEX - 1]=SPACE[S - BETA1];
+goto _46;
+_15: STACK[INDEX - 5]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+STACK[INDEX - 6]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX - 7]=SPACE[STACK[INDEX] - BETA];
+if (STACK[INDEX - 5] < 0) goto _21;
+STACK[INDEX - 5]=STACK[INDEX - 5];
+goto _22;
+_21: STACK[INDEX - 5]=-STACK[INDEX - 5];
+_22: if (STACK[INDEX - 5] == 36) goto _46;
+if (STACK[INDEX - 5] != 38) goto _26;
+J1Y=STACK[INDEX - 7] - BETA1;
+STACK[INDEX - 4]=SPACE[J1Y];
+_23: if (STACK[INDEX - 4] == BETA) goto _24;
+STACK[INDEX - 1]=GVAL(STACK[INDEX - 4]);
+J1Y=STACK[INDEX - 4] - BETA;
+STACK[INDEX - 4]=SPACE[J1Y];
+goto _23;
+_24: J1Y=GET(STACK[INDEX - 6],2);
+if (J1Y != 2) goto _46;
+STACK[INDEX - 3]=GET(STACK[INDEX - 6],1);
+if (STACK[INDEX - 3] == BETA) goto _46;
+STACK[INDEX - 4]=GVINL(S,STACK[INDEX - 3],2);
+STACK[INDEX - 1]=GVAL(S);
+goto _46;
+_26: STACK[INDEX - 1]=GVAL(STACK[INDEX]);
+J1Y=STACK[INDEX] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+J1Y=ATOM(STACK[INDEX]);
+if (J1Y != 0) goto _27;
+if (STACK[INDEX] != BETA) goto _46;
+_27: if (STACK[INDEX - 7] == BETA) goto _28;
+STACK[INDEX - 1]=GVAL(STACK[INDEX - 7]);
+J1Y=STACK[INDEX - 7] - BETA1;
+STACK[INDEX - 7]=SPACE[J1Y];
+J1Y=ATOM(STACK[INDEX - 7]);
+if (J1Y != 0) goto _28;
+if (STACK[INDEX - 7] != BETA) goto _46;
+_28: if (STACK[INDEX - 5] != 43) goto _43;
+STACK[INDEX - 1]=STACK[INDEX] + STACK[INDEX - 7];
+goto _35;
+_43: if (STACK[INDEX - 5] != 45) goto _41;
+if (STACK[INDEX - 7] == BETA) goto _30;
+STACK[INDEX - 1]=STACK[INDEX] - STACK[INDEX - 7];
+goto _35;
+_30: STACK[INDEX - 1]=-STACK[INDEX];
+goto _35;
+_41: if (STACK[INDEX - 5] != 42) goto _39;
+STACK[INDEX - 1]=STACK[INDEX] * STACK[INDEX - 7];
+goto _35;
+_39: if (STACK[INDEX - 5] != 94) goto _37;
+STACK[INDEX - 1]=1;
+STACK[INDEX - 8]=1;
+J2Y=STACK[INDEX - 7];
+_32: if (STACK[INDEX - 8] > J2Y) goto _35;
+STACK[INDEX - 1]=STACK[INDEX - 1] * STACK[INDEX];
+STACK[INDEX - 8]=STACK[INDEX - 8] + 1;
+goto _32;
+_37: if (STACK[INDEX - 5] != 47) goto _35;
+if (STACK[INDEX - 7] == 0) goto _34;
+STACK[INDEX - 1]=STACK[INDEX] / STACK[INDEX - 7];
+goto _35;
+_34: ERROR(7,0);
+goto _46;
+_35: SPACE[S - BETA1]=STACK[INDEX - 1];
+_46: R1V=STACK[INDEX - 1];
+INDEX=INDEX - 9;
+return(R1V);
+}
+/* ##### GVINL ##### */
+int GVINL(E,F,NL)
+int NL,F,E;
+{
+int J2Y,J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int GVINL(),LENGTH(),PAIR(),SUBLIS(),SYMBOL(),THIRD();
+void ERROR(),GENT(),IUP();
+IUP(4);
+STACK[INDEX]=SPACE[E - BETA1];
+if (NL != 1) goto _19;
+STACK[INDEX - 1]=SUBLIS(BETA,F);
+SPACE[E - BETA1]=STACK[INDEX - 1];
+goto _14;
+_19: J1Y=SYMBOL(STACK[INDEX]);
+if (J1Y == 0) goto _17;
+ERROR(37,STACK[INDEX]);
+exit(1);
+_17: J1Y=LENGTH(SPACE[F - BETA1]);
+STACK[INDEX - 1]=THIRD(STACK[INDEX]);
+J2Y=LENGTH(STACK[INDEX - 1]);
+if (J1Y == J2Y) goto _15;
+J1Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+ERROR(37,STACK[INDEX - 1]);
+exit(1);
+_15: STACK[INDEX - 1]=THIRD(STACK[INDEX]);
+STACK[INDEX - 1]=PAIR(SPACE[F - BETA1],STACK[INDEX - 1]);
+J1Y=SPACE[F - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+STACK[INDEX - 1]=SUBLIS(STACK[INDEX - 1],STACK[INDEX - 2]);
+SPACE[E - BETA1]=STACK[INDEX - 1];
+_14: STACK[INDEX - 3]=SPACE[E - BETA1];
+GENT(SPACE[E - BETA1]);
+R1V=STACK[INDEX - 3];
+INDEX=INDEX - 4;
+return(R1V);
+}
+/* ##### ISDIMS ##### */
+int ISDIMS(S,L,GL)
+int GL,L,S;
+{
+int LP,LL,J1Y,BL,R1V;
+extern int BETA,BETA1,ILST,SPACE[],STACK[];
+int ATOM(),ISDIMS(),SMEMB(),SYMBOL();
+void ERROR();
+LP=L;
+BL=1;
+_10: LL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+J1Y=ATOM(LL);
+if (J1Y != 0) goto _7;
+if (GL != 0) goto _8;
+J1Y=SYMBOL(LL);
+if (J1Y == 0) goto _8;
+J1Y=SMEMB(LL,STACK[ILST]);
+if (J1Y == 0) goto _8;
+J1Y=SMEMB(S,STACK[ILST]);
+if (J1Y != 0) goto _7;
+_8: BL=0;
+ERROR(8,S);
+goto _4;
+_7: if (LP != BETA) goto _10;
+_4: R1V=BL;
+return(R1V);
+}
+/* ##### ISVAR ##### */
+int ISVAR(V)
+int V;
+{
+int J1Y,R1V;
+extern int BETA,BETA1,INDEX,SNUM,SPACE[],STACK[];
+int ATOM(),GET(),ISVAR(),SYMBOL();
+void ERROR(),IUP();
+IUP(2);
+J1Y=SYMBOL(V);
+if (J1Y == 0) goto _8;
+STACK[INDEX]=1;
+goto _16;
+_8: STACK[INDEX]=0;
+if (V == BETA) goto _10;
+J1Y=ATOM(V);
+if (J1Y != 0) goto _10;
+if (SPACE[V - BETA1] == 38) goto _9;
+_10: STACK[INDEX - 1]=V;
+goto _13;
+_9: J1Y=SPACE[V - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+if (SNUM < 1) goto _14;
+J1Y=GET(STACK[INDEX - 1],5);
+if (J1Y != BETA) goto _14;
+J1Y=GET(STACK[INDEX - 1],2);
+if (J1Y != 2) goto _13;
+J1Y=GET(STACK[INDEX - 1],1);
+if (J1Y == BETA) goto _13;
+_14: STACK[INDEX]=1;
+goto _16;
+_13: J1Y=SYMBOL(STACK[INDEX - 1]);
+if (J1Y == 0) goto _15;
+ERROR(9,STACK[INDEX - 1]);
+goto _16;
+_15: ERROR(10,0);
+_16: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### GASSL ##### */
+int GASSL(A,B)
+int B,A;
+{
+int J1Y,BP,BL,AP,AL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),GASSL(),GET(),LIST3(),SYMBOL();
+void IUP();
+IUP(2);
+AP=A;
+BP=B;
+STACK[INDEX]=BETA;
+_2: if (AP == BETA) goto _14;
+if (BP == BETA) goto _14;
+AL=SPACE[AP - BETA1];
+AP=SPACE[AP - BETA];
+BL=SPACE[BP - BETA1];
+BP=SPACE[BP - BETA];
+J1Y=SYMBOL(AL);
+if (J1Y == 0) goto _12;
+J1Y=GET(AL,5);
+if (J1Y == BETA) goto _12;
+J1Y=GET(AL,4);
+if (J1Y == 1) goto _2;
+_12: J1Y=SYMBOL(BL);
+if (J1Y == 0) goto _11;
+J1Y=GET(BL,5);
+if (J1Y == BETA) goto _11;
+J1Y=GET(BL,4);
+if (J1Y == 1) goto _2;
+_11: STACK[INDEX - 1]=LIST3(11,AL,BL);
+STACK[INDEX]=COMP(STACK[INDEX - 1],STACK[INDEX]);
+goto _2;
+_14: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### GCALL ##### */
+int GCALL(FL,I,O)
+int O,I,FL;
+{
+int J2Y,J1Y,R1V;
+extern int ADVSM,ANAME,ASAFE,ATYPE,BETA,BETA1,ILST,INDEX,OLEV,OPSM,REC,
+RETL,RETN,SPACE[],STACK[],STP,STRCT,TMPL;
+int ACOMP(),ACOMP1(),CONC(),GCALL(),GET(),GEX(),GINL(),GNEW(),ISVAR(),
+LIST1(),LIST2(),LIST4(),MEMBER(),SE();
+void ERROR(),GRCALL(),INITA(),PUT(),WARN(),IUP();
+IUP(9);
+J1Y=ACOMP(RETN,FL);
+if (J1Y == 0) goto _9;
+if (ATYPE != 1) goto _8;
+J1Y=ACOMP(FL,STP);
+if (J1Y != 0) goto _8;
+_9: STACK[INDEX]=LIST1(STACK[RETL]);
+goto _7;
+_8: J1Y=ACOMP(FL,STP);
+if (J1Y != 0) goto _10;
+STACK[INDEX - 1]=LIST2(7,1);
+STACK[INDEX]=LIST1(STACK[INDEX - 1]);
+PUT(ANAME,30,1);
+goto _7;
+_10: STACK[INDEX]=BETA;
+STACK[INDEX - 2]=GNEW(STACK[TMPL]);
+STACK[INDEX - 3]=O;
+_19: if (STACK[INDEX - 3] == BETA) goto _20;
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+J1Y=ISVAR(STACK[INDEX - 4]);
+if (J1Y == 0) goto _7;
+J1Y=MEMBER(STACK[INDEX - 4],STACK[ILST]);
+if (J1Y == 0) goto _17;
+ERROR(11,STACK[INDEX - 4]);
+goto _7;
+_17: if (STRCT < 2) goto _19;
+J1Y=MEMBER(STACK[INDEX - 4],I);
+if (J1Y == 0) goto _19;
+if (STACK[INDEX - 3] != BETA) goto _16;
+J1Y=SPACE[FL - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+J1Y=ACOMP1(STACK[ADVSM],STACK[INDEX - 1]);
+J2Y=-1;
+if (J1Y != J2Y) goto _19;
+_16: WARN(12,FL,STACK[INDEX - 4]);
+goto _19;
+_20: J1Y=ACOMP(FL,OPSM);
+if (J1Y != 0) goto _21;
+STACK[INDEX - 5]=GEX(8,1,ASAFE,STACK[INDEX - 2],I);
+STACK[INDEX - 1]=SE(FL);
+STACK[INDEX - 1]=LIST4(2,STACK[INDEX - 1],I,BETA);
+STACK[INDEX]=LIST1(STACK[INDEX - 1]);
+PUT(FL,2,4);
+goto _7;
+_21: STACK[INDEX - 5]=GEX(7,1,ASAFE,STACK[INDEX - 2],I);
+if (OLEV == 0) STACK[INDEX - 2]=GNEW(STACK[TMPL]);
+STACK[INDEX - 6]=GEX(7,0,ASAFE,STACK[INDEX - 2],O);
+if (FL != ANAME) goto _26;
+if (REC <= 0) goto _26;
+GRCALL(1,I,O,&(STACK[INDEX - 7]),&(STACK[INDEX - 8]));
+STACK[INDEX - 7]=CONC(STACK[INDEX - 7],STACK[INDEX - 8]);
+goto _25;
+_26: if (FL == ANAME) goto _23;
+J1Y=GET(FL,1);
+if (J1Y != BETA) goto _23;
+J1Y=GET(FL,7);
+if (J1Y != BETA) INITA(FL);
+_23: if (FL == ANAME) goto _24;
+J1Y=GET(FL,1);
+if (J1Y == BETA) goto _24;
+STACK[INDEX - 1]=GET(FL,1);
+STACK[INDEX - 7]=GINL(STACK[INDEX - 2],I,O,STACK[INDEX - 1]);
+goto _25;
+_24: STACK[INDEX - 1]=LIST4(2,FL,I,O);
+STACK[INDEX - 7]=LIST1(STACK[INDEX - 1]);
+_25: STACK[INDEX - 1]=CONC(STACK[INDEX - 7],STACK[INDEX - 6]);
+STACK[INDEX]=CONC(STACK[INDEX - 5],STACK[INDEX - 1]);
+PUT(FL,2,4);
+_7: R1V=STACK[INDEX];
+INDEX=INDEX - 9;
+return(R1V);
+}
+/* ##### GEX ##### */
+int GEX(NL,RL,SL,D,T)
+int T,D,SL,RL,NL;
+{
+int TH,J3Y,J2Y,J1Y,BL,R1V;
+extern int ASAFE,BETA,BETA1,ILST,INDEX,OPT[],RECOV,SPACE[],STACK[],SYMTB;
+int CONC(),GEX(),GEXS(),GNEW(),GSMPI(),GTVAR(),GVAL(),GVAR(),ISVAR(),
+LIST1(),LIST10(),LIST2(),LIST5(),MEMBER(),THIRD();
+void BLINES(),CLOUT(),ERROR(),GTERM(),STWRT(),UWRIT1(),UWRITE(),IUP();
+IUP(11);
+STACK[INDEX]=BETA;
+if (T == BETA) goto _70;
+if (RECOV != 0) goto _70;
+STACK[INDEX - 1]=SPACE[T - BETA1];
+if (OPT[6] == 0) goto _9;
+if (OPT[7] != 0) STWRT(STACK[SYMTB]);
+STACK[INDEX - 2]=LIST10(71,69,88,32,62,32,110,44,114,44);
+STACK[INDEX - 3]=LIST5(115,44,68,44,84);
+STACK[INDEX - 2]=CONC(STACK[INDEX - 2],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST1(32);
+STACK[INDEX - 2]=CONC(STACK[INDEX - 2],STACK[INDEX - 3]);
+CLOUT(STACK[INDEX - 2]);
+UWRIT1(NL);
+UWRIT1(RL);
+UWRIT1(SL);
+UWRITE(D);
+UWRIT1(T);
+BLINES(2);
+_9: J3Y=NL - 6;
+switch (J3Y)
+ {
+  case 1: goto _65;
+  case 2: goto _66;
+  case 3: goto _67;
+  case 4: goto _68;
+  case 5: goto _69;
+ };
+goto _64;
+_69: STACK[INDEX - 4]=SPACE[T - BETA];
+STACK[INDEX - 9]=2;
+if (RL < 1) goto _55;
+STACK[INDEX - 7]=GNEW(D);
+GTERM(STACK[INDEX - 4],&(STACK[INDEX - 8]),&(STACK[INDEX - 4]));
+if (RECOV != 0) goto _70;
+if (STACK[INDEX - 8] != 2) goto _56;
+STACK[INDEX - 9]=0;
+STACK[INDEX]=GEX(9,1,STACK[INDEX - 8],STACK[INDEX - 7],STACK[INDEX - 4]);
+goto _55;
+_56: if (STACK[INDEX - 8] < 0) goto _55;
+STACK[INDEX - 9]=0;
+STACK[INDEX]=GEX(7,1,STACK[INDEX - 8],STACK[INDEX - 7],STACK[INDEX - 4]);
+_55: if (RL == 1) goto _60;
+J1Y=ISVAR(STACK[INDEX - 1]);
+if (J1Y == 0) goto _70;
+J1Y=MEMBER(STACK[INDEX - 1],STACK[ILST]);
+if (J1Y == 0) goto _59;
+ERROR(11,STACK[INDEX - 1]);
+goto _70;
+_59: STACK[INDEX - 7]=GNEW(D);
+STACK[INDEX - 10]=GEX(8,STACK[INDEX - 9],1,STACK[INDEX - 7],T);
+goto _61;
+_60: STACK[INDEX - 10]=BETA;
+_61: if (RL != 2) goto _63;
+if (STACK[INDEX - 10] == BETA) goto _63;
+if (STACK[INDEX - 9] != 0) goto _62;
+_63: STACK[INDEX - 2]=GEXS(D,T);
+STACK[INDEX - 10]=CONC(STACK[INDEX - 2],STACK[INDEX - 10]);
+_62: STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 10]);
+goto _64;
+_68: if (RL == 1) STACK[INDEX - 7]=GNEW(D);
+J1Y=STACK[INDEX - 1] - BETA1;
+STACK[INDEX - 6]=GTVAR(SPACE[J1Y],SL,D);
+if (RL == 0) STACK[INDEX - 7]=GNEW(D);
+SPACE[T - BETA1]=STACK[INDEX - 6];
+if (RL != 1) goto _50;
+STACK[INDEX - 4]=LIST2(STACK[INDEX - 6],STACK[INDEX - 1]);
+goto _51;
+_50: STACK[INDEX - 4]=LIST2(STACK[INDEX - 1],STACK[INDEX - 6]);
+_51: if (1 > SL) goto _53;
+STACK[INDEX - 8]=1;
+goto _54;
+_53: STACK[INDEX - 8]=SL;
+_54: STACK[INDEX]=GEX(11,RL,STACK[INDEX - 8],STACK[INDEX - 7],STACK[
+INDEX - 4]);
+goto _64;
+_67: if (SL != 1) goto _41;
+STACK[INDEX - 7]=GNEW(D);
+goto _42;
+_41: STACK[INDEX - 7]=D;
+_42: STACK[INDEX - 4]=T;
+_44: if (STACK[INDEX - 4] == BETA) goto _64;
+J1Y=GSMPI(STACK[INDEX - 4]);
+if (J1Y != 0) goto _43;
+STACK[INDEX - 2]=GEX(10,RL,2,STACK[INDEX - 7],STACK[INDEX - 4]);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 2]);
+_43: J1Y=STACK[INDEX - 4] - BETA;
+STACK[INDEX - 4]=SPACE[J1Y];
+goto _44;
+_66: STACK[INDEX - 5]=GVAR(T,0);
+if (STACK[INDEX - 5] != 2) goto _39;
+STACK[INDEX - 4]=GVAL(T);
+if (STACK[INDEX - 1] != SPACE[T - BETA1]) STACK[INDEX - 5]=GVAR(T,0);
+if (STACK[INDEX - 5] != 2) goto _64;
+STACK[INDEX - 4]=T;
+if (RL != 0) goto _18;
+TH=THIRD(SPACE[T - BETA1]);
+BL=0;
+_15: if (TH == BETA) goto _16;
+J1Y=GSMPI(TH);
+if (J1Y == 0) goto _13;
+TH=SPACE[TH - BETA];
+goto _15;
+_13: BL=1;
+TH=BETA;
+goto _15;
+_16: if (BL == 0) goto _18;
+STACK[INDEX - 6]=GTVAR(BETA,SL,D);
+STACK[INDEX - 4]=LIST2(SPACE[T - BETA1],STACK[INDEX - 6]);
+SPACE[T - BETA1]=STACK[INDEX - 6];
+_18: J1Y=STACK[INDEX - 4] - BETA1;
+STACK[INDEX - 2]=THIRD(SPACE[J1Y]);
+STACK[INDEX]=GEX(9,1,0,D,STACK[INDEX - 2]);
+J2Y=RL / 2;
+J2Y=2 * J2Y;
+J1Y=RL - J2Y;
+if (J1Y >= 0) goto _24;
+J1Y=0;
+goto _25;
+_24: J1Y=1 - J1Y;
+_25: if (J1Y == 0) goto _64;
+if (STACK[INDEX] == BETA) goto _64;
+STACK[INDEX - 2]=GEXS(D,STACK[INDEX - 4]);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 2]);
+goto _64;
+_39: if (STACK[INDEX - 5] != 1) goto _37;
+J1Y=RL / 2;
+J1Y=2 * J1Y;
+STACK[INDEX - 2]=RL - J1Y;
+if (STACK[INDEX - 2] < 0) STACK[INDEX - 2]=1;
+STACK[INDEX]=GEX(10,STACK[INDEX - 2],1,D,T);
+goto _64;
+_37: if (STACK[INDEX - 5] != 3) goto _64;
+J1Y=RL / 2;
+J1Y=2 * J1Y;
+STACK[INDEX - 2]=RL - J1Y;
+if (STACK[INDEX - 2] < 0) STACK[INDEX - 2]=1;
+if (SL < ASAFE) goto _34;
+STACK[INDEX - 3]=SL;
+goto _35;
+_34: STACK[INDEX - 3]=ASAFE;
+_35: STACK[INDEX]=GEX(10,STACK[INDEX - 2],STACK[INDEX - 3],D,T);
+goto _64;
+_65: STACK[INDEX - 4]=T;
+_10: if (STACK[INDEX - 4] == BETA) goto _64;
+STACK[INDEX - 2]=GEX(8,RL,SL,D,STACK[INDEX - 4]);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 2]);
+J1Y=STACK[INDEX - 4] - BETA;
+STACK[INDEX - 4]=SPACE[J1Y];
+goto _10;
+_64: if (OPT[6] != 1) goto _70;
+STACK[INDEX - 2]=LIST5(71,69,88,32,60);
+STACK[INDEX - 3]=LIST1(32);
+STACK[INDEX - 2]=CONC(STACK[INDEX - 2],STACK[INDEX - 3]);
+CLOUT(STACK[INDEX - 2]);
+UWRIT1(T);
+UWRITE(STACK[INDEX]);
+_70: R1V=STACK[INDEX];
+INDEX=INDEX - 11;
+return(R1V);
+}
+/* ##### GEXS ##### */
+int GEXS(D,T)
+int T,D;
+{
+int V,TP,TL,J1Y,I,FL,AL,R1V;
+extern int ANAME,BETA,BETA1,INDEX,REC,SPACE[],STACK[],SYINT;
+int COMP(),CONC(),GET(),GEXS(),GINL(),LIST1(),SYMBOL();
+void GRCALL(),INITA(),PUT(),IUP();
+IUP(4);
+V=SPACE[T - BETA1];
+TP=SPACE[T - BETA];
+STACK[INDEX]=COMP(11,T);
+STACK[INDEX - 1]=LIST1(STACK[INDEX]);
+TL=SPACE[TP - BETA1];
+if (TL <= BETA) goto _8;
+J1Y=SYMBOL(TL);
+if (J1Y == 1) goto _8;
+AL=SPACE[TL - BETA1];
+I=SPACE[TL - BETA];
+FL=SPACE[I - BETA1];
+I=SPACE[I - BETA];
+if (AL != 38) goto _8;
+J1Y=GET(FL,5);
+if (J1Y != BETA) goto _8;
+if (I != BETA) I=SPACE[I - BETA1];
+if (FL != ANAME) goto _15;
+if (REC <= 0) goto _15;
+STACK[INDEX]=LIST1(V);
+GRCALL(1,I,STACK[INDEX],&(STACK[INDEX - 1]),&(STACK[INDEX - 2]));
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+goto _8;
+_15: if (FL == ANAME) goto _17;
+if (SYINT != 0) goto _19;
+J1Y=GET(FL,10);
+if (J1Y == BETA) goto _17;
+_19: STACK[INDEX - 3]=GET(FL,1);
+if (STACK[INDEX - 3] != BETA) goto _16;
+J1Y=GET(FL,7);
+if (J1Y == BETA) goto _16;
+INITA(FL);
+STACK[INDEX - 3]=GET(FL,1);
+_16: if (STACK[INDEX - 3] == BETA) goto _17;
+STACK[INDEX]=LIST1(V);
+STACK[INDEX - 1]=GINL(D,I,STACK[INDEX],STACK[INDEX - 3]);
+goto _8;
+_17: PUT(FL,2,3);
+_8: R1V=STACK[INDEX - 1];
+INDEX=INDEX - 4;
+return(R1V);
+}
+/* ##### GINL ##### */
+int GINL(D,I,O,F)
+int F,O,I,D;
+{
+int V,SL,S,R,PP,P0,P,OP,NL,MP,MLP,ML,M,J2Y,J1Y,IP,H,FP,R1V;
+extern int BETA,BETA1,INDEX,NLAB,OPT[],REC,SPACE[],SPCE,STACK[],TNU;
+int ACOMP(),ASSOC(),COMP(),COMP2(),CONC(),GINL(),GNVAR(),GTVAR(),LIST1()
+,LIST2(),PAIR(),SMEMB(),SMEMBR(),STINS(),SUBLIS(),SYMBOL(),THIRD();
+void CLOUT(),FIRST2(),PUT(),UWRITE(),IUP();
+IUP(9);
+H=SPACE[F - BETA1];
+FP=SPACE[F - BETA];
+FIRST2(H,&(IP),&(OP));
+STACK[INDEX]=PAIR(IP,I);
+STACK[INDEX - 1]=PAIR(OP,O);
+STACK[INDEX - 2]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 3]=BETA;
+_2: if (FP == BETA) goto _38;
+if (SPACE[FP - BETA1] <= BETA) goto _38;
+J1Y=SPACE[FP - BETA1] - BETA1;
+if (SPACE[J1Y] < 12) goto _38;
+S=SPACE[FP - BETA1];
+FP=SPACE[FP - BETA];
+NL=SPACE[S - BETA1];
+S=SPACE[S - BETA];
+if (NL == 15) goto _2;
+_34: if (S == BETA) goto _2;
+SL=SPACE[S - BETA1];
+S=SPACE[S - BETA];
+J1Y=SYMBOL(SL);
+if (J1Y != 0) goto _16;
+FIRST2(SPACE[SL - BETA],&(SL),&(STACK[INDEX - 4]));
+goto _17;
+_16: STACK[INDEX - 4]=0;
+_17: STACK[INDEX - 5]=SPACE[SPACE[SL - BETA] - BETA1];
+R=SPACE[SPACE[SL - BETA] - BETA];
+V=BETA;
+if (NL == 17) goto _20;
+if (NL != 12) SL=STINS(STACK[INDEX - 5]);
+_20: J2Y=NL - 11;
+switch (J2Y)
+ {
+  case 1: goto _32;
+  case 2: goto _30;
+  case 3: goto _29;
+  case 4: goto _27;
+  case 5: goto _28;
+  case 6: goto _31;
+ };
+goto _27;
+_32: V=GNVAR(1);
+PUT(V,5,STACK[INDEX - 4]);
+goto _27;
+_31: J1Y=SMEMB(SL,OP);
+if (J1Y != 0) goto _27;
+STACK[INDEX - 6]=REC;
+REC=0;
+_24: V=GTVAR(43,1,D);
+J1Y=SMEMBR(V,I);
+if (J1Y != 0) goto _24;
+J1Y=SMEMBR(V,O);
+if (J1Y != 0) goto _24;
+if (STACK[INDEX - 4] != 0) PUT(V,5,STACK[INDEX - 4]);
+REC=STACK[INDEX - 6];
+goto _27;
+_30: PUT(SL,3,1);
+if (STACK[INDEX - 4] == 0) goto _22;
+J1Y=ACOMP(SL,SPCE);
+if (J1Y != 0) goto _21;
+STACK[INDEX]=LIST1(TNU);
+PUT(SL,5,STACK[INDEX]);
+goto _22;
+_21: PUT(SL,5,STACK[INDEX - 4]);
+_22: PUT(SL,4,1);
+goto _27;
+_29: PUT(SL,2,3);
+goto _27;
+_28: PUT(SL,2,4);
+_27: if (V != BETA) STACK[INDEX - 2]=COMP2(SL,V,STACK[INDEX - 2]);
+goto _34;
+_38: R=FP;
+P0=FP;
+P=FP;
+STACK[INDEX - 7]=BETA;
+STACK[INDEX - 8]=BETA;
+_62: if (P == BETA) goto _63;
+S=SPACE[P - BETA1];
+PP=SPACE[P - BETA];
+M=BETA;
+if (S >= BETA) goto _51;
+M=P;
+goto _45;
+_51: if (SPACE[S - BETA1] != 8) goto _49;
+SPACE[P0 - BETA]=PP;
+goto _45;
+_49: if (SPACE[S - BETA1] == 5) S=THIRD(S);
+if (SPACE[S - BETA1] != 10) goto _47;
+M=SPACE[S - BETA];
+goto _45;
+_47: if (SPACE[S - BETA1] != 6) goto _45;
+J1Y=SPACE[S - BETA] - BETA;
+M=SPACE[J1Y];
+_45: if (M == BETA) goto _61;
+if (SPACE[M - BETA1] >= BETA) goto _61;
+ML=SPACE[M - BETA1];
+MP=SPACE[M - BETA];
+if (ML <= 0) goto _59;
+MLP=ASSOC(ML,STACK[INDEX - 7]);
+if (MLP != BETA) goto _55;
+NLAB=NLAB + 1;
+MLP=NLAB;
+STACK[INDEX - 7]=COMP2(ML,MLP,STACK[INDEX - 7]);
+goto _56;
+_55: MLP=SPACE[MLP - BETA1];
+_56: J1Y=-MLP;
+SPACE[M - BETA1]=J1Y;
+STACK[INDEX - 8]=COMP(M,STACK[INDEX - 8]);
+_59: M=MP;
+goto _45;
+_61: P0=P;
+P=PP;
+goto _62;
+_63: if (OPT[11] != 1) goto _64;
+STACK[INDEX]=LIST2(80,61);
+CLOUT(STACK[INDEX]);
+UWRITE(P);
+STACK[INDEX]=LIST2(65,61);
+CLOUT(STACK[INDEX]);
+UWRITE(STACK[INDEX - 7]);
+STACK[INDEX]=LIST2(66,61);
+CLOUT(STACK[INDEX]);
+UWRITE(STACK[INDEX - 8]);
+STACK[INDEX]=LIST2(76,61);
+CLOUT(STACK[INDEX]);
+UWRITE(STACK[INDEX - 2]);
+_64: if (STACK[INDEX - 8] == BETA) goto _70;
+M=SPACE[STACK[INDEX - 8] - BETA1];
+STACK[INDEX - 8]=SPACE[STACK[INDEX - 8] - BETA];
+J1Y=-SPACE[M - BETA1];
+SPACE[M - BETA1]=J1Y;
+goto _64;
+_70: STACK[INDEX - 2]=SUBLIS(STACK[INDEX - 2],R);
+R1V=STACK[INDEX - 2];
+INDEX=INDEX - 9;
+return(R1V);
+}
+/* ##### GLAB ##### */
+void GLAB(NL,GL)
+int *NL,*GL;
+{
+extern int INDEX,NLAB,STACK[];
+int LIST2();
+void GLAB(),IUP();
+IUP(2);
+NLAB=NLAB + 1;
+STACK[INDEX]=NLAB;
+STACK[INDEX - 1]=LIST2(10,STACK[INDEX]);
+*GL=STACK[INDEX - 1];
+*NL=STACK[INDEX];
+INDEX=INDEX - 2;
+return;
+}
+/* ##### GNEW ##### */
+int GNEW(T)
+int T;
+{
+int S,R1V;
+extern int BETA,BETA1,SPACE[];
+int COMP(),GNEW();
+S=COMP(SPACE[T - BETA1],SPACE[T - BETA]);
+R1V=S;
+return(R1V);
+}
+/* ##### GRCALL ##### */
+void GRCALL(NL,I,O,A,B)
+int O,I,NL;
+int *A,*B;
+{
+int X,NLS,JL,J3Y,J2Y,J1Y,GL;
+extern int ANAME,BETA,BETA1,INDEX,LAB1,RCLST,REC,RILST,ROLST,SPACE[],
+STACK[];
+int COMP(),COMP2(),GASSL(),GET(),GNVAR(),GVARL(),INV(),LENGTH(),LIST2(),
+LIST3(),SUBLIS(),SUFFIX();
+void GLAB(),GRCALL(),PUT(),REMPRP(),IUP();
+IUP(8);
+if (NL != 0) goto _13;
+STACK[RILST]=BETA;
+JL=1;
+J2Y=LENGTH(I);
+J1Y=J2Y + 1;
+_7: if (JL > J1Y) goto _8;
+STACK[INDEX]=GNVAR(1);
+STACK[RILST]=COMP(STACK[INDEX],STACK[RILST]);
+JL=JL + 1;
+goto _7;
+_8: STACK[ROLST]=BETA;
+JL=1;
+J3Y=LENGTH(O);
+_9: if (JL > J3Y) goto _10;
+STACK[INDEX]=GNVAR(1);
+STACK[ROLST]=COMP(STACK[INDEX],STACK[ROLST]);
+JL=JL + 1;
+goto _9;
+_10: STACK[RCLST]=BETA;
+REC=2;
+STACK[INDEX - 1]=GNVAR(0);
+J2Y=STACK[RILST] - BETA1;
+X=SPACE[J2Y];
+PUT(X,8,STACK[INDEX - 1]);
+STACK[INDEX]=COMP(X,I);
+STACK[INDEX - 2]=SUBLIS(BETA,STACK[INDEX]);
+STACK[INDEX - 3]=GVARL(STACK[INDEX - 2]);
+SPACE[STACK[INDEX - 2] - BETA1]=STACK[INDEX - 1];
+STACK[INDEX]=COMP(1,I);
+STACK[INDEX - 4]=GASSL(STACK[RILST],STACK[INDEX]);
+STACK[INDEX - 5]=GASSL(STACK[INDEX - 2],STACK[RILST]);
+goto _6;
+_13: if (NL != 1) goto _14;
+GLAB(&(NLS),&(GL));
+STACK[RCLST]=COMP(NLS,STACK[RCLST]);
+STACK[INDEX]=COMP(REC,I);
+STACK[INDEX]=GASSL(STACK[RILST],STACK[INDEX]);
+STACK[INDEX - 6]=LIST2(10,LAB1);
+STACK[INDEX - 4]=SUFFIX(STACK[INDEX],STACK[INDEX - 6]);
+STACK[INDEX]=GASSL(O,STACK[ROLST]);
+STACK[INDEX - 5]=COMP(NLS,STACK[INDEX]);
+REC=REC + 1;
+goto _6;
+_14: if (O == BETA) goto _16;
+STACK[INDEX - 7]=SUBLIS(BETA,O);
+STACK[INDEX - 3]=GVARL(STACK[INDEX - 7]);
+if (SPACE[O - BETA1] == ANAME) REMPRP(ANAME,1);
+STACK[INDEX - 4]=GASSL(STACK[ROLST],STACK[INDEX - 7]);
+goto _17;
+_16: STACK[INDEX - 4]=BETA;
+_17: J2Y=STACK[RILST] - BETA1;
+X=SPACE[J2Y];
+STACK[INDEX]=GET(X,8);
+STACK[INDEX]=LIST3(11,X,STACK[INDEX]);
+STACK[INDEX - 4]=SUFFIX(STACK[INDEX - 4],STACK[INDEX]);
+GLAB(&(NLS),&(GL));
+J2Y=STACK[RILST] - BETA1;
+STACK[INDEX]=INV(STACK[RCLST]);
+STACK[INDEX]=COMP(NLS,STACK[INDEX]);
+STACK[INDEX - 5]=COMP2(6,SPACE[J2Y],STACK[INDEX]);
+STACK[INDEX]=GASSL(O,STACK[ROLST]);
+STACK[INDEX - 5]=COMP2(STACK[INDEX - 5],NLS,STACK[INDEX]);
+_6: *B=STACK[INDEX - 5];
+*A=STACK[INDEX - 4];
+INDEX=INDEX - 8;
+return;
+}
+/* ##### GSET ##### */
+int GSET(V,T)
+int T,V;
+{
+int R1V;
+extern int ASAFE,INDEX,STACK[],TMPL;
+int GEX(),GNEW(),GSET(),LIST2();
+void IUP();
+IUP(3);
+STACK[INDEX]=GNEW(STACK[TMPL]);
+STACK[INDEX - 1]=LIST2(V,T);
+STACK[INDEX - 2]=GEX(11,2,ASAFE,STACK[INDEX],STACK[INDEX - 1]);
+R1V=STACK[INDEX - 2];
+INDEX=INDEX - 3;
+return(R1V);
+}
+/* ##### GSMPI ##### */
+int GSMPI(T)
+int T;
+{
+int TP,PL,NL,KL2,KL1,BL,R1V;
+extern int BETA,BETA1,SPACE[];
+int GSMPI(),GVAR();
+NL=GVAR(T,1);
+BL=0;
+if (NL == 3) goto _11;
+if (NL == 2) goto _11;
+if (NL == -2) goto _11;
+if (NL == 0) goto _8;
+if (NL != -1) goto _7;
+_8: BL=1;
+goto _11;
+_7: if (NL != 1) goto _11;
+PL=SPACE[SPACE[T - BETA1] - BETA1];
+TP=SPACE[SPACE[T - BETA1] - BETA];
+if (PL == 45) goto _14;
+if (PL != 43) goto _11;
+_14: KL1=GVAR(TP,1);
+KL2=GVAR(SPACE[TP - BETA],1);
+if (KL1 != -1) goto _11;
+if (KL2 == 0) goto _12;
+if (KL2 != -1) goto _11;
+_12: BL=1;
+_11: R1V=BL;
+return(R1V);
+}
+/* ##### GSTRNG ##### */
+int GSTRNG(T)
+int T;
+{
+int TP,TL,NL,J1Y,IL,R1V;
+extern int ASAFE,BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),CONC(),ENTER(),GSTRNG(),INV(),LENGTH(),LIST1(),LIST2(),LIST3(
+),LIST4();
+void ERROR(),IUP();
+IUP(5);
+STACK[INDEX]=BETA;
+if (T == BETA) goto _17;
+TP=T;
+IL=0;
+STACK[INDEX - 1]=BETA;
+NL=LENGTH(TP);
+if (ASAFE != 1) goto _6;
+ERROR(12,T);
+goto _17;
+_6: if (TP == BETA) goto _17;
+TL=SPACE[TP - BETA1];
+TP=SPACE[TP - BETA];
+STACK[INDEX - 1]=COMP(TL,STACK[INDEX - 1]);
+IL=IL + 1;
+NL=NL - 1;
+if (NL == 0) goto _14;
+if (IL != 5) goto _15;
+if (NL < 5) goto _14;
+_15: if (IL != 10) goto _6;
+_14: if (IL != 10) goto _9;
+STACK[INDEX - 2]=LIST2(49,48);
+goto _10;
+_9: J1Y=IL + 48;
+STACK[INDEX - 2]=LIST1(J1Y);
+_10: STACK[INDEX - 3]=LIST4(76,73,83,84);
+STACK[INDEX - 3]=CONC(STACK[INDEX - 3],STACK[INDEX - 2]);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 4]=INV(STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(38,STACK[INDEX - 3],STACK[INDEX - 4]);
+if (STACK[INDEX] != BETA) goto _11;
+STACK[INDEX]=STACK[INDEX - 1];
+goto _12;
+_11: STACK[INDEX - 3]=LIST4(67,79,78,67);
+STACK[INDEX - 3]=ENTER(STACK[INDEX - 3]);
+STACK[INDEX - 4]=LIST2(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=LIST3(38,STACK[INDEX - 3],STACK[INDEX - 4]);
+_12: STACK[INDEX - 1]=BETA;
+IL=0;
+goto _6;
+_17: R1V=STACK[INDEX];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### GTERM ##### */
+void GTERM(T,SL,U)
+int T;
+int *SL,*U;
+{
+int T1,NL,J1Y;
+extern int BETA,BETA1,INDEX,RECOV,SPACE[],STACK[];
+int COMP(),ENTER(),GSTRNG(),GVAR(),LIST1(),LIST3(),LIST4(),LIST5(),THIRD(
+);
+void GTERM(),IUP();
+IUP(3);
+NL=GVAR(T,0);
+if (NL == 0) goto _8;
+if (NL == -2) goto _8;
+if (NL != -1) goto _7;
+_8: *U=T;
+*SL=-1;
+goto _23;
+_7: T1=SPACE[T - BETA1];
+if (SPACE[T1 - BETA1] != 36) goto _20;
+NL=3;
+STACK[INDEX]=LIST5(69,78,84,69,82);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+J1Y=SPACE[T1 - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+STACK[INDEX - 1]=COMP(0,STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(STACK[INDEX - 1]);
+STACK[INDEX]=LIST3(38,STACK[INDEX],STACK[INDEX - 1]);
+SPACE[T - BETA1]=STACK[INDEX];
+goto _16;
+_20: if (SPACE[T1 - BETA1] != 94) goto _18;
+NL=3;
+STACK[INDEX]=LIST4(69,88,80,70);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST3(38,STACK[INDEX],SPACE[T1 - BETA]);
+SPACE[T - BETA1]=STACK[INDEX];
+goto _16;
+_18: if (SPACE[T1 - BETA1] != 0) goto _16;
+NL=3;
+STACK[INDEX - 2]=GSTRNG(SPACE[T1 - BETA]);
+if (RECOV != 0) goto _23;
+SPACE[T - BETA1]=STACK[INDEX - 2];
+_16: T1=SPACE[T - BETA1];
+if (NL != 1) goto _24;
+*U=SPACE[T1 - BETA];
+*SL=1;
+goto _23;
+_24: *U=THIRD(T1);
+if (NL != 2) goto _22;
+*SL=2;
+goto _23;
+_22: *SL=0;
+_23: *U=*U;
+*SL=*SL;
+INDEX=INDEX - 3;
+return;
+}
+/* ##### GTVAR ##### */
+int GTVAR(TL,SL,D)
+int D,SL,TL;
+{
+int J1Y,R1V;
+extern int BETA,BETA1,INDEX,REC,SPACE[],STACK[];
+int GNVAR(),GTVAR(),LIST1();
+void IUP();
+IUP(4);
+if (TL == 43) goto _9;
+if (TL == 45) goto _9;
+if (TL == 42) goto _9;
+if (TL == 47) goto _9;
+if (15 > TL) goto _8;
+if (TL > 20) goto _8;
+_9: STACK[INDEX]=1;
+goto _10;
+_8: STACK[INDEX]=SL;
+_10: if (SL != 2) goto _12;
+STACK[INDEX]=1;
+goto _11;
+_12: if (REC > 0) STACK[INDEX]=0;
+_11: if (STACK[INDEX] != 1) goto _14;
+STACK[INDEX - 1]=SPACE[D - BETA1];
+goto _15;
+_14: STACK[INDEX - 1]=SPACE[D - BETA];
+_15: J1Y=STACK[INDEX - 1] - BETA;
+if (SPACE[J1Y] != BETA) goto _19;
+STACK[INDEX - 2]=GNVAR(STACK[INDEX]);
+SPACE[STACK[INDEX - 1] - BETA1]=STACK[INDEX - 2];
+STACK[INDEX - 2]=LIST1(1);
+SPACE[STACK[INDEX - 1] - BETA]=STACK[INDEX - 2];
+_19: STACK[INDEX - 3]=SPACE[STACK[INDEX - 1] - BETA1];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 1] - BETA];
+if (STACK[INDEX] != 1) goto _27;
+SPACE[D - BETA1]=STACK[INDEX - 1];
+goto _26;
+_27: SPACE[D - BETA]=STACK[INDEX - 1];
+_26: R1V=STACK[INDEX - 3];
+INDEX=INDEX - 4;
+return(R1V);
+}
+/* ##### GVAR ##### */
+int GVAR(T,BB)
+int BB,T;
+{
+int V,TL,SS,Q,PL,NL,L,J3Y,J2Y,J1Y,BL,AL,P[5+1],R1V;
+extern int ASAFE,BETA,BETA1,ILST,INDEX,SPACE[],STACK[],STCK,TBETA,TBTA1;
+int BDIGIT(),GNVAR(),GVAR(),GVINL(),LENGTH(),LIST1(),LIST3(),SE(),SMEMB(
+),STINS(),SYMBOL(),THIRD();
+void ERROR(),GVARAU(),PUT(),IUP();
+IUP(2);
+_1: TL=SPACE[T - BETA1];
+NL=0;
+J1Y=BDIGIT(TL);
+if (J1Y != 0) goto _12;
+if (TL == BETA) goto _20;
+if (TL != TBETA) goto _19;
+_20: J1Y=SYMBOL(TBETA);
+if (J1Y != 0) goto _15;
+TL=TBETA;
+goto _16;
+_15: J1Y=SPACE[TBETA - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+STACK[INDEX]=STINS(STACK[INDEX]);
+TL=SE(STACK[INDEX]);
+_16: SPACE[T - BETA1]=TL;
+goto _12;
+_19: if (TL == BETA1) goto _28;
+if (TL != TBTA1) goto _27;
+_28: J1Y=SYMBOL(TBTA1);
+if (J1Y != 0) goto _23;
+TL=TBTA1;
+goto _24;
+_23: J1Y=SPACE[TBTA1 - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+STACK[INDEX]=STINS(STACK[INDEX]);
+TL=SE(STACK[INDEX]);
+_24: SPACE[T - BETA1]=TL;
+goto _12;
+_27: PL=SPACE[TL - BETA1];
+if (PL == BETA) goto _12;
+if (PL == 36) goto _30;
+if (PL == 0) goto _30;
+if (PL != 94) goto _29;
+_30: NL=3;
+goto _12;
+_29: if (PL == 38) goto _31;
+J1Y=SYMBOL(TL);
+if (J1Y != 0) goto _31;
+NL=1;
+goto _12;
+_31: J1Y=SYMBOL(TL);
+if (J1Y != 0) goto _34;
+J1Y=SPACE[TL - BETA] - BETA1;
+V=SPACE[J1Y];
+goto _35;
+_34: V=TL;
+_35: STACK[INDEX - 1]=1;
+J2Y=5;
+_36: if (STACK[INDEX - 1] > J2Y) goto _37;
+J1Y=STACK[INDEX - 1];
+P[J1Y]=BETA;
+STACK[INDEX - 1]=STACK[INDEX - 1] + 1;
+goto _36;
+_37: P[1]=-BETA;
+J1Y=SPACE[V - BETA] - BETA;
+L=SPACE[J1Y];
+_39: if (L == BETA) goto _48;
+AL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+BL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+if (1 > AL) goto _39;
+if (AL > 5) goto _39;
+if (P[AL] < 0) goto _45;
+J1Y=P[AL];
+goto _46;
+_45: J1Y=-P[AL];
+_46: if (J1Y == BETA) P[AL]=BL;
+goto _39;
+_48: J1Y=-BETA;
+if (P[1] == J1Y) goto _50;
+if (P[2] != 2) goto _50;
+Q=GVINL(T,P[1],2);
+goto _1;
+_50: J1Y=-BETA;
+if (P[1] == J1Y) goto _49;
+J1Y=SYMBOL(TL);
+if (J1Y == 0) goto _49;
+Q=GVINL(T,P[1],1);
+if (Q == TL) goto _49;
+if (P[4] != 0) goto _1;
+NL=-2;
+goto _12;
+_49: if (PL == 38) goto _60;
+NL=-1;
+goto _61;
+_60: if (P[5] != BETA) goto _58;
+NL=3;
+goto _12;
+_58: NL=2;
+if (P[5] != 0) goto _56;
+ERROR(3,V);
+goto _12;
+_56: J1Y=LENGTH(P[5]);
+STACK[INDEX]=THIRD(TL);
+J3Y=LENGTH(STACK[INDEX]);
+if (J1Y == J3Y) goto _54;
+ERROR(13,V);
+goto _12;
+_54: if (P[4] == 1) goto _12;
+if (ASAFE == 0) goto _53;
+if (P[3] == 1) goto _53;
+J1Y=SMEMB(V,STACK[ILST]);
+if (J1Y != 1) goto _12;
+_53: GVARAU(T,P[5]);
+goto _12;
+_61: if (P[5] != BETA) goto _12;
+if (P[3] != 1) goto _67;
+if (P[4] == 1) goto _12;
+if (BB != 1) goto _62;
+NL=3;
+goto _12;
+_62: J1Y=SPACE[STCK - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+STACK[INDEX]=STINS(STACK[INDEX]);
+SS=SE(STACK[INDEX]);
+STACK[INDEX]=LIST1(V);
+STACK[INDEX]=LIST3(38,SS,STACK[INDEX]);
+SPACE[T - BETA1]=STACK[INDEX];
+goto _12;
+_67: if (ASAFE != 1) goto _68;
+if (P[4] == 1) goto _68;
+PUT(V,4,1);
+P[4]=1;
+_68: if (P[4] == 1) goto _12;
+NL=-2;
+TL=GNVAR(0);
+SPACE[T - BETA1]=TL;
+PUT(V,1,TL);
+PUT(V,4,0);
+_12: R1V=NL;
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### GVARAU ##### */
+void GVARAU(T,D)
+int D,T;
+{
+int V,S,JL,J1Y,DP,DL,A;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[],STCK;
+int COMP2(),GVAL(),LIST1(),LIST3(),SE(),STINS();
+void FIRST2(),GVARAU(),IUP();
+IUP(5);
+J1Y=SPACE[T - BETA1] - BETA;
+FIRST2(SPACE[J1Y],&(V),&(A));
+DP=SPACE[D - BETA];
+STACK[INDEX]=0;
+_13: if (DP == BETA) goto _14;
+DL=SPACE[DP - BETA1];
+DP=SPACE[DP - BETA];
+JL=SPACE[A - BETA1];
+A=SPACE[A - BETA];
+if (STACK[INDEX] != 0) goto _11;
+STACK[INDEX - 1]=LIST3(45,JL,1);
+goto _12;
+_11: STACK[INDEX - 2]=LIST3(45,JL,1);
+STACK[INDEX - 1]=LIST3(43,STACK[INDEX],STACK[INDEX - 2]);
+_12: STACK[INDEX]=LIST3(42,STACK[INDEX - 1],DL);
+goto _13;
+_14: if (STACK[INDEX] != 0) goto _15;
+STACK[INDEX]=SPACE[A - BETA1];
+goto _16;
+_15: STACK[INDEX]=LIST3(43,STACK[INDEX],SPACE[A - BETA1]);
+_16: STACK[INDEX - 3]=LIST1(STACK[INDEX]);
+STACK[INDEX - 4]=GVAL(STACK[INDEX - 3]);
+J1Y=SPACE[STCK - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+STACK[INDEX - 2]=STINS(STACK[INDEX - 2]);
+S=SE(STACK[INDEX - 2]);
+STACK[INDEX - 3]=COMP2(43,V,STACK[INDEX - 3]);
+STACK[INDEX - 2]=LIST1(STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST3(38,S,STACK[INDEX - 2]);
+SPACE[T - BETA1]=STACK[INDEX - 3];
+INDEX=INDEX - 5;
+return;
+}
+/* ##### GVARL ##### */
+int GVARL(L)
+int L;
+{
+int NL,LP,R1V;
+extern int BETA,SPACE[];
+int GVAR(),GVARL();
+LP=L;
+_5: if (LP == BETA) goto _6;
+NL=GVAR(LP,0);
+LP=SPACE[LP - BETA];
+goto _5;
+_6: R1V=LP;
+return(R1V);
+}
+/* ##### INITA ##### */
+void INITA(AL)
+int AL;
+{
+int ALP;
+void INITA();
+ALP=AL;
+return;
+}
+/* ##### BGNTST ##### */
+void BGNTST(A)
+int A;
+{
+int J2Y,J1Y,IL,I,AP;
+extern int BETA,BETA1,INDEX,SNUM,SPACE[],STACK[];
+int BDIGIT(),EXPLOD(),UCASE();
+void BGNTST(),ERROR(),IUP();
+IUP(2);
+AP=A;
+_8: J1Y=BDIGIT(SPACE[AP - BETA1]);
+if (J1Y != 0) goto _9;
+AP=SPACE[AP - BETA];
+goto _8;
+_9: J1Y=SPACE[AP - BETA] - BETA1;
+AP=SPACE[J1Y];
+if (SPACE[AP - BETA1] != 2) goto _23;
+J1Y=SPACE[AP - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+STACK[INDEX - 1]=EXPLOD(STACK[INDEX]);
+I=0;
+_22: if (STACK[INDEX - 1] == BETA) goto _23;
+IL=SPACE[STACK[INDEX - 1] - BETA1];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 1] - BETA];
+IL=UCASE(IL);
+J2Y=I + 1;
+switch (J2Y)
+ {
+  case 1: goto _19;
+  case 2: goto _20;
+  case 3: goto _21;
+ };
+goto _22;
+_21: if (IL == 78) goto _7;
+goto _22;
+_20: if (IL == 71) I=2;
+goto _22;
+_19: if (IL == 66) I=1;
+goto _22;
+_23: SNUM=1;
+ERROR(14,0);
+_7: INDEX=INDEX - 2;
+return;
+}
+/* ##### GALG ##### */
+int GALG(A)
+int A;
+{
+int J2Y,J1Y,R1V;
+extern int ANAME,ASAFE,ATYPE,BETA,BETA1,GSYM,ILST,INDEX,LAB1,LIST,LMARG,
+NAM,NLAB,OLEV,OLST,OPOS,OPT[],REC,RECOV,RETL,RETN,SPACE[],STACK[],STRCT,
+SYMTB,TMPL,TRACE,ULOC;
+int BDIGIT(),COMP(),GALG(),GASSL(),GCLNM(),GDUGMA(),GET(),GSTAT(),GVARL(
+),LIST1(),LIST2(),LIST3(),LIST4(),LIST5(),SCONC(),STINS(),SUBLIS(),
+SUFFIX(),THIRD();
+void BGNTST(),BLINES(),CLOUT(),FIRST2(),GDL(),GDLU(),GLAB(),GRCALL(),
+GTRAC(),IDCHK(),PUT(),REMPRP(),ROBUFF(),SOBUFF(),STWRT(),TAB(),UWRIT1(),
+UWRITE(),WRITE(),IUP();
+IUP(44);
+if (LIST < 1) goto _14;
+SOBUFF();
+UWRIT1(ANAME);
+if (OPOS > LMARG) WRITE();
+ROBUFF();
+_14: if (OPT[1] == 0) goto _19;
+TAB(8);
+STACK[INDEX]=LIST4(71,83,89,77);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+STWRT(STACK[GSYM]);
+BLINES(1);
+TAB(8);
+STACK[INDEX]=LIST5(83,89,77,84,66);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+STWRT(STACK[SYMTB]);
+BLINES(1);
+_19: NAM=0;
+ULOC=0;
+STACK[INDEX]=LIST1(1);
+STACK[TMPL]=LIST2(STACK[INDEX],1);
+GLAB(&(STACK[INDEX - 1]),&(STACK[INDEX - 2]));
+GLAB(&(STACK[INDEX - 3]),&(STACK[INDEX - 4]));
+LAB1=STACK[INDEX - 3];
+GLAB(&(STACK[INDEX - 5]),&(STACK[RETL]));
+STACK[INDEX - 6]=SPACE[A - BETA1];
+STACK[INDEX - 7]=SPACE[A - BETA];
+ATYPE=SPACE[STACK[INDEX - 6] - BETA1];
+STACK[INDEX - 8]=SPACE[STACK[INDEX - 6] - BETA];
+J1Y=GET(ANAME,4);
+if (J1Y != 1) goto _26;
+if (REC == 0) goto _25;
+_26: if (OLEV < 3) goto _24;
+_25: ASAFE=1;
+goto _27;
+_24: ASAFE=0;
+_27: STACK[INDEX - 9]=GET(ANAME,7);
+if (ASAFE == 0) STACK[INDEX - 9]=BETA;
+REMPRP(ANAME,1);
+if (ATYPE != 11) goto _30;
+FIRST2(STACK[INDEX - 8],&(STACK[INDEX - 10]),&(STACK[INDEX - 11]));
+STACK[ILST]=THIRD(STACK[INDEX - 11]);
+if (STACK[INDEX - 9] != BETA) STACK[INDEX - 12]=LIST1(STACK[INDEX - 10]);
+PUT(ANAME,2,3);
+STACK[OLST]=LIST1(ANAME);
+PUT(ANAME,1,STACK[INDEX - 10]);
+goto _31;
+_30: J1Y=STACK[INDEX - 8] - BETA;
+FIRST2(SPACE[J1Y],&(STACK[ILST]),&(STACK[OLST]));
+STACK[INDEX - 12]=STACK[OLST];
+_31: STACK[INDEX - 13]=BETA;
+STACK[INDEX - 14]=BETA;
+if (ATYPE != 1) goto _39;
+BGNTST(A);
+STACK[INDEX - 13]=GDUGMA();
+goto _36;
+_39: if (REC <= 0) goto _37;
+GRCALL(0,STACK[ILST],STACK[OLST],&(STACK[INDEX - 13]),&(STACK[INDEX - 14]
+));
+goto _36;
+_37: STACK[INDEX - 15]=STACK[ILST];
+_35: if (STACK[INDEX - 15] == BETA) goto _36;
+STACK[INDEX - 16]=SPACE[STACK[INDEX - 15] - BETA1];
+STACK[INDEX - 15]=SPACE[STACK[INDEX - 15] - BETA];
+J1Y=GET(STACK[INDEX - 16],5);
+if (J1Y == BETA) PUT(STACK[INDEX - 16],4,1);
+goto _35;
+_36: STACK[INDEX - 17]=BETA;
+_46: STACK[INDEX - 18]=SPACE[STACK[INDEX - 7] - BETA1];
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 7] - BETA];
+STACK[INDEX - 19]=GSTAT(STACK[INDEX - 18]);
+if (RECOV != 0) goto _81;
+if (STACK[INDEX - 19] == BETA) goto _45;
+if (STACK[INDEX - 17] != BETA) goto _43;
+STACK[INDEX - 20]=STACK[INDEX - 19];
+goto _44;
+_43: STACK[INDEX - 21]=SCONC(STACK[INDEX - 17],STACK[INDEX - 19]);
+_44: STACK[INDEX - 17]=STACK[INDEX - 19];
+_45: if (STACK[INDEX - 7] != BETA) goto _46;
+STACK[INDEX - 22]=BETA;
+STACK[INDEX - 23]=BETA;
+if (REC <= 0) goto _50;
+GRCALL(2,STACK[ILST],STACK[OLST],&(STACK[INDEX - 22]),&(STACK[INDEX - 23]
+));
+goto _48;
+_50: if (ATYPE != 2) goto _49;
+if (ASAFE != 0) goto _48;
+_49: if (STACK[OLST] == BETA) goto _48;
+STACK[INDEX - 24]=SUBLIS(BETA,STACK[OLST]);
+STACK[INDEX - 21]=GVARL(STACK[INDEX - 24]);
+J1Y=STACK[OLST] - BETA1;
+if (SPACE[J1Y] != ANAME) goto _47;
+STACK[INDEX]=GET(ANAME,1);
+PUT(ANAME,0,STACK[INDEX]);
+REMPRP(ANAME,1);
+_47: STACK[INDEX - 22]=GASSL(STACK[OLST],STACK[INDEX - 24]);
+_48: if (TRACE != 1) goto _52;
+if (ATYPE == 1) goto _52;
+GTRAC(&(STACK[INDEX - 25]),&(STACK[INDEX - 26]));
+goto _53;
+_52: STACK[INDEX - 25]=BETA;
+STACK[INDEX - 26]=BETA;
+_53: GDL(&(STACK[INDEX - 27]),&(STACK[INDEX - 28]),&(STACK[INDEX - 29]),&
+(STACK[INDEX - 30]),&(STACK[INDEX - 31]),&(STACK[INDEX - 32]));
+if (STRCT >= 3) IDCHK(STACK[INDEX - 28],STACK[INDEX - 29],STACK[INDEX - 
+32]);
+GDLU(STACK[INDEX - 27],STACK[INDEX - 28],STACK[INDEX - 29],STACK[INDEX - 
+30],STACK[INDEX - 31],STACK[INDEX - 32],&(STACK[INDEX - 33]),&(STACK[
+INDEX - 34]),&(STACK[INDEX - 35]));
+STACK[INDEX - 25]=SCONC(STACK[INDEX - 34],STACK[INDEX - 25]);
+STACK[INDEX - 26]=SCONC(STACK[INDEX - 26],STACK[INDEX - 35]);
+if (ATYPE != 1) goto _55;
+STACK[INDEX - 36]=LIST2(7,0);
+goto _56;
+_55: STACK[INDEX - 36]=LIST1(8);
+_56: if (STACK[INDEX - 13] != BETA) STACK[INDEX - 13]=COMP(STACK[INDEX - 
+1],STACK[INDEX - 13]);
+STACK[INDEX - 37]=COMP(STACK[INDEX - 5],STACK[INDEX - 22]);
+STACK[INDEX]=SUFFIX(STACK[INDEX - 23],STACK[INDEX - 36]);
+STACK[INDEX - 26]=SCONC(STACK[INDEX - 26],STACK[INDEX]);
+if (OPT[1] == 0) goto _58;
+STACK[INDEX]=LIST4(76,80,52,61);
+CLOUT(STACK[INDEX]);
+UWRITE(STACK[INDEX - 37]);
+STACK[INDEX]=LIST3(76,53,61);
+CLOUT(STACK[INDEX]);
+UWRITE(STACK[INDEX - 26]);
+_58: STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX - 25]);
+STACK[INDEX - 38]=SCONC(STACK[INDEX - 37],STACK[INDEX - 26]);
+STACK[INDEX - 38]=SCONC(STACK[INDEX - 20],STACK[INDEX - 38]);
+STACK[INDEX - 38]=SCONC(STACK[INDEX - 14],STACK[INDEX - 38]);
+STACK[INDEX]=SCONC(STACK[INDEX],STACK[INDEX - 38]);
+STACK[INDEX]=SCONC(STACK[INDEX - 13],STACK[INDEX]);
+STACK[INDEX]=SCONC(STACK[INDEX - 33],STACK[INDEX]);
+STACK[INDEX - 39]=COMP(STACK[INDEX - 6],STACK[INDEX]);
+STACK[INDEX - 39]=GCLNM(STACK[INDEX - 39]);
+if (STACK[INDEX - 9] == BETA) goto _81;
+STACK[INDEX - 40]=STACK[INDEX - 39];
+STACK[INDEX - 39]=SUBLIS(BETA,STACK[INDEX - 39]);
+if (STACK[INDEX - 22] != BETA) SPACE[STACK[INDEX - 37] - BETA]=STACK[
+INDEX - 26];
+STACK[INDEX]=LIST2(STACK[ILST],STACK[INDEX - 12]);
+SPACE[STACK[INDEX - 40] - BETA1]=STACK[INDEX];
+PUT(ANAME,1,STACK[INDEX - 40]);
+_74: if (STACK[INDEX - 40] == BETA) goto _75;
+STACK[INDEX - 41]=SPACE[STACK[INDEX - 40] - BETA1];
+STACK[INDEX - 42]=SPACE[STACK[INDEX - 40] - BETA];
+J1Y=BDIGIT(STACK[INDEX - 41]);
+if (J1Y != 0) goto _67;
+if (STACK[INDEX - 41] == BETA) goto _67;
+J1Y=STACK[INDEX - 41] - BETA1;
+if (SPACE[J1Y] != 11) goto _67;
+J2Y=SPACE[STACK[INDEX - 41] - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+if (J1Y == ANAME) goto _71;
+J2Y=SPACE[STACK[INDEX - 41] - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+J2Y=THIRD(STACK[INDEX - 41]);
+if (J1Y != J2Y) goto _67;
+_71: SPACE[STACK[INDEX - 13] - BETA]=STACK[INDEX - 42];
+_67: STACK[INDEX - 13]=STACK[INDEX - 40];
+STACK[INDEX - 40]=STACK[INDEX - 42];
+goto _74;
+_75: STACK[INDEX - 18]=STACK[SYMTB];
+STACK[SYMTB]=STACK[GSYM];
+J1Y=SPACE[ANAME - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+STACK[INDEX - 43]=STINS(STACK[INDEX]);
+STACK[SYMTB]=STACK[INDEX - 18];
+J1Y=STACK[INDEX - 43] - BETA;
+J2Y=SPACE[ANAME - BETA] - BETA;
+STACK[INDEX]=SPACE[J2Y];
+SPACE[SPACE[J1Y] - BETA]=STACK[INDEX];
+_81: R1V=STACK[INDEX - 39];
+INDEX=INDEX - 44;
+return(R1V);
+}
+/* ##### GCASE ##### */
+int GCASE(TL,CLP)
+int CLP,TL;
+{
+int V,PL,NLP,NL,N,M,LL1,LL,J2Y,J1Y,IL,CL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int BDIGIT(),CCONC(),COMP(),COMP2(),CONC(),GCASE(),GCASES(),GNVAR(),GSET(
+),GVAL(),INV(),LIST1(),LIST3(),SYMBOL();
+void ERROR(),GLAB(),IUP();
+IUP(10);
+GLAB(&(NLP),&(STACK[INDEX]));
+STACK[INDEX - 1]=LIST1(NLP);
+CL=CLP;
+STACK[INDEX - 2]=BETA;
+_17: if (CL == BETA) goto _18;
+LL=SPACE[CL - BETA1];
+CL=SPACE[CL - BETA];
+STACK[INDEX - 3]=SPACE[CL - BETA1];
+CL=SPACE[CL - BETA];
+GLAB(&(NL),&(STACK[INDEX - 4]));
+STACK[INDEX - 5]=COMP(NL,STACK[INDEX - 3]);
+STACK[INDEX - 6]=COMP(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 5],STACK[INDEX - 6]);
+_15: if (LL == BETA) goto _17;
+IL=GVAL(LL);
+J1Y=BDIGIT(SPACE[LL - BETA1]);
+if (J1Y != 0) goto _12;
+if (SPACE[LL - BETA1] == BETA) goto _12;
+ERROR(15,SPACE[LL - BETA1]);
+goto _8;
+_12: LL1=SPACE[LL - BETA1];
+LL=SPACE[LL - BETA];
+J1Y=STACK[INDEX - 4] - BETA;
+STACK[INDEX - 5]=COMP(LL1,SPACE[J1Y]);
+STACK[INDEX - 2]=GCASES(STACK[INDEX - 5],STACK[INDEX - 2]);
+goto _15;
+_18: J1Y=STACK[INDEX - 2] - BETA1;
+J1Y=SPACE[J1Y] - BETA1;
+M=SPACE[J1Y];
+if (M != 1) goto _21;
+STACK[INDEX - 7]=TL;
+goto _20;
+_21: if (M <= 1) goto _19;
+J1Y=M - 1;
+STACK[INDEX - 7]=LIST3(45,TL,J1Y);
+goto _20;
+_19: J1Y=-M;
+J1Y=J1Y + 1;
+STACK[INDEX - 7]=LIST3(43,TL,J1Y);
+_20: STACK[INDEX - 8]=BETA;
+_30: if (STACK[INDEX - 2] == BETA) goto _31;
+PL=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+N=SPACE[PL - BETA1];
+V=SPACE[PL - BETA];
+J1Y=M + 1;
+J1Y=N - J1Y;
+if (J1Y <= 94) goto _27;
+ERROR(16,0);
+goto _8;
+_27: IL=M + 1;
+J2Y=N;
+_28: if (IL > J2Y) goto _29;
+STACK[INDEX - 8]=COMP(NLP,STACK[INDEX - 8]);
+IL=IL + 1;
+goto _28;
+_29: M=N + 1;
+STACK[INDEX - 8]=CCONC(V,STACK[INDEX - 8]);
+goto _30;
+_31: J1Y=SYMBOL(STACK[INDEX - 7]);
+if (J1Y != 0) goto _32;
+V=GNVAR(1);
+STACK[INDEX - 9]=GSET(V,STACK[INDEX - 7]);
+goto _33;
+_32: V=STACK[INDEX - 7];
+STACK[INDEX - 9]=BETA;
+_33: STACK[INDEX - 5]=INV(STACK[INDEX - 8]);
+STACK[INDEX - 5]=COMP2(6,V,STACK[INDEX - 5]);
+STACK[INDEX - 5]=COMP2(STACK[INDEX - 5],STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 9],STACK[INDEX - 5]);
+_8: R1V=STACK[INDEX - 1];
+INDEX=INDEX - 10;
+return(R1V);
+}
+/* ##### GCASES ##### */
+int GCASES(LL,L)
+int L,LL;
+{
+int ML,LP0,LP,LLP,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),GCASES(),LIST1();
+void ERROR(),IUP();
+IUP(2);
+if (L != BETA) goto _7;
+STACK[INDEX]=LIST1(LL);
+goto _6;
+_7: STACK[INDEX]=L;
+LP=L;
+ML=SPACE[LL - BETA1];
+_3: LLP=SPACE[LP - BETA1];
+LP0=SPACE[LP - BETA];
+if (ML >= SPACE[LLP - BETA1]) goto _20;
+STACK[INDEX - 1]=COMP(LLP,LP0);
+SPACE[LP - BETA]=STACK[INDEX - 1];
+SPACE[LP - BETA1]=LL;
+goto _6;
+_20: if (ML != SPACE[LLP - BETA1]) goto _18;
+ERROR(17,ML);
+goto _6;
+_18: if (LP0 != BETA) goto _16;
+STACK[INDEX - 1]=LIST1(LL);
+SPACE[LP - BETA]=STACK[INDEX - 1];
+goto _6;
+_16: LP=LP0;
+goto _3;
+_6: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### GFOR ##### */
+int GFOR(IL,TL1,TL2,TL3,SP)
+int SP,TL3,TL2,TL1,IL;
+{
+int TLP3,SS,J2Y,J1Y,CL,R1V;
+extern int BETA,BETA1,INDEX,REC,SPACE[],STACK[];
+int ATOM(),CONC(),ENTER(),EQUAL(),GFOR(),GNVAR(),GSET(),GWHILE(),LIST1()
+,LIST2(),LIST3(),LIST4(),SE(),THIRD();
+void PUT(),IUP();
+IUP(12);
+if (SP == BETA) goto _19;
+SS=SPACE[SP - BETA1];
+TLP3=TL3;
+J1Y=ATOM(TL2);
+if (J1Y == 0) goto _17;
+J1Y=ATOM(TL1);
+if (J1Y == 0) goto _17;
+STACK[INDEX]=TL2 - TL1;
+goto _20;
+_17: J1Y=ATOM(TL2);
+if (J1Y != 0) goto _10;
+if (TL2 == BETA) goto _10;
+if (SPACE[TL2 - BETA1] == 43) goto _15;
+if (SPACE[TL2 - BETA1] != 45) goto _10;
+_15: J1Y=SPACE[TL2 - BETA] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+J1Y=EQUAL(TL1,STACK[INDEX - 1]);
+if (J1Y == 0) goto _10;
+J2Y=SPACE[TL2 - BETA] - BETA;
+J1Y=SPACE[J2Y];
+if (J1Y == BETA) goto _10;
+STACK[INDEX]=THIRD(TL2);
+if (SPACE[TL2 - BETA1] != 45) goto _20;
+J1Y=ATOM(STACK[INDEX]);
+if (J1Y == 0) goto _7;
+STACK[INDEX]=-STACK[INDEX];
+goto _20;
+_7: STACK[INDEX]=LIST2(45,STACK[INDEX]);
+goto _20;
+_10: STACK[INDEX]=LIST3(45,TL2,IL);
+goto _20;
+_19: STACK[INDEX]=1;
+SS=TL3;
+TLP3=TL2;
+_20: J1Y=ATOM(TLP3);
+if (J1Y != 0) goto _24;
+J1Y=1 - REC;
+if (J1Y < 0) goto _22;
+STACK[INDEX - 1]=J1Y;
+goto _23;
+_22: STACK[INDEX - 1]=0;
+_23: STACK[INDEX - 2]=GNVAR(STACK[INDEX - 1]);
+STACK[INDEX - 3]=GSET(STACK[INDEX - 2],TLP3);
+goto _25;
+_24: STACK[INDEX - 2]=TLP3;
+STACK[INDEX - 3]=BETA;
+_25: J1Y=ATOM(STACK[INDEX]);
+if (J1Y == 0) goto _41;
+STACK[INDEX - 4]=BETA;
+STACK[INDEX - 5]=BETA;
+if (STACK[INDEX] <= 0) goto _28;
+J1Y=1;
+goto _29;
+_28: if (STACK[INDEX] >= 0) goto _30;
+J1Y=-1;
+goto _29;
+_30: J1Y=0;
+_29: if (J1Y <= 0) goto _26;
+CL=43;
+STACK[INDEX - 6]=LIST3(18,IL,STACK[INDEX - 2]);
+goto _31;
+_26: CL=45;
+STACK[INDEX - 6]=LIST3(20,IL,STACK[INDEX - 2]);
+_31: if (STACK[INDEX] < 0) goto _33;
+STACK[INDEX - 7]=STACK[INDEX];
+goto _42;
+_33: STACK[INDEX - 7]=-STACK[INDEX];
+goto _42;
+_41: J1Y=1 - REC;
+if (J1Y < 0) goto _36;
+STACK[INDEX - 1]=J1Y;
+goto _37;
+_36: STACK[INDEX - 1]=0;
+_37: STACK[INDEX - 7]=GNVAR(STACK[INDEX - 1]);
+J1Y=1 - REC;
+if (J1Y < 0) goto _39;
+STACK[INDEX - 1]=J1Y;
+goto _40;
+_39: STACK[INDEX - 1]=0;
+_40: STACK[INDEX - 8]=GNVAR(STACK[INDEX - 1]);
+STACK[INDEX - 4]=GSET(STACK[INDEX - 7],STACK[INDEX]);
+STACK[INDEX - 1]=LIST4(68,83,71,78);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 9]=SE(STACK[INDEX - 1]);
+PUT(STACK[INDEX - 9],2,3);
+STACK[INDEX - 1]=LIST1(STACK[INDEX - 7]);
+STACK[INDEX - 1]=LIST3(38,STACK[INDEX - 9],STACK[INDEX - 1]);
+STACK[INDEX - 5]=GSET(STACK[INDEX - 8],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(42,STACK[INDEX - 8],IL);
+STACK[INDEX - 10]=LIST3(42,STACK[INDEX - 8],STACK[INDEX - 2]);
+STACK[INDEX - 6]=LIST3(18,STACK[INDEX - 1],STACK[INDEX - 10]);
+CL=43;
+_42: STACK[INDEX - 1]=GSET(IL,TL1);
+STACK[INDEX - 10]=LIST3(CL,IL,STACK[INDEX - 7]);
+STACK[INDEX - 10]=GSET(IL,STACK[INDEX - 10]);
+STACK[INDEX - 10]=CONC(SS,STACK[INDEX - 10]);
+STACK[INDEX - 10]=GWHILE(STACK[INDEX - 6],STACK[INDEX - 10]);
+STACK[INDEX - 10]=CONC(STACK[INDEX - 5],STACK[INDEX - 10]);
+STACK[INDEX - 10]=CONC(STACK[INDEX - 3],STACK[INDEX - 10]);
+STACK[INDEX - 10]=CONC(STACK[INDEX - 4],STACK[INDEX - 10]);
+STACK[INDEX - 11]=CONC(STACK[INDEX - 1],STACK[INDEX - 10]);
+R1V=STACK[INDEX - 11];
+INDEX=INDEX - 12;
+return(R1V);
+}
+/* ##### GIF ##### */
+int GIF(FL,S1,S2)
+int S2,S1,FL;
+{
+int TL,SS2,SS1,SL2,SL1,NLP,NL,J2Y,J1Y,FLP,BL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ATOM(),COMP2(),CONC(),EQUAL(),GIF(),GIF1(),SUFFIX();
+void GLAB(),IUP();
+IUP(4);
+J1Y=EQUAL(S1,S2);
+if (J1Y != 1) goto _9;
+STACK[INDEX]=S1;
+goto _29;
+_9: if (S2 != BETA) goto _14;
+TL=0;
+goto _13;
+_14: SL2=SPACE[S2 - BETA1];
+SS2=SPACE[S2 - BETA];
+if (SS2 != BETA) goto _12;
+J1Y=ATOM(SL2);
+if (J1Y != 0) goto _12;
+if (SL2 == BETA) goto _12;
+if (SPACE[SL2 - BETA1] != 10) goto _12;
+TL=1;
+goto _13;
+_12: TL=2;
+_13: if (S1 == BETA) goto _19;
+SL1=SPACE[S1 - BETA1];
+SS1=SPACE[S1 - BETA];
+if (SS1 != BETA) goto _18;
+J1Y=ATOM(SL1);
+if (J1Y != 0) goto _18;
+if (SL1 == BETA) goto _18;
+if (SPACE[SL1 - BETA1] != 10) goto _18;
+TL=3 + TL;
+goto _19;
+_18: TL=6 + TL;
+_19: if (TL == 1) goto _22;
+if (TL < 6) goto _21;
+_22: BL=0;
+goto _23;
+_21: BL=1;
+_23: FLP=FL;
+if (TL == 2) goto _27;
+if (TL == 6) goto _27;
+if (TL != 8) goto _26;
+_27: GLAB(&(NL),&(STACK[INDEX]));
+goto _25;
+_26: if (3 > TL) goto _24;
+if (TL > 5) goto _24;
+STACK[INDEX]=SL1;
+goto _25;
+_24: STACK[INDEX]=SL2;
+_25: STACK[INDEX - 1]=GIF1(BL,FLP,STACK[INDEX]);
+STACK[INDEX]=STACK[INDEX - 1];
+J2Y=TL - 1;
+switch (J2Y)
+ {
+  case 1: goto _30;
+  case 2: goto _29;
+  case 3: goto _31;
+  case 4: goto _31;
+  case 5: goto _32;
+  case 6: goto _33;
+  case 7: goto _34;
+ };
+goto _29;
+_34: GLAB(&(NLP),&(STACK[INDEX - 3]));
+STACK[INDEX - 2]=SUFFIX(S2,NLP);
+STACK[INDEX - 2]=COMP2(STACK[INDEX - 3],NL,STACK[INDEX - 2]);
+STACK[INDEX - 2]=CONC(S1,STACK[INDEX - 2]);
+STACK[INDEX]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+goto _29;
+_33: STACK[INDEX]=CONC(STACK[INDEX - 1],S1);
+goto _29;
+_32: STACK[INDEX - 2]=SUFFIX(S1,NL);
+STACK[INDEX]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+goto _29;
+_31: STACK[INDEX]=CONC(STACK[INDEX - 1],S2);
+goto _29;
+_30: STACK[INDEX - 2]=SUFFIX(S2,NL);
+STACK[INDEX]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+_29: R1V=STACK[INDEX];
+INDEX=INDEX - 4;
+return(R1V);
+}
+/* ##### GIF1 ##### */
+int GIF1(BL,FL,SL)
+int SL,FL,BL;
+{
+int J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[],TMPL;
+int ATOM(),CONC(),GEX(),GIF1(),GNEW(),GNREL(),LIST3(),SUFFIX(),SYMBOL();
+void GLAB(),IUP();
+IUP(10);
+if (FL == BETA) goto _9;
+J1Y=ATOM(FL);
+if (J1Y != 0) goto _9;
+J1Y=SYMBOL(FL);
+if (J1Y == 1) goto _9;
+if (12 > SPACE[FL - BETA1]) goto _9;
+if (SPACE[FL - BETA1] <= 20) goto _8;
+_9: STACK[INDEX]=LIST3(16,FL,0);
+goto _11;
+_8: STACK[INDEX]=FL;
+_11: STACK[INDEX - 1]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX] - BETA];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+if (STACK[INDEX - 3] == BETA) goto _15;
+J1Y=STACK[INDEX - 3] - BETA1;
+STACK[INDEX - 3]=SPACE[J1Y];
+_15: if (STACK[INDEX - 1] > 14) goto _21;
+STACK[INDEX - 4]=SL;
+STACK[INDEX - 5]=BL;
+if (STACK[INDEX - 1] != 14) goto _16;
+STACK[INDEX - 5]=1 - BL;
+goto _17;
+_16: STACK[INDEX - 3]=GIF1(BL,STACK[INDEX - 3],SL);
+_17: if (STACK[INDEX - 1] != 12) goto _20;
+if (BL == 0) goto _19;
+_20: if (STACK[INDEX - 1] != 13) goto _18;
+if (BL != 1) goto _18;
+_19: STACK[INDEX - 5]=1 - BL;
+GLAB(&(STACK[INDEX - 6]),&(STACK[INDEX - 4]));
+STACK[INDEX - 3]=SUFFIX(STACK[INDEX - 3],STACK[INDEX - 6]);
+_18: STACK[INDEX - 7]=GIF1(STACK[INDEX - 5],STACK[INDEX - 2],STACK[INDEX 
+- 4]);
+STACK[INDEX - 8]=CONC(STACK[INDEX - 7],STACK[INDEX - 3]);
+goto _7;
+_21: if (BL != 0) goto _23;
+STACK[INDEX - 7]=GNREL(STACK[INDEX - 1]);
+SPACE[STACK[INDEX] - BETA1]=STACK[INDEX - 7];
+_23: STACK[INDEX - 7]=GNEW(STACK[TMPL]);
+J1Y=STACK[INDEX] - BETA;
+STACK[INDEX - 9]=GEX(7,1,1,STACK[INDEX - 7],SPACE[J1Y]);
+STACK[INDEX - 7]=LIST3(5,STACK[INDEX],SL);
+STACK[INDEX - 8]=SUFFIX(STACK[INDEX - 9],STACK[INDEX - 7]);
+_7: R1V=STACK[INDEX - 8];
+INDEX=INDEX - 10;
+return(R1V);
+}
+/* ##### GPRINT ##### */
+int GPRINT(S)
+int S;
+{
+int J3Y,J2Y,J1Y,R1V;
+extern int BETA,INDEX,SPACE[],STACK[];
+int COMP(),CONC(),ENTER(),GPRINT(),INV(),LENGTH(),LIST1(),LIST4(),LIST5(
+),SE(),SUFFIX();
+void PUT(),IUP();
+IUP(12);
+STACK[INDEX]=LIST5(83,79,66,85,70);
+STACK[INDEX - 1]=LIST1(70);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+STACK[INDEX - 2]=SE(STACK[INDEX]);
+PUT(STACK[INDEX - 2],2,4);
+STACK[INDEX]=LIST4(2,STACK[INDEX - 2],BETA,BETA);
+STACK[INDEX - 3]=LIST1(STACK[INDEX]);
+STACK[INDEX - 4]=SPACE[S - BETA];
+STACK[INDEX]=LENGTH(STACK[INDEX - 4]);
+J2Y=STACK[INDEX] / 6;
+J1Y=6 * J2Y;
+STACK[INDEX - 6]=STACK[INDEX] - J1Y;
+STACK[INDEX - 5]=J2Y;
+STACK[INDEX - 11]=1;
+J3Y=STACK[INDEX - 5];
+_13: if (STACK[INDEX - 11] > J3Y) goto _14;
+STACK[INDEX - 7]=STACK[INDEX - 4];
+STACK[INDEX - 9]=1;
+_9: if (STACK[INDEX - 9] > 6) goto _10;
+STACK[INDEX - 8]=STACK[INDEX - 4];
+J1Y=STACK[INDEX - 4] - BETA;
+STACK[INDEX - 4]=SPACE[J1Y];
+STACK[INDEX - 9]=STACK[INDEX - 9] + 1;
+goto _9;
+_10: STACK[INDEX]=LIST5(67,87,82,73,84);
+STACK[INDEX - 1]=LIST1(54);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+STACK[INDEX - 10]=SE(STACK[INDEX]);
+PUT(STACK[INDEX - 10],2,4);
+SPACE[STACK[INDEX - 8] - BETA]=BETA;
+STACK[INDEX]=LIST4(2,STACK[INDEX - 10],STACK[INDEX - 7],BETA);
+STACK[INDEX - 3]=COMP(STACK[INDEX],STACK[INDEX - 3]);
+STACK[INDEX - 11]=STACK[INDEX - 11] + 1;
+goto _13;
+_14: if (STACK[INDEX - 6] <= 0) goto _16;
+if (STACK[INDEX - 6] == 1) STACK[INDEX - 6]=69 - 48;
+STACK[INDEX]=LIST5(67,87,82,73,84);
+J1Y=STACK[INDEX - 6] + 48;
+STACK[INDEX]=SUFFIX(STACK[INDEX],J1Y);
+STACK[INDEX - 7]=ENTER(STACK[INDEX]);
+STACK[INDEX - 7]=SE(STACK[INDEX - 7]);
+PUT(STACK[INDEX - 7],2,4);
+STACK[INDEX]=LIST4(2,STACK[INDEX - 7],STACK[INDEX - 4],BETA);
+STACK[INDEX - 3]=COMP(STACK[INDEX],STACK[INDEX - 3]);
+_16: STACK[INDEX]=LIST5(87,82,73,84,69);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+STACK[INDEX - 2]=SE(STACK[INDEX]);
+PUT(STACK[INDEX - 2],2,4);
+STACK[INDEX]=LIST4(2,STACK[INDEX - 2],BETA,BETA);
+STACK[INDEX - 3]=COMP(STACK[INDEX],STACK[INDEX - 3]);
+STACK[INDEX]=LIST5(82,79,66,85,70);
+STACK[INDEX - 1]=LIST1(70);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+STACK[INDEX - 2]=SE(STACK[INDEX]);
+PUT(STACK[INDEX - 2],2,4);
+STACK[INDEX]=LIST4(2,STACK[INDEX - 2],BETA,BETA);
+STACK[INDEX]=COMP(STACK[INDEX],STACK[INDEX - 3]);
+STACK[INDEX - 3]=INV(STACK[INDEX]);
+R1V=STACK[INDEX - 3];
+INDEX=INDEX - 12;
+return(R1V);
+}
+/* ##### GRPEAT ##### */
+int GRPEAT(FL,S)
+int S,FL;
+{
+int NL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),CONC(),GIF1(),GRPEAT(),LIST1();
+void GLAB(),IUP();
+IUP(3);
+GLAB(&(NL),&(STACK[INDEX]));
+if (FL != BETA) goto _7;
+STACK[INDEX - 1]=LIST1(STACK[INDEX]);
+goto _8;
+_7: STACK[INDEX - 1]=GIF1(0,SPACE[FL - BETA1],STACK[INDEX]);
+_8: STACK[INDEX - 2]=CONC(S,STACK[INDEX - 1]);
+STACK[INDEX - 1]=COMP(NL,STACK[INDEX - 2]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 3;
+return(R1V);
+}
+/* ##### GSTAT ##### */
+int GSTAT(S)
+int S;
+{
+int J2Y,J1Y,R1V;
+extern int BETA,BETA1,INDEX,OPT[],RECOV,SNUM,SPACE[],STACK[];
+int ATOM(),COMP2(),CONC(),GCALL(),GCASE(),GFOR(),GIF(),GPRINT(),GRPEAT()
+,GSET(),GSTAT(),GVAL(),GWHILE(),INV(),LIST1(),LIST3(),LIST5();
+void ADV4(),CLOUT(),ERROR(),FIRST2(),FIRST3(),UWRITE(),IUP();
+IUP(13);
+if (OPT[5] == 0) goto _8;
+STACK[INDEX]=LIST5(71,83,84,65,84);
+STACK[INDEX - 1]=LIST3(32,62,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRITE(S);
+_8: STACK[INDEX - 2]=BETA;
+if (RECOV != 0) goto _44;
+J1Y=ATOM(S);
+if (J1Y == 0) goto _10;
+SNUM=S;
+STACK[INDEX - 2]=LIST1(S);
+goto _44;
+_10: if (S != BETA) goto _9;
+STACK[INDEX - 2]=S;
+goto _44;
+_9: STACK[INDEX - 3]=SPACE[S - BETA1];
+STACK[INDEX - 4]=SPACE[S - BETA];
+if (2 > STACK[INDEX - 3]) goto _15;
+if (STACK[INDEX - 3] <= 11) goto _14;
+_15: ERROR(34,0);
+goto _44;
+_14: J2Y=STACK[INDEX - 3] - 1;
+switch (J2Y)
+ {
+  case 1: goto _34;
+  case 2: goto _40;
+  case 3: goto _39;
+  case 4: goto _38;
+  case 5: goto _35;
+  case 6: goto _36;
+  case 7: goto _43;
+  case 8: goto _42;
+  case 9: goto _37;
+  case 10: goto _41;
+ };
+goto _33;
+_43: FIRST2(STACK[INDEX - 4],&(STACK[INDEX - 5]),&(STACK[INDEX - 6]));
+STACK[INDEX]=GSTAT(STACK[INDEX - 6]);
+STACK[INDEX - 2]=GWHILE(STACK[INDEX - 5],STACK[INDEX]);
+goto _33;
+_42: STACK[INDEX - 6]=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+STACK[INDEX]=GSTAT(STACK[INDEX - 6]);
+STACK[INDEX - 2]=GRPEAT(STACK[INDEX - 4],STACK[INDEX]);
+goto _33;
+_41: FIRST2(STACK[INDEX - 4],&(STACK[INDEX - 5]),&(STACK[INDEX - 6]));
+STACK[INDEX - 2]=GSET(STACK[INDEX - 5],STACK[INDEX - 6]);
+goto _33;
+_40: if (STACK[INDEX - 4] == BETA) goto _33;
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+STACK[INDEX]=GSTAT(STACK[INDEX - 6]);
+STACK[INDEX - 2]=CONC(STACK[INDEX - 2],STACK[INDEX]);
+goto _40;
+_39: J1Y=STACK[INDEX - 4] - BETA1;
+STACK[INDEX - 2]=GPRINT(SPACE[J1Y]);
+goto _33;
+_38: FIRST3(STACK[INDEX - 4],&(STACK[INDEX - 5]),&(STACK[INDEX - 6]),&(
+STACK[INDEX - 4]));
+STACK[INDEX]=GSTAT(STACK[INDEX - 6]);
+STACK[INDEX - 1]=GSTAT(STACK[INDEX - 4]);
+STACK[INDEX - 2]=GIF(STACK[INDEX - 5],STACK[INDEX],STACK[INDEX - 1]);
+goto _33;
+_37: STACK[INDEX - 2]=LIST1(S);
+goto _33;
+_36: ADV4(STACK[INDEX - 4],&(STACK[INDEX - 9]),&(STACK[INDEX - 10]),&(
+STACK[INDEX - 11]),&(STACK[INDEX - 12]),&(STACK[INDEX - 4]));
+if (STACK[INDEX - 4] != BETA) goto _25;
+STACK[INDEX - 12]=GSTAT(STACK[INDEX - 12]);
+goto _24;
+_25: J1Y=STACK[INDEX - 4] - BETA1;
+STACK[INDEX]=GSTAT(SPACE[J1Y]);
+SPACE[STACK[INDEX - 4] - BETA1]=STACK[INDEX];
+_24: STACK[INDEX - 2]=GFOR(STACK[INDEX - 9],STACK[INDEX - 10],STACK[
+INDEX - 11],STACK[INDEX - 12],STACK[INDEX - 4]);
+goto _33;
+_35: STACK[INDEX - 7]=GVAL(STACK[INDEX - 4]);
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+_17: if (STACK[INDEX - 4] == BETA) goto _22;
+STACK[INDEX - 8]=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+STACK[INDEX]=GSTAT(STACK[INDEX - 6]);
+STACK[INDEX - 2]=COMP2(STACK[INDEX],STACK[INDEX - 8],STACK[INDEX - 2]);
+goto _17;
+_22: STACK[INDEX]=INV(STACK[INDEX - 2]);
+STACK[INDEX - 2]=GCASE(STACK[INDEX - 5],STACK[INDEX]);
+goto _33;
+_34: FIRST3(STACK[INDEX - 4],&(STACK[INDEX - 5]),&(STACK[INDEX - 6]),&(
+STACK[INDEX - 4]));
+STACK[INDEX - 2]=GCALL(STACK[INDEX - 5],STACK[INDEX - 6],STACK[INDEX - 4]
+);
+_33: if (OPT[5] == 0) goto _44;
+STACK[INDEX]=LIST5(71,83,84,65,84);
+STACK[INDEX - 1]=LIST3(32,60,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRITE(STACK[INDEX - 2]);
+_44: R1V=STACK[INDEX - 2];
+INDEX=INDEX - 13;
+return(R1V);
+}
+/* ##### GTRAC ##### */
+void GTRAC(L1,L2)
+int *L1,*L2;
+{
+int S,NL,LLP,J1Y,IL,BL;
+extern int ANAME,BETA,BETA1,ILST,INDEX,OLST,OPT[],REC,RILST,ROLST,SPACE[
+],STACK[],TRACE;
+int CCONC(),COMP(),ENTER(),EXPLOD(),INV(),LENGTH(),LIST1(),LIST3(),LIST4(
+),SE();
+void GTRAC(),PUT(),IUP();
+IUP(9);
+STACK[INDEX]=EXPLOD(ANAME);
+NL=LENGTH(STACK[INDEX]);
+IL=NL + 1;
+_8: if (IL > 6) goto _9;
+STACK[INDEX]=COMP(32,STACK[INDEX]);
+IL=IL + 1;
+goto _8;
+_9: STACK[INDEX]=INV(STACK[INDEX]);
+if (REC != 0) goto _10;
+LLP=STACK[ILST];
+goto _11;
+_10: J1Y=STACK[RILST] - BETA;
+LLP=SPACE[J1Y];
+_11: STACK[INDEX - 1]=LENGTH(LLP);
+if (6 > STACK[INDEX - 1]) goto _13;
+STACK[INDEX - 1]=6;
+goto _14;
+_13: STACK[INDEX - 1]=STACK[INDEX - 1];
+_14: STACK[INDEX - 2]=LIST1(STACK[INDEX - 1]);
+IL=8;
+_19: if (IL > 13) goto _20;
+if (LLP == BETA) goto _17;
+BL=SPACE[LLP - BETA1];
+LLP=SPACE[LLP - BETA];
+goto _18;
+_17: BL=0;
+_18: STACK[INDEX - 2]=COMP(BL,STACK[INDEX - 2]);
+IL=IL + 1;
+goto _19;
+_20: STACK[INDEX - 1]=INV(STACK[INDEX - 2]);
+STACK[INDEX - 3]=CCONC(STACK[INDEX],STACK[INDEX - 1]);
+if (REC != 0) goto _21;
+LLP=STACK[OLST];
+goto _22;
+_21: LLP=STACK[ROLST];
+_22: STACK[INDEX - 1]=LENGTH(LLP);
+if (6 > STACK[INDEX - 1]) goto _24;
+J1Y=6;
+goto _25;
+_24: J1Y=STACK[INDEX - 1];
+_25: J1Y=100 + J1Y;
+STACK[INDEX - 2]=LIST1(J1Y);
+IL=8;
+_30: if (IL > 13) goto _31;
+if (LLP == BETA) goto _28;
+BL=SPACE[LLP - BETA1];
+LLP=SPACE[LLP - BETA];
+goto _29;
+_28: BL=0;
+_29: STACK[INDEX - 2]=COMP(BL,STACK[INDEX - 2]);
+IL=IL + 1;
+goto _30;
+_31: STACK[INDEX - 1]=INV(STACK[INDEX - 2]);
+STACK[INDEX - 4]=CCONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 5]=BETA;
+STACK[INDEX - 6]=BETA;
+if (TRACE != 1) goto _32;
+STACK[INDEX - 1]=LIST3(84,82,67);
+STACK[INDEX - 1]=ENTER(STACK[INDEX - 1]);
+S=SE(STACK[INDEX - 1]);
+PUT(S,2,4);
+STACK[INDEX - 7]=LIST4(2,S,STACK[INDEX - 3],BETA);
+STACK[INDEX - 8]=LIST4(2,S,STACK[INDEX - 4],BETA);
+STACK[INDEX - 5]=COMP(STACK[INDEX - 7],STACK[INDEX - 5]);
+STACK[INDEX - 6]=COMP(STACK[INDEX - 8],STACK[INDEX - 6]);
+_32: *L2=STACK[INDEX - 6];
+*L1=STACK[INDEX - 5];
+INDEX=INDEX - 9;
+return;
+}
+/* ##### GWHILE ##### */
+int GWHILE(FL,S)
+int S,FL;
+{
+int NL1,NL,R1V;
+extern int INDEX,STACK[];
+int COMP(),CONC(),GIF1(),GWHILE(),LIST2();
+void GLAB(),IUP();
+IUP(5);
+GLAB(&(NL),&(STACK[INDEX]));
+GLAB(&(NL1),&(STACK[INDEX - 1]));
+STACK[INDEX - 2]=GIF1(0,FL,STACK[INDEX - 1]);
+STACK[INDEX - 3]=LIST2(STACK[INDEX],NL1);
+STACK[INDEX - 3]=CONC(S,STACK[INDEX - 3]);
+STACK[INDEX - 2]=CONC(STACK[INDEX - 2],STACK[INDEX - 3]);
+STACK[INDEX - 4]=COMP(NL,STACK[INDEX - 2]);
+R1V=STACK[INDEX - 4];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### IDCHK ##### */
+void IDCHK(F,G,P)
+int P,G,F;
+{
+int LL,J1Y,CL;
+extern int ANAME,BETA,BETA1,ILST,INDEX,LMARG,OLST,OPOS,OPT[],RETN,SPACE[
+],STACK[],STP,VRDEF,VRUSE;
+int ACOMP(),CCONC(),EXPLOD(),GET(),SYMBOL();
+void IDCHK(),UOWRT1(),WARN(),WRITE(),IUP();
+IUP(3);
+STACK[INDEX]=CCONC(P,F);
+_17: if (STACK[INDEX] == BETA) goto _18;
+CL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+J1Y=GET(CL,11);
+if (J1Y != 1) goto _15;
+WARN(11,CL,0);
+goto _17;
+_15: J1Y=ACOMP(RETN,CL);
+if (J1Y == 0) goto _17;
+J1Y=ACOMP(STP,CL);
+if (J1Y == 0) goto _17;
+STACK[INDEX - 1]=EXPLOD(CL);
+_12: if (STACK[INDEX - 1] == BETA) goto _17;
+LL=SPACE[STACK[INDEX - 1] - BETA1];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 1] - BETA];
+if (LL <= 90) goto _12;
+STACK[INDEX - 1]=BETA;
+WARN(10,CL,0);
+goto _12;
+_18: STACK[INDEX - 2]=CCONC(STACK[OLST],STACK[VRUSE]);
+STACK[INDEX]=CCONC(STACK[ILST],STACK[INDEX - 2]);
+_25: if (STACK[INDEX] == BETA) goto _26;
+CL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+if (OPT[3] == 0) goto _22;
+UOWRT1(CL);
+if (OPOS > LMARG) WRITE();
+_22: J1Y=GET(CL,11);
+if (J1Y != BETA) goto _25;
+if (CL != ANAME) WARN(9,CL,0);
+goto _25;
+_26: STACK[INDEX]=G;
+_33: if (STACK[INDEX] == BETA) goto _34;
+CL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+J1Y=SYMBOL(CL);
+if (J1Y != 0) goto _30;
+if (SPACE[CL - BETA1] != 38) goto _30;
+J1Y=SPACE[CL - BETA] - BETA1;
+CL=SPACE[J1Y];
+_30: J1Y=GET(CL,11);
+if (J1Y == 1) WARN(8,CL,0);
+goto _33;
+_34: INDEX=INDEX - 3;
+return;
+}
+/* ##### BEGINA ##### */
+void BEGINA()
+{
+int J2Y,J1Y;
+extern int BETA,BETA1,CHI,CUNIT,DTMU,DTNU,ERRA,FUNIT,GSYM,INDEX,IPOS,
+ISIZE,IUNIT,LIST,LUNIT,OLEV,OPT[],OUNIT,RMARG,SPACE[],STACK[],STAT,STRCT,
+SYINT,SYMTB,TBETA,TBTA1,TCHI,TMU,TNU,TRACE,WRN;
+int ARGGET(),ARGNO(),ATOM(),CCONC(),CONC(),ENTER(),ENVGET(),GET(),INV(),
+LIST10(),LIST2(),LIST3(),LIST4(),LIST5(),MEMBER(),OPTGET(),UREAD();
+void BEGINA(),CLOSE(),ERROR(),FOPENR(),FOPENW(),INITTL(),SOPT(),IUP();
+IUP(24);
+FUNIT=8;
+ISIZE=72;
+RMARG=72;
+LIST=1;
+STRCT=1;
+TRACE=0;
+OLEV=2;
+SYINT=1;
+DTMU=1000;
+TMU=DTMU;
+SOPT(15,TMU);
+DTNU=30000;
+TNU=DTNU;
+SOPT(18,TNU);
+TCHI=CHI;
+STACK[INDEX]=1;
+_23: if (STACK[INDEX] > 20) goto _24;
+J1Y=STACK[INDEX];
+OPT[J1Y]=0;
+STACK[INDEX]=STACK[INDEX] + 1;
+goto _23;
+_24: STACK[GSYM]=BETA;
+WRN=0;
+STACK[ERRA]=BETA;
+STAT=0;
+STACK[INDEX - 1]=LIST3(65,76,68);
+STACK[INDEX - 2]=ENVGET(STACK[INDEX - 1]);
+J1Y=MEMBER(47,STACK[INDEX - 2]);
+if (J1Y == 0) goto _25;
+STACK[INDEX - 3]=47;
+goto _26;
+_25: STACK[INDEX - 3]=92;
+_26: STACK[INDEX - 4]=ARGGET(0);
+_27: J1Y=MEMBER(92,STACK[INDEX - 4]);
+if (J1Y != 0) goto _29;
+J1Y=MEMBER(47,STACK[INDEX - 4]);
+if (J1Y == 0) goto _28;
+_29: J1Y=STACK[INDEX - 4] - BETA;
+STACK[INDEX - 4]=SPACE[J1Y];
+goto _27;
+_28: J1Y=MEMBER(46,STACK[INDEX - 4]);
+if (J1Y == 0) goto _33;
+STACK[INDEX - 5]=INV(STACK[INDEX - 4]);
+_32: STACK[INDEX - 6]=SPACE[STACK[INDEX - 5] - BETA1];
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 5] - BETA];
+if (STACK[INDEX - 6] != 46) goto _32;
+STACK[INDEX - 4]=INV(STACK[INDEX - 5]);
+_33: STACK[INDEX - 1]=LIST4(46,105,110,105);
+STACK[INDEX - 7]=CCONC(STACK[INDEX - 4],STACK[INDEX - 1]);
+if (STACK[INDEX - 2] == BETA) goto _34;
+STACK[INDEX - 1]=LIST5(STACK[INDEX - 3],69,84,67,STACK[INDEX - 3]);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 7]);
+STACK[INDEX - 7]=CONC(STACK[INDEX - 2],STACK[INDEX - 1]);
+_34: STACK[INDEX - 1]=LIST4(46,108,111,103);
+STACK[INDEX - 2]=CCONC(STACK[INDEX - 4],STACK[INDEX - 1]);
+LUNIT=1;
+STACK[INDEX - 1]=LIST3(111,117,116);
+STACK[INDEX - 8]=CCONC(STACK[INDEX - 4],STACK[INDEX - 1]);
+SOPT(1,1);
+SOPT(2,1);
+STACK[INDEX - 9]=ARGNO();
+STACK[INDEX]=1;
+STACK[INDEX - 10]=1;
+STACK[INDEX - 11]=0;
+STACK[INDEX - 12]=STACK[INDEX - 11];
+STACK[INDEX - 1]=LIST10(58,101,58,105,58,108,58,111,58,116);
+STACK[INDEX - 13]=LIST2(119,58);
+STACK[INDEX - 14]=CONC(STACK[INDEX - 1],STACK[INDEX - 13]);
+_67: if (STACK[INDEX] >= STACK[INDEX - 9]) goto _68;
+if (STACK[INDEX - 10] == 0) goto _68;
+STACK[INDEX - 15]=OPTGET(STACK[INDEX],STACK[INDEX - 14]);
+if (STACK[INDEX - 15] != 36) goto _65;
+STACK[INDEX - 10]=0;
+goto _67;
+_65: STACK[INDEX]=STACK[INDEX] + 1;
+STACK[INDEX - 16]=-1;
+J1Y=ATOM(STACK[INDEX - 15]);
+if (J1Y == 0) goto _43;
+STACK[INDEX - 6]=STACK[INDEX - 15];
+goto _39;
+_43: STACK[INDEX - 6]=SPACE[STACK[INDEX - 15] - BETA1];
+STACK[INDEX - 15]=SPACE[STACK[INDEX - 15] - BETA];
+if (STACK[INDEX - 15] == BETA) goto _39;
+J1Y=STACK[INDEX - 15] - BETA1;
+if (48 > SPACE[J1Y]) goto _41;
+if (SPACE[J1Y] > 57) goto _41;
+J1Y=1;
+goto _42;
+_41: J1Y=0;
+_42: if (J1Y == 0) goto _39;
+STACK[INDEX - 16]=SPACE[STACK[INDEX - 15] - BETA1];
+STACK[INDEX - 15]=SPACE[STACK[INDEX - 15] - BETA];
+STACK[INDEX - 16]=STACK[INDEX - 16] - 48;
+_39: J2Y=STACK[INDEX - 6] - 100;
+switch (J2Y)
+ {
+  case 1: goto _59;
+  case 2: goto _67;
+  case 3: goto _67;
+  case 4: goto _67;
+  case 5: goto _62;
+  case 6: goto _67;
+  case 7: goto _67;
+  case 8: goto _63;
+  case 9: goto _67;
+  case 10: goto _67;
+  case 11: goto _64;
+  case 12: goto _67;
+  case 13: goto _67;
+  case 14: goto _67;
+  case 15: goto _67;
+  case 16: goto _60;
+  case 17: goto _67;
+  case 18: goto _67;
+  case 19: goto _61;
+ };
+goto _67;
+_64: J1Y=-1;
+if (STACK[INDEX - 16] != J1Y) FUNIT=STACK[INDEX - 16];
+J1Y=ATOM(STACK[INDEX - 15]);
+if (J1Y != 0) goto _56;
+if (STACK[INDEX - 15] == BETA) goto _56;
+if (FUNIT == OUNIT) goto _56;
+FOPENW(FUNIT,STACK[INDEX - 15]);
+STACK[INDEX - 12]=1;
+goto _55;
+_56: J1Y=ATOM(STACK[INDEX - 15]);
+if (J1Y != 0) SOPT(5,9);
+_55: STACK[INDEX - 8]=BETA;
+goto _67;
+_63: J1Y=-1;
+if (STACK[INDEX - 16] != J1Y) LUNIT=STACK[INDEX - 16];
+J1Y=ATOM(STACK[INDEX - 15]);
+if (J1Y != 0) goto _53;
+if (STACK[INDEX - 15] == BETA) goto _53;
+if (LUNIT <= 0) goto _53;
+FOPENW(LUNIT,STACK[INDEX - 15]);
+STACK[INDEX - 11]=1;
+_53: STACK[INDEX - 2]=BETA;
+goto _67;
+_62: J1Y=-1;
+if (STACK[INDEX - 16] != J1Y) CUNIT=STACK[INDEX - 16];
+J1Y=ATOM(STACK[INDEX - 15]);
+if (J1Y != 0) goto _50;
+if (STACK[INDEX - 15] == BETA) goto _50;
+FOPENR(CUNIT,STACK[INDEX - 15]);
+goto _51;
+_50: CUNIT=-1;
+_51: STACK[INDEX - 7]=BETA;
+goto _67;
+_61: J1Y=-1;
+if (STACK[INDEX - 16] == J1Y) goto _47;
+SOPT(2,STACK[INDEX - 16]);
+goto _67;
+_47: SOPT(2,0);
+goto _67;
+_60: SOPT(3,1);
+goto _67;
+_59: J1Y=-1;
+if (STACK[INDEX - 16] == J1Y) goto _45;
+SOPT(1,STACK[INDEX - 16]);
+goto _67;
+_45: SOPT(1,0);
+goto _67;
+_68: if (LUNIT <= 0) goto _70;
+if (STACK[INDEX - 2] == BETA) goto _70;
+FOPENW(LUNIT,STACK[INDEX - 2]);
+goto _69;
+_70: if (STACK[INDEX - 11] == 0) LUNIT=0;
+_69: INITTL();
+IPOS=ISIZE;
+if (CUNIT < 0) goto _80;
+if (STACK[INDEX - 7] != BETA) FOPENR(CUNIT,STACK[INDEX - 7]);
+STACK[INDEX - 17]=IUNIT;
+IUNIT=CUNIT;
+STACK[INDEX - 18]=UREAD();
+_78: if (STACK[INDEX - 18] == BETA) goto _79;
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 18] - BETA1];
+STACK[INDEX - 18]=SPACE[STACK[INDEX - 18] - BETA];
+STACK[INDEX - 19]=SPACE[STACK[INDEX - 18] - BETA1];
+STACK[INDEX - 18]=SPACE[STACK[INDEX - 18] - BETA];
+J1Y=STACK[INDEX - 3] - BETA;
+SPACE[SPACE[J1Y] - BETA]=STACK[INDEX - 19];
+goto _78;
+_79: IUNIT=STACK[INDEX - 17];
+CLOSE(CUNIT);
+_80: STACK[INDEX - 1]=LIST4(66,69,84,65);
+TBETA=ENTER(STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(66,69,84,65,49);
+TBTA1=ENTER(STACK[INDEX - 1]);
+STACK[GSYM]=STACK[SYMTB];
+STACK[INDEX - 10]=1;
+_94: if (STACK[INDEX] >= STACK[INDEX - 9]) goto _95;
+if (STACK[INDEX - 10] == 0) goto _95;
+STACK[INDEX - 15]=ARGGET(STACK[INDEX]);
+J1Y=MEMBER(61,STACK[INDEX - 15]);
+if (J1Y != 0) goto _92;
+STACK[INDEX - 10]=0;
+goto _94;
+_92: STACK[INDEX]=STACK[INDEX] + 1;
+STACK[INDEX - 20]=STACK[INDEX - 15];
+_83: STACK[INDEX - 21]=STACK[INDEX - 15];
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 15] - BETA1];
+STACK[INDEX - 15]=SPACE[STACK[INDEX - 15] - BETA];
+J1Y=STACK[INDEX - 15] - BETA1;
+if (SPACE[J1Y] != 61) goto _83;
+SPACE[STACK[INDEX - 21] - BETA]=BETA;
+STACK[INDEX - 21]=ENTER(STACK[INDEX - 20]);
+J1Y=STACK[INDEX - 15] - BETA;
+STACK[INDEX - 15]=SPACE[J1Y];
+STACK[INDEX - 22]=0;
+_88: if (STACK[INDEX - 15] == BETA) goto _89;
+STACK[INDEX - 6]=SPACE[STACK[INDEX - 15] - BETA1];
+STACK[INDEX - 15]=SPACE[STACK[INDEX - 15] - BETA];
+J1Y=10 * STACK[INDEX - 22];
+J1Y=J1Y + STACK[INDEX - 6];
+STACK[INDEX - 22]=J1Y - 48;
+goto _88;
+_89: STACK[INDEX - 23]=GET(STACK[INDEX - 21],6);
+if (STACK[INDEX - 23] == BETA) goto _90;
+SOPT(STACK[INDEX - 23],STACK[INDEX - 22]);
+goto _94;
+_90: SOPT(STACK[INDEX - 21],STACK[INDEX - 22]);
+goto _94;
+_95: if (STACK[INDEX] >= STACK[INDEX - 9]) goto _100;
+STACK[INDEX - 15]=ARGGET(STACK[INDEX]);
+FOPENR(IUNIT,STACK[INDEX - 15]);
+if (STACK[INDEX - 8] == BETA) goto _100;
+J1Y=MEMBER(46,STACK[INDEX - 15]);
+if (J1Y == 0) goto _99;
+STACK[INDEX - 21]=INV(STACK[INDEX - 15]);
+_98: STACK[INDEX - 6]=SPACE[STACK[INDEX - 21] - BETA1];
+STACK[INDEX - 21]=SPACE[STACK[INDEX - 21] - BETA];
+if (STACK[INDEX - 6] != 46) goto _98;
+STACK[INDEX - 15]=INV(STACK[INDEX - 21]);
+_99: STACK[INDEX - 1]=LIST2(46,99);
+STACK[INDEX - 8]=CCONC(STACK[INDEX - 15],STACK[INDEX - 1]);
+_100: if (STACK[INDEX - 12] != 0) goto _103;
+FUNIT=OUNIT;
+goto _102;
+_103: if (STACK[INDEX - 8] != BETA) FOPENW(FUNIT,STACK[INDEX - 8]);
+_102: J1Y=STACK[INDEX - 9] - 1;
+if (STACK[INDEX] < J1Y) ERROR(36,0);
+INDEX=INDEX - 24;
+return;
+}
+/* ##### ENDA ##### */
+void ENDA()
+{
+int NL,AL;
+extern int BETA,BETA1,ERRA,FUNIT,GSYM,INDEX,LIST,LMARG,LUNIT,OPOS,OUNIT,
+RECOV,RMARG,SPACE[],STACK[],SYINT,WRN;
+int COMP(),COMP2(),CONC(),LIST1(),LIST10(),LIST2(),LIST3(),LIST4(),LIST5(
+);
+void AWRITE(),BLINES(),CLOSE(),CLOUT(),CWRITE(),ENDA(),ENDS(),ROBUFF(),
+SOBUFF(),STWRTT(),SWRITE(),UWRIT1(),WRITE(),IUP();
+IUP(6);
+if (LIST == 0) goto _7;
+SOBUFF();
+BLINES(1);
+if (WRN <= 0) goto _15;
+UWRIT1(WRN);
+if (WRN != 1) goto _12;
+STACK[INDEX]=LIST5(119,97,114,110,105);
+STACK[INDEX - 1]=LIST2(110,103);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _13;
+_12: STACK[INDEX]=LIST5(119,97,114,110,105);
+STACK[INDEX - 1]=LIST3(110,103,115);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+_13: STACK[INDEX]=LIST5(32,103,105,118,101);
+STACK[INDEX - 1]=LIST2(110,46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+_15: STACK[INDEX - 2]=BETA;
+STACK[INDEX - 3]=BETA;
+STACK[INDEX - 4]=BETA;
+STACK[INDEX - 5]=STACK[ERRA];
+_24: if (STACK[INDEX - 5] == BETA) goto _25;
+NL=SPACE[STACK[INDEX - 5] - BETA1];
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 5] - BETA];
+AL=SPACE[STACK[INDEX - 5] - BETA1];
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 5] - BETA];
+if (AL <= 1) goto _22;
+STACK[INDEX - 3]=COMP2(NL,AL,STACK[INDEX - 3]);
+goto _24;
+_22: if (AL != 1) goto _20;
+STACK[INDEX - 2]=COMP(NL,STACK[INDEX - 2]);
+goto _24;
+_20: STACK[INDEX - 4]=COMP(NL,STACK[INDEX - 4]);
+goto _24;
+_25: if (STACK[INDEX - 4] == BETA) goto _34;
+NL=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+STACK[INDEX]=LIST10(42,42,42,32,69,114,114,111,114,32);
+STACK[INDEX - 1]=LIST5(105,110,32,108,105);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(110,101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (NL < 0) goto _29;
+STACK[INDEX]=NL;
+goto _30;
+_29: STACK[INDEX]=-NL;
+_30: AWRITE(STACK[INDEX]);
+CWRITE(46);
+if (OPOS > LMARG) WRITE();
+goto _25;
+_34: if (STACK[INDEX - 2] == BETA) goto _43;
+NL=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+STACK[INDEX]=LIST10(42,42,42,32,69,114,114,111,114,32);
+STACK[INDEX - 1]=LIST5(105,110,32,108,105);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(110,101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (NL < 0) goto _38;
+STACK[INDEX]=NL;
+goto _39;
+_38: STACK[INDEX]=-NL;
+_39: AWRITE(STACK[INDEX]);
+STACK[INDEX]=LIST10(32,105,110,32,101,120,116,101,114,110);
+STACK[INDEX - 1]=LIST10(97,108,32,100,101,99,108,97,114,97);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(116,105,111,110,46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+goto _34;
+_43: if (STACK[INDEX - 3] == BETA) goto _59;
+NL=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+AL=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+STACK[INDEX]=LIST5(42,42,42,32,69);
+STACK[INDEX - 1]=LIST4(114,114,111,114);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (NL >= 0) goto _48;
+STACK[INDEX]=LIST5(32,105,110,32,108);
+STACK[INDEX - 1]=LIST4(105,110,101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _47;
+_48: if (NL <= 0) goto _47;
+STACK[INDEX]=LIST10(32,105,110,32,115,116,101,112,32,40);
+CLOUT(STACK[INDEX]);
+_47: if (NL == 0) goto _53;
+if (NL < 0) goto _51;
+STACK[INDEX]=NL;
+goto _52;
+_51: STACK[INDEX]=-NL;
+_52: AWRITE(STACK[INDEX]);
+_53: if (NL <= 0) goto _54;
+STACK[INDEX]=LIST4(41,32,111,102);
+CLOUT(STACK[INDEX]);
+_54: if (NL != 0) goto _55;
+STACK[INDEX]=LIST3(32,105,110);
+CLOUT(STACK[INDEX]);
+_55: STACK[INDEX]=LIST10(32,97,108,103,111,114,105,116,104,109);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+SWRITE(AL);
+CWRITE(46);
+if (OPOS > LMARG) WRITE();
+goto _43;
+_59: if (STACK[ERRA] != BETA) goto _61;
+STACK[INDEX]=LIST10(42,42,42,32,84,114,97,110,115,108);
+STACK[INDEX - 1]=LIST10(97,116,105,111,110,32,115,117,99,99);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(101,115,115,102,117);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(108,46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+RECOV=0;
+if (OPOS > LMARG) WRITE();
+_61: ROBUFF();
+_7: if (SYINT != 2) goto _63;
+RMARG=72;
+STWRTT(STACK[GSYM]);
+_63: if (LIST == 3) ENDS();
+if (LUNIT > 0) CLOSE(LUNIT);
+if (FUNIT != OUNIT) CLOSE(FUNIT);
+if (STACK[ERRA] != BETA) exit(1);
+INDEX=INDEX - 6;
+return;
+}
+/* ##### INITTL ##### */
+void INITTL()
+{
+int J1Y;
+extern int ADVSM,BETA,DCLHD,DOSM,ELSM,EXTSM,GSYM,INDEX,NDEX,NOTSM,OFSM,
+OPSM,RETN,SPCE,STACK[],STCK,STMHD,STP,SYINT,SYMTB,THSM,TOSM,UNSM;
+int CONC(),ENTER(),LIST1(),LIST2(),LIST3(),LIST4(),LIST5(),PACK();
+void INITTL(),PUT(),IUP();
+IUP(2);
+STACK[SYMTB]=BETA;
+STACK[INDEX]=LIST5(103,108,111,98,97);
+STACK[INDEX - 1]=LIST1(108);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,13);
+STACK[INDEX]=LIST4(115,97,102,101);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,17);
+STACK[INDEX]=LIST5(105,110,116,114,105);
+STACK[INDEX - 1]=LIST4(110,115,105,99);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,16);
+STACK[INDEX]=LIST5(97,114,114,97,121);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,12);
+STACK[INDEX]=LIST5(112,114,97,103,109);
+STACK[INDEX - 1]=LIST1(97);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,15);
+STACK[INDEX]=LIST5(99,111,110,115,116);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,14);
+STACK[DCLHD]=STACK[SYMTB];
+STACK[SYMTB]=BETA;
+STACK[INDEX]=LIST2(105,102);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,6);
+STACK[INDEX]=LIST3(102,111,114);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,9);
+STACK[INDEX]=LIST4(99,97,115,101);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,12);
+STACK[INDEX]=LIST2(103,111);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+J1Y=-10;
+PUT(STACK[INDEX],1,J1Y);
+STACK[INDEX]=LIST4(103,111,116,111);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,10);
+STACK[INDEX]=LIST5(114,101,112,101,97);
+STACK[INDEX - 1]=LIST1(116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,8);
+STACK[INDEX]=LIST5(112,114,105,110,116);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,11);
+STACK[INDEX]=LIST5(119,104,105,108,101);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],1,7);
+STACK[STMHD]=STACK[SYMTB];
+STACK[SYMTB]=STACK[GSYM];
+STACK[TOSM]=LIST2(116,111);
+STACK[THSM]=LIST4(116,104,101,110);
+STACK[ELSM]=LIST4(101,108,115,101);
+STACK[OFSM]=LIST2(111,102);
+STACK[DOSM]=LIST2(100,111);
+STACK[UNSM]=LIST5(117,110,116,105,108);
+STACK[INDEX]=LIST3(110,111,116);
+STACK[NOTSM]=PACK(STACK[INDEX]);
+STACK[INDEX]=LIST4(65,68,86,90);
+STACK[ADVSM]=PACK(STACK[INDEX]);
+STACK[INDEX]=LIST5(73,78,68,69,88);
+NDEX=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST5(69,120,116,101,114);
+STACK[INDEX - 1]=LIST3(110,97,108);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+EXTSM=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST5(82,69,84,85,82);
+STACK[INDEX - 1]=LIST1(78);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+RETN=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST5(83,84,65,67,75);
+STCK=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST5(83,80,65,67,69);
+SPCE=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST4(83,84,79,80);
+STP=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST4(79,80,69,78);
+OPSM=ENTER(STACK[INDEX]);
+STACK[INDEX]=LIST5(82,69,87,73,78);
+STACK[INDEX - 1]=LIST1(68);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],14,1);
+STACK[INDEX]=LIST5(67,76,79,83,69);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],14,1);
+STACK[INDEX]=LIST5(69,78,68,70,73);
+STACK[INDEX - 1]=LIST2(76,69);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],14,1);
+STACK[INDEX]=LIST5(66,65,67,75,83);
+STACK[INDEX - 1]=LIST4(80,65,67,69);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],14,1);
+PUT(OPSM,14,1);
+PUT(RETN,1,1);
+PUT(STP,1,1);
+STACK[INDEX]=LIST3(65,66,83);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],10,1);
+STACK[INDEX]=LIST3(77,65,88);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],10,1);
+STACK[INDEX]=LIST3(77,73,78);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],10,1);
+STACK[INDEX]=LIST4(68,83,71,78);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],10,1);
+STACK[INDEX]=LIST4(69,67,72,79);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,0);
+STACK[INDEX]=LIST4(76,73,83,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,1);
+STACK[INDEX]=LIST5(83,84,82,67,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,2);
+STACK[INDEX]=LIST5(84,82,65,67,69);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,3);
+STACK[INDEX]=LIST5(83,89,73,78,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,4);
+STACK[INDEX]=LIST4(79,76,69,86);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,5);
+STACK[INDEX]=LIST5(67,85,78,73,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,6);
+STACK[INDEX]=LIST5(73,85,78,73,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,7);
+STACK[INDEX]=LIST5(70,85,78,73,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,8);
+STACK[INDEX]=LIST5(76,85,78,73,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,9);
+STACK[INDEX]=LIST5(77,85,78,73,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,10);
+STACK[INDEX]=LIST5(79,85,78,73,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,11);
+STACK[INDEX]=LIST5(73,83,73,90,69);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,12);
+STACK[INDEX]=LIST5(82,77,65,82,71);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,13);
+STACK[INDEX]=LIST5(76,77,65,82,71);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,14);
+STACK[INDEX]=LIST3(84,77,85);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,15);
+STACK[INDEX]=LIST3(71,67,77);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,16);
+STACK[INDEX]=LIST3(82,72,79);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,17);
+STACK[INDEX]=LIST3(84,78,85);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,18);
+STACK[INDEX]=LIST3(79,80,84);
+STACK[INDEX]=ENTER(STACK[INDEX]);
+PUT(STACK[INDEX],6,19);
+STACK[GSYM]=STACK[SYMTB];
+INDEX=INDEX - 2;
+return;
+}
+/* ##### STWRTT ##### */
+void STWRTT(T)
+int T;
+{
+int J1Y;
+extern int BETA,BETA1,INDEX,LMARG,OPOS,SPACE[],STACK[];
+int STLST();
+void CWRITE(),STWRTT(),UWRIT2(),WRITE(),IUP();
+IUP(3);
+STACK[INDEX]=STLST(T);
+CWRITE(40);
+if (OPOS > LMARG) WRITE();
+_8: if (STACK[INDEX] == BETA) goto _16;
+STACK[INDEX - 1]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+UWRIT2(STACK[INDEX - 1]);
+J1Y=SPACE[STACK[INDEX - 1] - BETA] - BETA;
+STACK[INDEX - 2]=SPACE[J1Y];
+UWRIT2(STACK[INDEX - 2]);
+if (OPOS > LMARG) WRITE();
+goto _8;
+_16: CWRITE(41);
+if (OPOS > LMARG) WRITE();
+INDEX=INDEX - 3;
+return;
+}
+/* ##### ADV3 ##### */
+void ADV3(L,AL1,AL2,AL3,LP)
+int L;
+int *AL1,*AL2,*AL3,*LP;
+{
+extern int BETA,BETA1,SPACE[];
+void ADV3();
+*AL1=SPACE[L - BETA1];
+*LP=SPACE[L - BETA];
+*AL2=SPACE[*LP - BETA1];
+*LP=SPACE[*LP - BETA];
+*AL3=SPACE[*LP - BETA1];
+*LP=SPACE[*LP - BETA];
+return;
+}
+/* ##### ADV4 ##### */
+void ADV4(L,AL1,AL2,AL3,AL4,LP)
+int L;
+int *AL1,*AL2,*AL3,*AL4,*LP;
+{
+extern int BETA,BETA1,SPACE[];
+void ADV4();
+*AL1=SPACE[L - BETA1];
+*LP=SPACE[L - BETA];
+*AL2=SPACE[*LP - BETA1];
+*LP=SPACE[*LP - BETA];
+*AL3=SPACE[*LP - BETA1];
+*LP=SPACE[*LP - BETA];
+*AL4=SPACE[*LP - BETA1];
+*LP=SPACE[*LP - BETA];
+return;
+}
+/* ##### AREAD ##### */
+int AREAD()
+{
+int S,J1Y,C,A,R1V;
+extern int BETA,IPOS;
+int AREAD(),CREAD(),CREADB();
+void CWRIT3(),CWRIT6(),DIBUFF(),ROBUFF(),SOBUFF(),WRITE();
+S=1;
+C=CREADB();
+if (C != 43) goto _12;
+C=CREAD();
+goto _11;
+_12: if (C != 45) goto _10;
+C=CREAD();
+S=-1;
+goto _11;
+_10: if (48 > C) goto _8;
+if (C > 57) goto _8;
+J1Y=1;
+goto _9;
+_8: J1Y=0;
+_9: if (J1Y == 0) goto _3;
+_11: A=0;
+_14: J1Y=BETA / 10;
+if (A > J1Y) goto _3;
+J1Y=10 * A;
+J1Y=J1Y + C;
+A=J1Y - 48;
+if (A >= BETA) goto _3;
+C=CREAD();
+if (48 > C) goto _16;
+if (C > 57) goto _16;
+J1Y=1;
+goto _17;
+_16: J1Y=0;
+_17: if (J1Y != 0) goto _14;
+A=S * A;
+IPOS=IPOS - 1;
+goto _6;
+_3: SOBUFF();
+CWRIT6(69,114,114,111,114,32);
+CWRIT6(102,111,117,110,100,32);
+CWRIT6(98,121,32,65,82,69);
+CWRIT3(65,68,46);
+WRITE();
+ROBUFF();
+DIBUFF();
+exit(1);
+_6: R1V=A;
+return(R1V);
+}
+/* ##### ARGGET ##### */
+int ARGGET(NL)
+int NL;
+{
+int L,KL,R1V;
+int ARGGET(),CLIN(),IO();
+KL=IO(NL,4);
+if (KL == 0) exit(1);
+L=CLIN(1,KL);
+R1V=L;
+return(R1V);
+}
+/* ##### ATOM ##### */
+int ATOM(AL)
+int AL;
+{
+int J1Y,BL,R1V;
+extern int BETA;
+int ATOM();
+J1Y=-BETA;
+if (J1Y >= AL) goto _5;
+if (AL >= BETA) goto _5;
+BL=1;
+goto _6;
+_5: BL=0;
+_6: R1V=BL;
+return(R1V);
+}
+/* ##### AWRITE ##### */
+void AWRITE(A)
+int A;
+{
+int Q,N,J1Y,AP,D[20+1];
+void AWRITE(),CWRITE();
+if (A >= 0) goto _7;
+AP=-A;
+CWRITE(45);
+goto _8;
+_7: AP=A;
+_8: N=0;
+_9: Q=AP / 10;
+N=N + 1;
+J1Y=10 * Q;
+J1Y=AP - J1Y;
+D[N]=J1Y + 48;
+AP=Q;
+if (AP != 0) goto _9;
+_3: CWRITE(D[N]);
+N=N - 1;
+if (N != 0) goto _3;
+return;
+}
+/* ##### BDIGIT ##### */
+int BDIGIT(AL)
+int AL;
+{
+int J1Y,BL,R1V;
+extern int BETA;
+int BDIGIT();
+J1Y=-BETA;
+if (J1Y >= AL) goto _5;
+if (AL >= BETA) goto _5;
+BL=1;
+goto _6;
+_5: BL=0;
+_6: R1V=BL;
+return(R1V);
+}
+/* ##### BEGIN1 ##### */
+void BEGIN1()
+{
+int L,J3Y,J2Y,J1Y,ILP,IL;
+extern int AVAIL,BETA,BETA1,GCC,GCCC,GCM,NU,RHO,SPACE[],TAU;
+int EXPF();
+void BEGIN0(),BEGIN1();
+BEGIN0();
+BETA=EXPF(2,29);
+BETA1=BETA - 1;
+RHO=10;
+TAU=0;
+GCC=0;
+GCCC=0;
+GCM=0;
+J2Y=NU / 2;
+J2Y=2 * J2Y;
+J1Y=NU - J2Y;
+if (J1Y < 0) J1Y=1;
+L=NU - J1Y;
+IL=1;
+J3Y=L - 1;
+_14: if (IL > J3Y) goto _15;
+ILP=IL + BETA;
+J1Y=ILP + 2;
+SPACE[ILP - BETA]=J1Y;
+SPACE[ILP - BETA1]=0;
+IL=IL + 2;
+goto _14;
+_15: J1Y=L - 1;
+J1Y=J1Y + BETA;
+SPACE[J1Y - BETA]=BETA;
+AVAIL=BETA + 1;
+return;
+}
+/* ##### CCONC ##### */
+int CCONC(L1,L2)
+int L2,L1;
+{
+int LP1,L,R1V;
+extern int BETA,SPACE[];
+int CCONC(),CINV(),INV();
+L=L2;
+if (L1 == BETA) goto _7;
+L=L1;
+if (L2 == BETA) goto _7;
+LP1=CINV(L1);
+L=INV(LP1);
+SPACE[LP1 - BETA]=L2;
+_7: R1V=L;
+return(R1V);
+}
+/* ##### CINV ##### */
+int CINV(L)
+int L;
+{
+int LP,AL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int CINV(),COMP();
+void IUP();
+IUP(1);
+STACK[INDEX]=BETA;
+LP=L;
+_7: if (LP == BETA) goto _8;
+AL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+STACK[INDEX]=COMP(AL,STACK[INDEX]);
+goto _7;
+_8: R1V=STACK[INDEX];
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### CLIN ##### */
+int CLIN(KL,LL)
+int LL,KL;
+{
+int J2Y,J1Y,R1V;
+extern int BETA,IBUFF[],INDEX,IPOS,STACK[];
+int CLIN(),COMP();
+void IUP();
+IUP(2);
+STACK[INDEX]=BETA;
+STACK[INDEX - 1]=LL;
+J2Y=KL;
+_5: if (STACK[INDEX - 1] < J2Y) goto _6;
+J1Y=STACK[INDEX - 1];
+STACK[INDEX]=COMP(IBUFF[J1Y],STACK[INDEX]);
+STACK[INDEX - 1]=STACK[INDEX - 1] - 1;
+goto _5;
+_6: IPOS=LL;
+R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### CLOUT ##### */
+void CLOUT(L)
+int L;
+{
+int LP,C;
+extern int BETA,BETA1,SPACE[];
+void CLOUT(),CWRITE();
+LP=L;
+_7: if (LP == BETA) goto _8;
+C=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+CWRITE(C);
+goto _7;
+_8: return;
+}
+/* ##### COMP ##### */
+int COMP(AL,L)
+int L,AL;
+{
+int M,R1V;
+extern int AVAIL,BETA,BETA1,SPACE[];
+int COMP();
+void GC();
+if (AVAIL == BETA) GC();
+M=AVAIL;
+AVAIL=SPACE[M - BETA];
+SPACE[M - BETA1]=AL;
+SPACE[M - BETA]=L;
+R1V=M;
+return(R1V);
+}
+/* ##### COMP2 ##### */
+int COMP2(AL,BL,L)
+int L,BL,AL;
+{
+int R1V;
+extern int INDEX,STACK[];
+int COMP(),COMP2();
+void IUP();
+IUP(2);
+STACK[INDEX]=COMP(BL,L);
+STACK[INDEX - 1]=COMP(AL,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### COMP3 ##### */
+int COMP3(AL1,AL2,AL3,L)
+int L,AL3,AL2,AL1;
+{
+int R1V;
+extern int INDEX,STACK[];
+int COMP(),COMP3();
+void IUP();
+IUP(2);
+STACK[INDEX]=COMP(AL3,L);
+STACK[INDEX]=COMP(AL2,STACK[INDEX]);
+STACK[INDEX - 1]=COMP(AL1,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### COMP5 ##### */
+int COMP5(AL1,AL2,AL3,AL4,AL5,L)
+int L,AL5,AL4,AL3,AL2,AL1;
+{
+int R1V;
+extern int INDEX,STACK[];
+int COMP2(),COMP3(),COMP5();
+void IUP();
+IUP(2);
+STACK[INDEX]=COMP3(AL3,AL4,AL5,L);
+STACK[INDEX - 1]=COMP2(AL1,AL2,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### CONC ##### */
+int CONC(L1,L2)
+int L2,L1;
+{
+int LP,L,R1V;
+extern int BETA,SPACE[];
+int CONC(),LAST();
+L=L2;
+if (L1 == BETA) goto _8;
+L=L1;
+if (L2 == BETA) goto _8;
+LP=LAST(L1);
+SPACE[LP - BETA]=L2;
+_8: R1V=L;
+return(R1V);
+}
+/* ##### DELETE ##### */
+int DELETE(AL,A)
+int A,AL;
+{
+int R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int DELETE();
+void IUP();
+IUP(5);
+STACK[INDEX]=A;
+STACK[INDEX - 1]=A;
+_2: if (STACK[INDEX] == BETA) goto _14;
+STACK[INDEX - 2]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX] - BETA];
+if (AL != STACK[INDEX - 2]) goto _12;
+if (STACK[INDEX] != A) goto _10;
+STACK[INDEX - 1]=STACK[INDEX - 3];
+goto _14;
+_10: SPACE[STACK[INDEX - 4] - BETA]=STACK[INDEX - 3];
+goto _14;
+_12: STACK[INDEX - 4]=STACK[INDEX];
+STACK[INDEX]=STACK[INDEX - 3];
+goto _2;
+_14: R1V=STACK[INDEX - 1];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### END1 ##### */
+void END1()
+{
+int TL,NL,ML,L,J1Y;
+extern int AVAIL,GCC,GCCC,INDEX,LMARG,NU,OPOS,STACK[],TAU;
+int CONC(),LENGTH(),LIST1(),LIST10(),LIST2(),LIST4(),LIST5();
+void AWRITE(),CLOUT(),END0(),END1(),WRITE(),IUP();
+IUP(2);
+ML=GCC;
+NL=GCCC;
+TL=TAU;
+L=LENGTH(AVAIL);
+if (OPOS > LMARG) WRITE();
+AWRITE(ML);
+STACK[INDEX]=LIST10(32,71,97,114,98,97,103,101,32,99);
+STACK[INDEX - 1]=LIST10(111,108,108,101,99,116,105,111,110,115);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(44,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(NL);
+STACK[INDEX]=LIST10(32,99,101,108,108,115,32,114,101,99);
+STACK[INDEX - 1]=LIST10(108,97,105,109,101,100,44,32,105,110);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(TL);
+STACK[INDEX]=LIST4(32,109,115,46);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+AWRITE(L);
+STACK[INDEX]=LIST10(32,99,101,108,108,115,32,105,110,32);
+STACK[INDEX - 1]=LIST5(65,86,65,73,76);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(44,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=NU / 2;
+AWRITE(J1Y);
+STACK[INDEX]=LIST10(32,99,101,108,108,115,32,105,110,32);
+STACK[INDEX - 1]=LIST5(115,112,97,99,101);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+END0();
+INDEX=INDEX - 2;
+return;
+}
+/* ##### ENVGET ##### */
+int ENVGET(S)
+int S;
+{
+int KL,A,R1V;
+extern int BETA;
+int CLIN(),ENVGET(),IO();
+void CLOUT(),ROBUFF(),SOBUFF();
+SOBUFF();
+CLOUT(S);
+KL=IO(0,7);
+ROBUFF();
+if (KL != 0) goto _7;
+A=BETA;
+goto _8;
+_7: A=CLIN(1,KL);
+_8: R1V=A;
+return(R1V);
+}
+/* ##### EQUAL ##### */
+int EQUAL(AL,BL)
+int BL,AL;
+{
+int J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ATOM(),EQUAL();
+void IUP();
+IUP(5);
+STACK[INDEX]=0;
+if (AL != BL) goto _7;
+STACK[INDEX]=1;
+goto _14;
+_7: J1Y=ATOM(AL);
+if (J1Y != 0) goto _14;
+J1Y=ATOM(BL);
+if (J1Y != 0) goto _14;
+STACK[INDEX - 1]=AL;
+STACK[INDEX - 2]=BL;
+_13: if (STACK[INDEX - 1] == BETA) goto _14;
+if (STACK[INDEX - 2] == BETA) goto _14;
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 1] - BETA1];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 1] - BETA];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+J1Y=EQUAL(STACK[INDEX - 3],STACK[INDEX - 4]);
+if (J1Y == 0) goto _14;
+if (STACK[INDEX - 1] != STACK[INDEX - 2]) goto _13;
+STACK[INDEX]=1;
+_14: R1V=STACK[INDEX];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### FIRST2 ##### */
+void FIRST2(L,AL,BL)
+int L;
+int *AL,*BL;
+{
+int LP;
+extern int BETA,BETA1,SPACE[];
+void FIRST2();
+*AL=SPACE[L - BETA1];
+LP=SPACE[L - BETA];
+*BL=SPACE[LP - BETA1];
+return;
+}
+/* ##### FIRST3 ##### */
+void FIRST3(L,AL1,AL2,AL3)
+int L;
+int *AL1,*AL2,*AL3;
+{
+int LP;
+extern int BETA,BETA1,SPACE[];
+void FIRST3();
+*AL1=SPACE[L - BETA1];
+LP=SPACE[L - BETA];
+*AL2=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+*AL3=SPACE[LP - BETA1];
+return;
+}
+/* ##### FOPENR ##### */
+void FOPENR(U,F)
+int F,U;
+{
+int NL;
+int IO();
+void CLOUT(),FOPENR(),ROBUFF(),SOBUFF();
+if (F <= 0) goto _8;
+SOBUFF();
+CLOUT(F);
+_8: NL=IO(U,5);
+if (F > 0) ROBUFF();
+if (NL == 0) exit(1);
+return;
+}
+/* ##### FOPENW ##### */
+void FOPENW(U,F)
+int F,U;
+{
+int NL;
+int IO();
+void CLOUT(),FOPENW(),ROBUFF(),SOBUFF();
+if (F <= 0) goto _8;
+SOBUFF();
+CLOUT(F);
+_8: NL=IO(U,1);
+if (F > 0) ROBUFF();
+if (NL == 0) exit(1);
+return;
+}
+/* ##### GC ##### */
+void GC()
+{
+int T1,T,R,N,L,J5Y,J4Y,J3Y,J2Y,J1Y,IL,I,AL;
+extern int AVAIL,BETA,GCC,GCCC,GCM,INDEX,NU,RHO,SPACE[],STACK[],TAU;
+int ATOM(),CLOCK();
+void AWRITE(),CWRIT2(),CWRIT3(),CWRIT4(),CWRIT5(),CWRIT6(),CWRITE(),GC()
+,MARK(),ROBUFF(),SOBUFF(),WRITE();
+T1=CLOCK();
+I=1;
+J2Y=INDEX;
+_11: if (I > J2Y) goto _12;
+AL=STACK[I];
+if (AL == BETA) goto _10;
+J1Y=ATOM(AL);
+if (J1Y == 0) MARK(AL);
+_10: I=I + 1;
+goto _11;
+_12: AVAIL=BETA;
+N=0;
+J3Y=NU / 2;
+J3Y=2 * J3Y;
+J1Y=NU - J3Y;
+if (J1Y < 0) J1Y=1;
+L=NU - J1Y;
+IL=L - 1;
+J1Y=L - 3;
+J4Y=J1Y - IL;
+if (J4Y <= 0) goto _23;
+J5Y=1;
+goto _24;
+_23: if (J4Y >= 0) goto _25;
+J5Y=-1;
+goto _24;
+_25: J5Y=0;
+_24: J1Y=J5Y * IL;
+J3Y=J5Y * 1;
+if (J1Y > J3Y) goto _27;
+I=IL + BETA;
+R=SPACE[I - BETA];
+if (R <= 0) goto _20;
+SPACE[I - BETA]=AVAIL;
+AVAIL=I;
+N=N + 1;
+goto _19;
+_20: J1Y=-R;
+SPACE[I - BETA]=J1Y;
+_19: IL=IL + J4Y;
+goto _24;
+_27: J1Y=CLOCK();
+T=J1Y - T1;
+TAU=TAU + T;
+GCC=GCC + 1;
+GCCC=GCCC + N;
+if (GCM == 1) goto _29;
+J1Y=NU / RHO;
+if (N > J1Y) goto _28;
+_29: SOBUFF();
+CWRIT3(42,42,32);
+AWRITE(N);
+CWRITE(32);
+CWRIT5(67,69,76,76,83);
+CWRIT2(44,32);
+AWRITE(T);
+CWRIT4(32,77,83,46);
+WRITE();
+ROBUFF();
+_28: J1Y=NU / RHO;
+if (N > J1Y) goto _30;
+SOBUFF();
+CWRIT6(84,111,111,32,102,101);
+CWRIT6(119,32,99,101,108,108);
+CWRIT6(115,32,114,101,99,108);
+CWRIT6(97,105,109,101,100,46);
+WRITE();
+ROBUFF();
+exit(1);
+_30: return;
+}
+/* ##### INV ##### */
+int INV(L)
+int L;
+{
+int MPP,MP,M,R1V;
+extern int BETA,SPACE[];
+int INV();
+M=BETA;
+MP=L;
+_7: if (MP == BETA) goto _8;
+MPP=SPACE[MP - BETA];
+SPACE[MP - BETA]=M;
+M=MP;
+MP=MPP;
+goto _7;
+_8: R1V=M;
+return(R1V);
+}
+/* ##### LAST ##### */
+int LAST(L)
+int L;
+{
+int LPP,LP,R1V;
+extern int BETA,SPACE[];
+int LAST();
+LP=L;
+LPP=SPACE[LP - BETA];
+_5: if (LPP == BETA) goto _6;
+LP=LPP;
+LPP=SPACE[LP - BETA];
+goto _5;
+_6: R1V=LP;
+return(R1V);
+}
+/* ##### LENGTH ##### */
+int LENGTH(L)
+int L;
+{
+int NL,LP,R1V;
+extern int BETA,SPACE[];
+int LENGTH();
+NL=0;
+LP=L;
+_5: if (LP == BETA) goto _6;
+LP=SPACE[LP - BETA];
+NL=NL + 1;
+goto _5;
+_6: R1V=NL;
+return(R1V);
+}
+/* ##### LIST1 ##### */
+int LIST1(AL)
+int AL;
+{
+int L,R1V;
+extern int BETA;
+int COMP(),LIST1();
+L=COMP(AL,BETA);
+R1V=L;
+return(R1V);
+}
+/* ##### LIST10 ##### */
+int LIST10(AL1,AL2,AL3,AL4,AL5,AL6,AL7,AL8,AL9,AL10)
+int AL10,AL9,AL8,AL7,AL6,AL5,AL4,AL3,AL2,AL1;
+{
+int R1V;
+extern int INDEX,STACK[];
+int COMP5(),LIST10(),LIST5();
+void IUP();
+IUP(2);
+STACK[INDEX]=LIST5(AL6,AL7,AL8,AL9,AL10);
+STACK[INDEX - 1]=COMP5(AL1,AL2,AL3,AL4,AL5,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### LIST2 ##### */
+int LIST2(AL,BL)
+int BL,AL;
+{
+int R1V;
+extern int BETA,INDEX,STACK[];
+int COMP(),LIST2();
+void IUP();
+IUP(2);
+STACK[INDEX]=COMP(BL,BETA);
+STACK[INDEX - 1]=COMP(AL,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### LIST3 ##### */
+int LIST3(AL1,AL2,AL3)
+int AL3,AL2,AL1;
+{
+int R1V;
+extern int BETA,INDEX,STACK[];
+int COMP(),LIST3();
+void IUP();
+IUP(2);
+STACK[INDEX]=COMP(AL3,BETA);
+STACK[INDEX]=COMP(AL2,STACK[INDEX]);
+STACK[INDEX - 1]=COMP(AL1,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### LIST4 ##### */
+int LIST4(AL1,AL2,AL3,AL4)
+int AL4,AL3,AL2,AL1;
+{
+int R1V;
+extern int BETA,INDEX,STACK[];
+int COMP2(),LIST4();
+void IUP();
+IUP(2);
+STACK[INDEX]=COMP2(AL3,AL4,BETA);
+STACK[INDEX - 1]=COMP2(AL1,AL2,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### LIST5 ##### */
+int LIST5(AL1,AL2,AL3,AL4,AL5)
+int AL5,AL4,AL3,AL2,AL1;
+{
+int R1V;
+extern int BETA,INDEX,STACK[];
+int COMP2(),COMP3(),LIST5();
+void IUP();
+IUP(2);
+STACK[INDEX]=COMP2(AL4,AL5,BETA);
+STACK[INDEX - 1]=COMP3(AL1,AL2,AL3,STACK[INDEX]);
+R1V=STACK[INDEX - 1];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### MARK ##### */
+void MARK(L)
+int L;
+{
+int LP,J1Y,AL;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ATOM();
+void MARK(),IUP();
+IUP(1);
+LP=L;
+_2: J1Y=ATOM(LP);
+if (J1Y != 0) goto _9;
+if (LP == BETA) goto _9;
+STACK[INDEX]=SPACE[LP - BETA];
+if (STACK[INDEX] < 0) goto _9;
+J1Y=-STACK[INDEX];
+SPACE[LP - BETA]=J1Y;
+AL=SPACE[LP - BETA1];
+J1Y=ATOM(AL);
+if (J1Y != 0) goto _12;
+if (AL == BETA) goto _12;
+J1Y=-BETA;
+if (AL != J1Y) MARK(AL);
+_12: LP=STACK[INDEX];
+goto _2;
+_9: INDEX=INDEX - 1;
+return;
+}
+/* ##### MEMBER ##### */
+int MEMBER(AL,L)
+int L,AL;
+{
+int TL,LP,J1Y,AL1,R1V;
+extern int BETA,BETA1,SPACE[];
+int EQUAL(),MEMBER();
+TL=1;
+LP=L;
+_2: if (LP == BETA) goto _10;
+AL1=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+J1Y=EQUAL(AL,AL1);
+if (J1Y != 0) goto _6;
+goto _2;
+_10: TL=0;
+_6: R1V=TL;
+return(R1V);
+}
+/* ##### OPTGET ##### */
+int OPTGET(NL,S)
+int S,NL;
+{
+int SP,SL,LPP,LP,J1Y,FL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ARGGET(),CONC(),LIST10(),LIST5(),OPTGET();
+void CLOUT(),WRITE(),IUP();
+IUP(4);
+STACK[INDEX]=ARGGET(NL);
+if (STACK[INDEX] == BETA) goto _10;
+J1Y=STACK[INDEX] - BETA1;
+if (SPACE[J1Y] == 45) goto _9;
+_10: STACK[INDEX - 1]=36;
+goto _8;
+_9: J1Y=STACK[INDEX] - BETA;
+LP=SPACE[J1Y];
+if (LP == BETA) goto _5;
+STACK[INDEX - 1]=SPACE[LP - BETA1];
+LPP=SPACE[LP - BETA];
+if (STACK[INDEX - 1] == 36) goto _5;
+SP=S;
+FL=0;
+_16: if (SP == BETA) goto _17;
+if (FL != 0) goto _17;
+SL=SPACE[SP - BETA1];
+SP=SPACE[SP - BETA];
+if (SL != STACK[INDEX - 1]) goto _16;
+FL=1;
+if (SP == BETA) goto _8;
+if (SPACE[SP - BETA1] != 58) goto _8;
+SP=BETA;
+goto _16;
+_17: if (FL == 0) goto _5;
+if (LPP != BETA) goto _18;
+if (S == BETA) goto _18;
+if (SPACE[S - BETA1] != 58) goto _5;
+_18: if (LPP != BETA) STACK[INDEX - 1]=LP;
+goto _8;
+_5: STACK[INDEX - 2]=LIST10(79,80,84,71,69,84,58,32,111,112);
+STACK[INDEX - 3]=LIST10(116,105,111,110,32,105,110,99,111,114);
+STACK[INDEX - 2]=CONC(STACK[INDEX - 2],STACK[INDEX - 3]);
+STACK[INDEX - 3]=LIST5(114,101,99,116,58);
+STACK[INDEX - 2]=CONC(STACK[INDEX - 2],STACK[INDEX - 3]);
+CLOUT(STACK[INDEX - 2]);
+CLOUT(STACK[INDEX]);
+WRITE();
+exit(1);
+_8: R1V=STACK[INDEX - 1];
+INDEX=INDEX - 4;
+return(R1V);
+}
+/* ##### PAIR ##### */
+int PAIR(A,B)
+int B,A;
+{
+int BP,BL,AP,AL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP2(),INV(),PAIR();
+void IUP();
+IUP(1);
+AP=A;
+BP=B;
+STACK[INDEX]=BETA;
+_2: if (AP == BETA) goto _11;
+if (BP == BETA) goto _11;
+AL=SPACE[AP - BETA1];
+AP=SPACE[AP - BETA];
+BL=SPACE[BP - BETA1];
+BP=SPACE[BP - BETA];
+STACK[INDEX]=COMP2(BL,AL,STACK[INDEX]);
+goto _2;
+_11: STACK[INDEX]=INV(STACK[INDEX]);
+R1V=STACK[INDEX];
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### SCONC ##### */
+int SCONC(A,B)
+int B,A;
+{
+int J1Y,C,APP,AP,R1V;
+extern int BETA,SPACE[];
+int ATOM(),SCONC();
+if (A != BETA) goto _6;
+C=B;
+goto _5;
+_6: C=A;
+if (B == BETA) goto _5;
+J1Y=ATOM(B);
+if (J1Y != 0) goto _5;
+J1Y=-BETA;
+if (B == J1Y) goto _5;
+AP=A;
+_11: if (AP == B) goto _5;
+APP=SPACE[AP - BETA];
+if (APP != BETA) goto _9;
+SPACE[AP - BETA]=B;
+goto _5;
+_9: AP=APP;
+goto _11;
+_5: R1V=C;
+return(R1V);
+}
+/* ##### SUFFIX ##### */
+int SUFFIX(L,BL)
+int BL,L;
+{
+int LP,J1Y,R1V;
+int CONC(),LIST1(),SUFFIX();
+J1Y=LIST1(BL);
+LP=CONC(L,J1Y);
+R1V=LP;
+return(R1V);
+}
+/* ##### THIRD ##### */
+int THIRD(L)
+int L;
+{
+int J2Y,J1Y,AL,R1V;
+extern int BETA,BETA1,SPACE[];
+int THIRD();
+J2Y=SPACE[L - BETA] - BETA;
+J1Y=SPACE[J2Y];
+J1Y=J1Y - BETA1;
+AL=SPACE[J1Y];
+R1V=AL;
+return(R1V);
+}
+/* ##### UCL ##### */
+int UCL(L)
+int L;
+{
+int LP,LB,J1Y,R1V;
+extern int BETA,BETA1,SPACE[];
+int UCASE(),UCL();
+LP=L;
+LB=L;
+_2: J1Y=UCASE(SPACE[LB - BETA1]);
+SPACE[LB - BETA1]=J1Y;
+LB=SPACE[LB - BETA];
+if (LB != BETA) goto _2;
+R1V=LP;
+return(R1V);
+}
+/* ##### USDIFF ##### */
+int USDIFF(A,B)
+int B,A;
+{
+int J1Y,AP,AL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),INV(),MEMBER(),USDIFF();
+void IUP();
+IUP(1);
+AP=A;
+STACK[INDEX]=BETA;
+_2: if (AP == BETA) goto _10;
+AL=SPACE[AP - BETA1];
+AP=SPACE[AP - BETA];
+J1Y=MEMBER(AL,B);
+if (J1Y == 0) STACK[INDEX]=COMP(AL,STACK[INDEX]);
+goto _2;
+_10: STACK[INDEX]=INV(STACK[INDEX]);
+R1V=STACK[INDEX];
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### USUN ##### */
+int USUN(A,B)
+int B,A;
+{
+int J1Y,C,R1V;
+int CONC(),USDIFF(),USUN();
+J1Y=USDIFF(A,B);
+C=CONC(J1Y,B);
+R1V=C;
+return(R1V);
+}
+/* ##### ALG ##### */
+int ALG()
+{
+int LPP,J1Y,R1V;
+extern int BETA,INDEX,IPOS,LBDEF,LBUSE,NLAB,OLEV,REC,RECOV,SNUM,STACK[],
+STRCT,SYMTB,VRDEF,VRUSE;
+int ALG(),CONC(),CREADB(),FDC(),GALG(),HEADER(),ISDECL(),LIST1(),STATM()
+;
+void CHC(),DCL(),LABCHK(),VARCHK(),WARN(),IUP();
+IUP(5);
+SNUM=0;
+STACK[SYMTB]=BETA;
+STACK[INDEX]=HEADER();
+if (RECOV != 0) goto _19;
+if (STRCT != 3) goto _10;
+STACK[INDEX - 1]=CREADB();
+IPOS=IPOS - 1;
+if (STACK[INDEX - 1] != 91) WARN(7,0,0);
+_10: STACK[INDEX - 2]=ISDECL(1);
+if (STACK[INDEX - 2] == 0) goto _12;
+DCL(STACK[INDEX - 2]);
+if (RECOV != 0) goto _19;
+CHC(46);
+if (RECOV != 0) goto _19;
+_12: if (STACK[INDEX - 2] != 0) goto _10;
+NLAB=0;
+REC=0;
+STACK[LBDEF]=BETA;
+STACK[LBUSE]=BETA;
+STACK[VRDEF]=BETA;
+STACK[VRUSE]=BETA;
+STACK[INDEX - 3]=LIST1(STACK[INDEX]);
+LPP=STACK[INDEX - 3];
+STACK[INDEX - 4]=STATM(1);
+if (RECOV != 0) goto _19;
+LPP=CONC(LPP,STACK[INDEX - 4]);
+LPP=STACK[INDEX - 4];
+_15: J1Y=-1;
+if (STACK[INDEX - 4] == J1Y) goto _16;
+J1Y=FDC(46);
+if (J1Y == 0) goto _16;
+STACK[INDEX - 4]=STATM(1);
+if (RECOV != 0) goto _19;
+J1Y=-1;
+if (STACK[INDEX - 4] == J1Y) goto _15;
+LPP=CONC(LPP,STACK[INDEX - 4]);
+LPP=STACK[INDEX - 4];
+goto _15;
+_16: LABCHK(2,0);
+VARCHK(3,0);
+if (OLEV >= 2) REC=0;
+if (RECOV == 0) STACK[INDEX - 3]=GALG(STACK[INDEX - 3]);
+if (OLEV >= 9) STACK[INDEX - 3]=BETA;
+_19: R1V=STACK[INDEX - 3];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### BINOP ##### */
+void BINOP(RL,BL,S)
+int RL;
+int *BL,*S;
+{
+int J2Y,J1Y,C;
+extern int BETA,ENDF,IPOS;
+int CREAD(),CREADC();
+void BINOP(),CHC();
+C=CREADC();
+*S=C;
+if (ENDF == 0) goto _6;
+*BL=0;
+goto _48;
+_6: if (C != 58) goto _28;
+CHC(61);
+if (RL <= 4) goto _7;
+*BL=0;
+goto _48;
+_7: *BL=4;
+*S=15;
+goto _48;
+_28: if (C == 61) goto _27;
+if (C == 43) goto _27;
+if (C == 45) goto _27;
+if (C == 42) goto _27;
+if (C == 47) goto _27;
+if (C != 94) goto _26;
+_27: J2Y=C - 41;
+switch (J2Y)
+ {
+  case 1: goto _22;
+  case 2: goto _21;
+  case 3: goto _19;
+  case 4: goto _21;
+  case 5: goto _19;
+  case 6: goto _24;
+  case 7: goto _19;
+  case 8: goto _19;
+  case 9: goto _19;
+  case 10: goto _19;
+  case 11: goto _19;
+  case 12: goto _19;
+  case 13: goto _19;
+  case 14: goto _19;
+  case 15: goto _19;
+  case 16: goto _19;
+  case 17: goto _19;
+  case 18: goto _19;
+  case 19: goto _19;
+  case 20: goto _20;
+  case 21: goto _19;
+  case 22: goto _19;
+  case 23: goto _19;
+  case 24: goto _19;
+  case 25: goto _19;
+  case 26: goto _19;
+  case 27: goto _19;
+  case 28: goto _19;
+  case 29: goto _19;
+  case 30: goto _19;
+  case 31: goto _19;
+  case 32: goto _19;
+  case 33: goto _19;
+  case 34: goto _19;
+  case 35: goto _19;
+  case 36: goto _19;
+  case 37: goto _19;
+  case 38: goto _19;
+  case 39: goto _19;
+  case 40: goto _19;
+  case 41: goto _19;
+  case 42: goto _19;
+  case 43: goto _19;
+  case 44: goto _19;
+  case 45: goto _19;
+  case 46: goto _19;
+  case 47: goto _19;
+  case 48: goto _19;
+  case 49: goto _19;
+  case 50: goto _19;
+  case 51: goto _19;
+  case 52: goto _19;
+  case 53: goto _23;
+ };
+goto _19;
+_24: C=CREAD();
+if (C != 61) goto _17;
+*BL=4;
+*S=16;
+goto _19;
+_17: if (C != 92) goto _15;
+*BL=2;
+*S=13;
+goto _19;
+_15: IPOS=IPOS - 1;
+*BL=6;
+goto _19;
+_23: *BL=7;
+*S=94;
+goto _19;
+_22: J1Y=CREAD();
+if (J1Y != 42) goto _11;
+*BL=7;
+*S=94;
+goto _19;
+_11: IPOS=IPOS - 1;
+*BL=6;
+goto _19;
+_21: *BL=5;
+goto _19;
+_20: *BL=4;
+*S=15;
+_19: if (RL > *BL) *BL=0;
+goto _48;
+_26: *BL=4;
+if (C != 60) goto _46;
+J1Y=CREAD();
+if (J1Y != 61) goto _32;
+*S=18;
+goto _39;
+_32: IPOS=IPOS - 1;
+*S=19;
+goto _39;
+_46: if (C != 62) goto _44;
+J1Y=CREAD();
+if (J1Y != 61) goto _36;
+*S=20;
+goto _39;
+_36: IPOS=IPOS - 1;
+*S=17;
+goto _39;
+_44: if (C != 38) goto _42;
+*BL=2;
+*S=13;
+goto _39;
+_42: if (C != 35) goto _40;
+*S=16;
+goto _39;
+_40: if (C != 92) goto _38;
+CHC(47);
+*BL=1;
+*S=12;
+goto _39;
+_38: *BL=0;
+*S=BETA;
+_39: if (RL > *BL) *BL=0;
+_48: return;
+}
+/* ##### CHC ##### */
+void CHC(C)
+int C;
+{
+int J1Y;
+extern int ENDF;
+int CREADC();
+void CHC(),ERROR();
+if (ENDF != 0) goto _6;
+J1Y=CREADC();
+if (J1Y == C) goto _5;
+_6: ERROR(20,C);
+_5: return;
+}
+/* ##### CHK ##### */
+void CHK(K)
+int K;
+{
+int J1Y,C;
+extern int ENDF,INDEX,IPOS,STACK[];
+int CREADC(),EQUAL(),PACK(),SREAD1(),STINS();
+void CHK(),ERROR(),IUP();
+IUP(1);
+C=CREADC();
+if (ENDF != 0) goto _7;
+if (65 > C) goto _9;
+if (C <= 90) goto _10;
+_9: if (97 > C) goto _11;
+if (C > 122) goto _11;
+_10: J1Y=1;
+goto _12;
+_11: J1Y=0;
+_12: if (J1Y == 0) goto _7;
+IPOS=IPOS - 1;
+STACK[INDEX]=SREAD1();
+J1Y=EQUAL(K,STACK[INDEX]);
+if (J1Y != 0) goto _4;
+_7: STACK[INDEX]=PACK(K);
+STACK[INDEX]=STINS(STACK[INDEX]);
+ERROR(21,STACK[INDEX]);
+_4: INDEX=INDEX - 1;
+return;
+}
+/* ##### DCL ##### */
+void DCL(SS)
+int SS;
+{
+int J2Y,J1Y;
+extern int BETA1,INDEX,RECOV,SPACE[],STACK[],STAT;
+int COMP(),EXPR(),FDC(),INV(),LIST1(),SYMBOL();
+void DCL(),ERROR(),GDCL0(),IUP();
+IUP(4);
+STACK[INDEX]=LIST1(SS);
+J1Y=SS - 11;
+switch (J1Y)
+ {
+  case 1: goto _8;
+  case 2: goto _8;
+  case 3: goto _10;
+  case 4: goto _9;
+  case 5: goto _8;
+  case 6: goto _8;
+ };
+goto _7;
+_10: STACK[INDEX - 1]=4;
+STAT=1;
+goto _7;
+_9: STACK[INDEX - 1]=4;
+STAT=0;
+goto _7;
+_8: STACK[INDEX - 1]=9;
+STAT=0;
+_7: STACK[INDEX - 2]=EXPR(STACK[INDEX - 1],1);
+if (RECOV != 0) goto _6;
+J2Y=-1;
+if (STACK[INDEX - 2] == J2Y) goto _14;
+if (STACK[INDEX - 1] != 4) goto _12;
+J2Y=STACK[INDEX - 2] - BETA1;
+if (SPACE[J2Y] == 15) goto _12;
+ERROR(22,0);
+goto _6;
+_12: if (SS != 16) goto _11;
+J2Y=SYMBOL(STACK[INDEX - 2]);
+if (J2Y != 0) goto _11;
+ERROR(23,0);
+goto _6;
+_11: STACK[INDEX]=COMP(STACK[INDEX - 2],STACK[INDEX]);
+_14: J2Y=FDC(44);
+if (J2Y != 0) goto _7;
+STACK[INDEX - 3]=INV(STACK[INDEX]);
+GDCL0(STACK[INDEX - 3]);
+RECOV=0;
+STAT=0;
+_6: INDEX=INDEX - 4;
+return;
+}
+/* ##### ESTATM ##### */
+int ESTATM(S)
+int S;
+{
+int J1Y,R1V;
+extern int ANAME,BETA,BETA1,INDEX,REC,SNUM,SPACE[],STACK[],STAT;
+int COMP(),ESTATM(),INV(),LIST3(),LIST4(),SYMBOL();
+void ERROR(),FIRST2(),VARCHK(),IUP();
+IUP(9);
+if (S <= BETA) goto _26;
+J1Y=SYMBOL(S);
+if (J1Y != 1) goto _8;
+STACK[INDEX]=LIST3(38,S,BETA);
+goto _9;
+_8: STACK[INDEX]=S;
+_9: J1Y=STACK[INDEX] - BETA1;
+STACK[INDEX - 1]=SPACE[J1Y];
+if (STACK[INDEX - 1] != 15) goto _15;
+SPACE[S - BETA1]=11;
+if (SNUM <= 0) goto _14;
+J1Y=SPACE[S - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+VARCHK(1,STACK[INDEX - 2]);
+_14: STACK[INDEX - 3]=S;
+goto _7;
+_15: if (STACK[INDEX - 1] != 38) goto _26;
+J1Y=STACK[INDEX] - BETA;
+FIRST2(SPACE[J1Y],&(STACK[INDEX - 4]),&(STACK[INDEX - 5]));
+if (STACK[INDEX - 4] == ANAME) REC=1;
+if (STAT == 2) goto _23;
+STACK[INDEX - 6]=BETA;
+goto _24;
+_23: STACK[INDEX - 7]=STACK[INDEX - 5];
+STACK[INDEX - 5]=BETA;
+STACK[INDEX - 6]=BETA;
+_21: if (STACK[INDEX - 7] == BETA) goto _22;
+STACK[INDEX - 8]=SPACE[STACK[INDEX - 7] - BETA1];
+STACK[INDEX - 7]=SPACE[STACK[INDEX - 7] - BETA];
+if (STACK[INDEX - 8] != 11) goto _19;
+STACK[INDEX - 6]=STACK[INDEX - 7];
+STACK[INDEX - 7]=BETA;
+goto _21;
+_19: STACK[INDEX - 5]=COMP(STACK[INDEX - 8],STACK[INDEX - 5]);
+goto _21;
+_22: STACK[INDEX - 5]=INV(STACK[INDEX - 5]);
+_24: if (SNUM <= 0) goto _25;
+STACK[INDEX - 2]=COMP(STACK[INDEX - 4],STACK[INDEX - 6]);
+VARCHK(2,STACK[INDEX - 2]);
+_25: STACK[INDEX - 3]=LIST4(2,STACK[INDEX - 4],STACK[INDEX - 5],STACK[
+INDEX - 6]);
+goto _7;
+_26: ERROR(24,0);
+STACK[INDEX - 3]=-1;
+_7: R1V=STACK[INDEX - 3];
+INDEX=INDEX - 9;
+return(R1V);
+}
+/* ##### EXNL ##### */
+int EXNL(RL,AL)
+int AL,RL;
+{
+int L,R1V;
+extern int RECOV;
+int EXNL(),EXPR(),LCHK();
+L=EXPR(RL,AL);
+if (RECOV == 0) L=LCHK(L);
+R1V=L;
+return(R1V);
+}
+/* ##### EXPR ##### */
+int EXPR(RL,AL)
+int AL,RL;
+{
+int J1Y,R1V;
+extern int ANAME,BETA,GSYM,IDTYP,INDEX,IPOS,NOTSM,REC,RECOV,SNUM,SPACE[]
+,STACK[],STAT;
+int COMP(),CREAD(),CREADB(),CREADC(),EXPR(),FDC(),GET(),GREAD(),INV(),
+LCHK(),LIST2(),LIST3(),PACK(),SE(),SREAD2(),STINS(),STRRD();
+void BINOP(),BKSP1(),CHC(),ERROR(),PUT(),VARCHK(),IUP();
+IUP(6);
+STACK[INDEX]=BETA;
+STACK[INDEX - 1]=CREADC();
+if (STACK[INDEX - 1] != 40) goto _75;
+STACK[INDEX - 1]=CREADC();
+STACK[INDEX]=BETA;
+if (STACK[INDEX - 1] == 41) goto _14;
+IPOS=IPOS - 1;
+if (RL != 10) goto _9;
+STACK[INDEX - 2]=5;
+goto _10;
+_9: STACK[INDEX - 2]=1;
+_10: if (STACK[INDEX - 1] == 59) goto _11;
+STACK[INDEX - 3]=EXPR(STACK[INDEX - 2],1);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+_11: if (RECOV != 0) goto _6;
+STACK[INDEX - 1]=CREADC();
+if (STACK[INDEX - 1] != 59) goto _12;
+if (STAT != 1) goto _12;
+STACK[INDEX - 1]=44;
+STAT=2;
+STACK[INDEX]=COMP(11,STACK[INDEX]);
+_12: if (STACK[INDEX - 1] == 44) goto _10;
+_14: if (STACK[INDEX - 1] != 41) goto _3;
+if (STACK[INDEX] == BETA) goto _15;
+STACK[INDEX - 3]=INV(STACK[INDEX]);
+STACK[INDEX]=COMP(0,STACK[INDEX - 3]);
+_15: if (STAT == 2) goto _6;
+if (RL >= 8) goto _6;
+goto _52;
+_75: if (RL != 10) goto _73;
+IPOS=IPOS - 1;
+STACK[INDEX]=-1;
+goto _6;
+_73: if (65 > STACK[INDEX - 1]) goto _68;
+if (STACK[INDEX - 1] <= 90) goto _69;
+_68: if (97 > STACK[INDEX - 1]) goto _70;
+if (STACK[INDEX - 1] > 122) goto _70;
+_69: J1Y=1;
+goto _71;
+_70: J1Y=0;
+_71: if (J1Y == 0) goto _66;
+IPOS=IPOS - 1;
+STACK[INDEX - 3]=SREAD2();
+STACK[INDEX - 2]=PACK(STACK[INDEX - 3]);
+STACK[INDEX - 3]=STINS(STACK[INDEX - 2]);
+STACK[INDEX]=SE(STACK[INDEX - 3]);
+if (IDTYP != 0) PUT(STACK[INDEX],11,IDTYP);
+STACK[INDEX - 1]=CREADB();
+if (STACK[INDEX - 1] != 40) goto _34;
+IPOS=IPOS - 1;
+STACK[INDEX - 2]=EXPR(10,1);
+if (STACK[INDEX] == ANAME) REC=1;
+if (RECOV != 0) goto _6;
+if (STACK[INDEX - 2] != BETA) goto _24;
+STACK[INDEX]=LIST3(38,STACK[INDEX],BETA);
+goto _52;
+_24: J1Y=STACK[INDEX - 2] - BETA;
+STACK[INDEX]=LIST3(38,STACK[INDEX],SPACE[J1Y]);
+goto _52;
+_34: if (STACK[INDEX - 1] != 91) goto _32;
+if (SNUM <= 0) goto _26;
+J1Y=GET(STACK[INDEX],5);
+if (J1Y != BETA) goto _26;
+ERROR(25,STACK[INDEX]);
+goto _6;
+_26: if (SNUM > 0) VARCHK(0,STACK[INDEX]);
+STACK[INDEX - 2]=BETA;
+_28: STACK[INDEX - 3]=EXPR(5,1);
+STACK[INDEX - 2]=COMP(STACK[INDEX - 3],STACK[INDEX - 2]);
+if (RECOV != 0) goto _6;
+J1Y=FDC(44);
+if (J1Y != 0) goto _28;
+CHC(93);
+STACK[INDEX - 3]=INV(STACK[INDEX - 2]);
+STACK[INDEX]=LIST3(38,STACK[INDEX],STACK[INDEX - 3]);
+goto _52;
+_32: if (SNUM > 0) VARCHK(0,STACK[INDEX]);
+IPOS=IPOS - 1;
+goto _52;
+_66: if (48 > STACK[INDEX - 1]) goto _63;
+if (STACK[INDEX - 1] > 57) goto _63;
+J1Y=1;
+goto _64;
+_63: J1Y=0;
+_64: if (J1Y == 0) goto _61;
+IPOS=IPOS - 1;
+STACK[INDEX]=GREAD();
+goto _52;
+_61: if (STACK[INDEX - 1] != 39) goto _59;
+STACK[INDEX - 3]=CREAD();
+STACK[INDEX]=LIST2(BETA,STACK[INDEX - 3]);
+CHC(39);
+goto _52;
+_59: if (STACK[INDEX - 1] != 34) goto _57;
+STACK[INDEX]=STRRD();
+J1Y=STACK[INDEX] - BETA;
+if (SPACE[J1Y] != BETA) goto _52;
+ERROR(26,0);
+goto _6;
+_57: if (STACK[INDEX - 1] != 36) goto _55;
+STACK[INDEX - 1]=CREAD();
+IPOS=IPOS - 1;
+if (65 > STACK[INDEX - 1]) goto _43;
+if (STACK[INDEX - 1] <= 90) goto _44;
+_43: if (97 > STACK[INDEX - 1]) goto _45;
+if (STACK[INDEX - 1] > 122) goto _45;
+_44: J1Y=1;
+goto _46;
+_45: J1Y=0;
+_46: if (J1Y != 0) goto _41;
+ERROR(27,STACK[INDEX - 1]);
+goto _6;
+_41: STACK[INDEX - 3]=SREAD2();
+STACK[INDEX]=LIST2(36,STACK[INDEX - 3]);
+goto _52;
+_55: if (STACK[INDEX - 1] != 126) goto _53;
+if (RL > 4) goto _53;
+STACK[INDEX]=EXPR(4,1);
+if (RECOV != 0) goto _6;
+STACK[INDEX - 3]=LCHK(STACK[INDEX]);
+STACK[INDEX]=LIST2(14,STACK[INDEX - 3]);
+goto _52;
+_53: if (STACK[INDEX - 1] == 45) goto _51;
+if (STACK[INDEX - 1] != 43) goto _50;
+_51: if (RL > 5) goto _50;
+STACK[INDEX]=EXPR(6,1);
+if (RECOV != 0) goto _6;
+if (STACK[INDEX - 1] != 45) goto _52;
+STACK[INDEX - 3]=LCHK(STACK[INDEX]);
+STACK[INDEX]=LIST2(STACK[INDEX - 1],STACK[INDEX - 3]);
+goto _52;
+_50: if (AL == 1) goto _3;
+IPOS=IPOS - 1;
+STACK[INDEX]=-1;
+goto _6;
+_52: STACK[INDEX - 4]=IPOS;
+BINOP(RL,&(STACK[INDEX - 5]),&(STACK[INDEX - 2]));
+if (RECOV != 0) goto _6;
+if (STACK[INDEX - 5] <= 0) goto _79;
+J1Y=STACK[INDEX - 5] + 1;
+STACK[INDEX - 1]=EXPR(J1Y,1);
+if (RECOV != 0) goto _6;
+if (STAT == 0) goto _78;
+if (STACK[INDEX - 2] == 15) goto _77;
+_78: STACK[INDEX - 1]=LCHK(STACK[INDEX - 1]);
+_77: STACK[INDEX - 3]=LCHK(STACK[INDEX]);
+STACK[INDEX]=LIST3(STACK[INDEX - 2],STACK[INDEX - 3],STACK[INDEX - 1]);
+goto _80;
+_79: BKSP1(STACK[INDEX - 4]);
+_80: if (STACK[INDEX - 5] != 0) goto _52;
+goto _6;
+_3: ERROR(28,0);
+STACK[INDEX]=-1;
+_6: R1V=STACK[INDEX];
+INDEX=INDEX - 6;
+return(R1V);
+}
+/* ##### FDC ##### */
+int FDC(C)
+int C;
+{
+int J1Y,BL,R1V;
+extern int IPOS;
+int CREADC(),FDC();
+J1Y=CREADC();
+if (J1Y != C) goto _7;
+BL=1;
+goto _6;
+_7: BL=0;
+IPOS=IPOS - 1;
+_6: R1V=BL;
+return(R1V);
+}
+/* ##### FDK ##### */
+int FDK(K)
+int K;
+{
+int J1Y,I,C,BL,R1V;
+extern int IPOS;
+int CREADC(),EQUAL(),FDK(),SREAD1();
+void BKSP1();
+C=CREADC();
+I=IPOS - 1;
+if (65 > C) goto _9;
+if (C <= 90) goto _10;
+_9: if (97 > C) goto _11;
+if (C > 122) goto _11;
+_10: J1Y=1;
+goto _12;
+_11: J1Y=0;
+_12: if (J1Y == 0) goto _7;
+IPOS=IPOS - 1;
+J1Y=SREAD1();
+BL=EQUAL(K,J1Y);
+goto _13;
+_7: BL=0;
+_13: if (BL == 0) BKSP1(I);
+R1V=BL;
+return(R1V);
+}
+/* ##### GREAD1 ##### */
+int GREAD1()
+{
+int N,J1Y,C,R1V;
+extern int IPOS;
+int CREADC(),GREAD(),GREAD1();
+void ERROR();
+C=CREADC();
+if (48 > C) goto _7;
+if (C > 57) goto _7;
+J1Y=1;
+goto _8;
+_7: J1Y=0;
+_8: if (J1Y != 0) goto _5;
+ERROR(29,0);
+N=0;
+goto _4;
+_5: IPOS=IPOS - 1;
+N=GREAD();
+_4: R1V=N;
+return(R1V);
+}
+/* ##### HEADER ##### */
+int HEADER()
+{
+int J1Y,CL,R1V;
+extern int ANAME,BETA,ILST,INDEX,OLST,RECOV,STACK[];
+int CREADC(),FDC(),HEADER(),ID(),IDL(),LIST1(),LIST3(),LIST4(),SE();
+void CHC(),ERROR(),IUP();
+IUP(4);
+STACK[INDEX]=BETA;
+STACK[INDEX - 1]=ID(1);
+if (RECOV != 0) goto _8;
+CL=CREADC();
+if (CL == 46) goto _9;
+if (CL == 58) goto _9;
+if (CL == 40) goto _9;
+ERROR(30,0);
+goto _8;
+_9: if (CL != 46) goto _10;
+STACK[ILST]=BETA;
+STACK[OLST]=BETA;
+STACK[INDEX]=LIST4(1,STACK[INDEX - 1],BETA,BETA);
+ANAME=SE(STACK[INDEX - 1]);
+goto _8;
+_10: if (CL != 58) goto _11;
+CHC(61);
+STACK[INDEX - 2]=ID(1);
+if (RECOV != 0) goto _8;
+ANAME=SE(STACK[INDEX - 2]);
+CHC(40);
+if (RECOV != 0) goto _8;
+STACK[ILST]=IDL();
+if (RECOV != 0) goto _8;
+CHC(41);
+if (RECOV != 0) goto _8;
+STACK[OLST]=LIST1(STACK[INDEX - 1]);
+STACK[INDEX - 3]=LIST3(38,STACK[INDEX - 2],STACK[ILST]);
+STACK[INDEX]=LIST3(11,STACK[INDEX - 1],STACK[INDEX - 3]);
+goto _8;
+_11: ANAME=SE(STACK[INDEX - 1]);
+STACK[ILST]=IDL();
+if (RECOV != 0) goto _8;
+J1Y=FDC(59);
+if (J1Y != 0) goto _12;
+STACK[OLST]=BETA;
+goto _13;
+_12: STACK[OLST]=IDL();
+if (RECOV != 0) goto _8;
+_13: CHC(41);
+if (RECOV == 0) STACK[INDEX]=LIST4(2,STACK[INDEX - 1],STACK[ILST],STACK[
+OLST]);
+_8: R1V=STACK[INDEX];
+INDEX=INDEX - 4;
+return(R1V);
+}
+/* ##### ID ##### */
+int ID(BL)
+int BL;
+{
+int J1Y,CL,R1V;
+extern int IDTYP,INDEX,IPOS,STACK[];
+int CREADC(),ID(),PACK(),SREAD2(),STINS();
+void ERROR(),PUT(),IUP();
+IUP(2);
+CL=CREADC();
+IPOS=IPOS - 1;
+if (65 > CL) goto _11;
+if (CL <= 90) goto _12;
+_11: if (97 > CL) goto _13;
+if (CL > 122) goto _13;
+_12: J1Y=1;
+goto _14;
+_13: J1Y=0;
+_14: if (J1Y != 0) goto _9;
+if (BL != 0) ERROR(33,0);
+STACK[INDEX]=0;
+goto _15;
+_9: STACK[INDEX - 1]=SREAD2();
+STACK[INDEX - 1]=PACK(STACK[INDEX - 1]);
+STACK[INDEX]=STINS(STACK[INDEX - 1]);
+if (IDTYP != 0) PUT(STACK[INDEX],11,IDTYP);
+_15: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### IDL ##### */
+int IDL()
+{
+int BL,R1V;
+extern int BETA,INDEX,RECOV,STACK[];
+int COMP(),FDC(),ID(),IDL(),INV();
+void IUP();
+IUP(2);
+STACK[INDEX]=BETA;
+STACK[INDEX - 1]=ID(0);
+if (STACK[INDEX - 1] == 0) goto _6;
+BL=1;
+_8: if (BL == 0) goto _9;
+STACK[INDEX]=COMP(STACK[INDEX - 1],STACK[INDEX]);
+BL=FDC(44);
+if (BL == 0) goto _8;
+STACK[INDEX - 1]=ID(1);
+if (RECOV != 0) goto _6;
+goto _8;
+_9: STACK[INDEX]=INV(STACK[INDEX]);
+_6: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### ISDECL ##### */
+int ISDECL(NL)
+int NL;
+{
+int S,J1Y,I,C,R1V;
+extern int ANAME,BETA,DCLHD,EXTSM,GSYM,IDTYP,INDEX,IPOS,LIST,RECOV,SNUM,
+STACK[],SYMTB,TIM;
+int CLOCK(),CREADC(),GET(),ISDECL(),PACK(),SREAD2(),STSRCH();
+void BKSP1(),BLINES(),SPWRT(),TMWRT(),IUP();
+IUP(1);
+if (NL != 0) goto _8;
+STACK[SYMTB]=STACK[GSYM];
+SNUM=-1;
+ANAME=EXTSM;
+if (LIST < 2) goto _7;
+TMWRT();
+SPWRT();
+TIM=CLOCK();
+BLINES(1);
+_7: RECOV=0;
+_8: C=CREADC();
+IPOS=IPOS - 1;
+if (65 > C) goto _16;
+if (C <= 90) goto _17;
+_16: if (97 > C) goto _18;
+if (C > 122) goto _18;
+_17: J1Y=1;
+goto _19;
+_18: J1Y=0;
+_19: if (J1Y == 0) goto _14;
+I=IPOS;
+STACK[INDEX]=SREAD2();
+STACK[INDEX]=PACK(STACK[INDEX]);
+S=BETA;
+if (IDTYP != 0) goto _11;
+S=STSRCH(STACK[DCLHD],STACK[INDEX]);
+if (S != BETA) S=GET(S,1);
+_11: if (S != BETA) goto _20;
+S=0;
+BKSP1(I);
+goto _20;
+_14: S=0;
+_20: R1V=S;
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### LABCHK ##### */
+void LABCHK(BL,NL)
+int NL,BL;
+{
+int J2Y,J1Y;
+extern int BETA,BETA1,INDEX,IPOS,LBDEF,LBUSE,SPACE[],STACK[],STRCT;
+int COMP(),CREADB(),LIST1(),MEMBER(),USDIFF(),USUN();
+void ERROR(),LABCHK(),WARN(),IUP();
+IUP(3);
+J2Y=BL + 1;
+switch (J2Y)
+ {
+  case 1: goto _16;
+  case 2: goto _17;
+  case 3: goto _18;
+ };
+goto _15;
+_18: STACK[INDEX - 2]=USDIFF(STACK[LBUSE],STACK[LBDEF]);
+if (STACK[INDEX - 2] == BETA) goto _15;
+ERROR(19,STACK[INDEX - 2]);
+goto _15;
+_17: STACK[INDEX - 1]=LIST1(NL);
+STACK[LBUSE]=USUN(STACK[INDEX - 1],STACK[LBUSE]);
+goto _15;
+_16: if (STRCT != 3) goto _7;
+STACK[INDEX]=CREADB();
+IPOS=IPOS - 1;
+if (STACK[INDEX] != 91) WARN(6,0,0);
+_7: J1Y=MEMBER(NL,STACK[LBDEF]);
+if (J1Y == 0) goto _12;
+ERROR(18,NL);
+goto _15;
+_12: if (STACK[LBDEF] == BETA) goto _11;
+J1Y=STACK[LBDEF] - BETA1;
+J1Y=SPACE[J1Y] + 1;
+if (J1Y != NL) goto _10;
+_11: if (STACK[LBDEF] != BETA) goto _9;
+if (NL == 1) goto _9;
+_10: WARN(5,NL,0);
+_9: STACK[LBDEF]=COMP(NL,STACK[LBDEF]);
+_15: INDEX=INDEX - 3;
+return;
+}
+/* ##### LCHK ##### */
+int LCHK(B)
+int B;
+{
+int J1Y,BP,A,R1V;
+extern int BETA,BETA1,SPACE[];
+int LCHK();
+BP=B;
+_9: if (BP <= BETA) goto _6;
+if (SPACE[BP - BETA1] == 0) goto _5;
+_6: A=BP;
+goto _4;
+_5: J1Y=SPACE[BP - BETA] - BETA1;
+BP=SPACE[J1Y];
+goto _9;
+_4: R1V=A;
+return(R1V);
+}
+/* ##### STATHD ##### */
+int STATHD(RL)
+int RL;
+{
+int S1,J1Y,I,C,BL,R1V;
+extern int BETA,IDTYP,INDEX,IPOS,STACK[],STMHD,TOSM;
+int CREADC(),GET(),PACK(),SREAD2(),STATHD(),STSRCH();
+void BKSP1(),CHK(),IUP();
+IUP(2);
+if (RL != 2) goto _6;
+BL=RL;
+goto _18;
+_6: C=CREADC();
+if (65 > C) goto _21;
+if (C <= 90) goto _22;
+_21: if (97 > C) goto _23;
+if (C > 122) goto _23;
+_22: J1Y=1;
+goto _24;
+_23: J1Y=0;
+_24: if (J1Y == 0) goto _19;
+if (RL < 3) goto _19;
+IPOS=IPOS - 1;
+I=IPOS;
+STACK[INDEX]=SREAD2();
+STACK[INDEX - 1]=PACK(STACK[INDEX]);
+S1=BETA;
+if (IDTYP != 0) goto _9;
+S1=STSRCH(STACK[STMHD],STACK[INDEX - 1]);
+if (S1 == BETA) goto _9;
+BL=GET(S1,1);
+J1Y=-10;
+if (BL != J1Y) goto _9;
+BL=10;
+CHK(STACK[TOSM]);
+_9: if (S1 != BETA) goto _18;
+BKSP1(I);
+BL=5;
+goto _18;
+_19: if (C != 123) goto _17;
+if (RL == 3) goto _16;
+_17: if (C != 40) goto _15;
+if (RL != 1) goto _15;
+_16: BL=RL;
+goto _18;
+_15: IPOS=IPOS - 1;
+BL=0;
+_18: R1V=BL;
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### STATM ##### */
+int STATM(RL)
+int RL;
+{
+int J2Y,J1Y,R1V;
+extern int BETA,BETA1,DOSM,ELSM,INDEX,IPOS,NLAB,OFSM,OPT[],RECOV,SNUM,
+SPACE[],STACK[],STAT,THSM,UNSM;
+int COMP(),COMP2(),CREADC(),ESTATM(),EXNL(),EXPR(),FDC(),FDK(),GREAD1(),
+INV(),LIST1(),LIST2(),LIST3(),STATHD(),STATM(),STRRD(),STSEP();
+void CHC(),CHK(),ERROR(),LABCHK(),UWRITE(),VARCHK(),IUP();
+IUP(7);
+STACK[INDEX]=-1;
+STACK[INDEX - 1]=STATHD(RL);
+if (STACK[INDEX - 1] == 0) goto _41;
+if (RECOV != 0) goto _41;
+J2Y=STACK[INDEX - 1];
+switch (J2Y)
+ {
+  case 1: goto _32;
+  case 2: goto _31;
+  case 3: goto _30;
+  case 4: goto _29;
+  case 5: goto _35;
+  case 6: goto _36;
+  case 7: goto _38;
+  case 8: goto _39;
+  case 9: goto _40;
+  case 10: goto _33;
+  case 11: goto _34;
+  case 12: goto _37;
+ };
+goto _29;
+_40: STACK[INDEX]=EXPR(9,1);
+if (RECOV != 0) goto _41;
+VARCHK(0,STACK[INDEX]);
+VARCHK(1,STACK[INDEX]);
+STACK[INDEX - 1]=FDC(58);
+CHC(61);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 3]=EXNL(5,1);
+STACK[INDEX - 6]=LIST2(STACK[INDEX],7);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX - 6]);
+if (RECOV != 0) goto _41;
+CHC(44);
+if (RECOV != 0) goto _41;
+J1Y=FDC(46);
+if (J1Y != 0) goto _28;
+STACK[INDEX - 3]=EXNL(5,1);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+if (RECOV != 0) goto _41;
+CHC(44);
+if (RECOV != 0) goto _41;
+CHC(46);
+if (RECOV != 0) goto _41;
+_28: CHC(46);
+if (RECOV != 0) goto _41;
+CHC(46);
+if (RECOV != 0) goto _41;
+CHC(44);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 3]=EXNL(5,1);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+if (RECOV != 0) goto _41;
+CHK(STACK[DOSM]);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 3]=STATM(3);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+STACK[INDEX]=INV(STACK[INDEX - 3]);
+goto _29;
+_39: J1Y=FDC(123);
+if (J1Y == 0) goto _26;
+IPOS=IPOS - 1;
+STACK[INDEX]=STATM(3);
+if (RECOV != 0) goto _41;
+J1Y=FDK(STACK[UNSM]);
+if (J1Y == 0) goto _24;
+STACK[INDEX - 3]=EXNL(1,1);
+STACK[INDEX]=LIST3(9,STACK[INDEX],STACK[INDEX - 3]);
+goto _29;
+_24: STACK[INDEX]=LIST2(9,STACK[INDEX]);
+goto _29;
+_26: STACK[INDEX]=STATM(2);
+if (RECOV != 0) goto _41;
+CHK(STACK[UNSM]);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 3]=EXNL(1,1);
+STACK[INDEX]=LIST3(9,STACK[INDEX],STACK[INDEX - 3]);
+goto _29;
+_38: STACK[INDEX - 3]=EXNL(1,1);
+STACK[INDEX]=LIST2(STACK[INDEX - 3],8);
+if (RECOV != 0) goto _41;
+CHK(STACK[DOSM]);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 3]=STATM(3);
+STACK[INDEX - 3]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+STACK[INDEX]=INV(STACK[INDEX - 3]);
+goto _29;
+_37: STACK[INDEX - 3]=EXNL(5,1);
+STACK[INDEX]=LIST2(STACK[INDEX - 3],6);
+if (RECOV != 0) goto _41;
+CHK(STACK[OFSM]);
+if (RECOV != 0) goto _41;
+CHC(123);
+if (RECOV != 0) goto _41;
+_21: STACK[INDEX - 5]=BETA;
+_20: STACK[INDEX - 3]=EXNL(5,1);
+STACK[INDEX - 5]=COMP(STACK[INDEX - 3],STACK[INDEX - 5]);
+if (RECOV != 0) goto _41;
+J1Y=FDC(44);
+if (J1Y != 0) goto _20;
+CHK(STACK[DOSM]);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 3]=STATM(3);
+STACK[INDEX]=COMP2(STACK[INDEX - 3],STACK[INDEX - 5],STACK[INDEX]);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 1]=STSEP();
+if (RECOV != 0) goto _41;
+if (STACK[INDEX - 1] != 4) goto _21;
+CHC(125);
+STACK[INDEX]=INV(STACK[INDEX]);
+goto _29;
+_36: STACK[INDEX - 3]=EXNL(1,1);
+STACK[INDEX]=LIST2(STACK[INDEX - 3],5);
+if (RECOV != 0) goto _41;
+CHK(STACK[THSM]);
+if (RECOV != 0) goto _41;
+STACK[INDEX - 3]=STATM(3);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+if (RECOV != 0) goto _41;
+J1Y=FDK(STACK[ELSM]);
+if (J1Y != 1) goto _18;
+STACK[INDEX - 3]=STATM(3);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+goto _19;
+_18: STACK[INDEX - 3]=LIST1(3);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX]);
+_19: STACK[INDEX]=INV(STACK[INDEX]);
+goto _29;
+_35: STAT=1;
+STACK[INDEX]=EXPR(4,1);
+if (RECOV != 0) goto _41;
+STACK[INDEX]=ESTATM(STACK[INDEX]);
+STAT=0;
+goto _29;
+_34: STACK[INDEX - 4]=CREADC();
+if (STACK[INDEX - 4] == 34) goto _16;
+ERROR(31,0);
+goto _41;
+_16: STACK[INDEX]=STRRD();
+J1Y=STACK[INDEX] - BETA;
+if (SPACE[J1Y] != BETA) goto _17;
+ERROR(26,0);
+goto _41;
+_17: STACK[INDEX]=LIST2(4,STACK[INDEX]);
+goto _29;
+_33: J1Y=FDC(40);
+if (J1Y == 0) goto _12;
+STACK[INDEX - 3]=GREAD1();
+STACK[INDEX]=LIST2(10,STACK[INDEX - 3]);
+CHC(41);
+goto _13;
+_12: STACK[INDEX - 3]=GREAD1();
+STACK[INDEX]=LIST2(10,STACK[INDEX - 3]);
+_13: J1Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+STACK[INDEX - 3]=SPACE[J1Y];
+LABCHK(1,STACK[INDEX - 3]);
+goto _29;
+_32: SNUM=GREAD1();
+if (RECOV != 0) goto _41;
+CHC(41);
+if (RECOV != 0) goto _41;
+LABCHK(0,SNUM);
+if (SNUM > NLAB) NLAB=SNUM;
+STACK[INDEX]=STATM(2);
+if (RECOV != 0) goto _41;
+J1Y=STACK[INDEX] - BETA;
+STACK[INDEX]=COMP(SNUM,SPACE[J1Y]);
+goto _29;
+_31: STACK[INDEX]=BETA;
+_9: STACK[INDEX - 2]=STATM(4);
+if (RECOV != 0) goto _41;
+J1Y=-1;
+if (STACK[INDEX - 2] != J1Y) STACK[INDEX]=COMP(STACK[INDEX - 2],STACK[
+INDEX]);
+J1Y=-1;
+if (STACK[INDEX - 2] == J1Y) goto _10;
+J1Y=STSEP();
+if (J1Y == 2) goto _9;
+_10: STACK[INDEX - 3]=INV(STACK[INDEX]);
+STACK[INDEX]=COMP(3,STACK[INDEX - 3]);
+goto _29;
+_30: STACK[INDEX]=STATM(2);
+if (RECOV != 0) goto _41;
+CHC(125);
+_29: if (OPT[1] != 0) UWRITE(STACK[INDEX]);
+_41: R1V=STACK[INDEX];
+INDEX=INDEX - 7;
+return(R1V);
+}
+/* ##### STRRD ##### */
+int STRRD()
+{
+int J1Y,C,R1V;
+extern int BETA,INDEX,IPOS,STACK[];
+int COMP(),CREAD(),INV(),STRRD();
+void IUP();
+IUP(2);
+STACK[INDEX]=BETA;
+_2: C=CREAD();
+if (C != 34) goto _8;
+J1Y=CREAD();
+if (J1Y == 34) goto _8;
+IPOS=IPOS - 1;
+STACK[INDEX - 1]=INV(STACK[INDEX]);
+STACK[INDEX]=COMP(0,STACK[INDEX - 1]);
+goto _5;
+_8: STACK[INDEX]=COMP(C,STACK[INDEX]);
+goto _2;
+_5: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### STSEP ##### */
+int STSEP()
+{
+int J1Y,I,D,C,R1V;
+extern int IPOS,RECOV,STACK[],UNSM;
+int CREAD(),CREADC(),FDK(),STSEP();
+void BKSP1(),ERROR();
+if (RECOV != 0) goto _25;
+C=1;
+_11: D=CREAD();
+if (D == 32) goto _11;
+IPOS=IPOS - 1;
+I=IPOS;
+D=CREADC();
+if (D != 124) goto _14;
+J1Y=CREAD();
+if (J1Y != 124) goto _14;
+C=3;
+BKSP1(I);
+goto _25;
+_14: if (D != 46) goto _17;
+IPOS=IPOS - 1;
+C=6;
+goto _25;
+_17: if (D != 59) goto _18;
+C=2;
+D=CREADC();
+_18: if (D != 125) goto _21;
+IPOS=IPOS - 1;
+C=4;
+goto _25;
+_21: IPOS=IPOS - 1;
+I=IPOS;
+J1Y=FDK(STACK[UNSM]);
+if (J1Y == 0) goto _24;
+BKSP1(I);
+C=5;
+goto _25;
+_24: if (C == 1) ERROR(32,0);
+_25: R1V=C;
+return(R1V);
+}
+/* ##### VARCHK ##### */
+void VARCHK(BL,VL)
+int VL,BL;
+{
+int VL1,J2Y,J1Y;
+extern int ANAME,BETA,BETA1,ILST,INDEX,LMARG,OLST,OPOS,OPT[],SPACE[],
+STACK[],STRCT,VRDEF,VRUSE;
+int ASSOC(),COMP(),CONC(),DELETE(),GET(),LIST1(),LIST4(),LIST5(),SMEMB()
+,SSDIFF(),SYMBOL();
+void CLOUT(),ROBUFF(),SOBUFF(),UOWRT1(),UWRIT1(),UWRITE(),VARCHK(),WARN(
+),WRITE(),IUP();
+IUP(3);
+if (OPT[2] == 0) goto _10;
+SOBUFF();
+STACK[INDEX]=LIST5(86,65,82,67,72);
+STACK[INDEX - 1]=LIST4(75,32,62,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UWRIT1(BL);
+UWRITE(VL);
+if (BL != 3) goto _10;
+STACK[INDEX]=LIST5(86,82,68,69,70);
+STACK[INDEX - 1]=LIST1(61);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+UOWRT1(STACK[VRDEF]);
+if (OPOS > LMARG) WRITE();
+STACK[INDEX]=LIST5(86,82,85,83,69);
+CLOUT(STACK[INDEX]);
+UOWRT1(STACK[VRUSE]);
+if (OPOS > LMARG) WRITE();
+ROBUFF();
+_10: J2Y=BL + 1;
+switch (J2Y)
+ {
+  case 1: goto _32;
+  case 2: goto _33;
+  case 3: goto _34;
+  case 4: goto _35;
+ };
+goto _31;
+_35: STACK[INDEX - 2]=SSDIFF(STACK[ILST],STACK[VRUSE]);
+if (STACK[INDEX - 2] != BETA) WARN(4,STACK[INDEX - 2],0);
+STACK[INDEX - 2]=SSDIFF(STACK[OLST],STACK[VRDEF]);
+if (STACK[INDEX - 2] != BETA) WARN(3,STACK[INDEX - 2],0);
+STACK[INDEX]=SSDIFF(STACK[VRDEF],STACK[VRUSE]);
+STACK[INDEX - 2]=SSDIFF(STACK[INDEX],STACK[OLST]);
+if (STACK[INDEX - 2] == BETA) goto _29;
+if (STRCT == 2) WARN(2,STACK[INDEX - 2],0);
+_29: STACK[INDEX]=SSDIFF(STACK[VRUSE],STACK[VRDEF]);
+STACK[INDEX - 2]=SSDIFF(STACK[INDEX],STACK[ILST]);
+if (STACK[INDEX - 2] != BETA) WARN(1,STACK[INDEX - 2],0);
+goto _31;
+_34: STACK[INDEX - 2]=VL;
+VL1=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+STACK[VRUSE]=DELETE(VL1,STACK[VRUSE]);
+_25: if (STACK[INDEX - 2] == BETA) goto _31;
+VL1=SPACE[STACK[INDEX - 2] - BETA1];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 2] - BETA];
+if (VL1 <= BETA) goto _21;
+if (SPACE[VL1 - BETA1] != 38) goto _21;
+J1Y=SPACE[VL1 - BETA] - BETA1;
+VL1=SPACE[J1Y];
+_21: J1Y=SYMBOL(VL1);
+if (J1Y == 0) goto _25;
+J1Y=GET(VL1,3);
+if (J1Y == 1) goto _25;
+STACK[VRUSE]=DELETE(VL1,STACK[VRUSE]);
+J1Y=SMEMB(VL1,STACK[VRDEF]);
+if (J1Y == 0) STACK[VRDEF]=COMP(VL1,STACK[VRDEF]);
+goto _25;
+_33: VL1=VL;
+if (VL <= BETA) goto _13;
+if (SPACE[VL - BETA1] != 38) goto _13;
+J1Y=SPACE[VL - BETA] - BETA1;
+VL1=SPACE[J1Y];
+_13: J1Y=SYMBOL(VL1);
+if (J1Y == 0) goto _31;
+J1Y=GET(VL1,3);
+if (J1Y == 1) goto _31;
+J1Y=GET(VL1,1);
+if (J1Y != BETA) goto _31;
+STACK[VRUSE]=DELETE(VL1,STACK[VRUSE]);
+J1Y=SMEMB(VL1,STACK[VRDEF]);
+if (J1Y == 0) STACK[VRDEF]=COMP(VL1,STACK[VRDEF]);
+goto _31;
+_32: J1Y=SYMBOL(VL);
+if (J1Y == 0) goto _31;
+J1Y=GET(VL,3);
+if (J1Y == 1) goto _31;
+J1Y=ASSOC(1,VL);
+if (J1Y == BETA) STACK[VRUSE]=COMP(VL,STACK[VRUSE]);
+_31: INDEX=INDEX - 3;
+return;
+}
+/* ##### ACOMP ##### */
+int ACOMP(A,B)
+int B,A;
+{
+int TL,J3Y,J2Y,J1Y,R1V;
+extern int BETA,BETA1,SPACE[];
+int ACOMP(),ACOMP1();
+J2Y=SPACE[A - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+J3Y=SPACE[B - BETA] - BETA1;
+J2Y=SPACE[J3Y];
+TL=ACOMP1(J1Y,J2Y);
+R1V=TL;
+return(R1V);
+}
+/* ##### ACOMP1 ##### */
+int ACOMP1(A,B)
+int B,A;
+{
+int SL,BP,BL,AP,AL,R1V;
+extern int BETA,BETA1,SPACE[];
+int ACOMP1();
+AP=A;
+BP=B;
+SL=0;
+_2: AL=SPACE[AP - BETA1];
+AP=SPACE[AP - BETA];
+BL=SPACE[BP - BETA1];
+BP=SPACE[BP - BETA];
+if (AL <= BL) goto _12;
+SL=1;
+goto _11;
+_12: if (AL < BL) SL=-1;
+_11: if (SL != 0) goto _16;
+if (AP == BETA) goto _15;
+if (BP != BETA) goto _2;
+_15: if (BP == BETA) goto _17;
+SL=-1;
+goto _16;
+_17: if (AP != BETA) SL=1;
+_16: R1V=SL;
+return(R1V);
+}
+/* ##### ASSOC ##### */
+int ASSOC(AL,L)
+int L,AL;
+{
+int P,ALP,R1V;
+extern int BETA,BETA1,SPACE[];
+int ASSOC();
+P=L;
+_2: if (P == BETA) goto _11;
+ALP=SPACE[P - BETA1];
+P=SPACE[P - BETA];
+if (AL == ALP) goto _11;
+ALP=SPACE[P - BETA1];
+P=SPACE[P - BETA];
+goto _2;
+_11: R1V=P;
+return(R1V);
+}
+/* ##### BEGINS ##### */
+void BEGINS()
+{
+void BEGIN1(),BEGINS(),BEGINU();
+BEGIN1();
+BEGINU();
+return;
+}
+/* ##### BEGINU ##### */
+void BEGINU()
+{
+int TL,NL,CL;
+extern int BETA,CELLS,CHI,COUNT,NAM,SBASE,STACK[],SYMTB,TAU0,TIM,TRMAX;
+int EXPF();
+void BEGINU();
+STACK[SYMTB]=BETA;
+TIM=TAU0;
+CELLS=0;
+NL=0;
+CL=CHI + 1;
+TL=BETA / CL;
+_6: TL=TL / CL;
+NL=NL + 1;
+if (TL != 0) goto _6;
+SBASE=EXPF(CL,NL);
+TRMAX=10;
+COUNT=0;
+NAM=0;
+return;
+}
+/* ##### ENDS ##### */
+void ENDS()
+{
+int S,P;
+extern int INDEX,STACK[],SYMTB;
+int CONC(),LIST10(),LIST2(),LIST3();
+void BLINES(),CLOUT(),END1(),ENDS(),GWRITE(),STCNT(),IUP();
+IUP(2);
+BLINES(2);
+STCNT(STACK[SYMTB],&(S),&(P));
+GWRITE(S);
+STACK[INDEX]=LIST10(32,115,121,109,98,111,108,115,32,97);
+STACK[INDEX - 1]=LIST3(110,100,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+GWRITE(P);
+STACK[INDEX]=LIST10(32,112,114,111,112,101,114,116,105,101);
+STACK[INDEX - 1]=LIST2(115,46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+END1();
+INDEX=INDEX - 2;
+return;
+}
+/* ##### ENTER ##### */
+int ENTER(L)
+int L;
+{
+int S,R1V;
+extern int INDEX,STACK[];
+int ENTER(),PACK(),STINS();
+void IUP();
+IUP(1);
+STACK[INDEX]=PACK(L);
+S=STINS(STACK[INDEX]);
+R1V=S;
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### EXPLOD ##### */
+int EXPLOD(S)
+int S;
+{
+int Q,LP,J2Y,J1Y,DL,CL,A,R1V;
+extern int BETA,BETA1,CHI,INDEX,SBASE,SPACE[],STACK[];
+int COMP(),EXPLOD(),INV();
+void IUP();
+IUP(1);
+J1Y=SPACE[S - BETA] - BETA1;
+LP=SPACE[J1Y];
+STACK[INDEX]=BETA;
+CL=CHI + 1;
+_2: DL=SBASE / CL;
+A=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+_10: J2Y=A / DL;
+J1Y=DL * J2Y;
+A=A - J1Y;
+Q=J2Y;
+J1Y=Q - 1;
+STACK[INDEX]=COMP(J1Y,STACK[INDEX]);
+DL=DL / CL;
+if (A != 0) goto _10;
+if (LP != BETA) goto _2;
+STACK[INDEX]=INV(STACK[INDEX]);
+R1V=STACK[INDEX];
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### GENSYM ##### */
+int GENSYM()
+{
+int Q,J2Y,J1Y,R1V;
+extern int INDEX,NAM,STACK[];
+int COMP(),ENTER(),GENSYM(),LIST1();
+void IUP();
+IUP(2);
+NAM=NAM + 1;
+STACK[INDEX]=LIST1(89);
+Q=NAM;
+_9: J2Y=Q / 10;
+J2Y=10 * J2Y;
+J1Y=Q - J2Y;
+J1Y=J1Y + 48;
+STACK[INDEX]=COMP(J1Y,STACK[INDEX]);
+Q=Q / 10;
+if (Q != 0) goto _9;
+STACK[INDEX - 1]=COMP(74,STACK[INDEX]);
+STACK[INDEX]=ENTER(STACK[INDEX - 1]);
+R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### GET ##### */
+int GET(S,AL)
+int AL,S;
+{
+int J2Y,J1Y,A,R1V;
+extern int BETA,BETA1,SPACE[];
+int ASSOC(),GET();
+J2Y=SPACE[S - BETA] - BETA;
+J1Y=SPACE[J2Y];
+A=ASSOC(AL,J1Y);
+if (A != BETA) A=SPACE[A - BETA1];
+R1V=A;
+return(R1V);
+}
+/* ##### ISORN ##### */
+int ISORN(S)
+int S;
+{
+int L0,J1Y,BL,AL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int EXPLOD(),ISORN();
+void IUP();
+IUP(1);
+STACK[INDEX]=EXPLOD(S);
+BL=1;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+if (AL != 76) goto _16;
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_16: L0=STACK[INDEX];
+if (AL != 66) goto _19;
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_19: if (AL != 72) goto _22;
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_22: if (AL != 84) goto _25;
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_25: if (L0 != STACK[INDEX]) goto _16;
+_5: L0=STACK[INDEX];
+if (AL != 83) goto _29;
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_29: if (AL != 80) goto _32;
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_32: if (L0 != STACK[INDEX]) goto _5;
+_6: L0=STACK[INDEX];
+if (48 > AL) goto _39;
+if (AL > 57) goto _39;
+J1Y=1;
+goto _40;
+_39: J1Y=0;
+_40: if (J1Y == 0) goto _36;
+if (STACK[INDEX] == BETA) goto _10;
+AL=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+_36: if (L0 != STACK[INDEX]) goto _6;
+BL=0;
+_10: R1V=BL;
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### PACK ##### */
+int PACK(L)
+int L;
+{
+int LP,J1Y,DL,CL,BL,A,R1V;
+extern int BETA,BETA1,CHI,INDEX,SBASE,SPACE[],STACK[];
+int COMP(),INV(),PACK();
+void IUP();
+IUP(2);
+LP=L;
+STACK[INDEX]=BETA;
+BL=CHI + 1;
+A=0;
+DL=1;
+_2: CL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+if (DL != SBASE) goto _9;
+STACK[INDEX]=COMP(A,STACK[INDEX]);
+A=0;
+DL=1;
+_9: DL=DL * BL;
+J1Y=A * BL;
+J1Y=J1Y + CL;
+A=J1Y + 1;
+if (LP != BETA) goto _2;
+_3: if (DL >= SBASE) goto _12;
+DL=DL * BL;
+A=A * BL;
+goto _3;
+_12: STACK[INDEX - 1]=COMP(A,STACK[INDEX]);
+STACK[INDEX]=INV(STACK[INDEX - 1]);
+R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### PUT ##### */
+void PUT(S,AL,A)
+int A,AL,S;
+{
+int J1Y;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ASSOC(),COMP2();
+void PUT(),IUP();
+IUP(2);
+J1Y=SPACE[S - BETA] - BETA;
+STACK[INDEX]=SPACE[J1Y];
+STACK[INDEX - 1]=ASSOC(AL,STACK[INDEX]);
+if (STACK[INDEX - 1] == BETA) goto _10;
+SPACE[STACK[INDEX - 1] - BETA1]=A;
+goto _14;
+_10: J1Y=SPACE[S - BETA] - BETA;
+STACK[INDEX]=SPACE[J1Y];
+STACK[INDEX]=COMP2(AL,A,STACK[INDEX]);
+SPACE[SPACE[S - BETA] - BETA]=STACK[INDEX];
+_14: INDEX=INDEX - 2;
+return;
+}
+/* ##### REMPRP ##### */
+void REMPRP(S,AL)
+int AL,S;
+{
+int LP,L,BL;
+extern int BETA,BETA1,SPACE[];
+void REMPRP();
+L=SPACE[S - BETA];
+LP=SPACE[L - BETA];
+_2: if (LP == BETA) goto _12;
+BL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+if (AL != BL) goto _10;
+SPACE[L - BETA]=SPACE[LP - BETA];
+goto _12;
+_10: L=LP;
+LP=SPACE[LP - BETA];
+goto _2;
+_12: return;
+}
+/* ##### SMEMB ##### */
+int SMEMB(S,L)
+int L,S;
+{
+int SP,LP,LL,J2Y,J1Y,BL,R1V;
+extern int BETA,BETA1,SPACE[];
+int ACOMP1(),SMEMB(),SYMBOL();
+LP=L;
+BL=1;
+J1Y=SPACE[S - BETA] - BETA1;
+SP=SPACE[J1Y];
+_8: if (LP == BETA) goto _15;
+LL=SPACE[LP - BETA1];
+LP=SPACE[LP - BETA];
+J1Y=SYMBOL(LL);
+if (J1Y == 0) goto _8;
+J2Y=SPACE[LL - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+J1Y=ACOMP1(J1Y,SP);
+if (J1Y == 0) goto _6;
+goto _8;
+_15: BL=0;
+_6: R1V=BL;
+return(R1V);
+}
+/* ##### SMEMBR ##### */
+int SMEMBR(S,L)
+int L,S;
+{
+int J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ACOMP1(),ATOM(),SMEMBR(),SYMBOL();
+void IUP();
+IUP(5);
+STACK[INDEX]=L;
+STACK[INDEX - 1]=1;
+J1Y=SPACE[S - BETA] - BETA1;
+STACK[INDEX - 2]=SPACE[J1Y];
+_8: if (STACK[INDEX] == BETA) goto _17;
+STACK[INDEX - 3]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+J1Y=ATOM(STACK[INDEX - 3]);
+if (J1Y != 0) goto _8;
+if (STACK[INDEX - 3] == BETA) goto _8;
+J1Y=SYMBOL(STACK[INDEX - 3]);
+if (J1Y == 0) goto _13;
+J1Y=SPACE[STACK[INDEX - 3] - BETA] - BETA1;
+STACK[INDEX - 4]=SPACE[J1Y];
+J1Y=ACOMP1(STACK[INDEX - 4],STACK[INDEX - 2]);
+if (J1Y == 0) goto _6;
+goto _8;
+_13: J1Y=SMEMBR(S,STACK[INDEX - 3]);
+if (J1Y != 0) goto _6;
+goto _8;
+_17: STACK[INDEX - 1]=0;
+_6: R1V=STACK[INDEX - 1];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### SOWRT ##### */
+void SOWRT(S)
+int S;
+{
+int J2Y,J1Y;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),EXPLOD(),LIST10(),SUBLIS();
+void CLOUT(),SOWRT(),IUP();
+IUP(3);
+STACK[INDEX]=EXPLOD(S);
+J1Y=STACK[INDEX] - BETA;
+if (SPACE[J1Y] == BETA) goto _12;
+J2Y=SPACE[STACK[INDEX] - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+if (J1Y != 76) goto _12;
+J1Y=STACK[INDEX] - BETA1;
+J1Y=SPACE[J1Y] + 97;
+J1Y=J1Y - 65;
+SPACE[STACK[INDEX] - BETA1]=J1Y;
+J1Y=SPACE[STACK[INDEX] - BETA] - BETA;
+STACK[INDEX - 1]=SPACE[J1Y];
+SPACE[STACK[INDEX] - BETA]=STACK[INDEX - 1];
+_12: STACK[INDEX - 2]=LIST10(84,126,72,94,66,95,83,42,80,39);
+J1Y=STACK[INDEX] - BETA1;
+J2Y=STACK[INDEX] - BETA;
+STACK[INDEX - 1]=SUBLIS(STACK[INDEX - 2],SPACE[J2Y]);
+STACK[INDEX]=COMP(SPACE[J1Y],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+INDEX=INDEX - 3;
+return;
+}
+/* ##### SPWRT ##### */
+void SPWRT()
+{
+int S,J2Y,J1Y;
+extern int AVAIL,CELLS,GCCC,INDEX,LMARG,NU,OPOS,STACK[];
+int CONC(),LENGTH(),LIST1(),LIST5();
+void CLOUT(),GWRITE(),SPWRT(),WRITE(),IUP();
+IUP(2);
+J1Y=NU / 2;
+J1Y=GCCC + J1Y;
+J2Y=LENGTH(AVAIL);
+J1Y=J1Y - J2Y;
+S=J1Y - CELLS;
+if (OPOS > LMARG) WRITE();
+STACK[INDEX]=LIST5(99,101,108,108,115);
+STACK[INDEX - 1]=LIST1(61);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+GWRITE(S);
+WRITE();
+J1Y=S + CELLS;
+CELLS=J1Y + 6;
+INDEX=INDEX - 2;
+return;
+}
+/* ##### SREAD ##### */
+int SREAD()
+{
+int S,R1V;
+extern int INDEX,STACK[];
+int ENTER(),SREAD(),SREAD1();
+void IUP();
+IUP(1);
+STACK[INDEX]=SREAD1();
+S=ENTER(STACK[INDEX]);
+R1V=S;
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### SREAD1 ##### */
+int SREAD1()
+{
+int J1Y,C,R1V;
+extern int BETA,INDEX,IPOS,STACK[];
+int COMP(),CREAD(),CREADB(),INV(),SREAD1();
+void CWRIT4(),CWRIT6(),DIBUFF(),ROBUFF(),SOBUFF(),WRITE(),IUP();
+IUP(1);
+C=CREADB();
+if (65 > C) goto _8;
+if (C <= 90) goto _9;
+_8: if (97 > C) goto _10;
+if (C > 122) goto _10;
+_9: J1Y=1;
+goto _11;
+_10: J1Y=0;
+_11: if (J1Y != 0) goto _6;
+SOBUFF();
+CWRIT6(69,114,114,111,114,32);
+CWRIT6(102,111,117,110,100,32);
+CWRIT6(98,121,32,83,82,69);
+CWRIT4(65,68,49,46);
+WRITE();
+ROBUFF();
+DIBUFF();
+exit(1);
+_6: STACK[INDEX]=BETA;
+_12: if (65 > C) goto _19;
+if (C <= 90) goto _20;
+_19: if (97 > C) goto _21;
+if (C > 122) goto _21;
+_20: J1Y=1;
+goto _22;
+_21: J1Y=0;
+_22: if (J1Y != 0) goto _17;
+if (48 > C) goto _15;
+if (C > 57) goto _15;
+J1Y=1;
+goto _16;
+_15: J1Y=0;
+_16: if (J1Y == 0) goto _13;
+_17: STACK[INDEX]=COMP(C,STACK[INDEX]);
+C=CREAD();
+goto _12;
+_13: if (65 > C) goto _31;
+if (C <= 90) goto _32;
+_31: if (97 > C) goto _33;
+if (C > 122) goto _33;
+_32: J1Y=1;
+goto _34;
+_33: J1Y=0;
+_34: if (J1Y != 0) goto _29;
+if (48 > C) goto _27;
+if (C > 57) goto _27;
+J1Y=1;
+goto _28;
+_27: J1Y=0;
+_28: if (J1Y == 0) goto _25;
+_29: STACK[INDEX]=COMP(C,STACK[INDEX]);
+goto _24;
+_25: IPOS=IPOS - 1;
+_24: STACK[INDEX]=INV(STACK[INDEX]);
+R1V=STACK[INDEX];
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### SREAD2 ##### */
+int SREAD2()
+{
+int L,J1Y,C,R1V;
+extern int BETA,BETA1,IDTYP,INDEX,IPOS,SPACE[],STACK[];
+int COMP(),CONC(),CREAD(),EQUAL(),INV(),LIST1(),LIST2(),LIST4(),LIST5(),
+SREAD1(),SREAD2(),UCL();
+void IUP();
+IUP(6);
+STACK[INDEX]=SREAD1();
+STACK[INDEX - 1]=STACK[INDEX];
+IDTYP=1;
+L=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+if (97 > L) goto _12;
+if (L > 122) goto _12;
+J1Y=L - 97;
+J1Y=J1Y + 65;
+STACK[INDEX - 2]=LIST2(76,J1Y);
+goto _13;
+_12: STACK[INDEX - 2]=LIST1(L);
+_13: STACK[INDEX - 3]=STACK[INDEX];
+_16: if (STACK[INDEX] == BETA) goto _17;
+J1Y=STACK[INDEX] - BETA1;
+if (48 > SPACE[J1Y]) goto _19;
+if (SPACE[J1Y] > 57) goto _19;
+J1Y=1;
+goto _20;
+_19: J1Y=0;
+_20: if (J1Y == 0) goto _17;
+L=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+STACK[INDEX - 2]=COMP(L,STACK[INDEX - 2]);
+goto _16;
+_17: if (STACK[INDEX] == BETA) goto _23;
+STACK[INDEX - 2]=STACK[INDEX - 1];
+IDTYP=0;
+STACK[INDEX - 4]=LIST5(114,101,116,117,114);
+STACK[INDEX - 5]=LIST1(110);
+STACK[INDEX - 4]=CONC(STACK[INDEX - 4],STACK[INDEX - 5]);
+J1Y=EQUAL(STACK[INDEX - 2],STACK[INDEX - 4]);
+if (J1Y != 0) goto _22;
+STACK[INDEX - 4]=LIST4(115,116,111,112);
+J1Y=EQUAL(STACK[INDEX - 2],STACK[INDEX - 4]);
+if (J1Y == 0) goto _9;
+_22: STACK[INDEX - 2]=UCL(STACK[INDEX - 2]);
+goto _9;
+_23: if (STACK[INDEX] == STACK[INDEX - 3]) goto _24;
+STACK[INDEX - 2]=INV(STACK[INDEX - 2]);
+goto _9;
+_24: C=CREAD();
+_31: STACK[INDEX - 3]=STACK[INDEX - 2];
+if (C != 95) goto _28;
+STACK[INDEX - 2]=COMP(66,STACK[INDEX - 2]);
+goto _25;
+_28: if (C != 94) goto _26;
+STACK[INDEX - 2]=COMP(72,STACK[INDEX - 2]);
+goto _25;
+_26: if (C == 126) STACK[INDEX - 2]=COMP(84,STACK[INDEX - 2]);
+_25: if (STACK[INDEX - 2] != STACK[INDEX - 3]) C=CREAD();
+if (STACK[INDEX - 2] != STACK[INDEX - 3]) goto _31;
+_4: STACK[INDEX - 3]=STACK[INDEX - 2];
+if (C != 42) goto _33;
+STACK[INDEX - 2]=COMP(83,STACK[INDEX - 2]);
+goto _32;
+_33: if (C == 39) STACK[INDEX - 2]=COMP(80,STACK[INDEX - 2]);
+_32: if (STACK[INDEX - 2] != STACK[INDEX - 3]) C=CREAD();
+if (STACK[INDEX - 3] != STACK[INDEX - 2]) goto _4;
+_5: STACK[INDEX - 3]=STACK[INDEX - 2];
+if (48 > C) goto _39;
+if (C > 57) goto _39;
+J1Y=1;
+goto _40;
+_39: J1Y=0;
+_40: if (J1Y == 0) goto _37;
+STACK[INDEX - 2]=COMP(C,STACK[INDEX - 2]);
+C=CREAD();
+_37: if (STACK[INDEX - 3] != STACK[INDEX - 2]) goto _5;
+IPOS=IPOS - 1;
+STACK[INDEX - 2]=INV(STACK[INDEX - 2]);
+_9: R1V=STACK[INDEX - 2];
+INDEX=INDEX - 6;
+return(R1V);
+}
+/* ##### SSDIFF ##### */
+int SSDIFF(A,B)
+int B,A;
+{
+int J1Y,AP,AL,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),INV(),SMEMB(),SSDIFF();
+void IUP();
+IUP(1);
+AP=A;
+STACK[INDEX]=BETA;
+_2: if (AP == BETA) goto _10;
+AL=SPACE[AP - BETA1];
+AP=SPACE[AP - BETA];
+J1Y=SMEMB(AL,B);
+if (J1Y == 0) STACK[INDEX]=COMP(AL,STACK[INDEX]);
+goto _2;
+_10: STACK[INDEX]=INV(STACK[INDEX]);
+R1V=STACK[INDEX];
+INDEX=INDEX - 1;
+return(R1V);
+}
+/* ##### STCNT ##### */
+void STCNT(T,S,P)
+int T;
+int *S,*P;
+{
+int J1Y;
+extern int BETA,BETA1,COUNT,INDEX,SPACE[],STACK[];
+int GET(),LENGTH();
+void STCNT(),TAB(),UWRIT1(),UWRITE(),IUP();
+IUP(8);
+if (T != BETA) goto _8;
+STACK[INDEX]=0;
+STACK[INDEX - 1]=0;
+goto _7;
+_8: STACK[INDEX - 2]=SPACE[T - BETA1];
+STACK[INDEX - 4]=SPACE[T - BETA];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+STCNT(STACK[INDEX - 2],&(STACK[INDEX]),&(STACK[INDEX - 1]));
+STACK[INDEX]=STACK[INDEX] + 1;
+J1Y=LENGTH(STACK[INDEX - 3]);
+J1Y=J1Y / 2;
+STACK[INDEX - 1]=STACK[INDEX - 1] + J1Y;
+if (COUNT < 1) goto _12;
+J1Y=GET(STACK[INDEX - 3],20);
+if (J1Y == BETA) goto _12;
+UWRIT1(STACK[INDEX - 3]);
+TAB(8);
+STACK[INDEX - 5]=GET(STACK[INDEX - 3],20);
+UWRITE(STACK[INDEX - 5]);
+_12: STCNT(STACK[INDEX - 4],&(STACK[INDEX - 6]),&(STACK[INDEX - 7]));
+STACK[INDEX]=STACK[INDEX] + STACK[INDEX - 6];
+STACK[INDEX - 1]=STACK[INDEX - 1] + STACK[INDEX - 7];
+_7: *P=STACK[INDEX - 1];
+*S=STACK[INDEX];
+INDEX=INDEX - 8;
+return;
+}
+/* ##### STINS ##### */
+int STINS(B)
+int B;
+{
+int TP,T,SP,SL,R,L,J2Y,J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[],SYMTB;
+int ACOMP1(),LIST2(),STINS();
+void IUP();
+IUP(3);
+T=STACK[SYMTB];
+_2: if (T == BETA) goto _17;
+L=SPACE[T - BETA1];
+R=SPACE[T - BETA];
+SP=SPACE[R - BETA1];
+R=SPACE[R - BETA];
+J1Y=SPACE[SP - BETA] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+SL=ACOMP1(STACK[INDEX],B);
+J2Y=SL + 2;
+switch (J2Y)
+ {
+  case 1: goto _13;
+  case 2: goto _14;
+  case 3: goto _15;
+ };
+goto _2;
+_15: TP=T;
+T=L;
+goto _2;
+_14: STACK[INDEX - 1]=SP;
+goto _21;
+_13: TP=T;
+T=R;
+goto _2;
+_17: J1Y=-BETA;
+STACK[INDEX - 1]=LIST2(J1Y,B);
+STACK[INDEX - 2]=LIST2(BETA,STACK[INDEX - 1]);
+if (STACK[SYMTB] != BETA) goto _24;
+STACK[SYMTB]=STACK[INDEX - 2];
+goto _21;
+_24: J1Y=-1;
+if (SL != J1Y) goto _22;
+SPACE[SPACE[TP - BETA] - BETA]=STACK[INDEX - 2];
+goto _21;
+_22: SPACE[TP - BETA1]=STACK[INDEX - 2];
+_21: R1V=STACK[INDEX - 1];
+INDEX=INDEX - 3;
+return(R1V);
+}
+/* ##### STLST ##### */
+int STLST(T)
+int T;
+{
+int J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int COMP(),INV(),LIST1(),STLST();
+void IUP();
+IUP(6);
+STACK[INDEX]=COMP(0,T);
+STACK[INDEX - 1]=LIST1(STACK[INDEX]);
+STACK[INDEX - 2]=BETA;
+_2: STACK[INDEX - 3]=SPACE[STACK[INDEX - 1] - BETA1];
+STACK[INDEX - 1]=SPACE[STACK[INDEX - 1] - BETA];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+STACK[INDEX - 2]=COMP(STACK[INDEX - 4],STACK[INDEX - 2]);
+_12: if (STACK[INDEX - 3] == BETA) goto _13;
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+STACK[INDEX - 1]=COMP(STACK[INDEX - 3],STACK[INDEX - 1]);
+STACK[INDEX - 3]=STACK[INDEX - 5];
+goto _12;
+_13: if (STACK[INDEX - 1] != BETA) goto _2;
+STACK[INDEX - 2]=INV(STACK[INDEX - 2]);
+J1Y=STACK[INDEX - 2] - BETA;
+STACK[INDEX - 2]=SPACE[J1Y];
+R1V=STACK[INDEX - 2];
+INDEX=INDEX - 6;
+return(R1V);
+}
+/* ##### STSRCH ##### */
+int STSRCH(T,AP)
+int AP,T;
+{
+int TP,SL,S,R,L,K,J3Y,J2Y,J1Y,R1V;
+extern int BETA,BETA1,SPACE[];
+int ACOMP1(),STSRCH();
+S=BETA;
+TP=T;
+if (TP == BETA) goto _16;
+_15: L=SPACE[TP - BETA1];
+R=SPACE[TP - BETA];
+K=SPACE[R - BETA1];
+R=SPACE[R - BETA];
+J2Y=SPACE[K - BETA] - BETA1;
+J1Y=SPACE[J2Y];
+SL=ACOMP1(J1Y,AP);
+J3Y=SL + 2;
+switch (J3Y)
+ {
+  case 1: goto _12;
+  case 2: goto _13;
+  case 3: goto _14;
+ };
+goto _11;
+_14: TP=L;
+goto _11;
+_13: S=K;
+goto _16;
+_12: TP=R;
+_11: if (TP != BETA) goto _15;
+_16: R1V=S;
+return(R1V);
+}
+/* ##### STWRT ##### */
+void STWRT(T)
+int T;
+{
+int J1Y;
+extern int BETA,BETA1,INDEX,LMARG,OPOS,SPACE[],STACK[];
+void STWRT(),UWRIT2(),WRITE(),IUP();
+IUP(6);
+STACK[INDEX]=T;
+_2: if (STACK[INDEX] == BETA) goto _18;
+STACK[INDEX - 1]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX] - BETA];
+STACK[INDEX - 2]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+STWRT(STACK[INDEX - 1]);
+UWRIT2(STACK[INDEX - 2]);
+J1Y=SPACE[STACK[INDEX - 2] - BETA] - BETA;
+STACK[INDEX - 4]=SPACE[J1Y];
+_10: if (STACK[INDEX - 4] == BETA) goto _14;
+STACK[INDEX - 5]=SPACE[STACK[INDEX - 4] - BETA1];
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 4] - BETA];
+UWRIT2(STACK[INDEX - 5]);
+goto _10;
+_14: if (OPOS > LMARG) WRITE();
+STACK[INDEX]=STACK[INDEX - 3];
+goto _2;
+_18: INDEX=INDEX - 6;
+return;
+}
+/* ##### SUBLIS ##### */
+int SUBLIS(L,A)
+int A,L;
+{
+int J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int ASSOC(),ATOM(),COMP(),SUBLIS(),SYMBOL();
+void IUP();
+IUP(5);
+STACK[INDEX]=ASSOC(A,L);
+if (STACK[INDEX] == BETA) goto _6;
+J1Y=STACK[INDEX] - BETA1;
+STACK[INDEX]=SPACE[J1Y];
+goto _5;
+_6: J1Y=ATOM(A);
+if (J1Y != 0) goto _8;
+if (A == BETA) goto _8;
+J1Y=SYMBOL(A);
+if (J1Y == 0) goto _7;
+_8: STACK[INDEX]=A;
+goto _5;
+_7: STACK[INDEX - 1]=SPACE[A - BETA1];
+STACK[INDEX - 2]=SPACE[A - BETA];
+STACK[INDEX - 3]=SUBLIS(L,STACK[INDEX - 1]);
+STACK[INDEX - 4]=SUBLIS(L,STACK[INDEX - 2]);
+STACK[INDEX]=COMP(STACK[INDEX - 3],STACK[INDEX - 4]);
+_5: R1V=STACK[INDEX];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### SWRITE ##### */
+void SWRITE(S)
+int S;
+{
+int QL,NL,L,J2Y,J1Y,IL,DL,CL,AL,A[132+1];
+extern int BETA,BETA1,CHI,OPOS,RMARG,SBASE,SPACE[];
+void CWRITE(),SWRITE(),WRITE();
+J1Y=SPACE[S - BETA] - BETA1;
+L=SPACE[J1Y];
+CL=CHI + 1;
+NL=0;
+_2: DL=SBASE / CL;
+AL=SPACE[L - BETA1];
+L=SPACE[L - BETA];
+_11: QL=AL / DL;
+NL=NL + 1;
+A[NL]=QL - 1;
+J1Y=QL * DL;
+AL=AL - J1Y;
+DL=DL / CL;
+if (AL != 0) goto _11;
+if (L != BETA) goto _2;
+J1Y=OPOS + NL;
+if (J1Y > RMARG) WRITE();
+IL=1;
+J2Y=NL;
+_15: if (IL > J2Y) goto _16;
+CWRITE(A[IL]);
+IL=IL + 1;
+goto _15;
+_16: return;
+}
+/* ##### SYMBOL ##### */
+int SYMBOL(AP)
+int AP;
+{
+int J1Y,BL,R1V;
+extern int BETA,BETA1,SPACE[];
+int ATOM(),SYMBOL();
+J1Y=ATOM(AP);
+if (J1Y != 0) goto _6;
+if (AP == BETA) goto _6;
+J1Y=-BETA;
+if (SPACE[AP - BETA1] == J1Y) goto _5;
+_6: BL=0;
+goto _7;
+_5: BL=1;
+_7: R1V=BL;
+return(R1V);
+}
+/* ##### TMWRT ##### */
+void TMWRT()
+{
+int T,J1Y;
+extern int LMARG,MUNIT,OPOS,OUNIT,TIM;
+int CLOCK();
+void CWRIT3(),CWRIT5(),GWRITE(),TMWRT(),WRITE();
+J1Y=CLOCK();
+T=J1Y - TIM;
+if (OPOS > LMARG) WRITE();
+OUNIT=MUNIT;
+CWRIT5(116,105,109,101,61);
+GWRITE(T);
+CWRIT3(32,109,115);
+WRITE();
+TIM=CLOCK();
+return;
+}
+/* ##### TRC ##### */
+void TRC(AL1,AL2,AL3,AL4,AL5,AL6,AL7,AL8,AL9,AL10,AL11,AL12,AL13)
+int AL13,AL12,AL11,AL10,AL9,AL8,AL7,AL6,AL5,AL4,AL3,AL2,AL1;
+{
+int S,J5Y,J4Y,J3Y,J2Y,J1Y,IL,I,CL,A[13+1];
+extern int BETA,COUNT,INDEX,LMARG,OPOS,RMARG,STACK[],TRMAX;
+int COMP(),ENTER(),GET();
+void CWRIT2(),CWRITE(),GWRITE(),PUT(),TRC(),UWRIT1(),WRITE(),IUP();
+IUP(1);
+A[1]=AL1;
+A[2]=AL2;
+A[3]=AL3;
+A[4]=AL4;
+A[5]=AL5;
+A[6]=AL6;
+A[7]=AL7;
+A[8]=AL8;
+A[9]=AL9;
+A[10]=AL10;
+A[11]=AL11;
+A[12]=AL12;
+A[13]=AL13;
+STACK[INDEX]=BETA;
+IL=1;
+_10: if (IL > 6) goto _11;
+if (A[IL] == 32) goto _11;
+if (IL >= 90) goto _11;
+STACK[INDEX]=COMP(A[IL],STACK[INDEX]);
+IL=IL + 1;
+goto _10;
+_11: S=ENTER(STACK[INDEX]);
+CL=GET(S,20);
+if (CL == BETA) CL=0;
+if (A[7] >= 100) goto _14;
+I=1;
+CL=CL + 1;
+PUT(S,20,CL);
+if (CL == TRMAX) PUT(S,21,INDEX);
+goto _15;
+_14: I=0;
+_15: if (COUNT >= 1) goto _9;
+if (TRMAX == 0) goto _9;
+if (OPOS > LMARG) WRITE();
+if (CL <= TRMAX) goto _19;
+J1Y=GET(S,21);
+if (INDEX > J1Y) goto _9;
+if (I == 0) goto _18;
+J1Y=INDEX - 1;
+PUT(S,21,J1Y);
+goto _9;
+_18: PUT(S,21,INDEX);
+goto _27;
+_19: if (I == 0) goto _27;
+LMARG=LMARG + 2;
+J1Y=RMARG / 2;
+if (LMARG < J1Y) goto _21;
+LMARG=0;
+OPOS=0;
+goto _22;
+_21: CWRIT2(32,32);
+_22: CWRITE(62);
+UWRIT1(S);
+IL=8;
+J2Y=A[7] + 7;
+_23: if (IL > J2Y) goto _24;
+J1Y=IL - 7;
+GWRITE(J1Y);
+CWRITE(58);
+UWRIT1(A[IL]);
+IL=IL + 1;
+goto _23;
+_24: if (OPOS > LMARG) WRITE();
+goto _9;
+_27: CWRITE(60);
+UWRIT1(S);
+IL=8;
+J3Y=A[7] - 93;
+_28: if (IL > J3Y) goto _29;
+J1Y=IL - 7;
+GWRITE(J1Y);
+CWRITE(58);
+UWRIT1(A[IL]);
+IL=IL + 1;
+goto _28;
+_29: LMARG=LMARG - 2;
+if (LMARG >= 0) goto _34;
+J1Y=RMARG / 2;
+J1Y=J1Y - 1;
+J4Y=RMARG / 2;
+J5Y=J4Y / 2;
+J5Y=2 * J5Y;
+J4Y=J4Y - J5Y;
+if (J4Y >= 0) goto _32;
+J4Y=0;
+goto _33;
+_32: J4Y=1 - J4Y;
+_33: LMARG=J1Y - J4Y;
+_34: WRITE();
+_9: INDEX=INDEX - 1;
+return;
+}
+/* ##### UOWRT1 ##### */
+void UOWRT1(L)
+int L;
+{
+int J1Y;
+extern int BETA,BETA1,INDEX,LMARG,OPOS,SPACE[],STACK[];
+int ATOM(),ISORN(),SYMBOL();
+void AWRITE(),CWRIT2(),CWRIT3(),CWRITE(),SOWRT(),SWRITE(),UOWRT1(),IUP()
+;
+IUP(2);
+J1Y=ATOM(L);
+if (J1Y == 0) goto _8;
+AWRITE(L);
+goto _7;
+_8: if (L != BETA) goto _9;
+CWRIT3(40,41,32);
+goto _7;
+_9: J1Y=SYMBOL(L);
+if (J1Y == 0) goto _12;
+J1Y=ISORN(L);
+if (J1Y == 0) goto _10;
+SOWRT(L);
+goto _11;
+_10: SWRITE(L);
+_11: CWRITE(32);
+goto _7;
+_12: CWRITE(40);
+STACK[INDEX]=L;
+_15: STACK[INDEX - 1]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+UOWRT1(STACK[INDEX - 1]);
+if (STACK[INDEX] != BETA) goto _15;
+if (OPOS > LMARG) OPOS=OPOS - 1;
+CWRIT2(41,32);
+_7: INDEX=INDEX - 2;
+return;
+}
+/* ##### UREAD ##### */
+int UREAD()
+{
+int J1Y,C,R1V;
+extern int BETA,INDEX,IPOS,STACK[];
+int AREAD(),COMP(),CREADB(),INV(),SREAD(),UREAD();
+void CWRIT2(),CWRIT6(),DIBUFF(),ROBUFF(),SOBUFF(),WRITE(),IUP();
+IUP(2);
+C=CREADB();
+if (48 > C) goto _21;
+if (C > 57) goto _21;
+J1Y=1;
+goto _22;
+_21: J1Y=0;
+_22: if (J1Y != 0) goto _19;
+if (C == 45) goto _19;
+if (C != 43) goto _18;
+_19: IPOS=IPOS - 1;
+STACK[INDEX]=AREAD();
+goto _5;
+_18: if (65 > C) goto _13;
+if (C <= 90) goto _14;
+_13: if (97 > C) goto _15;
+if (C > 122) goto _15;
+_14: J1Y=1;
+goto _16;
+_15: J1Y=0;
+_16: if (J1Y == 0) goto _11;
+IPOS=IPOS - 1;
+STACK[INDEX]=SREAD();
+goto _5;
+_11: if (C == 40) goto _10;
+SOBUFF();
+CWRIT6(97,116,111,109,115,44);
+CWRIT6(32,115,121,109,98,111);
+CWRIT6(108,115,44,32,111,114);
+CWRIT6(32,108,105,115,116,115);
+CWRIT6(32,101,120,112,101,99);
+CWRIT6(116,101,100,32,98,121);
+CWRIT6(32,85,82,69,65,68);
+CWRIT2(44,32);
+WRITE();
+ROBUFF();
+DIBUFF();
+exit(1);
+_10: STACK[INDEX]=BETA;
+C=CREADB();
+if (C == 41) goto _5;
+IPOS=IPOS - 1;
+_25: STACK[INDEX - 1]=UREAD();
+STACK[INDEX]=COMP(STACK[INDEX - 1],STACK[INDEX]);
+C=CREADB();
+if (C != 41) goto _29;
+STACK[INDEX]=INV(STACK[INDEX]);
+goto _5;
+_29: if (C == 44) goto _25;
+IPOS=IPOS - 1;
+goto _25;
+_5: R1V=STACK[INDEX];
+INDEX=INDEX - 2;
+return(R1V);
+}
+/* ##### UWRIT1 ##### */
+void UWRIT1(L)
+int L;
+{
+int J1Y;
+extern int BETA,BETA1,INDEX,LMARG,OPOS,SPACE[],STACK[];
+int ATOM(),SYMBOL();
+void AWRITE(),CWRIT2(),CWRITE(),SWRITE(),UWRIT1(),IUP();
+IUP(2);
+J1Y=ATOM(L);
+if (J1Y == 0) goto _14;
+AWRITE(L);
+goto _11;
+_14: if (L != BETA) goto _12;
+CWRIT2(40,41);
+goto _11;
+_12: J1Y=SYMBOL(L);
+if (J1Y == 0) goto _10;
+SWRITE(L);
+goto _11;
+_10: CWRITE(40);
+STACK[INDEX]=L;
+_8: STACK[INDEX - 1]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+UWRIT1(STACK[INDEX - 1]);
+if (STACK[INDEX] != BETA) goto _8;
+if (OPOS > LMARG) OPOS=OPOS - 1;
+CWRITE(41);
+_11: CWRITE(32);
+INDEX=INDEX - 2;
+return;
+}
+/* ##### UWRIT2 ##### */
+void UWRIT2(L)
+int L;
+{
+int J1Y;
+extern int BETA,BETA1,INDEX,LMARG,OPOS,RMARG,SPACE[],STACK[];
+int ATOM(),SYMBOL();
+void AWRITE(),CWRIT2(),CWRITE(),SWRITE(),UWRIT2(),WRITE(),IUP();
+IUP(2);
+J1Y=OPOS + 10;
+if (J1Y <= RMARG) goto _8;
+if (OPOS > LMARG) WRITE();
+_8: J1Y=ATOM(L);
+if (J1Y == 0) goto _18;
+AWRITE(L);
+goto _15;
+_18: if (L != BETA) goto _16;
+CWRIT2(40,41);
+goto _15;
+_16: J1Y=SYMBOL(L);
+if (J1Y == 0) goto _14;
+SWRITE(L);
+goto _15;
+_14: CWRITE(40);
+STACK[INDEX]=L;
+_12: STACK[INDEX - 1]=SPACE[STACK[INDEX] - BETA1];
+STACK[INDEX]=SPACE[STACK[INDEX] - BETA];
+UWRIT2(STACK[INDEX - 1]);
+if (STACK[INDEX] != BETA) goto _12;
+if (OPOS > LMARG) OPOS=OPOS - 1;
+CWRITE(41);
+_15: CWRITE(32);
+INDEX=INDEX - 2;
+return;
+}
+/* ##### UWRITE ##### */
+void UWRITE(L)
+int L;
+{
+extern int LMARG,OPOS;
+void UWRIT1(),UWRITE(),WRITE();
+UWRIT1(L);
+if (OPOS > LMARG) WRITE();
+return;
+}
+/* ##### ERROR ##### */
+void ERROR(IL,NL)
+int NL,IL;
+{
+int QL,JL,J1Y,ES,BLP,BL,C[8+1];
+extern int ANAME,ECHO,ENDF,ERRA,ILINE,INDEX,IPOS,LMARG,OPOS,OPT[],RECOV,
+RMARG,SNUM,STACK[];
+int COMP2(),CONC(),CREAD(),CREADB(),ERROR0(),ERROR1(),ERROR2(),ERROR3(),
+LIST1(),LIST10(),LIST2(),LIST3(),LIST4(),LIST5();
+void AWRITE(),BLINES(),CLOUT(),CWRITE(),DIBUFF(),ERROR(),ROBUFF(),SOBUFF(
+),SWRITE(),TAB(),UWRITE(),WRITE(),IUP();
+IUP(5);
+if (RECOV != 0) goto _11;
+if (OPT[7] == 0) goto _12;
+STACK[INDEX]=LIST10(69,110,116,101,114,105,110,103,32,69);
+STACK[INDEX - 1]=LIST10(82,82,79,82,32,119,105,116,104,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(IL);
+CWRITE(32);
+UWRITE(NL);
+_12: SOBUFF();
+BLINES(1);
+STACK[INDEX]=LIST4(42,42,42,32);
+CLOUT(STACK[INDEX]);
+if (IL >= 20) goto _16;
+STACK[INDEX]=LIST5(83,101,109,97,110);
+STACK[INDEX - 1]=LIST4(116,105,99,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _13;
+_16: if (33 >= IL) goto _14;
+if (IL >= 36) goto _14;
+STACK[INDEX]=LIST10(73,110,116,101,114,110,97,108,32,116);
+STACK[INDEX - 1]=LIST10(114,97,110,115,108,97,116,111,114,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _13;
+_14: if (IL >= 36) goto _13;
+STACK[INDEX]=LIST5(83,121,110,116,97);
+STACK[INDEX - 1]=LIST2(120,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+_13: STACK[INDEX]=LIST10(101,114,114,111,114,32,40,110,111,46);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(IL);
+STACK[INDEX]=LIST3(41,58,32);
+CLOUT(STACK[INDEX]);
+if (IL > 10) goto _22;
+BL=ERROR0(IL,NL);
+goto _19;
+_22: if (IL > 20) goto _20;
+BL=ERROR1(IL,NL);
+goto _19;
+_20: if (IL > 30) goto _18;
+BL=ERROR2(IL,NL);
+goto _19;
+_18: BL=ERROR3(IL,NL);
+_19: BLP=BL;
+QL=128;
+JL=8;
+_26: if (JL < 1) goto _27;
+if (BL < QL) goto _24;
+C[JL]=1;
+BL=BL - QL;
+goto _25;
+_24: C[JL]=0;
+_25: QL=QL / 2;
+JL=JL - 1;
+goto _26;
+_27: if (C[8] == 0) goto _29;
+if (SNUM >= 0) goto _28;
+C[2]=0;
+C[3]=0;
+goto _29;
+_28: C[4]=0;
+C[5]=0;
+_29: if (OPT[7] == 0) goto _34;
+STACK[INDEX]=LIST10(32,98,32,97,110,100,32,67,91,56);
+STACK[INDEX - 1]=LIST5(93,44,46,46,67);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST4(91,49,93,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(BLP);
+CWRITE(32);
+JL=8;
+_31: if (JL < 1) goto _32;
+J1Y=C[JL] + 48;
+CWRITE(J1Y);
+JL=JL - 1;
+goto _31;
+_32: if (OPOS > LMARG) WRITE();
+_34: J1Y=RMARG / 2;
+if (OPOS <= J1Y) goto _38;
+if (OPOS > LMARG) WRITE();
+TAB(5);
+_38: if (C[2] == 0) goto _39;
+STACK[INDEX]=LIST5(105,110,32,115,116);
+STACK[INDEX - 1]=LIST4(101,112,32,40);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+AWRITE(SNUM);
+STACK[INDEX]=LIST5(41,32,111,102,32);
+CLOUT(STACK[INDEX]);
+_39: if (C[3] == 0) goto _41;
+if (C[2] != 0) goto _40;
+STACK[INDEX]=LIST3(105,110,32);
+CLOUT(STACK[INDEX]);
+_40: STACK[INDEX]=LIST10(97,108,103,111,114,105,116,104,109,32);
+CLOUT(STACK[INDEX]);
+SWRITE(ANAME);
+CWRITE(46);
+_41: if (C[4] == 0) goto _42;
+STACK[INDEX]=LIST10(105,110,32,101,120,116,101,114,110,97);
+STACK[INDEX - 1]=LIST10(108,32,100,101,99,108,97,114,97,116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST4(105,111,110,46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+_42: if (OPOS > LMARG) WRITE();
+if (C[1] != 0) DIBUFF();
+if (C[3] == 0) goto _48;
+STACK[INDEX - 2]=ANAME;
+goto _47;
+_48: if (C[4] == 0) goto _46;
+STACK[INDEX - 2]=1;
+goto _47;
+_46: STACK[INDEX - 2]=0;
+_47: if (C[2] == 0) goto _52;
+STACK[INDEX - 3]=SNUM;
+goto _51;
+_52: if (C[5] == 0) goto _50;
+STACK[INDEX - 3]=-ILINE;
+goto _51;
+_50: STACK[INDEX - 3]=0;
+_51: STACK[ERRA]=COMP2(STACK[INDEX - 3],STACK[INDEX - 2],STACK[ERRA]);
+RECOV=1;
+if (C[7] != 0) goto _79;
+if (C[6] == 0) goto _79;
+if (OPT[7] == 0) goto _55;
+DIBUFF();
+ES=ECHO;
+ECHO=1;
+STACK[INDEX]=LIST10(116,104,101,32,102,111,108,108,111,119);
+STACK[INDEX - 1]=LIST10(105,110,103,32,108,105,110,101,115,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(97,114,101,32,110,111,116,32,112,97);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(114,115,101,100,46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(46,46);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+_55: STACK[INDEX - 4]=CREADB();
+if (ENDF != 0) goto _58;
+if (SNUM >= 0) goto _60;
+if (STACK[INDEX - 4] == 46) goto _58;
+if (STACK[INDEX - 4] == 59) goto _58;
+_60: if (SNUM < 0) goto _55;
+if (STACK[INDEX - 4] == 46) goto _58;
+if (STACK[INDEX - 4] != 124) goto _55;
+_58: if (ENDF == 0) goto _72;
+RECOV=2;
+goto _67;
+_72: if (SNUM >= 0) goto _70;
+if (STACK[INDEX - 4] != 46) goto _70;
+IPOS=IPOS - 1;
+goto _7;
+_70: if (STACK[INDEX - 4] != 124) goto _69;
+J1Y=CREAD();
+if (J1Y == 124) goto _68;
+_69: if (STACK[INDEX - 4] != 46) goto _67;
+J1Y=CREAD();
+if (J1Y == 46) goto _67;
+_68: IPOS=IPOS - 1;
+IPOS=IPOS - 1;
+RECOV=2;
+_67: if (RECOV <= 1) goto _55;
+_7: if (OPT[7] == 0) goto _79;
+if (OPOS > LMARG) WRITE();
+STACK[INDEX]=LIST10(46,46,46,32,114,101,115,117,109,101);
+STACK[INDEX - 1]=LIST4(100,32,97,116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (OPOS > LMARG) WRITE();
+DIBUFF();
+ECHO=ES;
+_79: ROBUFF();
+_11: INDEX=INDEX - 5;
+return;
+}
+/* ##### ERROR0 ##### */
+int ERROR0(IL,NL)
+int NL,IL;
+{
+int J1Y,R1V;
+extern int INDEX,SNUM,STACK[];
+int CONC(),ERROR0(),ISORN(),LIST1(),LIST10(),LIST2(),LIST3(),LIST4(),
+LIST5();
+void CLOUT(),TAB(),UOWRT1(),UWRIT1(),IUP();
+IUP(3);
+switch (IL)
+ {
+  case 1: goto _20;
+  case 2: goto _21;
+  case 3: goto _22;
+  case 4: goto _23;
+  case 5: goto _24;
+  case 6: goto _25;
+  case 7: goto _26;
+  case 8: goto _27;
+  case 9: goto _28;
+  case 10: goto _28;
+ };
+goto _19;
+_28: STACK[INDEX]=LIST10(65,32,118,97,114,105,97,98,108,101);
+STACK[INDEX - 1]=LIST10(32,105,115,32,114,101,113,117,105,114);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(101,100,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+if (SNUM > 0) goto _17;
+STACK[INDEX - 2]=159;
+goto _19;
+_17: STACK[INDEX - 2]=158;
+goto _19;
+_27: STACK[INDEX - 2]=156;
+TAB(5);
+STACK[INDEX]=LIST10(84,104,101,32,115,97,102,101,32,97);
+STACK[INDEX - 1]=LIST5(114,114,97,121,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _15;
+UOWRT1(NL);
+goto _16;
+_15: UWRIT1(NL);
+_16: STACK[INDEX]=LIST10(114,101,113,117,105,114,101,115,32,97);
+STACK[INDEX - 1]=LIST10(32,110,117,109,101,114,105,99,97,108);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(32,111,114,32,112,97,115,115,101,100);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(32,98,111,117,110);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(100,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _19;
+_26: STACK[INDEX - 2]=158;
+STACK[INDEX]=LIST10(65,32,122,101,114,111,32,100,105,118);
+STACK[INDEX - 1]=LIST10(105,115,111,114,32,111,99,99,117,114);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(115,32,105,110,32,116,104,101,32,99);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(111,110,115,116,97,110,116,32,101,118);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(97,108,117,97,116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST4(105,111,110,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+goto _19;
+_25: STACK[INDEX]=LIST10(84,104,101,32,97,114,114,97,121,32);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _13;
+UOWRT1(NL);
+goto _14;
+_13: UWRIT1(NL);
+_14: STACK[INDEX]=LIST10(100,111,101,115,32,110,111,116,32,102);
+STACK[INDEX - 1]=LIST10(105,116,32,111,110,32,116,104,101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(83,84,65,67,75);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+STACK[INDEX - 2]=4;
+goto _19;
+_24: STACK[INDEX]=LIST10(84,104,101,32,97,114,114,97,121,32);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _11;
+UOWRT1(NL);
+goto _12;
+_11: UWRIT1(NL);
+_12: STACK[INDEX]=LIST10(114,101,113,117,105,114,101,115,32,97);
+STACK[INDEX - 1]=LIST10(32,110,117,109,101,114,105,99,97,108);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(32,98,111,117,110);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(100,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+STACK[INDEX - 2]=156;
+goto _19;
+_23: TAB(5);
+STACK[INDEX]=LIST10(84,104,101,32,117,110,115,97,102,101);
+STACK[INDEX - 1]=LIST10(32,103,108,111,98,97,108,32,118,97);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(114,105,97,98,108);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(101,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _9;
+UOWRT1(NL);
+goto _10;
+_9: UWRIT1(NL);
+_10: STACK[INDEX]=LIST10(105,115,32,110,111,116,32,100,101,99);
+STACK[INDEX - 1]=LIST10(108,97,114,101,100,32,105,110,32,116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(104,101,32,109,97,105,110,32,97,108);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST5(103,111,114,105,116);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST3(104,109,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+STACK[INDEX - 2]=156;
+goto _19;
+_22: STACK[INDEX]=LIST10(84,104,101,32,100,105,109,101,110,115);
+STACK[INDEX - 1]=LIST5(105,111,110,32,111);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST2(102,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _7;
+UOWRT1(NL);
+goto _8;
+_7: UWRIT1(NL);
+_8: STACK[INDEX]=LIST5(105,115,32,122,101);
+STACK[INDEX - 1]=LIST3(114,111,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+STACK[INDEX - 2]=157;
+goto _19;
+_21: STACK[INDEX]=LIST10(84,104,101,32,112,114,97,103,109,97);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _5;
+UOWRT1(NL);
+goto _6;
+_5: UWRIT1(NL);
+_6: STACK[INDEX]=LIST10(105,115,32,117,110,107,110,111,119,110);
+STACK[INDEX - 1]=LIST1(32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+STACK[INDEX - 2]=157;
+goto _19;
+_20: STACK[INDEX]=LIST10(65,32,115,105,109,112,108,101,32,118);
+STACK[INDEX - 1]=LIST10(97,114,105,97,98,108,101,32,105,115);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+STACK[INDEX - 1]=LIST10(32,114,101,113,117,105,114,101,100,32);
+STACK[INDEX]=CONC(STACK[INDEX],STACK[INDEX - 1]);
+CLOUT(STACK[INDEX]);
+STACK[INDEX - 2]=157;
+_19: R1V=STACK[INDEX - 2];
+INDEX=INDEX - 3;
+return(R1V);
+}
+/* ##### ERROR1 ##### */
+int ERROR1(IL,NL)
+int NL,IL;
+{
+int J2Y,J1Y,R1V;
+extern int BETA,BETA1,INDEX,SPACE[],STACK[];
+int CONC(),ERROR1(),ISORN(),LIST1(),LIST10(),LIST2(),LIST3(),LIST4(),
+LIST5();
+void AWRITE(),CLOUT(),CWRITE(),UOWRT1(),UWRIT1(),IUP();
+IUP(5);
+J2Y=IL - 10;
+switch (J2Y)
+ {
+  case 1: goto _20;
+  case 2: goto _21;
+  case 3: goto _22;
+  case 4: goto _23;
+  case 5: goto _24;
+  case 6: goto _25;
+  case 7: goto _26;
+  case 8: goto _27;
+  case 9: goto _28;
+  case 10: goto _29;
+ };
+goto _19;
+_29: STACK[INDEX]=191;
+STACK[INDEX - 1]=LIST10(84,104,101,32,99,104,97,114,97,99);
+STACK[INDEX - 2]=LIST5(116,101,114,32,39);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+CWRITE(NL);
+STACK[INDEX - 1]=LIST10(39,32,105,115,32,114,101,113,117,105);
+STACK[INDEX - 2]=LIST4(114,101,100,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_28: STACK[INDEX]=4;
+STACK[INDEX - 1]=LIST10(84,104,101,32,115,116,101,112,110,117);
+STACK[INDEX - 2]=LIST4(109,98,101,114);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+if (SPACE[NL - BETA] != BETA) CWRITE(115);
+CWRITE(32);
+STACK[INDEX - 3]=NL;
+_15: if (STACK[INDEX - 3] == BETA) goto _16;
+STACK[INDEX - 4]=SPACE[STACK[INDEX - 3] - BETA1];
+STACK[INDEX - 3]=SPACE[STACK[INDEX - 3] - BETA];
+CWRITE(40);
+AWRITE(STACK[INDEX - 4]);
+CWRITE(41);
+if (STACK[INDEX - 3] != BETA) CWRITE(44);
+CWRITE(32);
+goto _15;
+_16: if (SPACE[NL - BETA] == BETA) goto _17;
+STACK[INDEX - 1]=LIST4(97,114,101,32);
+CLOUT(STACK[INDEX - 1]);
+goto _18;
+_17: STACK[INDEX - 1]=LIST3(105,115,32);
+CLOUT(STACK[INDEX - 1]);
+_18: STACK[INDEX - 1]=LIST10(117,115,101,100,32,98,117,116,32,110);
+STACK[INDEX - 2]=LIST10(111,116,32,100,101,102,105,110,101,100);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST1(32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_27: STACK[INDEX]=4;
+STACK[INDEX - 1]=LIST10(84,104,101,32,115,116,101,112,110,117);
+STACK[INDEX - 2]=LIST5(109,98,101,114,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST1(40);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+AWRITE(NL);
+STACK[INDEX - 1]=LIST10(41,32,111,99,99,117,114,115,32,116);
+STACK[INDEX - 2]=LIST5(119,105,99,101,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_26: STACK[INDEX]=6;
+STACK[INDEX - 1]=LIST10(84,104,101,32,99,97,115,101,32,108);
+STACK[INDEX - 2]=LIST5(97,98,101,108,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+UWRIT1(NL);
+STACK[INDEX - 1]=LIST10(111,99,99,117,114,115,32,116,119,105);
+STACK[INDEX - 2]=LIST3(99,101,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_25: STACK[INDEX]=6;
+STACK[INDEX - 1]=LIST10(84,104,101,32,103,97,112,32,98,101);
+STACK[INDEX - 2]=LIST10(116,119,101,101,110,32,99,97,115,101);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(32,108,97,98,101,108,115,32,101,120);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST5(99,101,101,100,115);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(32,50,48,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_24: STACK[INDEX]=6;
+STACK[INDEX - 1]=LIST10(84,104,101,32,99,97,115,101,32,108);
+STACK[INDEX - 2]=LIST5(97,98,101,108,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _9;
+UOWRT1(NL);
+goto _10;
+_9: UWRIT1(NL);
+_10: STACK[INDEX - 1]=LIST10(105,115,32,110,111,116,32,97,32,99);
+STACK[INDEX - 2]=LIST5(111,110,115,116,97);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST3(110,116,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_23: STACK[INDEX]=4;
+STACK[INDEX - 1]=LIST10(84,104,101,32,105,110,105,116,105,97);
+STACK[INDEX - 2]=LIST10(108,105,122,97,116,105,111,110,32,119);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(105,116,104,32,66,40,69,41,71,40);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(73,41,78,40,105,41,32,105,115,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST5(109,105,115,115,105);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST3(110,103,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_22: STACK[INDEX]=158;
+STACK[INDEX - 1]=LIST10(84,104,101,32,97,114,114,97,121,32);
+CLOUT(STACK[INDEX - 1]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _7;
+UOWRT1(NL);
+goto _8;
+_7: UWRIT1(NL);
+_8: STACK[INDEX - 1]=LIST10(104,97,115,32,97,32,119,114,111,110);
+STACK[INDEX - 2]=LIST10(103,32,110,117,109,98,101,114,32,111);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(102,32,105,110,100,105,99,101,115,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_21: STACK[INDEX]=6;
+STACK[INDEX - 1]=LIST10(65,32,108,105,115,116,44,32,115,116);
+STACK[INDEX - 2]=LIST10(114,105,110,103,32,111,114,32,115,121);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(109,98,111,108,32,111,99,99,117,114);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(115,32,105,110,32,97,32,115,97,102);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(101,32,97,108,103,111,114,105,116,104);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST2(109,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _19;
+_20: STACK[INDEX]=6;
+STACK[INDEX - 1]=LIST10(84,104,101,32,105,110,112,117,116,32);
+STACK[INDEX - 2]=LIST5(118,97,114,105,97);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(98,108,101,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _5;
+UOWRT1(NL);
+goto _6;
+_5: UWRIT1(NL);
+_6: STACK[INDEX - 1]=LIST10(105,115,32,117,115,101,100,32,105,110);
+STACK[INDEX - 2]=LIST10(32,97,110,32,97,115,115,105,103,110);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST5(101,109,101,110,116);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST1(32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+_19: R1V=STACK[INDEX];
+INDEX=INDEX - 5;
+return(R1V);
+}
+/* ##### ERROR2 ##### */
+int ERROR2(IL,NL)
+int NL,IL;
+{
+int J2Y,J1Y,R1V;
+extern int INDEX,STACK[];
+int CONC(),ERROR2(),ISORN(),LIST1(),LIST10(),LIST3(),LIST4(),LIST5();
+void CLOUT(),CWRITE(),UOWRT1(),UWRIT1(),IUP();
+IUP(3);
+J2Y=IL - 20;
+switch (J2Y)
+ {
+  case 1: goto _8;
+  case 2: goto _9;
+  case 3: goto _10;
+  case 4: goto _11;
+  case 5: goto _12;
+  case 6: goto _13;
+  case 7: goto _14;
+  case 8: goto _15;
+  case 9: goto _16;
+  case 10: goto _17;
+ };
+goto _7;
+_17: STACK[INDEX]=49;
+STACK[INDEX - 1]=LIST10(65,108,103,111,114,105,116,104,109,32);
+STACK[INDEX - 2]=LIST10(104,101,97,100,101,114,32,111,114,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(101,120,116,101,114,110,97,108,32,100);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(101,99,108,97,114,97,116,105,111,110);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(32,114,101,113,117,105,114,101,100,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_16: STACK[INDEX]=39;
+STACK[INDEX - 1]=LIST10(65,32,115,116,101,112,32,110,117,109);
+STACK[INDEX - 2]=LIST10(98,101,114,32,105,115,32,114,101,113);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST5(117,105,114,101,100);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST1(32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_15: STACK[INDEX]=191;
+STACK[INDEX - 1]=LIST10(73,109,112,114,111,112,101,114,32,101);
+STACK[INDEX - 2]=LIST10(120,112,114,101,115,115,105,111,110,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_14: STACK[INDEX]=191;
+STACK[INDEX - 1]=LIST10(84,104,101,32,99,104,97,114,97,99);
+STACK[INDEX - 2]=LIST5(116,101,114,32,39);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+CWRITE(NL);
+STACK[INDEX - 1]=LIST10(39,32,99,97,110,110,111,116,32,115);
+STACK[INDEX - 2]=LIST10(116,97,114,116,32,97,32,115,121,109);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(98,111,108,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_13: STACK[INDEX]=191;
+STACK[INDEX - 1]=LIST10(83,116,114,105,110,103,32,105,115,32);
+STACK[INDEX - 2]=LIST5(101,109,112,116,121);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST1(32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_12: STACK[INDEX]=39;
+STACK[INDEX - 1]=LIST10(84,104,101,32,105,100,101,110,116,105);
+STACK[INDEX - 2]=LIST5(102,105,101,114,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _5;
+UOWRT1(NL);
+goto _6;
+_5: UWRIT1(NL);
+_6: STACK[INDEX - 1]=LIST10(119,97,115,32,110,111,116,32,97,115);
+STACK[INDEX - 2]=LIST10(32,97,114,114,97,121,32,100,101,99);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST5(108,97,114,101,100);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST1(32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_11: STACK[INDEX]=39;
+STACK[INDEX - 1]=LIST10(65,32,115,116,97,116,101,109,101,110);
+STACK[INDEX - 2]=LIST10(116,32,105,115,32,114,101,113,117,105);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(114,101,100,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_10: STACK[INDEX]=189;
+STACK[INDEX - 1]=LIST10(79,110,108,121,32,97,108,103,111,114);
+STACK[INDEX - 2]=LIST10(105,116,104,109,115,32,99,97,110,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(98,101,32,105,110,116,114,105,110,115);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST3(105,99,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_9: STACK[INDEX]=189;
+STACK[INDEX - 1]=LIST10(65,110,32,101,113,117,97,116,105,111);
+STACK[INDEX - 2]=LIST10(110,32,105,115,32,114,101,113,117,105);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(114,101,100,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_8: STACK[INDEX]=39;
+STACK[INDEX - 1]=LIST10(84,104,101,32,107,101,121,119,111,114);
+STACK[INDEX - 2]=LIST3(100,32,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+UWRIT1(NL);
+STACK[INDEX - 1]=LIST10(32,32,105,115,32,109,105,115,115,105);
+STACK[INDEX - 2]=LIST3(110,103,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+_7: R1V=STACK[INDEX];
+INDEX=INDEX - 3;
+return(R1V);
+}
+/* ##### ERROR3 ##### */
+int ERROR3(IL,NL)
+int NL,IL;
+{
+int J2Y,J1Y,R1V;
+extern int INDEX,STACK[];
+int CONC(),ERROR3(),ISORN(),LIST1(),LIST10(),LIST2(),LIST4(),LIST5();
+void CLOUT(),CWRITE(),UOWRT1(),UWRIT1(),IUP();
+IUP(3);
+J2Y=IL - 30;
+switch (J2Y)
+ {
+  case 1: goto _8;
+  case 2: goto _9;
+  case 3: goto _10;
+  case 4: goto _11;
+  case 5: goto _12;
+  case 6: goto _13;
+  case 7: goto _14;
+ };
+goto _7;
+_14: STACK[INDEX]=70;
+STACK[INDEX - 1]=LIST10(80,97,114,97,109,101,116,101,114,32);
+STACK[INDEX - 2]=LIST10(109,105,115,109,97,116,99,104,32,102);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(111,114,32,99,111,110,115,116,97,110);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST2(116,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+J1Y=ISORN(NL);
+if (J1Y == 0) goto _5;
+UOWRT1(NL);
+goto _6;
+_5: UWRIT1(NL);
+_6: CWRITE(46);
+goto _7;
+_13: STACK[INDEX]=64;
+STACK[INDEX - 1]=LIST10(67,111,109,109,97,110,100,32,108,105);
+STACK[INDEX - 2]=LIST10(110,101,32,99,97,110,110,111,116,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(98,101,32,112,97,114,115,101,100,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_12: STACK[INDEX]=64;
+STACK[INDEX - 1]=LIST10(84,111,111,32,109,97,110,121,32,115);
+STACK[INDEX - 2]=LIST10(121,115,116,101,109,32,105,100,101,110);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(116,105,102,105,101,114,115,32,116,111);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(32,105,110,105,116,105,97,108,105,122);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST2(101,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_11: STACK[INDEX]=70;
+STACK[INDEX - 1]=LIST10(65,32,115,116,97,116,101,109,101,110);
+STACK[INDEX - 2]=LIST10(116,32,105,115,32,105,110,116,101,114);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(110,97,108,108,121,32,109,105,115,115);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(105,110,103,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_10: STACK[INDEX]=189;
+STACK[INDEX - 1]=LIST10(65,110,32,105,100,101,110,116,105,102);
+STACK[INDEX - 2]=LIST10(105,101,114,32,105,115,32,114,101,113);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST5(117,105,114,101,100);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST1(32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_9: STACK[INDEX]=39;
+STACK[INDEX - 1]=LIST10(65,32,115,116,97,116,101,109,101,110);
+STACK[INDEX - 2]=LIST10(116,32,99,97,110,110,111,116,32,98);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST5(101,32,112,97,114);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(115,101,100,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+goto _7;
+_8: STACK[INDEX]=4;
+STACK[INDEX - 1]=LIST10(65,102,116,101,114,32,39,112,114,105);
+STACK[INDEX - 2]=LIST10(110,116,39,32,105,115,32,97,32,115);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(116,114,105,110,103,32,99,111,110,115);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST10(116,97,110,116,32,114,101,113,117,105);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+STACK[INDEX - 2]=LIST4(114,101,100,32);
+STACK[INDEX - 1]=CONC(STACK[INDEX - 1],STACK[INDEX - 2]);
+CLOUT(STACK[INDEX - 1]);
+_7: R1V=STACK[INDEX];
+INDEX=INDEX - 3;
+return(R1V);
+}

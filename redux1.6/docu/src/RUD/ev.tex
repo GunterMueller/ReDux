@@ -1,0 +1,355 @@
+\section{The EV-Rewrite Laboratory}
+
+The EV-rewrite laboratory is a modification of the AC-rewrite laboratory
+that allows to support normalizations by partial evaluation domains and
+memorization.
+
+If a rewrite specification $\cal S$  contains a complete subspecification 
+$\cal S'$  a free algebra $\cal A'$ in the set of models of $\cal S'$ 
+(on a countable set of generators) is a \emph{partial evaluation domain} 
+for $\cal S$. 
+Built-in partial evaluation domains may be used to speed up the normalization 
+process.
+For more background on partial evaluation domains see
+\cite{BuendgenLauterbach:96a}.
+
+It is also possible to memorize the normal form of  term.
+This memorized normal form may then be retrieved instead of computing it
+a second time.
+ReDuX allows to memorize  normal forms of all ground terms with 
+specified top operators.
+
+\subsection{Specifications}
+
+In order to specify a partial evaluation domain an external sort must be 
+declared with a property denoting a function to compute the $i$-th generator
+of the evaluation domain (indicator \texttt{XFG}) and a property denoting
+a function that translates an external object from the evaluation domain
+back into a term (indicator \texttt{XTERM}).
+Each constant or operator which can be interpreted in an external sort must 
+be assigned the interpreting function name as property under an indicator that
+has the name of the respective external sort.
+Figure~\ref{fi:ed} shows an example specification for a signature with two
+partial evaluation domains: functional decision diagrams 
+to model Boolean rings and an implementation of a free group.
+\begin{figure}[htbp]
+\begin{center}
+\noindent
+\rule{\textwidth}{0.6pt}
+
+\begin{verbatim}
+DATATYPE BOOLGROUP;
+SORT
+        Q4, BOOLEAN;
+CONST
+        1, a, b: Q4;
+        F, T:    BOOLEAN;
+OPERATOR
+        *: Q4, Q4 -> Q4;
+        I: Q4     -> Q4;
+        h: Q4     -> Q4;
+
+        #:  BOOLEAN, BOOLEAN -> BOOLEAN;
+        /\: BOOLEAN, BOOLEAN -> BOOLEAN;
+        ~:  BOOLEAN          -> BOOLEAN;
+        =>: BOOLEAN, BOOLEAN -> BOOLEAN;
+        A, B, C, D:          -> BOOLEAN;
+
+        ?: Q4 -> BOOLEAN;
+THEORY
+        #, /\: AC;
+PREC
+        # < /\;
+NOTATION
+        *, I, ?: FUNCTION;
+        ~: PREFIX;
+EXTERNAL
+        FGROUP: XTERM=TFFGE, XFG=FGFG;
+        FDD:    XFG=FDDFG, XTERM=TFFDDE;
+PROPERTY
+        I: FGROUP=FGINV;
+        *: FGROUP=FGPROD;
+        1: FGROUP=FGIDNT;
+
+        F:  FDD=FDDZER;
+        T:  FDD=FDDONE;
+        #:  FDD=FDDXOR;
+        /\: FDD=FDDAND;
+        ~:  FDD=FDDNOT;
+VAR
+        ...
+AXIOM 
+        ...
+END
+\end{verbatim}
+ 
+\noindent
+\rule{\textwidth}{0.6pt}
+%} % end fbox
+\caption{Specification with Evaluation Domains}
+\label{fi:ed}
+\end{center}
+\end{figure}
+
+The following evaluation domains are prepared in the ReDuX system.
+The tables show the functions needed in the properties of the external sorts
+and for the interpretation of constants and/or operators.
+Note that constants and/or operators must be declared in the same 
+order as in the following tables.
+\begin{description}
+\item[free groups] \null
+
+\begin{tabular}[t]{l|l|l}
+\hline
+\texttt{XFG} & \multicolumn{2}{l}{\texttt{FGFG}} \\
+\texttt{XTERM} & \multicolumn{2}{l}{\texttt{TFFGE}} \\
+\hline
+\hline
+operator & arity & interpretation \\
+\hline
+neutral element & 0 & \texttt{FGIDNT} \\
+group operation & 2 & \texttt{FGPROD} \\
+inversion & 1 & \texttt{FGINV}\\
+\hline
+\end{tabular}
+\item[Abelian groups]  \null
+
+\begin{tabular}[t]{l|l|l|l}
+\hline
+\texttt{XFG} & \multicolumn{3}{l}{\texttt{AGFG}} \\
+\texttt{XTERM} & \multicolumn{3}{l}{\texttt{TFAGE}} \\
+\hline
+\hline
+operator & arity & interpretation & remark \\
+\hline
+neutral element & 0 & \texttt{AGZERO} \\
+group operation & 2 & \texttt{AGSUM} \\
+inversion & 1 & \texttt{AGNEG}\\
+difference & 2 & \texttt{AGDIF} & optional \\
+\hline
+\end{tabular}
+\item[commutative rings] \null
+
+\begin{tabular}[t]{l|l|l}
+\hline
+\texttt{XFG} & \multicolumn{2}{l}{\texttt{IPRFG}} \\
+\texttt{XTERM} & \multicolumn{2}{l}{\texttt{TFIPRE}} \\
+\hline
+\hline
+operator & arity & interpretation \\
+\hline
+zero & 0 & \texttt{PRZERO} \\
+one & 0 & \texttt{IPRONE} \\
+addition & 2 & \texttt{IPRSUM} \\
+multiplication & 2 & \texttt{IPRPRO} \\
+additive inversion & 1 & \texttt{IPRNEG} \\
+\hline
+\end{tabular}
+\item[Boolean rings] There are two alternatives: Boolean polynomials 
+
+\begin{tabular}[t]{l|l|l|l}
+\hline
+\texttt{XFG} & \multicolumn{3}{l}{\texttt{IPRFG}} \\
+\texttt{XTERM} & \multicolumn{3}{l}{\texttt{TFIPRE}} \\
+\hline
+\hline
+operator & arity & interpretation & remark \\
+\hline
+zero & 0 & \texttt{PRZERO} \\
+one & 0 & \texttt{IPRONE} \\
+addition & 2 & \texttt{BPRSUM} \\
+multiplication & 2 & \texttt{BPRPRO} \\
+additive inversion & 1 & \texttt{BPRNEG} & optional\\
+\hline
+\end{tabular}
+
+or functional decision diagrams (FDDs)\footnote{FDDs are not available
+with the default installation. You must modify the Makefiles in the
+\texttt{mak} and \texttt{src/it/PRESRC} if you want to use them.}
+
+\begin{tabular}[t]{l|l|l|l}
+\hline
+\texttt{XFG} & \multicolumn{3}{l}{\texttt{FDDFG}} \\
+\texttt{XTERM} & \multicolumn{3}{l}{\texttt{TFFDDE}} \\
+\hline
+\hline
+operator & arity & interpretation & remark \\
+\hline
+zero & 0 & \texttt{FDDZER} \\
+one & 0 & \texttt{FDDONE} \\
+addition & 2 & \texttt{FDDXOR} \\
+multiplication & 2 & \texttt{FDDAND} \\
+additive inversion & 1 & \texttt{FDDNEG} & optional\\
+not & 1 & \texttt{FDDNOT} & optional \\
+or & 2 & \texttt{FDDOR} & optional \\
+\hline
+\end{tabular}
+\end{description}
+
+In order to specify that a the normal form of a ground term with a certain
+top operator shall be memorized that operator must have a property 
+\texttt{yes} under indicator \texttt{HASH}.
+The following declaration indicates that the normal forms of ground terms 
+with top operators \texttt{+} and \texttt{*} are worth memorizing.
+\begin{verbatim}
+ PROPERTY
+   +, *: HASH = yes;
+\end{verbatim}
+
+\subsection{Program Start}
+The EV-program does not automatically compute the AC-extension rules of the 
+data type at the beginning of the program.
+These extensions are only available after initializing the
+normalization procedures.
+
+\subsection{The Main Menu}
+
+The program displays the following main menu.
+\begin{verbatim}
+You have the following choices:
+Syntactic relations among terms
+---------------------------------------------------------
+  e/m/u - test equality of / match / unify two terms
+Term orderings and termination
+---------------------------------------------------------
+  i - install (deinstall) term orderings
+  s - select term ordering
+  o/O - order axioms / of current data type
+Proof w.r.t. current TRS (assumed to be complete)
+---------------------------------------------------------
+  N - select normalization procedure
+  n - normalize a term
+  p - prove equational theorem
+Deduction / completion
+---------------------------------------------------------
+  c - compute critical pairs
+  C - complete current set of axioms
+Output/Options/Statistics
+---------------------------------------------------------
+  w/W - write current data type / to a file
+  r - reset times and counters
+  d - display times and counters
+  t - set/unset trace options
+Control menu
+---------------------------------------------------------
+  h/? - help, print this menu
+  q - quit
+Go on [e|m|u|i|s|o|O|N|n|p|c|C|w|W|r|d|t|h|q]? *
+\end{verbatim}
+Even though the menu format has changed compared with the AC-laboratory
+only the menu items ``select normalization procedure (N)'',
+``complete current set of axioms (C)'',
+``write current data type / to a file (w/W)'',
+``display times and counters (d)'' and
+``set/unset trace options (t)'' have changed or are new.
+\begin{itemize}
+\item \textbf{select normalization procedure (N)}
+
+ Before using any normalization procedure --- directly using the item 
+ ``normalize a term (n)''
+ or indirectly using items ``prove equational theorem (p)'' or 
+ ``compute critical pairs (c)'' --- the normalization should be initialized 
+ by that option. 
+ Without an initialization of the normalization standard innermost 
+ normalization is used. Yet no AC-extension rules will be available
+ at this point. 
+ See Section~\ref{se:evN} for details on initializing the normalization
+ procedure.
+\item \textbf{complete current set of axioms (C)}
+
+ This option run the Peterson-Stickel completion procedure for
+ commutative and associative-commutative theories.
+ This procedure may take advantage of normalizations supported by
+ partial evaluation domains.
+ As usual orderings must be installed and selected before choosing
+ item ``C'' if automated orderings are to be used.
+ For more details on running the completion process see  
+ Sections~\ref{AC-KBCompletion} and \ref{se:evC}.
+\item \textbf{write current data type / to a file (w/W)}
+
+ Item ``w'' writes the current data type to the standard output.
+ This option was formerly called ``d''.
+ Item ``W'' allows to write  the current data type to file that is requested
+ from the user
+\begin{verbatim}
+   Input filename! *
+\end{verbatim}
+\item \textbf{display times and counters (d)}
+
+ Displays the timers and counters. This item was formerly called ``S''.
+\item \textbf{set/unset trace options (t)}
+
+ A new trace option for evaluation traces (see Appendix~\ref{Traces})
+ is available in addition to those
+ available in the AC-laboratory.
+
+\end{itemize}
+
+\subsection{Initializing the Normalization Procedure}
+\label{se:evN}
+
+Before using the normalization procedure it must be initialized.
+This initialization allows the user to choose among different normalization
+procedures:
+\begin{verbatim}
+Current normalization strategy: pure (inner-most) normalization
+Choose a new normalization strategy
+ n - pure (inner-most) normalization
+ e - normalization with evaluation support
+ m - normalization with memorization
+ q - quit
+Enter you choice [n|e|m|q] (verbose [N|E|M]) *
+\end{verbatim}
+Option ``n'' uses the standard inner-most normalization strategy used
+by all other ReDuX programs.
+
+Option ``e'' allows support by the evaluation domains specified by the data
+type.
+If this option is chosen the user must enter the rules which become redundant
+using the built-in evaluation domain.
+\begin{verbatim}
+Enter the list of rules that are built-in by evaluation domains! *
+\end{verbatim}
+The expected answer is a list of axiom numbers where ranges may be
+specified using hyphens
+(e.\,g., \texttt{(2,4,10-13,8)}).
+The user must make sure that the specified rules are really subsumed by the
+evaluation domain.
+There is no means to automatically check this.
+
+Option ``m'' allows to memorize the normal forms of ground term with top
+operators that have the \texttt{HASH} property specified.
+The memorization technique may be combined with using evaluation domains
+and therefore  the user must enter the rules which become redundant
+using the built-in evaluation domain. 
+If no such support is needed the empty list \texttt{()} should be entered.
+
+After the choice of the normalization procedure the AC-extension rules 
+are computed.
+If verbose mode was selected (``N'', ``E'' or ``M'' respectively)
+then the set of non-built-in rules is displayed.
+
+\subsection{Running the Peterson-Stickel Procedure}
+\label{se:evC}
+
+The completion process of the EV-laboratory it the same as the one of the 
+AC-laboratory (see Section~\ref{AC-KBCompletion}).
+The only difference is that the user may choose support the normalizations
+during the completion by evaluation domains if a subset of the rules
+is complete and equivalent to the evaluation domains specified in the
+data type.
+\begin{verbatim}
+Do you want evaluation support [y|n] ? *
+\end{verbatim}
+If this question is answered positively the rules equivalent to the evaluation
+domains must be entered as a list of rule numbers.
+\begin{verbatim}
+The following set of convergent rules should be
+subsumed by the evaluation process!
+Is a subset of the rules in the data type known to be canonical [y/n]?  *
+y
+Enter list of rule numbers of canonical rule set! *
+\end{verbatim}
+Only the rules specified here will be considered redundant in the normalization
+process.
+The remaining completion works as described in Section~\ref{AC-KBCompletion}.

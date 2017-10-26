@@ -1,0 +1,47 @@
+[----------------------------------------------------------------------]
+[- This file contains routines to test for special characters in ids --]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+               t:=IDCHR(c)
+[Identifier character.  If c is an identifier character then
+ t=TRUE, otherwise t=FALSE.]
+(1) [init] t:=TRUE.
+(2) [digit or character] if DIGIT(c) \/ LETTER(c) then return.
+(3) [special character] if c='!' \/ c='@' \/ c='$' \/ c='*' \/
+    c='_' \/ c='+' \/ c='|' \/ c='~' \/ c='[' \/ c=']' \/ c='{' 
+    \/ c='}' \/ c=''' \/ c='"' \/ c='.' \/ c='/' \/ c='?' \/ c='\'
+    \/ c='<' \/ c='>' \/ c='=' \/ c='#' \/ c=':' \/ c='`' \/ c='-'
+    \/ c='%' \/ c='^' \/ c='&' then return else t:=FALSE ||
+
+               t:=IDCHRI(c)
+[Identifier character, SPECIALI.]
+(1) if IDCHR(c) /\ c#'`' /\ c#'%' then t:=TRUE else t:=FALSE ||
+
+               t:=IDCHR1(c)
+[Identifier character, SPECIAL1.]
+(1) if IDCHR(c) /\ c#':' /\ c#'`' /\ c#'%' then t:=TRUE else t:=FALSE ||
+
+               t:=IDCHR2(c)
+[Identifier character, SPECIAL2.]
+(1) if IDCHR(c) /\ c#':' /\ c#'`' /\ c#'-' /\ c#'%' then
+    t:=TRUE else t:=FALSE ||
+
+               t:=IDCHR3(c)
+[Identifier character, SPECIAL3.]
+(1) if IDCHR(c) /\ c#':' /\ c#'`' /\ c#'%' then
+    t:=TRUE else t:=FALSE ||
+
+               t:=IDCHR4(c)
+[Identifier character, SPECIAL4.]
+(1) if IDCHR(c) /\ c#'<' /\ c#'=' /\ c#'`' /\ c#'%' then
+    t:=TRUE else t:=FALSE ||
+
+               t:=IDCHR5(c)
+[Identifier character, SPECIAL5.]
+(1) if IDCHR(c) /\ c#'=' /\ c#':' /\ c#'`' /\ c#'%' then
+    t:=TRUE else t:=FALSE ||

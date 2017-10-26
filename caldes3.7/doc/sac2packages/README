@@ -1,0 +1,44 @@
+
+Documentation of SAC-2 packages
+===============================
+
+The documentation gathered in this directory is neither complete 
+nor up-to-date. Seemingly it has been derived from the original
+SAC-2 documentation and therefore all credits should go to
+George E. Collins and Ruediger G. K. Loos.
+
+Let me say a few words to the main differences between the current
+ALDES(V3.7)/SAC-2 version and the one described in this directory.
+Most of the changes concern the backend language and the I/O 
+interface provided by the basic system. Yet the description of most
+(in particular the algebraic) data types have been left unchanged.
+This is why I consider this documentation still valuable and included
+it in this distribution.
+
+Some striking differences between the current ALDES(V3.7)/SAC-2 
+version and the one described in this directory:
+
+* ALDES is translated to C by the current compiler.
+  Therefore FORTRAN-operations and data types should be mapped to
+  C-operations and data types (see also  R. Buendgen & J. Walter: 
+  "A C-backend for the ALDES Compiler").
+
+* ALDES does not use the character card any more. It uses ASCII-code
+  instead. Therefore global arrays ACODE, LCODE and SCODE do not exist
+  any more.
+
+* The Fortran functions INPUT and OUTPUT have been replaced by according
+  ALDES functions that call a C-function IO which is provided with the
+  system. Also a standard CLOCK function that should work on all UNIX systems
+  will be built-up by the Makefile.
+
+* There are no test programs provided with this distribution (unless you 
+  consider ReDuX as a major test program).
+
+* File-I/O has been extended allowing to open and close files whose
+  names are given by an ALDES-string (bs:CLOSE; lp:FOPENR, FOPENW).
+
+* Command line arguments and environment variables can be accessed by
+  ALDES(V3.7)/SAC-2  (bs: ARGNO; lp: ARGET, ENVGET, OPTGET).
+
+-Reinhard Buendgen

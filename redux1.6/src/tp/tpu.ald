@@ -1,0 +1,383 @@
+[Project: ReDuX Term Primitives
+   module name        : TPU -- Unification 
+   modulespecification: unification and matching algorithms             
+                        essentially the same as tcu3. Small changes      
+                        in algorithm TNRMCH. TLEQIV and 
+                        TNRMIL added. Same as icu1.
+   programmer         : Wolfgang Kuechlin/Reinhard Buendgen             
+   language           : aldes                                           
+   last change        : 26.07.88 
+                        26.01.89 change in TNRMCH in order to handle 
+                        different variables with common name.
+                        21.03.89 TMATCH extended to semi-bound T.
+                        24.03.89 TDVEQ, TDVNRQ added and called
+                           from TNRMCH to handle different variables
+                           with same name in subject term. (fixes
+                           bug in change from 26.01.89)
+                         TEQ and TNREQ removed (r1.2)
+                         TDVEQ renamed to TEQU (r1.2)
+                         TDVRNQ renamed to TNREQU (r1.2)
+                         same as tcu (r1.5)
+                        $Date: 1994/12/21 19:53:17 $ 
+                        by $Author: buendgen $
+   version            : 6 without labels                                
+                        $Revision: 1.15 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        tp/tpdd, tp/tpcy                                  
+]                                                                      
+                                                                       
+[ #include "tp.h" ]
+[ #include "it.h" ]
+[ #include "globs.h" ]
+
+                                                                       
+[----------------------------------------------------------------------
+     Section 1.                                                         
+     Main algorithms.                                                   
+-----------------------------------------------------------------------]
+
+                    i:=TASMS(t,R)                                      
+[Term, subterm match by set of axioms.                                 
+t is a term, R=(rl sub 1, ... , rl sub nl) is A set of axioms. then     
+i=jl if there is a subterm tl of t and an axiom rl sub jl in R s. th.  
+Rl sub jl matches tl. i=0 otherwise.]                                  
+    safe i,k,t',C,R',r,l,s.
+(1) [Initialize] i:=0; t':=t.
+(2) [Dispatch on type.] k:=TKIND(t');
+    [Variable.] if k=DVS then { C:=VARBIND(t'); if C=() then return 
+                                              else {t':=C; goto 2} 
+                              }.
+(3) [Constant.] if k=DCS then return.
+(4) [Non atomic terms] if k = DOS then { i:=TNASMS(t',R); return }.
+(5) [External term.] if k = DXT then { i:=TXASM(t',R); return } ||
+
+
+                    b:=TEQU(t1,t2)                                      
+[Terms, equality.
+Both t1 and t2 are terms; both may have different variables with the
+same TSIGN. Then b=TRUE if t1 and t2 are literally equal, b=FALSE
+otherwise.]                                                    
+     safe b,t'1,t'2,k1,k2,C.
+(1)  [Initialize] t'1:=t1; t'2:=t2.
+(2)  [Dispatch on types.] k1:=TKIND(t'1); if k1=DVS then 
+     { C:=VARBIND(t'1); if C # () then {t'1:=C; goto 2} }.
+(3)  k2:=TKIND(t'2); if k2=DVS then 
+     { C:=VARBIND(t'2); if C # () then {t'2:=C; goto 3} }.
+(4)  [Trivial Cases.] if t'1 =t'2 then {b:=TRUE; return}; [21.3.89 wwk]
+     if k1 = DVS then {b:=FALSE; return};
+     [Different top operators.] if TSIGN(t'1) # TSIGN(t'2) then       
+     {b:=FALSE; return}.
+(5)  [Non-atomic terms.] if k1 = DOS then  b:=TNREQU(t'1,t'2)
+     else [External terms.] if k1 = DXT then b:=TRXEQU(t'1,t'2) ||
+
+
+                    b:=TNREQU(T1,T2)                                    
+[Non-atomic related terms names, equality. 
+Both  T1  and  T2  are  non-atomic  semi-bound  terms with equal leading
+operators. T1 and T2 may each have different variables with same TSIGN.
+Then b=TRUE if T1  and  T2  are  literally  equal,  b=FALSE otherwise.]
+     safe b,k,t,t1,t2.                                     
+(1)  [Initialize.]  b:=TRUE; L1:=OARGLST(T1); L2:=OARGLST(T2).
+(2)  [Right recursion. Compare lists of operands.]                     
+     [Trivial case.] if L1 = () then {if L2 # () then b:=FALSE; return};
+     if L2=() then {b:=FALSE; return}.
+(3)  [Left recursion. Compare pair of operands.]                       
+     [Initialize.] ADV(L1; t1,L1); ADV(L2; t2,L2).
+(4)  [Trivial case.] if t1=t2 then go to  2;
+     [Remove substitutions.] k:=TKIND(t1); if k=DVS then             
+     { t:=VARBIND(t1); if t # () then {t1:=t; goto 4} }; k:=TKIND(t2);
+     if k=DVS then { t:=VARBIND(t2); if t # () then {t2:=t; goto 4} };
+     if TSIGN(t1) # TSIGN(t2) then {b:=FALSE; return}.
+(5)  [Different vars same sign.] [21.3.89 wwk] if k = DVS then
+     {b:=FALSE; return}.
+(6)  [Step. Non-atomic terms.] if k = DOS then b:=TNREQU(t1,t2)
+     else [External terms.] if k = DXT then b:=TRXEQU(t1,t2); 
+     if b then go to  2 ||
+
+                    b:=TRXEQU(t1,t2)
+[Related terms with external top operator, equality.
+t1 and t2 are terms with common extenral top operator. 
+Then b = TRUE uf t1 and t2 are equal otherwise b=FALSE.]
+
+(1)  [Trivial case.] if t1 = t2 then { b:=TRUE; return }.
+(2)  [Get external objects.] x1:=XOBJECT(t1); x2:=XOBJECT(t2).
+(3)  [Get equality test.] A:=TUSTAT(t1); [Default.] if A = () then 
+             { if x1 = x2 then b:=TRUE else b:= FALSE; return };
+     a:=ALGIDNT(GET(A,DAK)).
+(4)  [Test.] b:=FCALL2(a,x1,x2) ||
+
+                    b:=TLEQIV(T1,T2)                                   
+[Terms at least one linear, equivalence.
+Both T1 and T2 are semi-bound terms one of which is linear. Then        
+b=TRUE if T1 and T2 are equal up to variable renaming.]                
+     safe t1,t2,b,k1,k2,c,V',v,l1,l2,I.                     
+(1)  [Initialize] t1:=T1;  t2:=T2; b:=FALSE.
+(2)  [T1 a variable?] k1:=TKIND(t1); if k1=DVS then                  
+     {c:=VARBIND(t1); if c # () then {t1:=c; goto 2}}.
+(3)  [T2 a variable?] k2:=TKIND(t2); if k2=DVS then                  
+     {c:=VARBIND(t2); if c # () then {t2:=c; goto 3}}.
+(4)  [Trivial cases.] if k1 # k2 then return;
+     if t1=t2 then {b:=TRUE; return}.
+(5)  [Constants.] if k1=DCS then return.                                     
+(6)  [Variables.] if k1=DVS then                                     
+     {if TTYPE(t1)=TTYPE(t2) then b:=TRUE;  return}.
+(7)  [Different tops.] if TSIGN(t1) # TSIGN(t2) then return;
+     [External terms.] if k1 = DXT then { b:=TRXEQU(t1,t2); return }.
+(8)  [Non-atomic terms.]
+     TNBVSL(t1; V1,l1);  TNBVSL(t2; V2,l2); UNDO(V1); UNDO(V2);
+     [Different linearity.]  if l1 # l2 then return;
+     [Both non-linear.] if ~ l1 /\ ~ l2 then                    
+     {CLOUT("TLEQIV.7--CANNOT HAPPEN"); WRITE; return};
+     if LENGTH(V1) # LENGTH(V2) then return;
+     I:=TNRMIL(t1,t2);  if I=() then goto 9;
+     [Analyze unifier.] V':=V1;  while V' # () do                      
+     {ADV(V'; v,V'); c:=VARBIND(v);
+      if c # () /\ TKIND(c) # DVS then goto 9;
+      if c # () /\ VARBIND(c) # () then  
+      {CLOUT("TLEQIV.7.1--CANNOT HAPPEN"); WRITE; goto 9}};
+     V':=V2;  while V' # () do                                         
+     { ADV(V'; v,V'); if VARBIND(v) # () then goto 9 };
+     [Variable renaming only.] b:=TRUE.
+(9)  [Finish up.] UNDO(V1); UNDO(V2) ||
+
+
+                    I:=TMGCI(t1,t2)                                    
+[Terms, most general common instance.
+t1 and t2 are semi bound terms. Then I is the most general common 
+instance of t1 and t2, if any, I=() otherwise. Variables in both
+input terms will in general be bound, even if I=(). Bindings
+may be reset by calling algorithm UNDO on the variable sets of
+t1 and t2.] 
+     safe t'1,t'2,k1,k2,b.
+(1)  [Initialize.] t'1:=t1; t'2:=t2; I:=().
+(2)  [Type clash?] if TTYPE(t'1) # TTYPE(t'2) then return.
+(3)  [t1 var?] k1:=TKIND(t'1); if k1=DVS then                          
+      { C:=VARBIND(t'1); if C=() then {I:=t'2; return} 
+                       else {t'1:=C; goto 3} 
+      }.
+(4)  [t2 var?] k2:=TKIND(t'2); if k2=DVS then                          
+      { C:=VARBIND(t'2); if C=() then {I:=t'1; return} 
+                       else {t'2:=C; goto 4} 
+      }.
+(5)  [Triv. cases.] if t'1 = t'2 then { I:=t'2; return };
+     [Differnt tops.] if TSIGN(t'1) # TSIGN(t'2) then return;
+     [Const?] if k1 = DCS then return;
+     [External terms.] if k1 = DXT then 
+     { if TRXEQU(t1,t2) then I:=t'2; return }.
+(6)  [Non-atomic terms.] UC:=UC+1;  UTI:=UTI-CLOCK(); 
+     I:=TNRMCI(t'1,t'2); UTI:=UTI+CLOCK() ||
+
+                    I:=TNMGCI(t1,t2,b)                                 
+[Non-atomic terms, most general common instance.                       
+Both  t1  and  t2  are  non-atomic  terms which do not share variables, 
+b=0 if none of them is left-linear, b=1 otherwise. 
+Then I is the most general common instance of t1 and t2, if any, I=() 
+otherwise. The variables of  both  terms  will, in general, be bound, 
+even if I=().]                                      
+     safe TNMGCI.                                                      
+(1)  [Identical leading operators.]  if TSIGN(t1) # TSIGN(t2) then    
+     {I:=(); return}.
+(2)  [Unifiable lists of operands.] UC:=UC+1;  UTI:=UTI-CLOCK();
+     if b then I:=TNRMIL(t1,t2) else I:=TNRMCI(t1,t2); UTI:=UTI+CLOCK()
+     ||
+
+
+                    I:=TNRMCI(T1,T2)                                   
+[Non-atomic related terms, most general common instance.               
+T1  and  T2  are non-atomic related semi-bound terms. Then I is the most
+general common instance of T1 and T2, if any, I=() otherwise.  Variables
+of both input terms will, in general, be bound, even when I=(). They may
+be reset by applying algorithm undo to the variable sets of T1 and T2.]
+     safe k1,k2,t1,t2,t,b,I.                                   
+(1)  [Initialize.]  I:=(); L1:=OARGLST(T1); L2:=OARGLST(T2).
+(2)  [Right recursion. Unify lists of operands.]                       
+     [Trivial cases.]  if L1=() then                                   
+     {if L2=() then I:=T1; return}; if L2=() then return.
+(3)  [Initialization of left recursion.]                               
+     ADV(L1; t1,L1); ADV(L2; t2,L2).
+(4)  [Left recursion. Unify pair of operands.]                         
+     [Trivial case. Same operands.] if t1=t2 then go to  2;
+     k1:=TKIND(t1); k2:=TKIND(t2).
+(5)  [Bases of left recursion. Atomic terms.]                          
+     [Variable,term.]  if k1=DVS then                                 
+     {  t:=VARBIND(t1); if t # () then {t1:=t; go to  4};
+      if k2=DVS then                                                   
+      { t:=VARBIND(t2); if t # () then {t2:=t; go to  4} } else        
+      if k2=DOS then { b:=VINT(t1,t2); if b then return };
+      VARBIND(t1):=t2; go to  2  };
+     [Term,variable.]  if k2=DVS then                                 
+     { t:=VARBIND(t2); if t # () then {t2:=t; go to  4};
+      if k1=DOS then {b:=VINT(t2,t1); if b then return};
+      VARBIND(t2):=t1; go to  2 }.
+(6)  [Different tops.] if TSIGN(t1) # TSIGN(t2) then return;
+     [Non-atomic terms.] if k1 = DOS then
+     { I:=TNRMCI(t1,t2); if I # () then {I:=(); goto  2} }
+     else [Ext. terms.] if k1 = DXT then if TRXEQU(t1,t2) then goto 2 ||             
+
+                    I:=TNRMIL(T1,T2)                                   
+[Non-atomic related terms, mgci by linear unification.
+T1 and T2 are non-atomic related semi-bound terms with disjoint variable
+ sets. At least one of T1, T2 is linear.  
+Then I is the most general common instance of T1 and T2, if any, I=() 
+otherwise.  Variables of both input terms will, in general, be bound, 
+even when I=(). They may be reset by applying algorithm undo to the 
+variable sets of T1 and T2. Unification without occur check is used.] 
+     safe k1,k2,t1,t2,s1,s2,t,I.                              
+(1)  [Initialize.]  I:=(); L1:=OARGLST(T1); L2:=OARGLST(T2).
+(2)  [Right recursion. Unify lists of operands.]                       
+     [Trivial cases.]  if L1=() then                                   
+     {if L2=() then I:=T1; return}; if L2=() then return.
+(3)  [Initialization of left recursion.]                               
+     ADV(L1; t1,L1); ADV(L2; t2,L2).
+(4)  [Left recursion. Unify pair of operands.]                         
+     [Trivial case. Same operands.] if t1=t2 then go to  2;
+     k1:=TKIND(t1); k2:=TKIND(t2).
+(5)  [Bases of left recursion. Atomic terms.]                          
+     [Variable,term.]  if k1=DVS then                                 
+     {  t:=VARBIND(t1); if t # () then {t1:=t; go to  4};
+      if k2=DVS then                                                   
+      { t:=VARBIND(t2); if t # () then {t2:=t; go to  4} };
+      VARBIND(t1):=t2; go to  2  };
+     [Term,variable.]  if k2=DVS then                                 
+     { t:=VARBIND(t2); if t # () then {t2:=t; go to  4};
+      VARBIND(t2):=t1; go to  2 }.
+(6)  [Different tops.] if TSIGN(t1) # TSIGN(t2) then return;
+     [Non-atomic terms.] if k1 = DOS then
+     { I:=TNRMIL(t1,t2); if I # () then {I:=(); goto  2} }
+     else [Ext. terms.] if k1 = DXT then if TRXEQU(t1,t2) then goto 2 ||
+
+
+                    I:=TMATCH(M,T)                                     
+[Terms, match.                                                         
+M  is  a  non-atomic or an external term, T is a semi-bound term. 
+Then I=T if there exists a type-correct substitution sigma s.th. 
+sigma(M)=T, I=() otherwise.  
+Variables in M will, in general, be bound to terms in T, even if I=().] 
+     safe TMATCH.                                                      
+(1)  [Identical leading operators.] T' := TSFS(T);
+     if TSIGN(M) # TSIGN(T') then {I:=(); return}.
+(2)  [Match lists of operands.] k:=TKIND(M); MC:=MC+1; MTI:=MTI-CLOCK();
+     [Non-atomic terms.] if k = DOS then I:=TNRMCH(M,T') else 
+     [Ext. terms.] if k = DXT then if TRXEQU(M,T') then I:=M else I:=();
+     MTI:=MTI+CLOCK() ||                                 
+
+
+                    I:=TNRMCH(F,G)                                     
+[Non-atomic related terms, match.                                      
+Both F and G are non-atomic related terms; G is semi-bound and may have
+different variables with the same name. Then I=G, if G  has the form of
+F, I=() otherwise. Variables in F will, in general be bound, even if
+I=(). These  modifications  are  reversable  by  applying algorithm
+UNDO to the variable set of F.]                              
+     safe b,t,f,g,s1,s2,k1,k2,I.                                
+(1)  [Initialize.]  I:=(); L1:=OARGLST(F); L2:=OARGLST(G).
+(2)  [Right recursion. Match lists of operands.]                       
+     [Trivial cases.]  if L1=() then                                   
+     {if L2=() then I:=G; return}; if L2=() then return.
+(3)  [Initialization of left recursion.] ADV(L1; f,L1);  ADV(L2; g,L2).
+(4)  [Left recursion. Match pair of operands.]                         
+     [Trivial case. Same terms.] if f=g then go to  2; k1:=TKIND(f);
+     [Remove variable substitution.] k2:=TKIND(g); if k2=DVS then    
+     { t:=VARBIND(g); if t # () then {g:=t; goto 4} }.
+(5)  [Bases of left recursion. Atomic terms.]                          
+     [Constant,term.]  if k1=DCS then return;
+     [Variable,term.]  if k1=DVS then                                 
+     {  t:=VARBIND(f);  if t # () then                                 
+      { [Alien term,term] f:=t; if f = g then go to  2;
+       s1:=TSIGN(f);  s2:=TSIGN(g); if s1 # s2 then return;
+       [change of 26.1.89,R.B.] k1:=TKIND(f); if k1 = DVS then return;
+       if k1=DOS then b:=TNREQU(f,g) else if k1=DXT then b:=TRXEQU(f,g); 
+       if b then    go to  2 else return 
+      } else { VARBIND(f):=g; go to  2 }  }.
+(6)  [Different tops.] if TSIGN(f) # TSIGN(g) then return;
+     [Non-atomic terms.] if k1 = DOS then
+     { I:=TNRMCH(f,g); if I # () then {I:=(); goto  2} }
+     else [Ext. terms.] if k1 = DXT then if TRXEQU(f,g) then goto 2 ||
+
+
+                    b:=TNSMTH(M,V,T)                                   
+[Non-atomic terms, subterm match.                                      
+Both  M and T are non-atomic terms. V is the variable set of M. Then b=
+TRUE if T contains an instance of M as subterm, b=FALSE otherwise.]    
+     safe TNSMTH.                                                      
+(1)  [Match at top level.] if TSIGN(M)=TSIGN(T) then                   
+     { MTI:=MTI-CLOCK(); I:=TNRMCH(M,T); MTI:=MTI+CLOCK(); MC:=MC+1;
+       UNDO(V); if I # () then {b:=TRUE; return} }.
+(2)  [Match at operand level.] b:=TNPSMB(M,V,T) ||                     
+
+
+                    b:=TSMTH(M,V,T)                                    
+[Term, match at subterms.                                              
+T is a term. M is a non-atomic or external term and V is its variable 
+set.  
+Then b=TRUE if T contains an instance of M as subterm, 
+b=FALSE otherwise.]    
+     safe TSMTH.                                                       
+(1)  [Variable or constant.] k:=TKIND(T); if k=DVS \/ k=DCS
+     then {b:=FALSE; return}.
+(2)  [Match at top level.] I:=TMATCH(M,T); UNDO(V);
+     if I # () then {b:=TRUE; return}.
+(3)  [Match at operand level.] k':=TKIND(M);
+     [non-atomic term.] if k' = DOS then b:=TNPSMB(M,V,T)
+     else [ext. term.] if k' = DXT then b:=TNPSTX(T,M) ||                     
+
+
+                    i:=TNASMS(T,R)                                     
+[Non-atomic term, subterm match by set of axioms.                      
+T is a non-atomic term, R=(rl sub 1, ..., rl sub nl) is a set of axioms.
+Then i=jl if there is a subterm tl of T and an axiom rl sub jl in R s. 
+th. Rl sub jl matches tl. i=0 otherwise.]                              
+     safe TNASMS.                                                      
+(1)  [Initialise.] i:=0; R':=R; s1:=TSIGN(T).
+(2)  [Loop over R.] while R' # () do                                  
+     { ADV(R'; r,R'); i:=i+1; ARDIS(r; l,v,r); s2:=TSIGN(l);
+      if s1=s2 then                     
+      { MTI:=MTI-CLOCK(); I:=TNRMCH(l,T); MTI:=MTI+CLOCK(); MC:=MC+1;
+        UNDO(v); if I # () then return
+      }; k:=TKIND(l); if k = DOS /\ TNPSMB(l,v,T) then return
+      else if k = DXT /\ TNPSTX(T,l) then return
+     }.
+(3)  [Negative outcome.] i:=0 ||                                       
+
+                    i:=TXASM(t,R)
+[External term, match by set of axioms.
+t is an external term, R=(rl sub 1, ..., rl sub nl) is a set of axioms.
+Then i=jl if there is  an axiom rl sub jl in R which matches t.
+i=0 otherwise.]
+(1) [Search rule.] i:=0; s:=TSIGN(t); R':=R; while R' # () do
+      { ADV(R'; r,R'); i:=i+1; l:=ALHS(r);
+        if TSIGN(l) = s /\ TRXEQU(t,l) then return
+      } ||
+
+
+                    b:=TNPSMB(M,V,T)                                   
+[Non-atomic terms, proper subterm match, outer preference.             
+Both  M  and T are non-atomic terms, T is semi-bound. V is a superset of
+the variable set of M. Then b=TRUE if T contains an instance  of  M  as
+proper   subterm,   b=FALSE   otherwise.   The  search  mode  is  outer
+preference.]                                                           
+     safe b,M,V,I,k,m',t',t.                                       
+(1)  [Initialize.] b:=FALSE; m':=TSIGN(M).
+(2)  [Match with operands.] L:=OARGLST(T); while L # () do               
+     {  ADV(L; t,L); t':=TSIGN(t); if m'=t' then                    
+      { MTI:=MTI-CLOCK();I:=TNRMCH(M,t); MTI:=MTI+CLOCK(); MC:=MC+1;
+        UNDO(V); if I # () then {b:=TRUE; return} }  }.
+(3)  [Match with subterms of operands.] L:=OARGLST(T); while L # () do  
+     {  ADV(L; t,L); k:=TKIND(t); 
+      if k=DVS then { t:=TSFS(t); k:=TKIND(t) };
+      if k=DOS then { b:=TNPSMB(M,V,t); if b then return }  } ||     
+
+                    b:=TNPSTX(t1,t2)
+[Non-atomic term has proper external subterm. 
+t1 is a semi-bound non-atomic term and t2 is an external term.
+Then b = TRUE if t2 is a proper subterm of t1 otherwise b = FALSE.]
+     safe k.
+(1)  [Initialize.] C:=OARGLST(t1); b:=FALSE; s2:=TSIGN(t2).
+(2)  [Search through arguments of t1.] while ~b /\ C # () do
+     { ADV(C; c,C); k:=TKIND(c); 
+       if k = DVS then { c:=TSFS(c); k:=TKIND(c) }; 
+       if k = DOS then b:=TNPSTX(c,t2) 
+       else if s2 = TSIGN(c) then b:=TRXEQU(c,t2)
+     } ||
+       

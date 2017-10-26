@@ -1,0 +1,36 @@
+      safe DAK.  [Indicator for algorithm poperties.]
+
+
+                    R:=SGCALL(S,I)
+[Symbol generic call.
+S is a symbol denoting an algorithm A. I is a list of input arguments 
+for A.
+Then A is called with the input arguments in I. If A is a function
+then R is the result of the function call other wise R is the list
+of output parameters of the procedure A.]
+
+     safe i. array i[ITMAXIN].
+
+(1)  [Symbol table look up: 
+         a: algorithm id, 
+         n1: number of input parameters, 
+         n2: number of output parameters,
+         t: algorithm type (0 = procedure, 1 = function).] 
+     ALGDIS(GET(S,DAK); a,t,n1,n2).
+(2)  [Extract input parameters.] if n1 <= 3 then 
+      { I':=I; for j=1,...,n1 do ADV(I'; i[j],I') }.
+(3)  [Dispatch functions.] if t = PROCEDURE then goto 4;
+     case n1 of
+     { 0 do R:=FCALL0(a);
+       1 do R:=FCALL1(a,i[1]);
+       2 do R:=FCALL2(a,i[1],i[2]);
+       3 do R:=FCALL3(a,i[1],i[2],i[3]);
+       4,5,6,7,8,9,10 do R:=FCALL(a,n1,I)
+     }; return.
+(4)  [Dispatch procedures.] case n1 of 
+     { 0 do R:=PCALL0(a,n2);
+       1 do R:=PCALL1(a,n2,i[1]);
+       2 do R:=PCALL2(a,n2,i[1],i[2]);
+       3 do R:=PCALL3(a,n2,i[1],i[2],i[3]);
+       4,5,6,7,8,9,10 do R:=PCALL(a,n2,n1,I)
+     } ||

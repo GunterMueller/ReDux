@@ -1,0 +1,58 @@
+[Project: ReDuX Combinatorics
+   module name        : GGLINC
+   modulespecification: Problem: Given k lists C1, ..., Ck, compute
+                           one by one the set S of all possible k-tupels 
+                           whose i-th elements stem from Ci (1<=i<=k).
+                        Solution: start with lists G=(C1, ..., Ck), and
+                           C=(C1, ..., Ck).
+                           while G # () do
+                            {  [(First(G1),...,FIRST(Gk)) is in S.]
+                             G:=GGLINC(C,G);
+                            }
+                        Taken from icgnf as of 15.2.91.
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : 24.10.88 
+                        27.11.90: GGLINC(1) bug fixed
+                        $Date: 91/09/04 16:41:57 $
+   version            : $Revision: 1.2 $
+   status             : 
+   bugs               : 
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+]                                                                      
+
+[---------------------------------------------------------------------.
+     Section 0.                                                         
+     System initialization.                                             
+-----------------------------------------------------------------------]
+     const TRUE=1, FALSE=0.                          
+     const                                                             
+     RED(L)   =SPACE[L-BETA],                                          
+     FIRST(L) =SPACE[L-BETA1].                                         
+
+[---------------------------------------------------------------------.
+     Global variables
+-----------------------------------------------------------------------]
+
+     safe PNTRC.   [ Procedure name trace.]
+
+
+                    G*:=GGLINC(G,C)
+[General generator list, increment.
+C = (C1, ... C sub n) is a list of lists C sub i (1 <= i <= n)
+where C sub i is a list of k sub i elements. G = (G1, ..., G sub n)
+is a list with elements G sub i which are the j sub i-th reducta of
+C sub i (0 <= i <= n, 0 <= j sub i <= k sub i). Assume the order
+C sub i = (ci1,..., ci sub ki) < (ci2,..., ci sub ki) < ... < 
+(ci sub ki). Then G' is the successor list of G with regard to the 
+reverse lexicographic extension of the above order (i.e. the left-most 
+element of G is the least significant one). If no increment is possible 
+G' is (). G is destroyed.]
+
+(1)  [Initialize.] if PNTRC then { CLOUT("GGLINC"); WRITE };
+      G^':=G; ADV(C; C1,C').
+(2)  [Owerflow?] if G^' = () then { G*:=(); return }.
+(3)  [Prepare increment of 1st element of G^'.] C^':=RED(FIRST(G^')).
+(4)  [Carry?] if C^' = () then
+     { FIRST(G^'):=C1; G^':=RED(G^'); ADV(C'; C1,C'); goto 2 }
+     else FIRST(G^'):=C^';  G*:= G||

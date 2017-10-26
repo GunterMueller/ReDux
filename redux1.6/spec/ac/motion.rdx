@@ -1,0 +1,58 @@
+%%  
+DATATYPE MOTION;
+SORT
+	MAT, REAL;
+CONST
+	0, 1: REAL;
+	I, M: MAT;
+VAR
+	x, y, z, x1, y1, z1: REAL;
+	l, m, n: MAT;
+OPERATOR
+	+: REAL, REAL -> REAL;
+	*: REAL, REAL -> REAL;
+	~: REAL -> REAL;
+	trans: REAL, REAL, REAL -> MAT;	%%  translation
+	twix: REAL -> MAT;	%%  rotation around x-axis
+	@: MAT, MAT -> MAT;	%%  matrix multipication
+	/: MAT -> MAT;	%%  matrix inversion
+NOTATION
+	~, twix, /: FUNCTION;
+	+, *, @: INFIX;
+THEORY
+	+, *: AC;
+AXIOM
+  %%  (REAL, +, *, 0, 1) is a commutative ring with 1
+ [1] (0 + x) == x;
+ [2] (0 * x) == 0;
+ [3] (1 * x) == x;
+ [4] ~(0) == 0;
+ [5] ~(~(x)) == x;
+ [6] (x + ~(x)) == 0;
+ [7] ~((x + y)) == (~(x) + ~(y));
+ [8] (x * ~(y)) == ~((x * y));
+ [9] (x * (y + z)) == ((x * y) + (x * z));
+  %%  (MATRIX, @, I) is a group
+ [10] (I @ m) == m;
+ [11] (m @ I) == m;
+ [12] /(I) == I;
+ [13] /(/(m)) == m;
+ [14] (m @ /(m)) == I;
+ [15] (m @ (/(m) @ n)) == n;
+ [16] (/(m) @ m) == I;
+ [17] (/(m) @ (m @ n)) == n;
+ [18] /((m @ n)) == (/(n) @ /(m));
+ [19] (l @ (m @ n)) == ((l @ m) @ n);
+  %%  special motions
+  %%   mirroring
+ [20] (M @ M) == I;
+  %%   rotations
+ [21] twix(0) == I;
+ [22] /(twix(x)) == twix(~(x));
+ [23] (twix(x) @ twix(y)) == twix((x + y));
+ [24] (twix(x) @ M) == (M @ twix(~(x)));
+  %%   translations
+ [25] /(trans(x,y,z)) == trans(~(x),~(y),~(z));
+ [26] (trans(x,y,z) @ trans(x1,y1,z1)) 
+     == trans((x + x1),(y +  y1),(z + z1));
+END 

@@ -1,0 +1,64 @@
+
+[ *** End of Global Safe Variables ***]
+
+     safe CRT, DUNIT.     [i/o units.]
+     safe t.              [time.]
+     safe N, C, V, A, A'. [components of data type.]
+     safe C^, c, c'.      [user input.]
+
+(1)  [Initialize ReDuX system.] BGNRWD(5).
+(2)  [Output breadth: 80 characters.] RMARG:=79.
+(3)  [Garbage collector messages on.] GCM:=1;
+     [ [ALDES trace settings.] TRMAX:=500; COUNT:=1 ]
+     [Reset timers.] RTI:=0; MTI:=0; CTI:=0; UTI:=0; OTI:=0; STI:=0;
+     STPWT:=-CLOCK();
+     [Reset counters.] UC:=0; MC:=0; RC:=0;
+     [ReDuX traces off.] IETRC:=0; PNTRC:=0; CETRC:=0; STRC:=0; 
+     CPTRC:=0; AATRC:=0; POTRC:=0; TOTRC:=0.
+(4)  [Use fort.4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.] 
+     STOUTL("-><--><--><--><--><--><--><--><--><--><--><--><-");
+     STOUTL("|                                              |");
+     STOUTL("|          ReDuX AC-rewrite laboratory         |");
+     STOUTL("V                                              V");
+     STOUTL("->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-");
+     BLINES(1); STOUTL("           [$Revision: 1.1 $] "); 
+     BLINES(1).
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=CLOCK(); DT:=DTPRS(); t:=CLOCK()-t; 
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.").
+(8)  [Set input unit back to keybord.] IUCHNG(CRT); ISIZE:=80.
+(9)  [Write data type.] BLINES(1); t:=CLOCK(); DTWRT(DT); t:=CLOCK()-t;
+     STROUT("Display time: "); GWRITE(t); STOUTL(" ms."); BLINES(1);
+     STOUTL("Ready? *"); READ; C^:=CREAD().
+(10) [Create AC-extension rules.] DTDIS(DT; N,C,V,F,A); A':=A;
+     STOUTL("Computing extension rules ..."); 
+     while A' # () do { ADV(A'; a,A'); a^:=APUTXR(a,A) }.
+(11) [Initialize menu variables.] c:=0; c':=0;
+     [Initialize automatic orderings.] O0:=(); O*:=().
+(12) [Main menu.] BLINES(1); case c of 
+      {  0 do { BLINES(1); c:=ACMENU(c'); BLINES(1); goto 12 };
+         1 do UNIFYE(DT; t1,t2);
+         2 do UNIFY1(t1,t2);
+         3 do MATCHE(DT; t1,t2); 
+         4 do MATCH1(t1,t2);
+         5 do EQUALE(DT; t1,t2);
+         6 do EQUAL1(t1,t2);
+         7 do NORMAL(DT);
+         8 do QCT0();
+         9 do DTWRT(DT); 
+        10 do CRITP(DT);
+        11 do { D*:=COMPLT(DT,O*); DT:=D* };
+        12 do PROVE(DT; t1,t2);
+        13 do [Quit.] goto 99;
+        14 do CTSHOW();
+        15 do CTRSET();
+        16 do QCTOID(DT,O*; O0,O*);
+        18 do O*:=TORDSE(DT,O0);
+        19 do OADT(O*,DT);
+        20 do ORDAX(O*,DT);
+        21 do COMPUT(DT);
+      }; c':=c; c:=SMENU(c'); goto 12.
+(99) [Finish up.] ENDS||                                               
+

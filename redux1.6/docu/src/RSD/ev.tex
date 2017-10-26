@@ -1,0 +1,251 @@
+\section{The EV-Subsystem} \label{se:ev}
+
+The \redux\ subsystem {\it ev} contains procedures needed for
+normalizations supported by {\em partial evaluation domains}
+\cite{BuendgenLauterbach:96}.
+\index{evaluation domain!partial}
+Let $\cal R$ be a complete rewrite specification with a complete 
+subspecification $\cal R'$.
+Then  a model $\cal D$ of $\cal R'$  is a {\em partial evaluation domain}
+for $\cal R$ 
+if $\cal D$ is a free algebra in the models of $\cal R'$ over a countable 
+set of generators.
+In addition we need an efficiently computable mapping from an implementation
+of  $\cal D$ to
+terms in $\cal R'$-normal form.
+This mapping is fixed by a bijection from the generators of $\cal D$ to 
+variables and terms outside of the signature of $\cal R'$.
+The $\cal R'$-normal form of any term $t$ can be computed by retranslating
+the $\cal D$-interpretation of $t$ back to a term.
+Given that ${\cal R}'$ is a proper subset of $\cal R$, 
+we must alternate evaluation based normalizations \wrt\ ${\cal R}'$ and
+reductions \wrt\ ${\cal R}\setminus {\cal R}'$ until a fixed point is
+reached in order to compute $\cal R$ normal forms.
+
+A partial evaluation domain is specified by an external type
+\index{type!external}
+for which the following properties must be specified:
+under indicator XFG the name of a binary function that computes
+the $n$-th generator of the evaluation domain 
+($n$ is provided as first argument and an evaluation dictionary as second
+argument),
+and under indicator XTERM the name of a ternary function translating an 
+external object back into a term.
+For tracing purposes the name of an output routine for external objects may
+be stored under indicator XWRITE.
+Each evaluable operator or constant $f$ 
+(i.\,e., each symbol $f$ occuring in $\cal R'$)
+must be assigned a corresonding interpretation 
+function $f_{\cal D}$ over the partial evaluation domain $\cal D$.
+Therefore the name of a wrapper function calling $f_{\cal D}$ is stored as
+a property of $f$ under an indicator named by the external type denoting
+$\cal D$.
+The wrapper function has one more argument than $f_{\cal D}$ to pass
+an evaluation dictionary.
+Note that the function specified by indicator XTERM determines
+the sequence in which certain constants and operators must be declared.
+
+\subsection{The {\tt teini}-Module}
+
+The procedure DTEVIN initializes the data type for evaluation.
+For each external type it computes a list of constants $C$ and a list of 
+operators $F$ that are evaluable. 
+The pair $(C,F)$ is stored as a property of the external type under 
+indicator DXCN.
+The order of $C$ and $F$ is crucial for the retranslation of external
+objects to terms.
+
+In addition for each type a variable of that type is stored as a
+property of that type under indicator DVS.
+
+\subsection{The {\tt tedi}-Module}
+
+In order to partially evaluate  terms that contain subterms for which no 
+interpretation  is known these non-interpretable subterms must be mapped to
+a generator (indeterminate) of the evaluation domain.
+These mappings are stored in an \emph{evaluaiton dictionary}
+\index{dictionary} 
+containing \emph{dictionary entries}.
+\index{dictionary entry}
+Each dictionary entry contains a term (DCETERM) and its interpretation
+(DCEINT).
+There is a third field in each entry (DCENAME) where a string 
+denoting the interpretation  may be stored.
+So far DCENAME  is unused.
+Dictionary entries are composed with DCECONS.
+
+A dictionary may contain entries with incomplete information in the DCEINT 
+field.
+Such dictionaries are called \emph{predictionaries}.
+The empty (pre)dictionary is EMPTYDC.
+PDCINSE inserts a new possibly incomplete entry in a (pre)dictionary and
+An incomplete entry in a predictionary can be completed with PDC2DC.
+PDCSIZE determines the size (rank) of a (pre)dictionary.
+Some applications call PDCSIZE with a 
+\emph{pseudo dictionary} that is a list of empty lists.
+
+The following access functions to dictionaries are available.
+DCIE($k$,$D$) returns the $k$-th entry in the dictioanry $D$ if
+PDCSIZE($D$) is greater than or equal to $k$.
+TDILUP returns the entry in an dictionary that contains a given term
+and TDIVAL returns returns the interpretation associated with a given
+term in a dictionary.
+
+\subsection{The {\tt teev}-Module}
+
+The module {\tt teev} exports a single function TNMEVI that normalizes
+a term \wrt\ evaluation using an innermost-evaluations-first strategy.
+
+An \emph{evaluation candidate}
+\index{evaluation candidate}
+is a subterm $t|_p$ of $t$ such that
+\begin{enumerate}
+\item $t(p)$ is an evaluable function symbol for an external sort $x$ and
+\item if $p = q.i$ for \( i \in \Nat \) then $t|_q$ is not  an 
+      evaluable function symbol for $x$.
+\end{enumerate}
+An evaluation candidate is represented by a triple ($t|_p$,$r$,$x$) 
+where $t|_p$ is a term that
+is evaluable to an object of external sort $x$ and that is referenced from
+the FIRST field of a list cell $r$ (replacement position).
+EVCONS is a constructor for evaluation candidates.
+EVCTERM returns the term, EVCRPOS returns the list cell and 
+EVCSORT returns the external sort of an evaluation candidate.
+EVCDIS displays all components of an evaluation candidate.
+
+The evaluation algorithm computes all innermost evaluation candidates
+(TRPIEC) that have not been normalized yet.
+For these candidates a common evaluation dictionary  is computed
+(EVCLGD/TEGDIC) \wrt\ which the candidates are interpreted and
+retranslated (EVCLEV).
+This is repeated until all evaluation candidates are normalized.
+Marking a normalized evaluation candidate is done by binding it to a 
+fresh variable that is replaced into the replacement position of the 
+evaluation candidate.
+This is dome at the end of EVCLEV).
+These marks are removed during the computation of the dictionary (TEGDIC)
+and on exit from TNMEVI.
+
+TNMEVI normalizes its argument \wrt\ the built in evaluation domains provided
+no function symbol is evaluable for two different evaluation domains.
+
+\subsection{Evaluation Domains}
+
+The following evaluation domains are prepared in th ReDuX system.
+
+\subsubsection{Free Groups}
+
+Free groups are represented by list of integers where positive numbers
+represent generators and negative numbers represent inverted generators.
+The function computing the $i$-th generator is FGFG. 
+The function computing a term from a group object is TFFGE.
+The following operations must be declared in the same order as in the
+following table.
+
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+operator & arity & interpretation \\
+\hline
+neutral element & 0 & FGIDNT \\
+group operation & 2 & FGPROD \\
+inversion & 1 & FGINV\\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Abelian Groups}
+
+Abelian groups with $k$ generators are represented as lists of integers
+of length $k$.
+The $i$-th entry denotes the multiplicity of the $i$-th generator in a
+group element.
+A negative value denotes the respective positive multiplicity of the 
+inverted generator.
+The function computing the $i$-th generator is AGFG. 
+The function computing a term from a group object is TFAGE.
+The following operations must be declared in the same order as in the
+following table.
+
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+operator & arity & interpretation & remark \\
+\hline
+neutral element & 0 & AGZERO \\
+group operation & 2 & AGSUM \\
+inversion & 1 & AGNEG\\
+difference & 2 & AGDIF & optional \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Commutative Rings}
+
+Commutative rings with $k$ generators are represented as $k$-variate
+polynomials over the integers.
+The function computing the $i$-th generator (indeterminate) is IPRFG. 
+The function computing a term from a group object is TFIPRE.
+The following operations must be declared in the same order as in the
+following table.
+
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+operator & arity & interpretation \\
+\hline
+zero & 0 & PRZERO \\
+one & 0 & IPRONE \\
+addition & 2 & IPRSUM \\
+multiplication & 2 & IPRPRO \\
+additive inversion & 1 & IPRNEG \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Boolean Rings}
+
+Boolean rings with $k$ generators  are represented as $k$-variate
+Boolean polynomials.
+The function computing the $i$-th generator (indeterminate) is IPRFG. 
+The function computing a term from a group object is TFIPRE.
+The following operations must be declared in the same order as in the
+following table.
+
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+operator & arity & interpretation & remark \\
+\hline
+zero & 0 & PRZERO \\
+one & 0 & IPRONE \\
+addition & 2 & BPRSUM \\
+multiplication & 2 & BPRPRO \\
+additive inversion & 1 & BPRNEG & optional\\
+\hline
+\end{tabular}
+\end{center}
+
+An alternative implementation of Boolean rings is provided by the
+FDD-package form J"org Bullmann.
+It is accessible through the following functions.
+The function computing the $i$-th generator  is FDDFG. 
+The function computing a term from a group object is TFFDDE.
+The following operations must be declared in the same order as in the
+following table.
+
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+operator & arity & interpretation & remark \\
+\hline
+zero & 0 & FDDZER \\
+one & 0 & FDDONE \\
+addition & 2 & FDDXOR \\
+multiplication & 2 & FDDAND \\
+additive inversion & 1 & FDDNEG & optional\\
+not & 1 & FDDNOT & optional \\
+or & 2 & FDDOR & optional \\
+\hline
+\end{tabular}
+\end{center}

@@ -1,0 +1,58 @@
+DATATYPE R5X;
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1, 5: KOEF;
+	I, X, Y: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+NOTATION
+	+, *, ~, |, M, #, @: FUNCTION;
+THEORY
+	+, *, |, #, @: AC;
+AXIOM
+ [1] +(0,a) == a;
+ [2] *(0,a) == 0;
+ [3] *(1,a) == a;
+ [4] ~(0) == 0;
+ [5] ~(~(a)) == a;
+ [6] +(a,~(a)) == 0;
+ [7] ~(+(a,b)) == +(~(a),~(b));
+ [8] *(a,~(b)) == ~(*(a,b));
+ [9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+
+[10] +(5,+(5,+(5,+(5,5)))) == 1;
+[11] ~(5) == +(~(1),+(5,+(5,+(5,5))));
+[12] ~(*(a,5)) == +(*(a,5),+(*(a,5),+(*(a,5),+(*(a,5),~(a)))));
+[13] +(+(*(a,5),+(*(a,5),+(*(a,5),*(a,5)))),*(a,5)) == a;
+
+[14] |(x,I) == x;
+
+[15] M(0,x) == O;
+[16] #(M(a,x),M(b,x)) == M(+(a,b),x);
+[17] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+
+[18] #(p,O) == p;
+[19] @(p,O) == O;
+[20] @(p,M(1,I)) == p;
+[21] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[22] #(@(p,M(a,x)),@(p,M(b,x))) == @(p,M(+(a,b),x));
+[23] @(p,M(+(1,b),I)) == #(p,@(p,M(b,I)));
+[24] #(p,@(p,M(~(1),I))) == O;
+[25] #(p,@(p,M(+(~(1),a),I))) == @(p,M(a,I));
+
+[26] M(+(*(a,5),+(*(a,5),*(a,5))),X) == M(a,Y);
+[27] M(+(*(a,5),b),X) == #(M(+(~(a),+(~(a),~(a))),Y),M(+(a,+(a,b)),X));
+[28] M(+(a,+(a,+(a,b))),X) == #(M(+(a,+(a,+(a,+(a,a)))),Y),M(b,X));
+END

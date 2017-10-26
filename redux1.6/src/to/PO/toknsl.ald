@@ -1,0 +1,299 @@
+[Project:  Term Orderings
+   module name        : TOKNSL -- Term Ordering a la
+                        Kapur, Narendran and  Sivakumar with 
+                        lexicographical status
+   modulespecification: Algorithms to decide the ordering between two
+                        terms according to an extended path ordering
+                        as described in: Kapur, Narendran and Sivakumar:
+                        "A path Ordering for Proving Termination of TRS"
+                        This version handles operators with l-r and 
+                        r-l status.
+                        Uses indirect recursion.
+   programmer         : Gerhard Schwaerzler/Reinhard Buendgen
+   language           : aldes                                           
+   last change        : 16.02.89
+                        $Date: 1995/04/10 14:23:02 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.15 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp
+                        ic/icd1
+                        to/tosqol
+]                                                                      
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+     const                                
+     [Result type of po.]        
+     INCOMP =0,                 
+     GREATEQ =1,                
+     [Status]
+     NONE   =0,
+     LRST   =1,
+     RLST   =2.
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+
+                    C^:=CPPO(C')
+[Critical pair, path ordering Kapur, Narendran, Sivakumar.
+C'= (s, t)  is a critical pair. Then C^ = 'S' if s < t, C^ = 'R' if
+t < s, C^ = '=' if s and t are equivalent and C^ = 'H' if s and t are
+incomparable, according to the path ordering.]
+
+(1)  [Initialize.] CPDIS(C'; s, t, N1, N2, DUM).
+     [{CLOUT("CPPO: "); TWRT(s); CWRITE(' '); TWRT(t); WRITE}.]
+(2)  [Compare TERMS.] if EQUIT(s,t) then C^:='='
+     else if TPO(s,t)=GREATEQ then C^ := 'S'
+     else if TPO(t,s)=GREATEQ then C^ := 'R'
+     else C^ := 'H' ||
+
+[---------------------------------------------------------------------.
+     Section 2.                       
+     Algorithms for internal use: Ordering algorithms.            
+
+     Def: a path p is a list of terms p=(t0, t1, .., tn) with ti-1 being
+          an immediate subterm of ti. If t0 is a variable or a constant,
+          p is a full path in tn.  
+          Note: paths are represented upside-down in this way.
+-----------------------------------------------------------------------]
+
+
+                    p:=PATHL(T,P)                                 
+[Path list.                                                             
+T is a list of terms, P the path to these terms i.e. T is the         
+subtermlist of the first element of P. Then p is the list              
+of paths corresponding to the terms in T. The call p=PATHL(T, ())    
+with t a multiset of terms will give the corresponding multiset of      
+paths.]                                                                
+(1)  [Initialize.]  p:=(); L:=T.
+(2)  [Iteration.]  while  L # () do 
+     { [Initialize.]  ADV(L; l,L); 
+       if TKIND(l) = DOS then C:=OARGLST(l) else C:=();
+       if C = () then p:=COMP(COMP(l, P), p)                           
+       else p:=CONC(PATHL(C, COMP(l, P)), p)
+     } ||                                                              
+
+                    PLDIFF(P,Q; P',Q')
+[Path list difference.
+P and Q are path lists. Then P' is P-Q and Q' is Q-P.]
+(1)  [Initialize.]  P':=(); Q':=COPY(Q); p:=P.
+(2)  [Iterate.]  while  p # () do 
+     { p1:=FIRST(p); q:=Q'; while q # () /\ ~EQUIP(FIRST(q),p1,(),()) do 
+       { q0:=q; q:=RED(q) };
+       if q=() then 
+       { [Insert FIRST(p).] if P'=() 
+         then { P':=COMP(p1, ()); P'0:=P' }
+         else { RED(P'0):=COMP(p1, ()); P'0:=RED(P'0) } }
+       else { [Remove FIRST(q).] if q=Q' 
+              then { [Remove head.] Q':=RED(Q'); q:=Q' }
+              else { q:=RED(q); RED(q0):=q };
+            }; p:=RED(p)
+     }||
+
+                    TLDIFF(P,Q; P',Q')                           
+[Term list difference.                                                 
+P and Q are term lists. Then P' is P-Q and Q' is Q-P.]                  
+(1)  [Initialize.]  P':=(); Q':=COPY(Q); p:=P.
+(2)  [Iterate.]  while  p # () do 
+     { p1:=FIRST(p); q:=Q'; 
+       while q # () /\ ~TEQU(FIRST(q), p1) do { q0:=q; q:=RED(q) };
+       if q=() then { [Insert FIRST(p).] if P'=() 
+         then { P':=COMP(p1, ()); P'0:=P' }                   
+         else { RED(P'0):=COMP(p1, ()); P'0:=RED(P'0) } }              
+       else { [Remove FIRST(q).] if q=Q' 
+              then { [Remove head.] Q':=RED(Q'); q:=Q' }
+              else { q:=RED(q); RED(q0):=q };
+            }; p:=RED(p)                                                       
+     }||                                                               
+
+
+                    b:=EQUIT(S,T)                               
+[Equivalent terms.                                                     
+S and T are terms. Then b=TRUE if S and T have an equivalent operator,
+according to the symbol quasi-ordering, the same number of operands, and
+if there is a permutation of the subterms of T, such that each subterm  
+of S is equivalent to the corresponding subterm of T, otherwise         
+b=FALSE.]                                                            
+
+(1)  [Trivial cases, variable.] if S = T then { b:=TRUE; return }
+     else if TKIND(S)=DVS \/ TKIND(T)=DVS then { b:=FALSE; return };
+     if  OPQUO(S,T) # GREATEQ \/ OPQUO(T,S) # GREATEQ then 
+     { b:=FALSE; return };
+     if TKIND(S) = DXT \/ TKIND(T) = DXT then { b:=FALSE; return }.
+(2)  [Recursion.]  s:=OARGLST(S); t:=COPY(OARGLST(T)); b:=TRUE;
+     while  s # () /\ t # () /\ b do 
+     { S~:=FIRST(s); T~:=t; T~1:=t;
+       [Find equivalent term in T.]                                    
+       while  T~ # () /\ ~EQUIT(S~, FIRST(T~)) do 
+       { T~1:=T~; T~:=RED(T~) };
+       if  T~ # () then                                                
+         if T~ = T~1 then t:=RED(t) else RED(T~1):=RED(T~)               
+       else b:=FALSE;
+       s:=RED(s)                                                       
+     }; if s # () \/ t # () then b:=FALSE ||                         
+ 
+ 
+                    b:=EQUIP(P,Q,PNIL,QNIL)
+[Equivalent paths.                                                     
+P and Q are PATHS, PNIL, QNIL are the ends of the subpaths under        
+consideration. Then b=TRUE if P and Q are of the same depth and       
+each term of P is eqivalent to the corresponding term of Q, otherwise   
+b=FALSE.]                                                            
+(1)  [Initialize.]  P':=P; Q':=Q.
+(2)  [Iteration.]                                                      
+     while P' # PNIL /\ Q' # QNIL /\ EQUIT(FIRST(P'), FIRST(Q')) do 
+     { P':=RED(P'); Q':=RED(Q') };
+     if P' = PNIL /\ Q' = QNIL then b:=TRUE else b:=FALSE  ||          
+
+
+                    b*:=TPO(P,Q)
+[Terms, path ordering. 
+P and Q are terms.
+Then b* = GREATEQ if P >= Q w.r.t. the path ordering presented by
+Kapur, Narendran and Sivakumar. ]
+
+(1)  [Initialize.] if POTRC then
+     { CLOUT("Comparing terms: "); 
+       TDIWRT(P,(); N); CWRITE(' '); TDIWRT(Q,N; N); WRITE 
+     }.
+(2)  [Trivial cases.] if P = Q then { b*:=GREATEQ; return };
+     [Variable P # Q.] k1:=TKIND(P); 
+     if k1 = DVS then { b*:=INCOMP; return };
+     [Variable Q.]  k2:=TKIND(Q); if k2 = DVS then 
+     { if VINT(Q, P) then b*:=GREATEQ else b*:=INCOMP; return }.
+(3)  [Recursion.] if OPQUO(P,Q) = GREATEQ then 
+     { if k2 = DOS then Q':=OARGLST(Q) else Q':=(); 
+       if OPQUO(Q,P) = GREATEQ then 
+       { [Equivalent top operators.] 
+         [if P and Q have l-r status, i.e they are non-atomic.]
+         if TSSTAT(Q) = LRST /\ TSSTAT(P) = LRST then 
+         { [Compare lexicographically.] P':=OARGLST(P); b':=GREATEQ; 
+           b*:=INCOMP; while P' # () /\ Q' # () /\ b' = GREATEQ do
+           { ADV(P'; p,P'); ADV(Q'; q,Q'); b:=TPO(p,q); b':=TPO(q,p);
+             if b = INCOMP then return;
+           }; while Q' # () do
+           { ADV(Q'; q,Q'); if TPO(P,q) = GREATEQ then
+             { if TPO(q,P) = GREATEQ then return }
+             else return
+           }; b*:=GREATEQ; return
+         };
+         [if P and Q have r-l status, i.e they are non-atomic.]
+         if TSSTAT(Q) = RLST /\ TSSTAT(P) = RLST then 
+         { [Compare lexicographically.]
+           P':= OARGLST(P); P1:=CINV(P'); Q1:=CINV(Q');
+           b':=GREATEQ; b*:=INCOMP; 
+           while P1 # () /\ Q1 # () /\ b' = GREATEQ do
+           { ADV(P1; p,P1); ADV(Q1; q,Q1); b:=TPO(p,q); b':=TPO(q,p);
+             if b = INCOMP then return;
+           }; while Q1 # () do
+           { ADV(Q1; q,Q1); if TPO(P,q) = GREATEQ then
+             { if TPO(q,P) = GREATEQ then return }
+             else return
+           }; b*:=GREATEQ; return
+         } else [no l-r or r-l status] 
+         if k1 = DOS then P':=OARGLST(P) else P':=(); 
+         TLDIFF(P',Q'; P',Q');
+         PLDIFF(PATHL(P',()),PATHL(Q',()); P'',Q''); b*:=PSPO(P'',Q'') 
+       } else [Operator of P greater operator of Q.] 
+         { while  Q' # () /\ TPO(P,FIRST(Q')) = GREATEQ do 
+             if TPO(FIRST(Q'),P) # GREATEQ then Q':=RED(Q')
+                                           else { b*:=INCOMP; return };
+           if Q' = () then b*:=GREATEQ else b*:=INCOMP
+     }   } else 
+           { PLDIFF(PATHL(LIST1(P),()),PATHL(LIST1(Q),()); P'',Q'');
+                  b*:=PSPO(P'',Q'') 
+           } ||
+
+                    b*:=PPO(P,Q,PNIL,QNIL) 
+[Paths, path ordering.
+P and Q are paths, PNIL is the end of a subpath of P and QNIL is the end 
+of a subpath of QNIL. RED(PNIL) is the left-context of P and RED(QNIL) 
+is the right context of Q.
+Then b* = GREATEQ if P >= Q w.r.t. the path ordering presented by
+Kapur, Narendran and Sivakumar. ]
+
+(1)  [Initialize.] Q':=Q; b*:=GREATEQ; if POTRC then 
+     { CLOUT("PATHS: "); PDIWRT(P,PNIL,(); N); CWRITE(' '); 
+       PDIWRT(Q,QNIL,N; N); WRITE
+     }.
+(2)  [Trivial case.]  if P = PNIL /\ Q = QNIL then return;
+     if P = PNIL then { b*:=INCOMP; return };
+     if EQUIP(P,Q,PNIL,QNIL) then return.
+(3)  [For each term in Q find a greater term in P.]
+     while  Q' # QNIL /\ b* = GREATEQ do 
+     { P':=P; Q'':=FIRST(Q'); b*:=INCOMP;
+       [Find a term in P, greater than the first term of Q'.]
+       while  P' # PNIL /\ b* = INCOMP do 
+       { P'':=FIRST(P'); if OPQUO(P'',Q'') = GREATEQ then 
+         { if OPQUO(Q'',P'') = GREATEQ then 
+           { if (TSSTAT(P'')=LRST /\ TSSTAT(Q'')=LRST) \/
+                (TSSTAT(P'')=RLST /\ TSSTAT(Q'')=RLST) then
+               [both leading terms have l-r or r-l status]
+               if TPO(P'',Q'') = GREATEQ then
+                 if TPO(Q'',P'') = GREATEQ then
+                   b*:=PPO(RED(P'),RED(Q'),(),()) else b*:=GREATEQ
+                 else b*:=INCOMP
+               else [not both leading terms have l-r or r-l status]
+                 if EQUIP(P,Q,P',Q') = TRUE then
+                 { if TPO(P'',Q'') = GREATEQ then
+                      if TPO(Q'',P'') # GREATEQ then b*:=GREATEQ
+                      else if PPO(RED(P'),RED(Q'),PNIL,QNIL) = GREATEQ
+                           then  b*:=GREATEQ
+
+                 } else if PPO(P,Q,P',Q') = GREATEQ then b*:=GREATEQ;
+           } else b*:=GREATEQ
+         }; P':=RED(P')
+       }; Q':=RED(Q') 
+     } ||
+
+                    b*:=PSPO(P,Q)
+[Set of paths, path ordering.
+P and Q are sets of paths.
+Then b* = GREATEQ if P >= Q w.r.t. the path ordering presented by
+Kapur, Narendran and Sivakumar. ]
+ 
+(1)  [Initialize.] b*:=GREATEQ; Q':=Q; if POTRC then 
+     {CLOUT("PSETS: ");PLWRT(P);WRITE;CLOUT("       ");PLWRT(Q);WRITE}.
+(2)  [Trivial case.]  if P = Q then { b*:=GREATEQ; return };
+     if P=() then { b*:=INCOMP; return }.
+(3)  [Recursion. Search path in Q' with no greater path in P'.]
+     while  Q' # () /\ b* = GREATEQ do 
+     { P':=P; b*:=INCOMP; [Search path in P, that is GREATEQ FIRST(Q').]
+       if TKIND(FIRST(FIRST(Q')))=DVS then 
+       { [Q' ends with variable.] while  P' # () /\ b* = INCOMP do 
+         { if TKIND(FIRST(FIRST(P'))) = DVS 
+              /\ FIRST(FIRST(Q')) = FIRST(FIRST(P')) then
+                 b*:=PPO(RED(FIRST(P')),RED(FIRST(Q')), (),());
+            P':=RED(P')
+        } } else 
+        { [Q' ends with constant.] while  P' # () /\ b* = INCOMP do 
+          { b*:=PPO(FIRST(P'),FIRST(Q'),(),()); P':=RED(P')
+        } };  Q':=RED(Q')
+      } ||
+
+[---------------------------------------------------------------------
+      Output and trace routines
+---------------------------------------------------------------------]
+
+ 
+                    PDIWRT(P,PNIL,N; N*)
+[Path writewith dictionary.
+P is a path, that will be written. N is a variable dictionar that will
+be updated to N*.]
+(1)  [Initialize.] L:=P; CWRITE('('); N*:=N.
+(2)  [Iterate.] if  L # PNIL then { ADV(L; l,L); TDIWRT(l,N*; N*) };
+     while  L # PNIL do { ADV(L; l,L);  CWRITE('.'); TDIWRT(l,N*; N*) }.
+(3)  [Finish.]  CWRITE(')')||
+                                                                       
+                                                                       
+                    PLWRT(p)
+[Path list, write.
+p is a path-list, that will be written.]
+(1)  [Initialize.] L:=p; CWRITE('(').
+(2)  [Iterate.] if  L # () then { ADV(L; l,L); PDIWRT(l, (),(); N) };
+     while  L # () do { ADV(L; l,L); CLOUT(", "); PDIWRT(l, (),N; N); }.
+(3)  [Finish.]  CWRITE(')')||

@@ -1,0 +1,14 @@
+Haeufige und seltsame Bugs:
+===========================
+
+* Der ALDES-compiler liest nur die ersten 72 Spalten jeder Zeile.
+  Der Rest wird ignoriert.
+
+* Ausgabeparameter vergessen:
+   ( z.B. ADV2(A; b,c) statt ADV2(A; b,c,A') )
+   Wirkung: Listenspeicher total durcheinander,
+            Hinzugefuegte Traces koennen Fehler manchmal beheben
+
+* liblocal.a darf nur 1 (in Worten EIN) Hauptprogramm enthalten, da sonst
+  nicht vorhergesagt werden kann welches der Hauptprogramme vom Linker 
+  erzeugt wird. (Um liblocal.a manuell zu aendern siehe "man ar").

@@ -1,0 +1,13 @@
+      safe DAK.  [Indicator for algorithm poperties.]
+
+                    ALGTST(A)
+[Algorithm existence test.
+A is symbol denoting an algorithm.
+A test is performed whether this algorithm is known to the system.
+If not the program is exited.]
+     safe k.
+(1)  [Test] k:=GET(A,DAK); if k = () then
+     {   STROUT("*** Warning: algorithm ");
+         SWRITE(A);
+         STOUTL(" is unknown!"); HALT
+     } ||

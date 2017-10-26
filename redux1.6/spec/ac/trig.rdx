@@ -1,0 +1,33 @@
+DATATYPE TRIG;
+SORT
+	KOEF;
+CONST
+	0, 1: KOEF;
+VAR
+	a, b, c, d, e: KOEF;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	sin: KOEF -> KOEF;
+	cos: KOEF -> KOEF;
+NOTATION
+	+, *, ~, sin, cos: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+[1] +(0,a) == a;
+[2] *(0,a) == 0;
+[3] *(1,a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] +(a,~(a)) == 0;
+[7] ~(+(a,b)) == +(~(a),~(b));
+[8] *(a,~(b)) == ~(*(a,b));
+[9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+[10] cos(~(a)) == cos(a);
+[11] sin(~(a)) == ~(sin(a));
+[12] cos(+(a,b)) == +(*(cos(a),cos(b)),~(*(sin(a),sin(b))));
+[13] sin(+(a,b)) == +(*(sin(a),cos(b)),*(cos(a),sin(b)));
+[14] cos(0) == 1;
+END

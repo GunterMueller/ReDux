@@ -1,0 +1,21 @@
+DATATYPE T;
+SORT
+	T;
+CONST
+	A, B, C: T;
+VAR
+	x, W, X, Y, Z, X1, Y1, Z1, X2, Y2, Z2: T;
+OPERATOR
+	G: T -> T;
+	+: T, T -> T;
+	F: T, T -> T;
+NOTATION
+	G, +, F: FUNCTION;
+THEORY
+	+, F: AC;
+AXIOM
+[1] +(A,B)==C;
+[2] +(X,X)==X;
+[3] G(+(X,Y))==+(G(X),G(Y));
+END
+; nicht Axiomteil aus JSC 1987/3 A.Fortenbacher

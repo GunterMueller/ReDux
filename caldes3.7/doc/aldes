@@ -1,0 +1,38 @@
+A description of the ALDES language can be found in
+[LC91] R. Loos & G. Collins:
+    "Revised Report on the Algorithm Description Language ALDES"
+     Wilhelm-Schickard-Institut fuer Informatik,
+     D-7076 Tuebingen, Germany, WSI-Report 92-14, 1992
+
+An older version of ALDES is  described in
+[Loo81] R. Loos:
+     "The Algorithm Description Language ALDES (Report)"
+     ACM SIGSAM Bull. 10 (1), pp 15-39, 1976
+
+A further Publication on ALDES that discusses some conventions is
+[Loo91] R. Loos:
+     "Publication ALDES"
+      Wilhelm-Schickard-Institut fuer Informatik,
+      D-7076 Tuebingen, Germany, WSI-Report 91-4, 1991
+
+A description of the ALDES C-backend
+[BW93]  R. Buendgen & J. Walter: 
+     "A C-backend for the ALDES Compiler"
+      Wilhelm-Schickard-Institut fuer Informatik,
+      D-7076 Tuebingen, Germany, WSI-Report 93-3, 1993
+
+      This is the only piece of documentation concerning ALDES, I have the 
+      sources of. Besides describing the backend (ALDES is first translated to 
+      Elementary ALDES which is in turn translated to C) it contains some 
+      valuable information on parameter passing and a list of global system 
+      variables.
+   
+
+ALDES pitfalls
+==============
+1)  The ALDES compiler reads only the 72 first columns of each line.
+    The rest of the line is skipped.
+2)  All global variables declared by a programmer that occur in a program
+    must be locally declared in the main program.
+3)  Each main program must begin with some variant of an initialization
+    procedure BEGINi or a procedure that calls a BEGINi almost immediately.

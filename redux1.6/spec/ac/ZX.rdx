@@ -1,0 +1,57 @@
+DATATYPE ZX;
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1: KOEF;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, c, e: KOEF;
+	x, y, z: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	S: KOEF -> KOEF;
+	P: KOEF -> KOEF;
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+NOTATION
+	S, P, +, *, ~, |, M, #, @: FUNCTION;
+THEORY
+	+, *, |, #, @: AC;
+AXIOM
+[1] +(0,a) == a;
+[2] *(0,a) == 0;
+[3] *(1,a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] +(a,~(a)) == 0;
+[7] ~(+(a,b)) == +(~(a),~(b));
+[8] *(a,~(b)) == ~(*(a,b));
+[9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+[10] S(0) == 1;
+[11] S(P(a)) == a;
+[12] P(S(a)) == a;
+[13] +(S(a),b) == S(+(a,b));
+[14] +(P(a),b) == P(+(a,b));
+
+[15] |(x,I) == x;
+
+[16] M(0,x) == O;
+[17] #(M(a,x),M(b,x)) == M(+(a,b),x);
+[18] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+
+[19] #(p,O) == p;
+[20] @(p,O) == O;
+[21] @(p,M(1,I)) == p;
+[22] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[23] #(@(p,M(a,x)),@(p,M(b,x))) == @(p,M(+(a,b),x));
+[24] @(p,M(+(1,b),I)) == #(p,@(p,M(b,I)));
+[25] #(p,@(p,M(~(1),I))) == O;
+[26] #(p,@(p,M(+(~(1),a),I))) == @(p,M(a,I));
+END
+; This file is ZX.typ 

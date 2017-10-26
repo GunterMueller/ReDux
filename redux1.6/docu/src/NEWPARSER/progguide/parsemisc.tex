@@ -1,0 +1,149 @@
+\subsection{Miscellaneous}
+
+Some special programming techniques which may not be obvious at a
+first glance will be explained in the following.
+
+\subsubsection{Different \redux\ Parsers Using One Common YACC Parser}
+The new \redux\ parser provides the user with a rich collection of
+parsers for many purposes. It seemed more practical, however, to
+integrate these parser into one YACC parser in order to keep executable
+program files at a reasonable size.
+
+This was achieved by including an additional grammar production rule at top
+of the grammatical description:
+\begin{verbatim}
+start: STERM term
+     | SAXIOM axiom
+     | SDATATYPE datatype
+     | SOPERATOR operator
+     | SOPSET opset
+     | SAXSET axset
+     | SCONSTSET constset
+     | SVARSET varset
+     | SOPRELOPLIST opreloplist
+     ;
+\end{verbatim}
+In this production, {\tt start} is the starting nonterminal for all
+parser activities. {\tt term}, {\tt axiom}, etc. are nonterminals
+indicating entry points to the different parsers. The pseudo-terminals
+{\tt STERM}, {\tt SAXIOM}, etc. are provided by the scanner when it
+is called the first time. It then returns a suitable token without
+reading any input. Which token it returns depends on which parser
+interface routine is used to start the YACC parser. Passing of
+start pseudo-tokens from ReDuX interface routines of file {\tt objparse.ald}
+to the LEX-scanner is done by means of the global variable
+{\tt STSYMB}.
+
+After having produced the pseudo-token, the lexical analyzer returns
+to normal operating mode and scans the input file before providing
+the parser with any further tokens.
+
+Additional information is available in the comments of the files {\tt scan.l}
+and {\tt parse.y}.
+
+\subsubsection{ALDES Memory Management within YACC Parser}
+
+Though most of the \ALDES\ source code of the parser is excluded
+from the C YACC parser, a small fraction of \ALDES\ code remains part
+of the C parser file. To prevent the \ALDES\ memory management from
+corrupting the data structures under construction, it is
+unavoidable to indicate to the  \ALDES\ system which parts of memory are
+used for which structures.
+
+As the garbage collector scans the SPACE array for those cells
+which are reachable from the current \ALDES\ stack, it is necessary to
+push all unsafe variables onto this stack.
+
+This is done by the C function {\tt newo}:
+\begin{verbatim}
+AOBJ newo(AOBJ o, int f)
+{
+  if(f==0) IUP(1); else IDN(f-1);        /* INDEX=INDEX-f+1; */
+  STACK[INDEX] = o;
+
+  return o;
+}
+\end{verbatim}
+This function pushes the object {\tt o} onto the \ALDES\ stack, posterior to
+having freed {\tt f} cells on top of the stack.
+
+Adapting the parser to one's needs has to respect these facts.
+Roughly speaking, it is correct to free $n$ cells for a production
+rule with $n$ nonterminals on its right hand side\footnote{Note, that
+only those nonterminals, whose semantical values represent lists
+have to be considered. Identifiers and extended identifiers
+do not have to be saved on the stack.}.
+
+User extensions which lead to stack errors are usually reported by
+the parser during run-time.
+
+\subsubsection{Extended Identifiers and LEX Environments}
+\label{environments}
+
+Which characters are allowed for extended identifiers depends
+on the section\footnote{See \NPUG\ for a description of sections.}
+they are used in.
+All characters that are part of a reserved lexeme in a section should
+not be accessible without escape character. This can be controlled
+by setting up environments in the LEX scanner.
+
+The character classes for extended identifiers and different environments
+are declared in {\tt scan.l}. These character classes have the following
+meaning:
+\begin{description}
+\item[EXTENSION:] Those special characters that are allowed in all sections
+ without preceding escape character.
+\item[ALL:] This is the complete set of special characters.
+\item[SPECIAL:] In this character class all characters of EXTENSION are
+ contained as well as all characters in combination with a preceding
+ escape character.
+\end{description}
+
+User extensions of the scanner which change any of these character classes
+should be performed with greatest care. It is at least necessary to adapt
+{\tt type.ald}.
+
+
+\subsubsection{External Object Parsers in Combination with LEX Scanner}
+\label{extparse}
+In order to parse external objects, the scanner has to switch between
+normal operation and external object parsing accordingly.
+As LEX scanners maintain an internal buffer of input characters and
+perform look-ahead, whereas external parsers directly access ALDES I/O-routines,
+the situation frequently occurs that the LEX scanner has alread read some
+characters into its internal buffer, which the external parser
+assumes to see next when calling low-level I/O-routines.
+Thus these look-ahead characters have to be pushed back to the low-level
+input stream before calling an external parser.
+
+Unfortunately, LEX does not provide a facility to let the user know the number of
+look-ahead characters currently in use. Therefore a look-ahead counter
+is maintained explicitly within the LEX scanner.\footnote{The variable {\tt lac} in
+file {\tt scan.l} is the look-ahead counter.}
+
+The look-ahead counter is incremented whenever a new character is read from
+the ALDES input stream (in function {\tt YY\_INPUT})
+and decreased appropriately whenever a correct lexeme was recognised.
+
+To simplify handling of the look-ahead counter and to avoid faulty
+settings of this counter, the macro {\tt RETALAC}
+(return and adapt look-ahead counter) should be used instead of an ordinary
+return instruction in the scanner. How this macro is employed will be explained
+now.
+
+When writing LEX scanners, it is usually sufficient to simply return
+the token of the scanned lexeme (after putting the semantic value for this
+token into the variable {\tt yylval}).
+Here, such a practice would invariably lead to a wrong setting of the
+look-ahead counter, thus making external object parsing impossible.
+Therefore, instead of {\tt return(tok)} the programmer should use
+{\tt RETALAC(tok)} whenever the length of the lexeme is known to the
+LEX scanner. This holds as long as no calls to {\tt input} or {\tt YYINPT}
+are performed within the C-code associated with a lexeme (action part of a
+rule).
+Whenever additional calls to {\tt input} or {\tt YYINPT} occur in the
+action part (e.g. symbol table look-up), adaption of the look-ahead counter
+has to be made manually. This adaption can easily be achieved be inserting
+an instruction like {\tt lac -= lexeme\_length} before returning the
+corresponding token, where {\tt lexeme\_length} is the length of the complete
+lexeme just scanned.

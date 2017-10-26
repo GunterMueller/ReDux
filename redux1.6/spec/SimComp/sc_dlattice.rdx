@@ -1,0 +1,31 @@
+DATATYPE DLATTICE;
+SORT
+	EXTERN, LTTC;
+VAR
+	x, y, z: LTTC;
+	X, Y, Z: EXTERN;
+OPERATOR
+	U: LTTC, LTTC -> LTTC;
+	^: LTTC, LTTC -> LTTC;
+	\/: EXTERN, EXTERN -> EXTERN;
+	/\: EXTERN, EXTERN -> EXTERN;
+	": EXTERN -> LTTC;
+NOTATION
+	U, ^, \/, /\: INFIX;
+	": ROUNDFIX ";
+THEORY
+	U, ^, \/, /\: AC;
+AXIOM
+ [1] (x ^ x) == x;
+ [2] (x U x) == x;
+ [3] (x ^ (x U y)) == x;
+ [4] (x U (y ^ z)) == ((x U y) ^ (x U z));
+
+ [5] (X /\ X) == X;
+ [6] (X \/ X) == X;
+ [7] (X /\ (X \/ Y)) == X;
+ [8] (X \/ (Y /\ Z)) == ((X \/ Y) /\ (X \/ Z));
+
+ [9] (" X " ^ " Y ") == " (X /\ Y) ";
+[10] (" X " U " Y ") == " (X \/ Y) ";
+END

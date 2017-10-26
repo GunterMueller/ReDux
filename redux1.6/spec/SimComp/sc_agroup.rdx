@@ -1,0 +1,39 @@
+%% 
+DATATYPE XAGROUP;
+SORT
+	EXTERN, GROUP;
+CONST
+	0: EXTERN;
+VAR
+	v, x, y, z: GROUP;
+	V, X, Y, Z: EXTERN;
+OPERATOR
+	o:  -> GROUP;
+	+: GROUP, GROUP -> GROUP;
+	~: GROUP -> GROUP;
+	": EXTERN -> GROUP;
+	#: EXTERN, EXTERN -> EXTERN;
+	!: EXTERN -> EXTERN;
+NOTATION
+	~, !: FUNCTION;
+	+, #: INFIX;
+	": ROUNDFIX ";
+THEORY
+	+, #: AC;
+AXIOM
+   [1] (o + x) == x;
+   [2] ~(o) == o;
+   [3] ~(~(x)) == x;
+   [4] (~(x) + x) == o;
+   [5] ~((x + y)) == (~(x) + ~(y));
+
+   [6] (0 # X) == X;
+   [7] !(0) == 0;
+   [8] !(!(X)) == X;
+   [9] (!(X) # X) == 0;
+  [10] !((X # Y)) == (!(X) # !(Y));
+
+  [11] o == " 0 ";
+  [12] ~(" X ") == " !(X) ";
+  [13] (" X " + " Y ") == " (X # Y) ";
+END

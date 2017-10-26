@@ -1,0 +1,127 @@
+[Project: Term Orderings
+   module name        : TOPITI -- Term Ordering build Polynomial
+                        Interpretation from Terms interactiv.
+   modulespecification: Algorithms to build polynomial interpretation
+                        from terms.
+   programmer         : Micheal Joswig / Werner Lauterbach
+   language           : aldes
+   last change        : 19.08.93
+                        $Date: 1994/12/21 20:55:43 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   bugs               : none known
+   modules needed     : 
+]
+
+[ #include "tp.h" ]
+[ #include "to.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------.
+   Section 1
+   Algorithms for export
+-----------------------------------------------------------------------]
+
+                    ARIPDI(DT,n)
+[Add ranked polynomials interactively to data type.
+DT is the data type and n an integer denoting the n-th polynomial
+ordering. Property list entry unter indicator DIS will be introduced
+for constants and operators if not already there. [modified by WL]]
+(1)  [User info and display.]
+     STOUTL("Add polynomials interactively to data type.");
+     DTDIS(DT; DUM1,C,DUM2,O,DUM3).
+(2)  [Add ranked polynomials to all constants.]
+     while C # () do {
+        ADV(C; c,C); if GETPI(c,n)=() then PUTPI(c,n,OPINRD(c,n))
+     }.
+(3)  [Add ranked polynomials to all operators.]
+     while O # () do {
+        ADV(O; o,O); if GETPI(o,n)=() then PUTPI(o,n,OPINRD(o,n))
+     } ||
+
+                    ARIPTI(T,m)
+[Add ranked polynomials interactively to term.
+T ia a term and m an integer denoting the m-th polynomial ordering
+Property list entry DIS will be introduced for occurring constants
+and operators if not already there. [modified by WL]]
+(1)  [Init.] T':=T.
+(2)  [No polynomial for empty term, otherwise display.]
+     if T' = () then return
+     else k:=TKIND(T'). 
+(3)  [Constant.] if k = DCS then 
+     { if GETPI(T',m)=() then PUTPI(c,m,OPINRD(T',m)); return }.
+(4)  [Variable.] if k = DVS then 
+     { c:=VARBIND(T'); if c = () then return
+                                 else { T':=c; goto 2 }
+     }.
+(5)  [Operator.] if k = DOS then 
+     { if GETPI(T',m)=() then PUTPI(T',m,OPINRD(T',m));
+       c:=OARGLST(T'); while c # () do { ADV(c; a,c); ARIPTI(a,m) };
+       return
+     }.
+(6)  [Failure.] STROUT("ARIPTI failed "); TWRT(T'); return ||
+
+                    p:=RIPTIV(T,V*,i)
+[Ranked polynomial from term, variable list supplied, interactive. 
+T is term. V* is association list of variables occuring in T
+and integral polynomials or V* is empty. i is an integer.
+Then p is ranked polynomial given by substitution of associated
+polynomials of the arguments  into the associated polynomial of
+main operator using the polynomial interpretation of the i-th
+polynomial ordering. Possibly missing associated polynomials may be
+added interactively. [modified by WL]]
+(1)  [Init.] T':=TDFLAT(T); V:=V*; if V = () then V:=VRIPL(T).
+(2)  [Empty term corresponds to zero polynomial; otherwise display T'.]
+     if T' = () then {
+        STOUTL("RIPTIV called with empty term"); p:=(0,0); return
+     } else k:=TKIND(T').  
+(3)  [Constant.] if k = DCS then 
+     { p:=GETPI(T',i);
+       if p = () then { PUTPI(T',i,OPINRD(T',i)); p:=GETPI(T',i) };
+       return
+     }.
+(4)  [Variable.] if k = DVS then 
+     { c:=VARBIND(T'); if c = () then 
+        { a':=ASSOC(T',V);
+          if a' # () then p:=FIRST(a') else p:=(0,0);
+          return
+        } else { T':=c; goto 2 }
+     }.
+(5)  [No operator, failure.] if k # DOS then 
+     { STROUT("RIPTIV failed "); TWRT(T'); p:=(0,0); return }.
+(6)  [T' is operator; get polynomial arguments (recursive descent).]
+     c:=OARGLST(T'); a*:=(); r:=0; s:=0; while c # () do 
+     { ADV(c;o,c); q:=RIPTIV(o,V,i); s:=MAX(s,RANK(q));
+       a*:=COMP(q,a*); r:=r+1
+     }.
+(7)  [Assure that all argument polynomials have same order s.]
+     a:=(); while a* # () do 
+     { ADV(a*;o,a*); d:=RANK(o); q:=POLY(o);
+       while d < s do { q:=(0,q); d:=d+1 };
+       a:=COMP(q,a)
+     }.
+(8)  [Get associated polynomial of T'.]
+     p':=GETPI(T',i);
+     if p' = () then { PUTPI(T',i,OPINRD(T',i)); p':=GETPI(T',i) }.
+(9)  [Order of p' must correspond to number of arguments.]
+     if RANK(p') # r then {
+        STROUT("RIPTIV: order differs from arity of op ");
+        OPWRT(T'); p:=(0,0); return
+     }.
+(10) [Perform substitution.]
+     if r=0 then p:=p'
+     else { p*:=IPGSUB(r,POLY(p'),s,a); p:=(s,p*) } ||
+
+                    P:=PRIP2I(S,T,n)
+[Pair of ranked polynomials from two terms, interactive.
+Polynomials associated with operators and constants may be added 
+interactively. S and T are terms. n is an integers.
+Then P is a triple of rank and two integral polynomials build from
+the polynomial interpretation of the n-th polynomial ordering.
+[modified by WL]]
+(1)  [Build variable list and call RIPTIV.] V:=VRIPL2(S,T); 
+     p:=RIPTIV(S,V,n); q:=RIPTIV(T,V,n); r:=MAX(RANK(p),RANK(q));
+     s:=RANK(p); p':=POLY(p); while s<r do {p':=(0,p'); s:=s+1};
+     s:=RANK(q); q':=POLY(q); while s<r do {q':=(0,q'); s:=s+1};
+     P:=(r,p',q') ||
+

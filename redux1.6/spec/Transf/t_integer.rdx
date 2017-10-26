@@ -1,0 +1,77 @@
+%% 
+DATATYPE INTEGER;
+%% AUTHOR Reinhard Buendgen
+%% STATUS not completed
+%% DESCRIPTION integers (succ, pred), plus minus
+%%             completion adds 17) m(s(a),b) == s(m(a,b))
+%%                             18) m(p(a),b) == p(m(a,b))
+%%             the equations 19) S(n,p(a)) == p(S(n,a))
+%%                           20) P(n,s(a)) == s(P(n,a))
+%%                               M(a,S(n,b)) == P(n,m(a,b))
+%%                               S(n,s(a)) == s(S(n,a))
+%%                               P(n,p(a)) == p(P(n,a))
+%%             can be shown to be inductive consequences of 1) - 18)
+%%             The inductive proof of
+%%                           21) P(n,m(S(n,a),b)) == m(a,b)
+%%             does not terminate, however it terminates for 1)  - 20)
+%%             and finds the lemmas
+%%                           22) P(n,S(n,a)) == a
+%%                           23) P(n,p(m(S(n,a),b))) == p(m(a,b))
+SORT
+	INT, META;
+CONST
+	0: INT;
+	O: META;
+VAR
+	a, b, c, d, e: INT;
+	i, j, k, l, n: META;
+OPERATOR
+	+: INT, INT -> INT;	%%  plus
+	m: INT, INT -> INT;	%%  minus
+	s: INT -> INT;	%%  successor in Z
+	p: INT -> INT;	%%  predecessor in Z
+	': META -> META;	%%  successor in N
+	&: META, META -> META;	%%  plus in N
+	S: META, INT -> INT;	%%  S(n,a) = s^n(a)
+	P: META, INT -> INT;	%%  P(n,a) = p^n(a)
+NOTATION
+	+, m, s, p, ', S, P: FUNCTION;
+	&: INFIX;
+AXIOM
+[1] s(p(a))==a;
+[2] p(s(a))==a;
+[3] +(0,a)==a;
+[4] +(s(b),a)==s(+(b,a));
+[5] +(p(b),a)==p(+(b,a));
+[6] m(a,0)==a;
+[7] m(a,s(b))==p(m(a,b));
+[8] m(a,p(b))==s(m(a,b));
+[9] p(m(s(a),b))==m(a,b);
+[10] s(m(p(a),b))==m(a,b);
+
+[11] (O & k)    == k;
+[12] ('(k) & n) == '((k & n));
+
+[13] S(O,a) == a;
+[14] S('(n),a) == s(S(n,a));
+[15] P(O,a) == a;
+[16] P('(n),a) == p(P(n,a));
+END
+P
+
+0
+0
+0
+0
+0
+l
++ > s,p.
+m > s,p,S,P.
+& > '.
+S > s,p. 
+P > s,p.
+.
+P
+
+y
+

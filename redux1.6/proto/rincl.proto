@@ -1,0 +1,82 @@
+#!/bin/sh
+#
+# ReDuX - include
+#
+# Synopsis: rincl [<input file> [<output file>]]
+#
+# Performs non-recursive includes if an ALDES-comment of the form
+#[ #include "<identifier>.h" ] 
+#or
+#[ #include <identifier>.h ]
+# occurs at the beginning of a line in an ALDES-program.
+# The <identifier> is supposed to begin with a letter and to consist of 
+# letters or digits.
+# The default input file is stdin. If <input file> is provided on the
+# command line then i_<input file> is the default output file.
+# Otherwise stdout the default output file.
+# The pseudo input/output file "-" stands for stdin and/or stdout resp.
+#
+# PREPROCESSORS:
+#    cpp: the include files are searched for in . 
+#         and the ReDuX include directory (src/include).
+#         Additional paths may be added by modifying the variable PREP.
+#    m4:  The include files are searched for in .
+#
+# BUGS:
+# If the preprocessor cpp is used the original code may not contain a line
+# beginning with "# " and a number.
+#
+
+
+#ReDuX directory
+ RDX=RDX
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+#ReDuX bin file
+RDXB=$RDX/bin
+#Include files
+RDXI=$RDX/src/include
+#Preprocessor
+ CPP=CPP
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+PREP="$CPP  -I$RDXI"
+#PREP="m4"
+#PREP="m4 -DINCLUDE_PATH=\"`pwd`:$RDXI\""  #Sperber hack does not work yet
+#sed script to transform ReDuX comment to preprocessor command
+SEDI=$RDXB/include_cpp.sed  # if PREP = cpp
+#SEDI=$RDXB/include_m4.sed   # if PREP = m4
+#filter to remove non-ALDES preprocessor code
+PREPU=" sed -f $RDXB/unstrip_cpp.sed" # if PREP = cpp
+#PREPU="cat"                          # if PREP = m4
+
+if [ $# -eq 0 ]
+then 
+   input=""
+   output=""
+elif [ $# -eq 1 ]
+then
+   input=$1
+   output="i_"$input
+   if [ $input = "-" ]
+   then
+      input=""
+   fi
+elif [ $# -eq 2 ]
+then
+   input=$1
+   if [ $input = "-" ]
+   then
+      input=""
+   fi
+   output=$2
+   if [ $output = "-" ]
+   then
+      output=""
+   fi
+else
+   echo "usage rinc [<input file> [<output file>]]"
+   exit
+fi
+
+cat $input | sed -f $SEDI | $PREP |  $PREPU  > $output

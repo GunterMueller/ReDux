@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# Stefan Bachert
+# lists additional information of .typ files
+#
+# Last modification: Jochen Walter 20 Nov 1993:
+#    Meta characters (*, ? and [) in the data type files are not
+#    expanded by tl any more.
+#
+# typelist 
+#
+# USAGE  tl [OPTION] [DIR]
+#
+MASK="*.typ"                             # only *.typ files
+NL="
+"
+AUTHOR="s/^.*AUTHOR/AUTHOR/p"
+BIBTEX="s/^.*BIBTEX/BIBTEX/p"
+DESCRIPTION="s/^.*DESCRIPTION/DESCRIPTION/p"
+KEYWORDS="s/^.*KEYWORDS/KEYWORDS/p"
+ORIGIN="s/^.*ORIGIN/ORIGIN/p"
+STATUS="s/^.*STATUS//p"
+DEFAULT=$DESCRIPTION
+
+SEDS=""; export SEDS
+MORE_OPT=true
+while [ $MORE_OPT = true ]; do
+  case $1 in
+    -A) SEDS=$AUTHOR$NL$ORIGIN$NL$BIBTEX$NL$KEYWORDS$NL$DESCRIPTION; shift;;
+    -a) SEDS=$SEDS$AUTHOR$NL; shift;;
+    -b) SEDS=$SEDS$BIBTEX$NL; shift;;
+    -d) SEDS=$SEDS$DESCRIPTION$NL; shift;;
+    -k) SEDS=$SEDS$KEYWORDS$NL; shift;;
+    -o) SEDS=$SEDS$ORIGIN$NL; shift;;
+    -h) echo "USAGE $0 [options] [dir]"
+        echo "  Options"
+        echo "  -a  AUTHOR"
+        echo "  -b  BIBTEX"
+        echo "  -d  DESCRIPTION [default]"
+        echo "  -k  KEYWORDS"
+        echo "  -o  ORIGIN"
+        echo "  -A  all above"
+        exit 1
+        ;;
+    -*) echo "unknown option $1 [skipped, -h HELP]"; shift;;
+    *) MORE_OPT=false; 
+  esac
+done
+
+if [ "$SEDS" = "" ]; then      # default options
+  SEDS=$DEFAULT
+fi
+
+DIRS=$1
+if [ -z "$DIRS" ]; then        # default dir 
+  DIRS="."
+fi
+
+find $DIRS -name "$MASK" -print | (        # pipe all filenames in this shell
+#
+# read line by line filenames
+#
+  export FILE
+  EOF=false;
+  while [ $EOF = false ]; do
+    FILE=`line`
+    if [ -z "$FILE" ]; then
+      EOF=true
+    else
+      sed -n "$SEDS" $FILE | (             # pipe in next shell
+        set -f
+        L1=`line`
+        if [ -n "$L1" ]; then              # only if data is piped
+          echo "FILE: [$FILE] " `sed -n $STATUS $FILE`
+          (echo $L1
+           cat) | sort                     # OUTPUT rest
+          echo                             # just to separate line
+        fi
+      )
+    fi
+  done
+)
+

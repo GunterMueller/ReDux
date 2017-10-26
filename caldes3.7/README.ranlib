@@ -1,0 +1,10 @@
+Some Operating systems like SOLARIS 2, do not know the ranlib command.
+To take this into account any ranlib comand in a make file must be
+preceded by a `-'sign. This is controled by the SOLARIS variable in  the
+Makefile.
+
+In shell scripts (like ald) an error message ``Commamd not found'' will be
+output but the script will continue. If you don't like the error message
+uncomment the ranlib command, it is not needed.
+
+Reinhard Buendgen

@@ -1,0 +1,120 @@
+[Project: ReDuX Auxilliary algorithms
+   module name        : AXSL1 -- Sort Lists (weight =1st)
+   modulespecification: algorithms sort lists according to their
+                        weight. The weight is a gamma integer 
+                        assumed to be in the first field of each
+                        list.
+                        taken form ics                              
+   programmer         : Wolfgang Kuechlin                               
+   language           : aldes                                           
+   last change        : $Date: 1995/01/02 14:10:35 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.4 $ 
+   bugs               : non known                                       
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+]                                                                      
+
+     pragma TNU=10000. 
+[---------------------------------------------------------------------
+     Section 0. 
+     System initialization.
+----------------------------------------------------------------------]
+     const TRUE=1, FALSE=0.                                            
+     const RED(L)   =SPACE[L-BETA],                                    
+           RED2(L)  =RED(RED(L)),                                      
+           RED3(L)  =RED(RED2(L)),                                     
+           RED4(L)  =RED(RED3(L)),                                     
+           FIRST(L) =SPACE[L-BETA1],                                   
+           SECOND(L)=FIRST(RED(L)),                                    
+           THIRD(L) =FIRST(RED2(L)),                                   
+           FOURTH(L)=FIRST(RED3(L)),                                   
+           FIFTH(L) =FIRST(RED4(L)).                                   
+     
+     safe STI. [sorting time.]
+
+     const 
+     WEIGHT(L)=FIRST(L).                                               
+               [WEIGHT is the weight-information of list L.]           
+
+[---------------------------------------------------------------------
+     Section 1 Algorithms for export.
+----------------------------------------------------------------------]
+ 
+                    L'*:=LOISE(L*,l*,n) 
+[Ordered list, insert set of elements. 
+L*=(e sub 1,...,e sub m) is a list of order 2. All e sub i,1 <= i <= n, 
+are lists with weight-information, i.e., w sub i = WEIGHT(e sub i)  
+is a gamma-integer. L* is sorted in ascending order according to these  
+weights. n is a gamma-integer. l*=(e sub 1,...,e sub n) is a set of     
+lists with weight-information. n=length(l*) is a beta-integer.
+Then L'* is the ordered union-set of L* and l* sorted in ascending order 
+according to the weights.  Both L* and l* are destroyed.] 
+     safe LOISE. 
+(1)  [Initialize.]  if l*=() then {L'*:=L*; return}; STI:=STI-CLOCK().
+(2)  [Sort l*.] l':=LSMIS(l*,n).
+(3)  [Merge L* and l*.] L'*:=LOSMRG(L*,l'); STI:=STI+CLOCK() ||          
+ 
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    LOSINS(L*,L,w; L*',l*') 
+[Ordered set of lists, insertion. 
+L* is a non-empty set of lists with weight-information, sorted in as-   
+cending order with respect to the weights. L is a one-element set of a  
+list l with weight-information and w is the weight of l. Then L*' is 
+the union-set of L* and L, sorted in ascending order, and l*' is the   
+greatest subset of L*' with minimal weight W. If some l' in L* has    
+weight W then cl is inserted behind l'. Both L* and L are destroyed.] 
+     safe LOSINS. 
+(1)  [Initialize.] L*':=L*; P:=L*; l*':=L; w':=WEIGHT(FIRST(P)).
+(2)  [Prefix L.] if w < w' then {RED(L):=P; L*':=L; return}.
+(3)  [Postfix L.] P':=P; P:=RED(P);
+     if P=() then {RED(P'):=L; return}.
+(4)  [Insert L.] w':=WEIGHT(FIRST(P)); if w >= w' then go to  3;
+     RED(P'):=L; RED(L):=P ||                                          
+ 
+                    L':=LOSMRG(S1,S2)                                  
+[Ordered sets of lists, merge.                                         
+Both S1 and S2 are ordered sets of lists with weight-information,       
+sorted in ascending order. Then L' is the sorted union-set of S1 and    
+S2. Both S1 and S2 are destroyed.] 
+     safe LOSMRG. 
+(1)  [Trivial cases.] if S1=() then {L':=S2; return};
+     if S2=() then {L':=S1; return}.
+(2)  [Prefix parts of S2.] S'1:=S1; w1:=WEIGHT(FIRST(S'1)); S'2:=S2;
+     w2:=WEIGHT(FIRST(S'2)); while w2 < w1 do                        
+     { S'':=S'2; S'2:=RED(S'2); if S'2=() then                         
+      {L':=S2; RED(S''):=S'1; return}; w2:=WEIGHT(FIRST(S'2)) };
+     if S'2 # S2 then {L':=S2; RED(S''):=S'1} else L':=S1.
+(3)  [Insert remainder of S2.] while w1 <= w2 do                     
+     { S'':=S'1; S'1:=RED(S'1); if S'1=() then                         
+      {RED(S''):=S'2; return}; w1:=WEIGHT(FIRST(S'1)) }; RED(S''):=S'2;
+     while w2 < w1 do 
+     { S'':=S'2; S'2:=RED(S'2); if S'2=() then                         
+      {RED(S''):=S'1; return}; w2:=WEIGHT(FIRST(S'2)) }; RED(S''):=S'1;
+     go to  3 || 
+ 
+                    L':=LSISRT(S)                                      
+[Set of lists, insert-sort.                                            
+S is a set of lists with weight-information. Then L' is the set S       
+sorted in ascending order with respect to the weights. S is destroyed.]
+     safe LSISRT.                                                      
+(1)  [Trivial case.] L':=S; if S=() then return.
+(2)  [Initialize.] w:=WEIGHT(FIRST(S)); S':=RED(S); RED(L'):=(); l':=L'.
+(3)  [Insert.] while S' # () do                                       
+     {L:=S'; S':=RED(S'); RED(L):=(); w_:=WEIGHT(FIRST(L)); if w_ < w  
+      then LOSINS(L',L,w_; L',l') else LOSINS(l',L,w_; c'',l');
+      w:=w_} ||                                                        
+ 
+                    L':=LSMIS(S,l)                                     
+[Set of lists, merge-insert-sort.                                      
+S is a set of lists with weight-information and l=length(S), a beta-  
+integer. Then L' is S sorted in ascending order with respect to the     
+weights. S is destroyed.] 
+     safe S,l',S'. 
+(1)  [Trivial cases.] if l=0 \/ l=1 then {L':=S; return}.
+(2)  [l < trade-off-point.] if l < 17 then {L':=LSISRT(S); return}.
+(3)  [l >= trade-off-point.] l':=l/2-1; S':=REDUCT(S,l');
+     C'':=RED(S'); RED(S'):=(); l':=l'+1; l'':=l-l';
+     L':=LSMIS(S,l'); C'':=LSMIS(C'',l''); L':=LOSMRG(L',C'') ||       

@@ -1,0 +1,41 @@
+[Project:  ReDuX Term Completion
+   module name        : MEXIT -- Messege on EXIT
+   modulespecification: Exit message for completion procedures.
+                        Taken from tcint (v1.2)
+   language           : aldes
+   last change        : $Date: 1993/08/13 20:43:16 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   status             : tested
+   bugs               : none known
+   modules needed     : sac2/ba, sac2/sy, sac2/lp
+]
+ 
+[ #include globs.h]
+  
+                    MEXIT(N,M,S)
+[Message on exit.
+N is the name of a data type. M is al list of period 2 with atoms in the 
+odd positions and strings in the even position. S is al list of 
+statistical information.]
+     safe S'.
+(1)  BLINES(1); CLOUT("Completion of "); SWRT(N);
+     CLOUT("-data-type succeeded."); WRITE; BLINES(1).
+(2)  AWRITE(UC); CLOUT(" unifications and ");
+     AWRITE(MC); CLOUT(" matches attempted "); 
+     CLOUT("including detection of"); WRITE;
+     AWRITE(CC); CLOUT(" non-trivially subconnected pairs.");WRITE;
+     AWRITE(OC); CLOUT(" critcal pairs compared."); WRITE;
+     AWRITE(RC); CLOUT(" rewrites performed."); WRITE. 
+(3)  [Write information from M.] M':=M; while M' # () do
+     { ADV2(M'; a,s,M'); AWRITE(a); CLOUT(s); WRITE }.
+(4)  BLINES(1);
+     CLOUT("unification-time="); AWRITE(UTI); CLOUT(" ms."); WRITE;
+     CLOUT("rewriting-time = "); AWRITE(RTI); CLOUT(" ms, ");
+     CLOUT("including ");
+     AWRITE(CTI); CLOUT(" ms copying and ");
+     AWRITE(MTI); CLOUT(" ms matching."); WRITE;
+     CLOUT("scheduling-time= "); AWRITE(STI); CLOUT(" ms."); WRITE;
+     CLOUT("ordering - time= "); AWRITE(OTI); CLOUT(" ms."); WRITE.
+(5)  BLINES(1); CLOUT("Bar diagram of critical pair queue:"); WRITE;
+     S':=INV(S); STAPRT(S') ||

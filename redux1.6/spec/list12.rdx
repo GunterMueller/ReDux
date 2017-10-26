@@ -1,0 +1,28 @@
+%%  comment symbol
+DATATYPE LIST;
+%%  STATUS completed
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION List({0,1}): cons, app, rev
+%%  ORIGIN  folkore
+SORT
+	EL, LIST;
+CONST
+	0, 1: EL;
+	nil: LIST;
+VAR
+	A, B, C: EL;
+	L, M, N: LIST;
+OPERATOR
+	@: LIST, LIST -> LIST;	%%  append 
+	[: EL, LIST -> LIST;	%%  cons
+	rev: LIST -> LIST;	%%  reverse
+NOTATION
+	rev: FUNCTION;
+	@: INFIX;
+	[: ROUNDFIX ];
+AXIOM
+   [1] (nil @ L) == L;
+   [2] ([ A,L ] @ M) == [ A,(L @ M) ];
+   [3] rev(nil) == nil;
+   [4] rev([ A,L ]) == (rev(L) @ [ A,nil ]);
+END

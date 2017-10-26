@@ -1,0 +1,12 @@
+                    R:=PCALL0(p,m)
+[Call procedure with 0 input arguments.
+p is a beta-integer denoting a procedure P. m is a non-negative
+beta-integer less or equal to MAXOUT. P has m output and no input 
+paramters. 
+Then R = (r1, ..., rm) is a list of length m where the ri are computed
+by calling P(; r1, ..., rm).]
+
+     safe r. array r[ITMAXOUT].
+
+(1)  [Dispatch.] case p of
+     { [ <i> do <procedure i>(; r[1], ..., r[m]);]

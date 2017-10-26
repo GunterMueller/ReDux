@@ -1,0 +1,52 @@
+%%  comment symbol
+DATATYPE COUNT2AC;
+%%  AUTHOR N. Nevin / R. Buendgen
+%%  DESCRIPTION 2-Bit counter (AC)
+%%              [Buchenrieder:88, page 172]
+SORT
+	SIGNAL, TIME;
+CONST
+	L, H: SIGNAL;
+	0: TIME;
+VAR
+	t, u, v: TIME;
+	f, g, h, p, q, r: SIGNAL;
+OPERATOR
+	S: TIME -> TIME;
+	D2: TIME -> TIME;
+	#: SIGNAL, SIGNAL -> SIGNAL;	%%  exclusive or
+	/\: SIGNAL, SIGNAL -> SIGNAL;	%%  and
+	~: SIGNAL -> SIGNAL;	%%  not
+	>: SIGNAL, SIGNAL -> SIGNAL;	%%  implies
+	\/: SIGNAL, SIGNAL -> SIGNAL;	%%  or
+	=: SIGNAL, SIGNAL -> SIGNAL;	%%  equivalent
+%%  TOG(TIME,SIGNAL,SIGNAL) -SIGNAL.
+	A: TIME -> SIGNAL;
+	B: TIME -> SIGNAL;
+	T1: TIME -> SIGNAL;
+	CIN: TIME -> SIGNAL;
+NOTATION
+	S, D2, #, /\, ~, >, \/, =, A, B, T1, CIN: FUNCTION;
+THEORY
+	#, /\: AC;
+AXIOM
+  [1] \/(p,q) == #(/\(p,q),#(p,q));
+  [2] >(p,q) == #(/\(p,q),#(p,H));
+  [3] =(p,q) == #(p,#(q,H));
+  [4] ~(p) == #(p,H);
+  [5] #(p,L) == p;
+  [6] #(p,p) == L;
+  [7] /\(p,H) == p;
+  [8] /\(p,p) == p;
+  [9] /\(p,L) == L;
+ [10] /\(p,#(q,r)) == #(/\(p,q),/\(p,r));
+ [11] T1(t)==/\(CIN(t),A(t));
+ [12] A(0) == L;
+ [13] A(S(t)) == #(CIN(t),A(t));
+ [14] B(0) == L;
+ [15] B(S(t)) == #(T1(t),B(t));
+ [16] CIN(t) == H;
+ [17] D2(0) == 0;
+ [18] D2(S(0)) == 0;
+ [19] D2(S(S(t))) == S(D2(t));
+END

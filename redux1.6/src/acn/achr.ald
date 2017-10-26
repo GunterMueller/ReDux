@@ -1,0 +1,217 @@
+
+[#include tp.h ]
+[#include globs.h ]
+[#include ev.h ]
+
+[----------------------------------------------------------------------]
+[ This module contains normalization procedure that uses and memorizes ]
+[ successful rewrites.                                                 ]
+[ For operators qualified as "suitable for hashing" the memorized rules]
+[ are stored in the property list of those operators under indicator   ]
+[ DSH.                                                                 ]
+[ To distinguish operators suitable for hashing with out any memorized ]
+[ rules form operators not suitable for hashing the set of memorized   ]
+[ rules is stored as the (first) element of a one-lement list.         ]
+[----------------------------------------------------------------------]
+
+                    t*:=TNRMLZ(t,R)
+[Term normalize.
+t is a term and R a termination set of rules.
+Then t* is t in reduced to (R union E)-normal form
+where E is the set of rules describing the evaluation
+relation and memorized rules.
+The normalization strategy and E is controled by the global variable
+NSTR.]
+
+(1)  [Switch between normalization strategies.] case NSTR of
+     { purenorm    do t*:=TIRDSE(t,R);
+       evalsupport do
+       { [Normalize and then evaluate.] t*:=TIRDSE(t,R);
+         repeat
+          ETI:=ETI-CLOCK(); t**:=TNMEVI(t*); ETI:=ETI+CLOCK(); 
+          tmprc:=RC; t*:=TIRDSE(t**,R);
+         until RC = tmprc
+        };
+       memorize    do 
+       { [normalize with memorization an then evaluate.]
+         TIREH(t,R; t*,f); repeat
+          ETI:=ETI-CLOCK(); t**:=TNMEVI(t*); ETI:=ETI+CLOCK(); 
+          TIREH(t**,R; t*,f);
+         until ~f
+        };
+      } ||
+
+                    TIREH(t,R; t*,f)
+[Term, innermost reduction using hash table.
+t is a free term, R a terminating TRS.
+The unification status of the operators may contain information concerning 
+a built-in compatible equational theory. Further all opeators may be 
+marked as hashable (by the property DHR). The rules in H describe a
+rewrite relation included in the transitive closure of R.
+Then t* is the (flattened) input term, and f=false if no axiom in R is 
+applicable to t, otherwise t* is a normal form of t with respect to R and 
+f=true. The term in t is destroyed. t* is only flattened if R#().
+During the normalization reduction may be memorized modifying 
+operator properties under indicator DSH if (sub)terms occuring during
+the normalization are  suitable for hashing.]
+
+     safe f, f', k.
+(1)  [Initialize.] if PNTRC then STOUTL("TIREH"); if AATRC then      
+     { STROUT("TIREH: Normalizing "); TWRT(t); STOUTL(" ...") };
+     f:=false; t*:=t; if R=() then go to 5.
+(2)  [Constant or variable.] k:=TKIND(t);
+     if k = DCS \/ k = DVS  then go to 5.
+(3)  [External term.] if k = DXT then
+     { t*:=TXAPLY(t,R); if t#t* then f:=true;
+       if TKIND(t*) # DOS then go to 5 
+     }.
+(4)  [Non-atomic term.]  TBVSLI(t*; V,l_); t':=TNDFLT(t*);
+     if V = () then g:= true else g:=false;
+     RTI:=RTI-CLOCK(); TNIREH(t',R,V,g; t*,f'); RTI:=RTI+CLOCK();
+     if f' then f:=true.
+(5)  [Trace output.] if AATRC then 
+     { STROUT("TIREH}: Normalized term: "); TWRT(t*); WRITE } ||
+
+                    TNIREH(t,L,V,g; t*,f)
+[Non-atomic term, innermost reduction using hash table.
+t is a flat non-atomic term, L is a non-empty terminating TRS. 
+The unification status of the operators may contain information concerning 
+a built-in compatible equational theory. Further all opeators may be 
+marked as hashable (by the property DSH not equal ()).
+V is the list of variables of a super term of t. g  is true if t is ground.
+Then t* is the input term, and f=false if no axiom in L
+is applicable to any subterm of t.
+Otherwise f is true and t is reduced to a descendant t* whose subterms are 
+all irreducible under L.
+Innermost reduction on flattened terms is used. 
+During the memorized reductions stored under indicator DSH of the operators
+may be used and supplemented if (sub)terms occuring during the normalization 
+are  suitable for hashing. The right-hand sides of new rules to be memorized 
+are normalized wrt. built-in evaluation domains.
+For the time being only ground terms may be suitable for hashing.]
+
+(1)  [Initialize.]  t*:=t; t^:=t; f:=false; f*:=false; T:=();
+     [Ground?] if g then g':=g else g':=TBGRND(t*).
+(2)  [AC-top.]  if TUSTAT(t^) = DAC then s:=TSIGN(t^) else s:=();
+     A:=OARGLST(t^); if f* then f:=true; f*:=false.
+(3)  [Initialize for hashing.] if g' /\ TSUITH(t^) then 
+     { M:=TGTMMR(t^); r:=RSGETL(M,t^); if r # () then
+       { if AATRC then TRCAMM(r);
+         TGCVS(ARHS(r); t*,V*); f*:=true; 
+         if V* = () then goto 6
+         else { STOUTL("*** unrxpected case in TNIREH.3!"); HALT }
+       } else
+       { TGCVS(t^; t_,V_); T:=COMP2(t_,V_,T); 
+         if AATRC then TRCMEM(t)
+     } }.
+(4)  [Reduce operands.] while A # () do 
+     { a:=FIRST(A); k:=TKIND(a); 
+       if k=DVS then 
+       { a:=VARBIND(a);
+         if a # () then 
+         { if TSIGN(a) = s then 
+           { STOUTL(" *** unexpected case in TNIREH (3.1)!"); HALT };
+           FIRST(A):=a
+       } } else 
+       { if k = DXT then 
+         { a':=TXAPLY(a,L);
+           if a#a' then 
+           { a:=a'; FIRST(A):=a; k:=TKIND(a); f*:=true }
+         };
+         if k=DOS then 
+         { TNIREH(a,L,V,g'; a*,f'); if f' then f*:=true;
+           if TSIGN(a*) = s then 
+           { ADV(OARGLST(a*); a1, A1); FIRST(A):=a1;
+             if A1=() then 
+             { STOUTL(" *** unexpected case in TNIREH (3.2)!"); HALT };
+             A':=LAST(A1); RED(A'):=RED(A);
+             RED(A):=A1; A:=A';
+           } else FIRST(A):=a*;
+       };}; A:=RED(A)
+     }.
+(5)  [Reduce operator.] t*:=TAPPLE(t^,L,V); if t*=t^ then goto 6;
+     f*:=true; k:=TKIND(t*);
+     if k=DCS then goto 6;
+     if k=DVS then 
+     { t^:=VARBIND(t*); if t^ # () then t*:=t^; goto 6 };
+     if k = DXT then 
+     { t^:=TXAPLY(t*,L); if t* # t^ then { f*:=true; t*:=t^ };
+       if TKIND(t*) # DOS then goto 6
+     }; t^:=t*; go to  2.
+(6)  [Update rewrite rule hash table and return.] if f* then f:=true
+     else if T # () then T:=RED2(T);
+     if f /\ T # () then
+     { ETI:=ETI-CLOCK(); t*:=TNMEVI(t*); ETI:=ETI+CLOCK();
+       TGCVS(t*; t**,V*); 
+       while T # () do
+       { ADV2(T; t_,V_,T); M:=RSINSR(M,ACONS(0,t_,V_,t**)); 
+         TPUT(t_,DSH,LIST1(M)) 
+     } } ||
+
+                    r:=RSGETL(R,t)
+[Rule set get left-hand side.
+R is a rule set and t is a term.
+Then r is the first rule in R with LHS(r) = t (mod AC/COM) if such a 
+rule exists. Otherwise r = ().]
+
+(1)  [Initialize.] R':=R.
+(2)  [Search through R'.] while R' # () do
+     { ADV(R'; r,R'); if TTO(ALHS(r),t) = 0 then return }.
+(3)  [Negative result.] r:=() ||
+
+                    R*:=RSINSR(R,r)
+[Rule set insert rule.
+R is a set of rules and r is a rule not in R.
+Then r is inserted into R.
+-- may become more intelligent later.]
+
+(1)  [Insert.] R*:=COMP(r,R) ||
+
+                    b:=TSUITH(t)
+[Term, suitable for hashing.
+t is a semi-bound term or operator.
+Then b is true if the term t may be hashed in the rewrite rule hash 
+table.]
+
+(1)  if TGET(t,DSH) # () then b:=true else b:=false ||
+
+                    R:=TGTMMR(t)
+[Term get memorized rules.
+t is a semi-bound non-atomic term. 
+Then R is the rule set meomorized with the top operator of t if
+it exists. Otherwise R is qual to ().]
+
+(1) R':=TGET(t,DSH); if R' = () then R:=() else R:=FIRST(R') ||
+
+[ from the ic-subsystem: ]
+
+                    b:=TBGRND(t)
+[Ground term.
+t is a semi-bound term.
+Then b = TRUE if t is ground, b = FALSE otherwise.]
+     safe k, t'.
+(1)  [Initialize.] t':=t; b:=TRUE.
+(2)  [Constant.] k:=TKIND(t'); if k = DCS then return.
+(3)  [Variable.] if k = DVS then
+     { C:=VARBIND(t'); if C = () then { b:=FALSE; return }
+                                 else { t':=C; goto 2 }
+     }.
+(4)  [Operator.] C:=OARGLST(t'); while C # () do
+     { ADV(C; c,C); b:=TBGRND(c); if ~b then return } ||
+
+[----------------------------------------------------------------------
+       Section 3  Output routines & trace routines
+----------------------------------------------------------------------]
+
+                     TRCMEM(t)
+[Trace message concerning memorization.
+t is a term.]
+
+(1)  STROUT("Going to memorize "); TDIWRT(t,(); N); WRITE ||
+
+                    TRCAMM(r)
+[Trace message concerning application of memorized rule.
+r is a rewrite rule.]
+
+(1) STROUT("Applying the memorized rule ");
+    RRWRT(ALHS(r),ARHS(r)); WRITE ||

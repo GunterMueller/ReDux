@@ -1,0 +1,337 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPCY -- CopY level
+   modulespecification: copy algorithms
+                        compress algorithms added 7/88.
+                        same as tcc3 but includes additionally          
+                        the algorithms tbnvsl,tfcvs, tfcvs1 and tbvsli
+                        TCMPRS, TNCPRS.
+                        same as icc but ACOPY handels extension rules
+                        TCHGVS added [RB]
+                        TSFS, TRPCVS added [RB]
+                        TFRV, TLRRV added [RB]
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : 22.11.89 6.10.89, 00/03/87, 28.7.88
+                        $Date: 1997/02/07 16:22:10 $
+                        TCHVS, TCVSL, TCVSL1 removed from rev 1.7
+                        (r 1.8): ALCOPY added, formely icax/COPYAL
+                        by $Author: buendgen $
+   version            : 5 without labels
+                        $Revision: 1.23 $
+   bugs               : none known
+   modules needed     : SAC2: low/ba, low/sy, low/lp, 
+                        ReDuX: tp/dd
+
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+
+[--------------------------------------------------------------------  
+     section 1.                                                         
+     Copies of terms, main algorithms.                                  
+----------------------------------------------------------------------]
+                                                                       
+                    a':=ACOPY(a)                                       
+[Axiom, copy.                                                          
+a is an axiom. Then a' is a duplicate of a.]                         
+     safe n,V,L,R,b,n^,L^,V^,R^,b^,a^,k.
+(1)  [Initialize.]  ADIS(a; n,L,V,R,b); V0:=(); V':=().
+(2)  [Copy rewrite rule.] if TKIND(L) = DOS then 
+                          TFCVS1(L,V0,V'; L',V0,V') else L':=L; 
+     k:=TKIND(R); if k = DVS then R':=ILPASS(R,V0,V') else
+     if k = DOS then TFCVS1(R,V0,V'; R',V1,V2) else R':=R.
+(3)  [Copy possible extension.] a^:=AGET(a,DXR); if a^ # () then
+      { ADIS(a^; n^,L^,V^,R^,b^); V0:=(); V'':=(); if TKIND(L^) = DOS 
+        then TFCVS1(L^,V0,V''; L'',V0,V'') else L'':=L^;
+        k:=TKIND(R^); if k =  DVS then R'':=ILPASS(R^,V0,V'') else
+        if k = DOS then TFCVS1(R^,V0,V''; R'',V1,V2) else  R'':=R^;
+        a'':=ACONS(n^,L'',V'',R'')
+      }.
+(4)  [Assemble axiom.] a':=ACONS(n,L',V',R'); 
+     if a^ # () then APUT(a',DXR,a'') ||         
+
+                    A*:=ALCOPY(A)
+[Axiom list, copy.  
+A is a list of axioms then A* is a second list whose elements are
+copies of those of A.]
+     safe A',a.
+(1)  [Initialize.] A*:=(); A':=A.
+(2)  [Make copy.] while A' # () do
+      {ADV(A'; a,A'); A*:=COMP(ACOPY(a),A*)}.
+(3)  [Finish up.] A*:=INV(A*) ||
+
+                    D*:=DTBKUP(D~)
+[Data type back-up.
+DT is a data type.
+Then D* s a copy of DT such that each axiom of DT is copied
+and the variable, operator and constant lists are copied and
+the property list is copied.]
+
+(1)  [Initialize.] DTDIS(D~; N,C,V,F,A).
+(2)  [Copy components.] C*:=COPY(C); V*:=COPY(V); F*:=COPY(F);
+     A*:=ALCOPY(A); Y*:=COPY(DTSORTS(D~)); X*:=COPY(DTXSORTS(D~));
+     S*:=COPY(DTSYMTAB(D~)). 
+(3)  [Compose result.] D*:=DTCONS(N,C*,V*,F*,A*,Y*,X*,S*).
+(4)  [Copy property list.] DTPROP(D*):=SOTCPY(DTPROP(D~))  ||
+
+                    T*:=TBPCPM(T)                                      
+[Bound term, partial copy leaving marks.                               
+T is a bound term without chain-substitutions. Then T* is a partial     
+duplicate of T, a bound term, where variables are are still bound by    
+their values, but not by copies thereof. Thus the variables may         
+serve as marks, separating the duplicated from the unduplicated         
+part of the term.]                                                     
+     safe k.                                                           
+(1)  [Initialize.] if T=() then {ERRORD(10,"TBPCPM"); T*:=(); return};
+     k:=TKIND(T).
+(2)  [Variable.]  if k=DVS then {T*:=TCONS(VARBIND(T),T); return}.
+(3)  [Non-atomic term.] if k = DOS then
+     { CTI:=CTI-CLOCK(); T*:=TNBCPM(T); CTI:=CTI+CLOCK() } else T*:=T ||
+  
+                    TCMPRS(T; T*,V*)
+[Semi-bound term, compress and variable set.
+T is a semi-bound term. Then T* is T with bound variables
+replaced by their bindings. V* is the variable set of T*.
+T is modified.]
+     safe T*,T',k,C.
+(1)  [Initialize.] T':=T; V*:=(); k:=TKIND(T').
+(2)  [Variable.] if k = DVS then 
+      { C:=VARBIND(T'); if C = () then {T*:=T'; V*:=(T*); return} 
+                      else {T':=C; k:=TKIND(T'); goto 2}
+      }.
+(3)  [Non-atomic term.] if k = DOS then { TNCPRS(T',(); V*); UNDO(V*) }. 
+(4)  [Finish up.] T*:=T'||
+
+                    TNCPRS(T,V; V*)
+[Non-atomic semi-bound term, compression and variable set. 
+T is a non-atomic semi-bound term, subterm of some T^. V is
+the set of variables in T^ with occurrence smaller than T.
+Then T is modified such that all substitutions in T are 
+performed. V* is V union V', the set of variables in T;
+each v in V' is marked with VARBIND(v)=1.]
+     safe k,t,C.
+(1)  [Initialize.] V*:=V.
+(2)  [Initialize right recursion.] L:=OARGLST(T).
+(3)  [Trivial case right recursion.] if L = () then return.
+(4)  [Initialize left recursion.] t:=FIRST(L).
+(5)  [Left recursion. Dispatch on kind.] k:=TKIND(t);
+      [Variable.] if k = DVS then 
+       {C:=VARBIND(t); if C = () then 
+        {V*:=COMP(t,V*); VARBIND(t):=1; L:=RED(L); goto 3} 
+        else if C # 1 then {t:=C; FIRST(L):=t; goto 5}
+        else {L:=RED(L); go to 3}
+       };
+      [Non-atomic term.] if k = DOS then TNCPRS(t, V*; V*); 
+      L:=RED(L); goto 3||
+
+                                                                       
+                    TFCVS(T; T_,V_)                                    
+[Term, full copy and variable set.                                     
+T is a semi-bound term. Then T_ is both a duplicate of T,               
+with all recorded substitutions performed, and a free term.             
+V_ is the variable set of T_. T_ also has the unique representation     
+property for variables. Variables are copied leaf wise.]                
+     safe t,t',k.                                                    
+(1)  [Initialize.]  t:=T.
+(2)  [Dispatch on kind.] k:=TKIND(t);
+     [Variable.]  if k=DVS then                                       
+     { t':=VARBIND(t); if t' # () then {t:=t'; go to  2};
+      T_:=TCONS((),t); V_:=LIST1(T_)
+     } else [Non-atomic term.] if k = DOS then TFCVS1(t,(),(); T_,V,V_) 
+     else { T_:=t; V_:=() } ||  
+                                                                       
+                    TFCVS1(T,V,V'; T_,VO,V_)                           
+[Term, full copy and variable set, subalgorithm.                       
+T is a non-atomic semi-bound term, subterm of some th. V is the set of  
+all variables in th with an occurrence less than T. V' is a set of      
+variables where the il-th element of V' is the copy of the il-th element
+of V. Then T_ is a copy of T with all recorded substitutions performed. 
+T_ is a free term with the unique representation property for variables.
+VO is V, augmented by the variables with smallest occurrence in T. V_ is
+V', augmented by the variables with smallest occurence in T_.]         
+     safe t,t',k.                                                    
+(1)  [Initialize right recursion.] T_:=(); V_:=V'; VO:=V; L:=OARGLST(T).
+(2)  [Right recursion. Copy list of operands.]                         
+     [Trivial case.]  if L=() then                                     
+     {T_:=INV(T_); T_:=TCONS(T_,T); return}.
+(3)  [Initialize left recursion.] ADV(L; t,L).
+(4)  [Left recursion. Copy single operand.]  k:=TKIND(t);
+     [Dispatch on kind. Variable.]  if k=DVS then 
+     {  t':=VARBIND(t); if t' # () then {t:=t'; go to  4};
+      t*:=ILPASS(t,VO,V_); if t*=() then                               
+      { t_:=TCONS((),t); V_:=COMP(t_,V_); VO:=COMP(t,VO) }             
+      else t_:=t*  
+     } else if k = DOS then 
+     [Recursion step. Non-atomic operand.] TFCVS1(t,VO,V_; t_,VO,V_)
+     else  t_:=t.
+(5)  [Right recursion step. Append copy.] T_:=COMP(t_,T_); goto 2 ||   
+
+                    T*:=TCHGVS(T,V,V')                                    
+[Term, change of variable set.                                         
+T is a term which does not contain shared non-atomic subterms. V is a 
+superset of its variable set. V' is a set of variables disjoint from V
+where |V| = |V'|.
+Then T* is T where variables in T are replaced by variables of V s.th.
+the i-th variable in V is replaced by the i-th variable in V'. If V is 
+not a superset of the variables of T then T*=() and an error-message is 
+output. T is modified if  is not ground.]          
+     safe k,e.                                                      
+(1)  [Initialize.] T':=T.
+(2)  [Dispatch on kind.] k:=TKIND(T');
+     [Variable.] if k=DVS then 
+     { L:=VARBIND(T'); if L # () then { T':= L; go to 2 } 
+      else {  e:=ILPASS(T',V,V'); if e=() then {ERRORC(1,4); T*:=() } 
+                                          else T*:=e; return  
+     }     }.
+(3) [Recursion step. Non-atomic term.] if k = DOS then 
+    { L:=OARGLST(T'); while L # () do 
+             { FIRST(L):=TCHGVS(FIRST(L),V,V'); L:=RED(L) }
+    }; T*:=T ||
+                                                                       
+                    T*:=TNBCPM(T)                                      
+[Non-atomic bound term, partial copy leaving marks.                    
+T is a non-atomic bound term without chain-substitutions. Then T* is a  
+partial duplicate of T, where variables in T are still bound to their   
+original values in T rather than to copies thereof, and are not         
+replaced.]                                                             
+     safe k,t.                                                        
+(1)  [Initialize.]  T*:=().
+(2)  [Copy operands.]  L:=OARGLST(T);  while L # () do                   
+     {ADV(L; t,L);  [Dispatch on kind.] k:=TKIND(t);
+      [Variable.]  if k = DVS then t':=TCONS(VARBIND(t),t) 
+      [Operator.]  else if k=DOS then t':=TNBCPM(t) else t':=t;
+      T*:=COMP(t',T*)
+     }; T*:=INV(T*).
+(3)  [Copy operator.]  T*:=TCONS(T*,T) ||                              
+                                                                       
+                    TRPCVS(t1,t2; t*1,t*2,V*)
+[Terms, related pair, copy and variable set.
+t1 and t2 are related terms, i.e. terms that may have common variables.
+Then t*1 and t*2 are copies of t1 and t2 respectively s. th. for all
+variable positions p1 and p2 where t1/p1 = t2/p2, t*1/p1 = t*2/p2.
+V* is the union of the variable sets of t*1 and t*2.]
+     safe k',k'',t',t'',C.
+(1)  [Initialize.] V_0:=(); V_1:=(); t':=t1; t'':=t2.
+(2)  [Copy t1.] k':=TKIND(t'); if k' = DVS then
+     { C:=VARBIND(t'); if C # () then { t':=C; goto 2 } else
+       { t*1:=TCONS((),t'); V_0:=(t'); V_1:=(t*1) }
+     } else if k' = DOS then TFCVS1(t',(),(); t*1,V_0,V_1) else t*1:=t'.
+(3)  [Copy t2.] k'':=TKIND(t''); if k'' = DVS then
+     { C:=VARBIND(t''); if C # () then { t'':=C; goto 3 } else
+       { t*2 := ILPASS(t'',V_0,V_1); if t*2 = ()
+          then { t*2:=TCONS((),t''); V*:=COMP(t*2,V_1) } else V*:=V_1
+     } } else if k'' = DOS then TFCVS1(t'',V_0,V_1; t*2,V_2,V*) 
+              else { t*2:=t''; V*:=V_1 } ||
+
+[Rename variables of term t.
+ Idea: (1) While traversing t every free variable v will be bound to a
+           new copy v'.
+       (2) For every variable v occuring at position p which is bound
+           to a new copy v' set t to t[p<-v']
+       Steps (1) and (2) will be proccessed in an interleaved way.
+       All subtitution {v <- v'} must be undone to avoid changes
+       of the v outside t.
+
+To rename the variables of a list T of free related terms use
+  V:=TLRRV(T,()); UNDO(V)
+]
+
+                    t*:=TFRV(t)
+[Free term, rename variables.
+t is a free term. Then t* is t such that the variables of t have been
+renamed by new variables with comon TSIGN. t is destroyed.]
+
+(1)  [Initialize.] k:=TKIND(t); t*:=t.
+(2)  [Variable.] if k = DVS then t*:=TCONS((),t) else 
+     [Non-atonic term.] if k = DOS then 
+     { V:=TLRRV(OARGLST(t),()); UNDO(V) } ||
+
+                    V*:=TLRRV(T,V)
+[List of related terms, rename variables.
+T=(t1,...,tn) is a list of semi-bound terms which may share variables.
+V is a set of variables.
+Then V* is V union the free variables of T. All bound variables of T
+will be replaved by their bindings and all free variables will be
+bound by a new copy (with common TSIGN) and then be repaced by this
+copy.]
+ 
+(1)  [Initialize.] A:=T; V*:=V.
+(2)  [Trivial Case.] if A = () then return.
+(3)  [Loop through T'.] t':=FIRST(A); k:=TKIND(t').
+(4)  [Variable.] if k = DVS then
+      { v:=VARBIND(t'); if v # () then FIRST(A):=v else
+       { V*:=COMP(t',V*); v:=TCONS((),t'); VARBIND(t'):=v; FIRST(A):=v 
+      }} else
+     [Non-atonic term.] if k = DOS then V*:=TLRRV(OARGLST(t'),V*).
+(5)  [Next argument.] A:=RED(A); goto 2 ||
+
+                    TGCVS(T; T_,V_)
+[Term, ground copy and variable set.
+T is a semi-bound term. Then T_ is both a duplicate of T,
+with all recorded substitutions performed, where all operators and
+constansts of T are copied. If v is a free variable at occurence O
+then the variable at occurence O has the same representation as v.
+V_ is the variable set of T_.]
+     safe t,t',k.
+(1)  [Initialize.]  t:=T.
+(2)  [Dispatch on kind.] k:=TKIND(t);
+     [Variable.]  if k=DVS then
+     { t':=VARBIND(t); if t' # () then { t:=t'; goto 2 };
+      T_:=t; V_:=LIST1(T_)
+     } else [Non-atomic term.] if k = DOS then TGCVS1(t,(); T_,V_)
+     else { T_:=t; V_:=() } ||
+
+                    TGCVS1(T,V; T_,V_)
+[Term, ground copy and variable set, subalgorithm.
+T is a non-atomic semi-bound term, subterm of some T^. V is the set of
+all variables in T^ with an occurrence less than T.
+Then T_ is a copy of T with all recorded substitutions performed.
+where all operators and constants are copied but free variables have
+the same representation in T and T_.  V_ is V, augmented by the variables
+with smallest occurence in T_.]
+     safe t,t',k.
+(1)  [Initialize right recursion.] T_:=(); V_:=V; L:=OARGLST(T).
+(2)  [Right recursion. Copy list of operands.]
+     [Trivial case.]  if L=() then
+     {T_:=INV(T_); T_:=TCONS(T_,T); return}.
+(3)  [Initialize left recursion.] ADV(L; t,L).
+(4)  [Left recursion. Copy single operand.]  k:=TKIND(t);
+     [Variable.]  if k=DVS then
+     {  t':=VARBIND(t); if t' # () then {t:=t'; go to  4}
+        else { t_:=t; if ~INTMEM(t_,V_) then V_:=COMP(t_,V_) }
+     } else if k = DOS then
+     [Recursion step. Non-atomic operand.] TGCVS1(t,V_; t_,V_)
+     else t_:=t.
+(5)  [Right recursion step. Append copy.] T_:=COMP(t_,T_); goto 2 ||
+
+[-----------------------------------------------------------------     
+     section 2.                                                         
+     Subalgorithms and error-handling.                                  
+-------------------------------------------------------------------]   
+ 
+                    ERROMC(n,m)                                       
+[Error origination message at copy level.                              
+Both n and m are numbers, n indicating the kind of error and m      
+the calling algorithm. The error origination message is output.]       
+(1)  CLOUT("*** AT COPY-LEVEL ERROR NO "); AWRITE(n);
+     CLOUT(" OCCURRED IN ALGORITHM ").
+(2)  if m > BETA then {CLOUT(m); WRITE; return}.
+(3)  case m of                                                         
+     {1  do CWRIT5('T','C','H','V','S');                               
+      2  do CWRIT6('T','N','C','H','V','S');                           
+      3  do CWRIT5('R','R','F','T','P');
+      4  do CWRIT6('T','C','H','G','V','S');                               
+     }; WRITE ||                                                       
+                                                                       
+                    ERRORC(n,m)                                       
+[Error function at copy level.                                         
+Both n and m are numbers. Then the copy message no. n                
+and the additional message no. m are output.]                          
+     safe ERRORC.                                                      
+(1)  [Origination message.] WRITE; ERROMC(n,m).
+(2)  [Error message.] case n of                                       
+     {1  do print"UNKNOWN VARIABLE ENCOUNTERED.";                      
+      2  do print"ILLEGAL REWRITE RULE - EXTRA VARIABLE IN RHS"};
+     WRITE ||                                                          

@@ -1,0 +1,10 @@
+Directory ac/MAIN
+=================
+
+Contents:
+  ac.ald            auxilliary source: a catenation of
+                        ac.front, globs.h and ac.end
+  ac.end            end part of the ac main program
+  ac.front          front part of the ac main program
+  acsub.ald         Subalgorithms for differnt menu point of ac
+  

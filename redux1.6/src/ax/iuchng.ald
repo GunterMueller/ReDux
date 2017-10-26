@@ -1,0 +1,5 @@
+                    IUCHNG(n)
+[Input unit change. 
+The input unit is set to inout unit number n.]
+     safe IUCHNG.
+(1)  [Set.] IUNIT:=n ||

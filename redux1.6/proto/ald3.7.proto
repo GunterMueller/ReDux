@@ -1,0 +1,277 @@
+#!/bin/csh -f
+#
+# A L D E S    S U P E R V I S O R
+#
+# version 7 des Aldestranslator-Steuerprogramms
+# 14.02.84 Universitaet Karlsruhe
+#
+# Modifiziert 20.3.85 ETH Zuerich
+# Modifiziert  1.3.88 Uni Tuebingen               
+# Modifiziert 22.4.88 Uni Tuebingen
+# Modifiziert 23.3.93 Uni Tuebingen
+# Modifiziert 22.6.93 Uni Tuebingen
+# Usage: ald [ <opt> | header | program | archive | input | output] 
+# Function:
+#    Translates and links ALDES, C and object files and
+#    archives into a executable file a.out which is subsequently
+#    run using specified input and output files. Stdin and stout
+#    are the default I/O files. 
+#        <opt> is a string of options that is passed
+#              unmodified to the C-compiler.
+#              Exceptions: 
+#              -1 only Backend code is produced 
+#              -O only object code is produced
+#              -A only liblocal.a is produced
+#              -B only a runnable (linked) program file is produced
+#              -S no backend code splitting
+#              -L no liblocal.a is produced
+#              -9 no log file will be created
+#              -i486 use assembler library for 80486-code of dpr
+#                    (and dqr Project!)
+#              -sun4 use assembler library for sun4-code of dpr
+#                    (and dqr Project!) - this is the default
+#              -sun10 use assembler library for Sparc10-code of dpr
+#                    (and dqr Project!) 
+#              -slow use library for dpr and dqr derived from
+#                    ALDES code of dpr and dqr
+#         program is a file name without extension or with extension
+#                 .ald for an ALDES source file
+#                 .c or .f for a backend source files file
+#                 .o for an object file
+#                 .h for header file
+#                 no extension means ALDES file
+#         archive is an archive with extension .a
+#         input is an input file with extension .in
+#         output is an output file with extension .out 
+# Binding is from  library archive files named libsac2.a and 
+# liblow.a that contain the SAC-2 system and the low systems bs, lp and sy 
+# as (relocatable) object code.
+#
+#
+
+# local settings
+set AC=a2c                  # ALDES-compiler
+set BX=c                    # Backend-extension (f for Fortran, c for C)
+set BE=BE                   # Backend-compiler
+#   ^^^^^                     Only to be modified by the ReDuX 
+#                             installation make file!
+set ALDES=ALDES             # Path for ALDES translator/SAC-2 system
+#   ^^^^^^^^^^^               Only to be modified by the ReDuX 
+#                             installation make file!
+
+set T=${ALDES}/bin          # path for aldes -> C compiler a2c
+                            #          post mortem debugging aid backwalk
+set ACARGS="-i$T/$AC.ini -l" # Command line arguments for the ALDES-Compiler
+set BESPLIT=$T/ccsplit       # Backend code splitter
+set optimize=OPTIMIZE        # Optimization flag for back-end compiler
+#   ^^^^^^^^^^^^^^^^^         Only to be modified by the ReDuX 
+#                             installation make file!
+set SL=${ALDES}/lib         # directory for SAC-2 libraries 
+set DPQR=DPQR               # default library for dpr and dqr
+#   ^^^^^^^^^                 Only to be modified by the ReDuX 
+#                             installation make file!
+
+# initialize lists
+set alist="1 "           # list of ALDES sources
+set hdlist=""            # list of ALDES header files
+set belist="1 "          # list of back end sources
+set ibelist="1 "         # list of intermediate back end sources
+set olist="1 "           # list of object files
+set ilist="1 "           # list of input files
+set outlist="1 "         # list of output files
+set arlist=""            # list of archives
+set optlist=""           # list of options
+
+# options for compilation: default settings
+set logfile=1            # produce code with automatic log file
+set nolib=0              # produce liblocal.a
+set split=1              # split backend code
+
+# RANLIB_NEEDED indicates if calls to ranlib are needed:
+# RANLIB_NEEDED = 1 means that the ranlib command is needed
+# RANLIB_NEEDED = 0 means that it is not needed
+set RANLIB_NEEDED=RANLIB_NEEDED
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Only to be modified by the ReDuX 
+#                               installation make file!
+
+
+if ( -e a.out && $#argv == 0) then
+   set alist=($alist `find  *.ald -newer a.out -print`)
+endif
+if ($#alist  == 1 && $#argv == 0) then
+   if ( -e a.out) then
+ 	/bin/rm -f core
+	a.out
+	if ( -e core ) then
+		$T/backwalk
+                exit
+	endif
+#   else echo "missing a.out"
+   endif
+endif
+
+set halt=0
+/bin/rm -f cfile
+
+foreach file ($argv[1-])
+        set TRACE=""
+        set afile=0
+        if ("$file" == "-1") then
+     		set halt=1
+        else if ("$file" == "-O") then
+	 	set halt=2
+        else if ("$file" == "-B") then
+	        set halt=3
+        else if ("$file" == "-A") then
+	        set halt=4
+        else if ("$file" == "-L") then
+	        set nolib=1
+        else if ("$file" == "-S") then
+	        set split=0
+        else if ("$file" == "-9") then
+                 set logfile=0
+# library setting for dpr (and dqr/project)
+        else if ("$file" == "-sun4" || "$file" == "-sun10" || \
+                 "$file" == "-i486" || "$file" == "-slow" ) then
+           if ( -e $SL/libdpqr${file}.a ) then
+              set DPQR = dpqr$file
+           else
+              echo "${0}: The option $file is not supported on this system,"
+              echo "using default library for dpr."
+           endif
+        else if ("$file" =~ "-*") then
+		set optlist=($optlist $file)
+	else if ( $file:e == "" ) then
+		set afile=$file.ald
+                set asrc=$file.ald
+                if ( -e $file.$BX ) then 
+			/bin/rm $file.$BX 
+		endif
+        else if ($file:e == ald ) then
+		set afile=$file
+		set asrc=$file
+                if ( -e $file:r.$BX ) then 
+			/bin/rm $file:r.$BX 
+		endif
+        else if ($file:e == "t" ) then
+                set TRACE="-t"
+                set afile=$file:r.ald
+                set asrc=$file:r.ald
+                if ( -e $file:r.$BX ) then 
+			/bin/rm $file:r.$BX 
+		endif
+        else if ($file:e == "h" ) then
+                set hdlist=($hdlist $file)
+        else if ($file:e == "c" ) then
+                set belist=($belist $file)
+        else if ($file:e == "o" ) then
+   		set olist=($olist $file)
+        else if ($file:e == "in" ) then
+		set ilist=($ilist $file)
+        else if ($file:e == "a" ) then 
+                set arlist=($arlist lib${file:r}.a)
+        else if ($file:e == "out" ) then
+		set outlist=($outlist $file)
+        endif
+        if ( $afile != 0 ) then
+           if ( $split == 1 ) then
+              cat $hdlist $asrc | $T/$AC $ACARGS $TRACE | $BESPLIT >& befile
+              set belist=($belist `cat befile`)
+              set ibelist=($ibelist `cat befile`)
+              /bin/rm -f befile
+           else
+              set dest=$afile:t
+              set dest=$dest:r.$BX
+              cat $hdlist $asrc | $T/$AC $ACARGS $TRACE >! $dest
+              set belist=($belist $dest)
+           endif
+        endif
+end
+#echo "alist="$alist[2-]
+#echo "belist="$belist[2-]
+#echo "olist="$olist[2-]
+#echo "ilist="$ilist[2-]
+#echo "outlist="$outlist[2-]
+#echo "optlist="$optlist
+#echo "arlist="$arlist
+#echo "halt="$halt
+
+if ( $halt == 1 ) then
+		exit
+endif
+
+if ( $#belist != 1 ) then
+	 $BE $optimize -c $optlist $belist[2-] 
+         foreach file ($belist[2-])
+           if ( -e $file:r.o ) then
+             	set olist=($olist $file:r.o)
+           else 
+		set halt=2
+                echo "Algorithm $file not compiled."
+	   endif
+         end
+         if ( $#ibelist != 1 ) then
+                /bin/rm -f $ibelist
+         endif
+         if ( $halt == 2 ) then
+		exit
+         endif
+endif
+if ( $halt == 2 ) then
+		exit
+endif
+
+# create liblocal.a
+if ( $nolib == 0 ) then
+   #unique olist
+   set newo=""
+   foreach file ($olist)
+       set found=0
+       foreach ofile ($newo)
+          if ( $ofile == $file ) then
+	    set found=1
+          endif
+       end
+       if ( $found == 0 ) then
+	    set newo=($newo $file)
+       endif
+   end
+   set olist=($newo)
+   if ( $#olist != 1 ) then
+            ar rv liblocal.a $olist[2-]
+            if ( $RANLIB_NEEDED ) ranlib liblocal.a
+            /bin/rm *.[fo]
+   endif 
+endif
+if ($halt == 4 ) then
+	exit
+endif
+
+# link
+if ( $nolib == 0 ) then
+    $BE $optlist -L`pwd` -llocal  $arlist -L$SL -lsac2 -l$DPQR -llow
+else
+    $BE $optlist $olist[2-]  $arlist -L$SL -lsac2 -l$DPQR -llow
+endif
+
+if ( ! -e a.out || $halt == 3) then
+	exit
+endif
+
+# attach i/o-files and run
+/bin/rm -f core
+if ($#ilist != 1 ) then
+    if ($#outlist != 1 ) then
+	cat -u $ilist[2-] | a.out  >&! $outlist[2-]
+    else cat -u $ilist[2-] | a.out 
+    endif
+else
+    if ($#outlist != 1 ) then
+	a.out  >&! $outlist[2-]
+    else a.out
+    endif
+endif
+if (-e core) then
+	$T/backwalk
+endif
+

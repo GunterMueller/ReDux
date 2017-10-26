@@ -1,0 +1,25 @@
+%%  comment symbol
+DATATYPE arith;
+%% AUTHOR K. A. Yelick & S. J. Garland
+%% ORIGIN CADE'92: A parallel Completion Procedure for Term Rewriting Systems
+%% 
+SORT
+	S;
+CONST
+	e: S;
+VAR
+	x, y, z: S;
+OPERATOR
+	l: S, S -> S;
+	m: S, S -> S;
+	n: S, S -> S;
+	li: S -> S;
+NOTATION
+	l, m, n, li: FUNCTION;
+AXIOM
+[1]  l(x, l(y, z)) == l(l(x, y), z);
+[2]  l(e, e) == e;
+[3]  l(x, li(x)) == e;
+[4]  n(l(x, y), y) == m(l(x, y), x);
+[5]  m(e, x) == x;
+END

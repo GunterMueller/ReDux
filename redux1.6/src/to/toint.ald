@@ -1,0 +1,130 @@
+[Project: ReDuX Term Orderings
+   module name        : TOINT -- INTeractive
+   modulespecification: interactive procedures for term orderings.
+   programmer         : Reinhard Buendgen/Michael Joswig/Juergen Wendel
+   language           : aldes                             
+   last change        : $Date: 1994/10/07 08:05:57 $
+                        by $Author: buendgen $
+   version:           : $Revision: 1.11 $
+   bugs               : non known                       
+   modules needed     : 
+]
+     
+[----------------------------------------------------------------------
+     Section 1.                                     
+-----------------------------------------------------------------------]
+  
+                    ORDWRT(t1,t2,C^)
+[Ordering write.
+t1 and t2 are terms, C^ is the character 'S', 'R', '=' or 'H'.
+Then the ordering of t1 and t2 is output according to C^: 'S': t1 > t2,
+'R': t2 > t1, '=': t1 = t2 else t1 and t2 are uncomparable.]
+
+(1)  if C^ = 'S' \/ C^ = '=' then
+     { TDIWRT(t1,(); N); if C^ = 'S' then STROUT("   >   ")
+       else STROUT("   =   "); TDIWRT(t2,N; N); WRITE
+     } else if C^='R' then
+     { TDIWRT(t1,(); N); STROUT("   <   "); TDIWRT(t2,N; N); WRITE }
+     else { TDIWRT(t1,(); N); STROUT(" and "); TDIWRT(t2,N; N);
+            STOUTL(" are not comparable.")
+          }||
+
+                    O:=TORDIN(D~)
+[Term orderings AC compatible, initialization.
+D~ is the data type. Then O is a string denoting different initialized
+term orderings. Version 18.7.92 Juergen Wendel [modified by WL]]
+
+(1)  [Menue.  Implemented: polynomial knuth-bendix path ordering.]
+     BLINES(1); STOUTL("Already installed orderings:");
+     O^:=TORDGT(D~); CLOUT(O^); WRITE;
+     STOUTL("Initialization of term orderings.");
+     STOUTL("The following term orderings are supported:");
+     STOUTL("  P  -- Path ordering (with l-r and r-l status)");
+     STOUTL("  K  -- Knuth-Bendix ordering. Not AC-compatible!");
+     for i=1,...,9 do {
+        STROUT("  "); IWRITE(i); STOUTL(". -- polynomial ordering")
+     }; BLINES(1).
+(2)  STOUTL("Which of these orderings shall be added ?");
+     STOUTL("Input string of {P,K,1,2,3,4,5,6,7,8,9} *");
+     READ; C^:=UCASE(CREAD()); O:=();
+     O_:=('P','K','1','2','3','4','5','6','7','8','9');
+     k:=FALSE; p:=FALSE; y1:=FALSE; y2:=FALSE; y3:=FALSE; y4:=FALSE;
+     y5:=FALSE; y6:=FALSE; y7:=FALSE; y8:=FALSE; y9:=FALSE;
+     while C^ # ' ' do
+     { if MEMBER(C^,O_) then
+       { if ~MEMBER(C^,O^) then
+         { O:=COMP(C^,O); 
+           case C^ of {'P' do p:=TRUE;
+                       'K' do k:=TRUE;
+                       '1' do y1:=TRUE;
+                       '2' do y2:=TRUE;
+                       '3' do y3:=TRUE;
+                       '4' do y4:=TRUE;
+                       '5' do y5:=TRUE;
+                       '6' do y6:=TRUE;
+                       '7' do y7:=TRUE;
+                       '8' do y8:=TRUE;
+                       '9' do y9:=TRUE
+                      };
+         }
+         else { WRITE; STOUTL("Already installed") };
+       } else { WRITE; STOUTL("Illegal character") };
+       C^:=UCASE(CREAD());
+     }; O:=INV(O).
+(3)  [Check.] BLINES(1); STROUT("The accepted string is ");
+     CLOUT(O); STOUTL(". Ok [Y/N]? *"); READ;
+     C^:=UCASE(CREAD()); if C^ = 'N' then goto 1.
+(4)  [Initialize Orderings.] O:=CCONC(O,O^);
+     if k then BGNKBO(D~); if p then BGNPO(D~);
+     if y1 then BGNPYO(D~,1); if y2 then BGNPYO(D~,2);
+     if y3 then BGNPYO(D~,3); if y4 then BGNPYO(D~,4);
+     if y5 then BGNPYO(D~,5); if y6 then BGNPYO(D~,6);
+     if y7 then BGNPYO(D~,7); if y8 then BGNPYO(D~,8);
+     if y9 then BGNPYO(D~,9);
+     STOUTL("Initialized orderings:");
+     CLOUT(TORDGT(D~)); WRITE; BLINES(1)  ||
+
+                    O*:=TORDSE(DT,O)
+[Term ordering select.
+DT is the data type and O is a string denoting initialized term
+orderings. Then O* is a string denoting a term ordering composed of
+the lexicographically combination of orderings in O and 'S' and 'R'.
+[modified by WL]]
+
+(1)  [Menue.] O_:=CONC(LIST2('S','R'),O).
+(2)  BLINES(1); STOUTL("The following term orderings are installed:");
+     O':=O; while O' # () do
+     { ADV(O'; o,O'); case o of
+      {'K' do STROUT("  K -- Knuth-Bendix ordering");
+       'P' do STROUT("  P -- Path ordering (with l-r and r-l status)"); 
+       '1' do STROUT("  1 -- 1. polynomial ordering");
+       '2' do STROUT("  2 -- 2. polynomial ordering");
+       '3' do STROUT("  3 -- 3. polynomial ordering");
+       '4' do STROUT("  4 -- 4. polynomial ordering");
+       '5' do STROUT("  5 -- 5. polynomial ordering");
+       '6' do STROUT("  6 -- 6. polynomial ordering");
+       '7' do STROUT("  7 -- 7. polynomial ordering");
+       '8' do STROUT("  8 -- 8. polynomial ordering");
+       '9' do STROUT("  9 -- 9. polynomial ordering");
+      }; WRITE;
+     }; STOUTL("  S -- Straight (pseudo) ordering");
+        STOUTL("  R -- Reverse (pseudo) ordering").
+(3)  [Info.]
+     if ISPYO(DT) then {
+        BLINES(1); STOUTL("  D -- Display polynomial ordering(s)")
+     }; BLINES(1);
+     STROUT("Input a string consisting of at most one");
+     STOUTL(" occurence of the above orderings to  ");
+     STROUT("select the lexicographic combination of ");
+     STOUTL("these orderings.");
+     if ISPYO(DT) then STOUTL("Input string or D to display *")
+     else STOUTL("Input string *").
+(4)  [Read Ordering or display.] READ; C^:='x'; O*:=();
+     while C^ # ' ' do {
+        if MEMBER(C^,O_) then O*:=COMP(C^,O*)
+        else if ISPYO(DT) /\ C^ = 'D' then { PYODIS(DT); goto 2 };
+        C^:=UCASE(CREAD())
+     }; O*:=INV(O*). 
+(5)  [Check.] BLINES(1); STROUT("The accepted string is `");
+     CLOUT(O*); STOUTL("'. Ok [Y/N]? *"); WRITE; READ;
+     C^:=UCASE(CREAD()); if C^ = 'N' then goto 2 ||

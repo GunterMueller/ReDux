@@ -1,0 +1,16 @@
+Verzeichnis ccsplit
+===================
+
+
+Inhalt:
+
+   ccsplit:        C-code-split
+                   input (stdin): C code source file
+                   output: one file for each algorithm in input named by
+                           <algorithm name>.c 
+                   bugs: Works only with C code files from the ALDES-C-
+                         translator.
+                         The existance of files is checked by opening 
+                         them for read access. This fails if there are files
+                         without read-permission in the current directory.
+   ccsplit.l:     LEX-source for ccsplit

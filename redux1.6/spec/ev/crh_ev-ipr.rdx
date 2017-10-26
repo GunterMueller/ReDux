@@ -1,0 +1,64 @@
+%%  comment symbol
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS not complete
+%%  DESCRIPTION 
+%%  ORIGIN
+DATATYPE CommutativeRingWithUnit;
+SORT
+	Ring, R2;
+EXTERNAL
+        SAC2IP: XREAD=IPRRDE, XWRITE=IPRWRE, XTERM=TFIPRE, XFG=IPRFG;
+CONST
+	0,1: Ring;
+	o,i: R2;
+VAR
+	a, b, c, d, e: Ring;
+        x, y, z: R2;
+OPERATOR
+	+: Ring, Ring -> Ring;
+	*: Ring, Ring -> Ring;
+	-: Ring -> Ring;
+        #: R2, R2 -> R2;
+        @: R2, R2 -> R2;
+        ~: R2 -> R2;
+        h: R2 -> Ring;
+COERCION
+        ': SAC2IP -> Ring;
+NOTATION
+        ': ROUNDFIX ';    %% argument between quotes
+        h: FUNCTION;
+PREC
+        + < *;
+        # < @;
+THEORY
+	+, *, #, @ : AC;
+PROPERTY
+        -: SAC2IP=IPRNEG;
+        *: SAC2IP=IPRPRO;
+        +: SAC2IP=IPRSUM;
+        1: SAC2IP=IPRONE;
+        0: SAC2IP=PRZERO;
+AXIOM
+    [1]   0 + a == a;
+    [2]   0 * a == 0;
+    [3]   1 * a == a;
+    [4]   -0 == 0;
+    [5]   --a == a;
+    [6]   a + -a == 0;
+    [7]   -(a + b) == -a + -b;
+    [8]   a * -b == -(a * b);
+    [9]   a * (b + c) == a * b + a * c;
+
+   [10]   o # x == x;
+   [11]   o @ x == o;
+   [12]   i @ x == x;
+   [13]   ~o == o;
+   [14]   ~~x == x;
+   [15]   x # ~x == o;
+   [16]   ~(x # y) == ~x # ~y;
+   [17]   x @ ~y == ~(x @ y);
+   [18]   x @ (y # z) == x @ y # x @ z;
+
+   [19]   h(x # y) == h(x) + h(y);
+   [20]   h(x @ y) == h(x) * h(y);
+END

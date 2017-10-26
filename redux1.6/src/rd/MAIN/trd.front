@@ -1,0 +1,12 @@
+[Stack-size:]
+    pragma TMU=700000.
+[Heap-size:]
+    pragma TNU=2560000.
+
+[ #include tp.h ]
+
+                    TRDEMO.
+[Main, random term generation demo program.]
+
+[ #include globs.h ]
+[ #include trandglobs.h ]

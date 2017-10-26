@@ -1,0 +1,25 @@
+%% 
+DATATYPE LIST;
+%%  AUTHOR Marta Franova
+%%  ORIGIN email from 03.08.93
+SORT
+	EL, LIST;
+CONST
+	0: EL;
+	nil: LIST;
+VAR
+	a, b, c: EL;
+	l, m, n, x, y, z: LIST;
+OPERATOR
+	s: EL -> EL;
+	cons: EL, LIST -> LIST;
+	app: LIST, LIST -> LIST;
+	f: LIST, LIST -> LIST;
+NOTATION
+	s, cons, app, f: FUNCTION;
+AXIOM
+[1] app(nil,l)==l;
+[2] app(cons(a,l),m)==cons(a,app(l,m));
+[3] f(nil,l)==l;
+[4] f(cons(a,l),m)==cons(a,f(l,m));
+END

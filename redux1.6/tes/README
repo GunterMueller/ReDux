@@ -1,0 +1,73 @@
+Verzeichniss tes
+================
+
+Verzeichnis enthaelt Dateien fuer die Uebung zur Vorlesung
+Termersetzungssysteme.
+
+
+Inhalt:
++++++++
+README              diese Datei
+bugs                Hinweise zu typischen ALDES-programmier Fehlern
+ReDuX-kwic-index@   Link auf eine Kwic-Index aller ReDuX-Quellen
+test1.ald           Ein erstes SAC-2 Testprogramm
+rdxtst.ald          Ein erstes ReDuX-Testprogramm
+
+======================================================================
+
+So wird test1.ald uebersetzt.
+    % cp test1.ald MYDIR/test1.ald
+    % cd MYDIR
+    % rm -f liblocal.a
+    % /usr/local/redux/bin/aldr -R -9 test1.ald
+anschliessend started das Programm sofort (das kann durch die Option -B 
+verhindert werden.) -- z.B. kann Aus- und Eingabe wie folgt aussehen:
+
+    Aldes v 3.7, (c) RGKL 1994.
+    TEST1 
+ 
+    *** Translation successful.
+    r - test1.o
+    Gib Liste ein: *
+    (1,4,6,8)
+    Gelesen wurde L = (1,4,6,8)
+    Die invertierte liste ist L'= INV(L) = (8,6,4,1)
+    L = (1)
+    L'' = CINV(L') = (1,4,6,8)
+    L' = (8,6,4,1)
+    %
+    
+Dabei werden folgende Dateien Generiert:
+    liblocal.a:      lokale Bibliothek von uebersetzen Algorithmen
+    a.out:           Lauffaehiges Programm (wird sofort gestartet)
+
+Zwischendurch werden folgende Hilfsdateien erzeugt.
+    test1.c:         C-code fuer test1.ald
+    test1.o:         Objektcode fuer test1.ald
+
+=======================================================
+
+So wird rdxtst.ald uebersetzt.
+    % cp rdxtst.ald MYDIR/rdxtst.ald
+    % cd MYDIR
+    % rm -f liblocal.a
+    % /usr/local/redux/bin/aldr -B rdxtst.i
+
+Dabei werden folgende Dateien Generiert:
+    i_rdxtst.ald:    rdxtst.ald mit eingef"ugten include-Dateien
+    liblocal.a:      lokale Bibliothek von uebersetzen Algorithmen
+    a.out:           Lauffaehiges Programm
+
+Zwischendurch werden folgende Hilfsdateien erzeugt.
+    rdxtst.c         C-code fuer i_rdxtst.ald
+    rdxtst.o:        Objektcode fuer i_rdxtst.ald
+
+Zum Starten von a.out muss eine ReDuX-Spezifikation angegeben werden.
+Die kann als Argument uebergeben werden (z. B.):
+    % a.out /usr/local/redux/spec/listN.rdx
+oder von einer default-Datei eingelesen werden:
+    % cp /usr/local/redux/spec/listN.rdx a.out.in
+    % a.out
+   
+Beim Programmablauf werden folgende Dateien erzeugt:
+    a.out.log        Protokoll des Programmablaufs

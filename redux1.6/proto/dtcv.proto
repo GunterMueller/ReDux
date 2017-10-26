@@ -1,0 +1,80 @@
+#!/bin/sh -f
+#
+# dtcv:
+# This file converts data types from old style to new style.
+# Usage: dtcv <filename>
+# Input (data type file) is read from file "filename".
+# The converted data type is written to standard output.
+# CAUTION: There are several limitations which data types can be converted!
+#          These limitations comprise:
+#            - no postfix operators with arity other than one
+#            - all axioms must start on a separate line
+#            - postfix operators at the end of an axiom must not
+#              start on a new line
+#            - there must not be an identifier named "&@&@&@"
+
+ RDX=RDX
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+
+# path of conversion programs and scripts:
+    BINDIR=$RDX/tool/Dtcv
+# path for temporary files:
+    TMPDIR=/tmp
+# awk tool
+ AWK=AWK
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+
+########## No changes should be necessary after this line ! ##########
+
+# argument specified?
+if [ $# -ne 1 ]
+then
+  echo "Usage: dtcv <file>" >&2
+  exit
+fi
+
+# does input file exist?
+if [ ! -r $1 ]
+then
+  echo "File '$1' not found!" >&2
+  exit
+fi
+
+# change comments to new style
+$BINDIR/rmcomm $1 >$TMPDIR/c0.rdx
+
+# conversion of signature part
+$BINDIR/conv <$TMPDIR/c0.rdx >$TMPDIR/c1.rdx
+if [ $? -gt 0 ] 
+then
+  echo $1 "could not be converted!" >&2
+  exit
+fi
+
+# conversion of axiom part
+$BINDIR/cvax <$TMPDIR/c0.rdx >$TMPDIR/c2.rdx
+
+# combine converted signature and axiom parts
+cat $TMPDIR/c1.rdx $TMPDIR/c2.rdx >$TMPDIR/c3.rdx
+
+# insert (external) sort information
+sort $TMPDIR/sorts.rdx | uniq >$TMPDIR/c4.rdx
+sort $TMPDIR/xsrts.rdx | uniq >$TMPDIR/c5.rdx
+sorts=`comm $TMPDIR/c4.rdx $TMPDIR/c5.rdx | cut -f1 | $BINDIR/mksrt`
+rm -f $TMPDIR/sorts.rdx
+sed "s/&@&@&@/$sorts/" <$TMPDIR/c3.rdx >$TMPDIR/c6.rdx
+xsrts=`cat $TMPDIR/c5.rdx`
+
+# coercion operators must be preceded by a special keyword
+$AWK -vxsorts="$xsrts" -f $BINDIR/cvcoerc $TMPDIR/c6.rdx >$TMPDIR/c7.rdx
+
+# write new data type to standard output
+cat $TMPDIR/c7.rdx
+
+# clean up
+rm -f $TMPDIR/c0.rdx $TMPDIR/c1.rdx $TMPDIR/c2.rdx $TMPDIR/c3.rdx
+rm -f $TMPDIR/c4.rdx $TMPDIR/c5.rdx $TMPDIR/c6.rdx $TMPDIR/c7.rdx
+rm -f $TMPDIR/sorts.rdx $TMPDIR/xsrts.rdx
+

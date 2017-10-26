@@ -1,0 +1,70 @@
+\def\null{\makebox[0mm]{}} % dummy word not using any space
+
+
+\newcommand{\QED}{\hspace*{\fill} $\Box$}
+\newcommand{\wrt}{w.\,r.\,t.}
+
+\newcommand{\RUD}{{\it The ReDuX User Guide}}
+\newcommand{\RIX}{{\it The ReDuX System Indices}}
+\newcommand{\NPPG}{{\it A New Parser for ReDuX Programmer's Guide}}
+\newcommand{\NPUG}{{\it A New Parser for ReDuX User's Guide}}
+
+
+%variables used for roman numbers
+\newcounter{constantone}
+\newcounter{constanttwo}
+\newcounter{constantthree}
+\setcounter{constantone}{1}
+\setcounter{constanttwo}{2}
+\setcounter{constantthree}{3}
+
+\newcommand{\ALDES}{A{\small L}D{\small ES}}
+\newcommand{\redux}{ReDuX}
+\newcommand{\ind}[1]{$#1^{\mbox{\scriptsize nd}}$} % 2^{nd}
+\newcommand{\ird}[1]{$#1^{\mbox{\scriptsize rd}}$} % 3^{rd}
+\newcommand{\ist}[1]{$#1^{\mbox{\scriptsize st}}$} % 1^{st}
+\newcommand{\ith}[1]{$#1^{\mbox{\scriptsize th}}$} % i^{th}
+\newcommand{\I}{\mbox{\Roman{constantone}}}
+\newcommand{\II}{\mbox{\Roman{constanttwo}}}
+\newcommand{\III}{\mbox{\Roman{constantthree}}}
+\newcommand{\qsucc}{\raisebox{-.6ex}{$\stackrel{\textstyle \succ}{\sim}$}}
+\newcommand{\qprec}{\raisebox{-.6ex}{$\stackrel{\textstyle \prec}{\sim}$}}
+\newcommand{\mountain}[3]{\raisebox{-1ex}{$#1$}$ \swarrow$\raisebox{.9ex}{$#2$}$
+  \searrow$\raisebox{-1ex}{$#3$}}
+\newcommand{\mount}[3]{$#1 {\scriptstyle \swarrow} #2 {\scriptstyle \searrow} #3$}
+
+\newcommand{\bgn}{\mbox{\boldmath $\{$}} % begin brace
+\newcommand{\nd}{\mbox{\boldmath $\}$}}  % end brace
+\newcommand{\bfla}{\mbox{\boldmath $\leftarrow$}}  % bold face arrow <-
+\newcommand{\bfra}{\mbox{\boldmath $\rightarrow$}}  % bold face arrow ->
+\newcommand{\bflra}{\mbox{\boldmath $\leftrightarrow$}}  % bold face arrow <->
+\newcommand{\bfda}{\mbox{\boldmath $\downarrow$}}  % bold face downarrow V
+
+% commands for use in math mode only
+
+\newcommand{\Nat}{{\bf N}} % use only in math mode
+\newcommand{\Int}{{\bf Z}} % use only in math mode
+\newcommand{\Rat}{{\bf Q}} % use only in math mode
+\newcommand{\Real}{{\bf R}} % use only in math mode
+
+\newcommand{\lcm}{\mbox{\rm lcm}} % use only in math mode
+\newcommand{\nth}[1]{\frac{1}{#1}} % use only in math mode
+
+\newcommand{\ornt}[2]{\mbox{{\em ornt}}_{#2}({#1})} % use only in math mode
+
+\newcommand{\polyplus}{\; \mbox{\boldmath ${\scriptscriptstyle +}$} \; } 
+                                                    % use only in  math mode
+
+\newcommand{\Coef}{C\!o\!e\!f} % use only in math mode
+\newcommand{\Unk}{I\!n\!d}     % use only in math mode
+\newcommand{\Poly}{P\!oly}   % use only in math mode
+
+\newenvironment{example}{\begin{xmpl} \em}{\end{xmpl}}
+
+\newcounter{Enum}
+\newenvironment{Enumerate}{\begin{list}{\arabic{Enum}.}
+ {\usecounter{Enum} \parsep0ex \itemsep0.3ex}}{\end{list}}
+\newenvironment{Itemize}{\begin{list}{\labelitemi}
+ {\parsep0ex \itemsep0.3ex}}{\end{list}}
+\newenvironment{Description}{\begin{list}{\bf}
+ {\parsep0ex \itemsep0.3ex}}{\end{list}}

@@ -1,0 +1,9 @@
+Directory uc/MAIN
+=================
+
+Contents:
+  uc.ald            Auxiliary source: a catenation of
+                        uc.front, globs.h, uc.h and uc.end
+  uc.end            End part of the uc main program
+  uc.front          Front part of the uc main program
+  ucsub.ald         Sub-algorithms for different menu points of uc

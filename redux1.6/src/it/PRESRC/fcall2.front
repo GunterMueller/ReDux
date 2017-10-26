@@ -1,0 +1,14 @@
+const
+     ALDESPLUS(y,z)   = y + z,
+     ALDESMINUS(y,z)  = y - z,
+     ALDESTIMES(y,z)  = y * z,
+     ALDESDIV(y,z)    = y / z,
+     ALDESEXP(y,z)    = y ^ z.
+
+                    r:=FCALL2(f,a1,a2)
+[Call function with 2 arguments.
+f is a beta-integer denoting a binary function F.
+Then r is the result of calling F(a1,a2).]
+
+(1)  [Dispatch.] case f of
+     { [ <i> do r:=<function nu. i>(a1,a2);]

@@ -1,0 +1,259 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPAX -- AuXilliary algorithms
+   modulespecification: auxilliary algorithms
+                        taken form tpcy, ica.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : $Date: 1996/07/11 09:48:10 $
+                        by $Author: buendgen $
+                        SBTRM changed, (r 1.5): TASELM deleted,
+                        TASOCC renamed TSOOCC (r 1.6): TSOCC deleted
+                        (r 1.8): FREEC and OVOET added from icax
+   version            : 5 without labels
+                        $Revision: 1.21 $
+   bugs               : none known
+   modules needed     : SAC2: low/bs, low/sy, low/lp, 
+                        ReDuX: tp/dd
+
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[--------------------------------------------------------------------  
+     section 1.                                                         
+     Main algorithms for export.                                  
+----------------------------------------------------------------------]
+
+                    b:=ASMEMN(a,L)
+[Axiom set membership test wrt to axiom number.  
+a  is an axiom, L a list of axioms.  
+Then b is true if L contains an axiom with the same number as axiom a
+otherwise b is false.]
+     safe ASMEMN.
+(1)  [Initialize.] b:=TRUE;  L':=L.
+(2)  [Search.]  while L' # () do 
+      { ADV(L'; a1,L'); if ANUM(a) = ANUM(a1) then return }.
+(3)  [No success.] b:=FALSE ||
+
+                    b:=FREEC(C,R)
+[Free constructors.
+C is a set of constructors and R is a set of rules.
+Then b = TRUE if none of the operators or constants of C appears at the
+top of the left-hand side of a rule in R, i. e. every operator or 
+constant is a free constructor. Otherwise b = FALSE.]
+     safe FREEC.
+(1)  [Initialize] C':=C; b:=FALSE.
+(2)  [Check operators.] while C' # () do
+     { ADV(C'; c,C'); R':=R; s:=TSIGN(c);
+      [Check rules.] while R' # () do
+       { ADV(R'; r,R'); LHS:=ALHS(r);  if TSIGN(LHS)=s then return };
+     }; b:=TRUE ||
+
+                    F:=FREECS(C,R)
+[Free constructor subset.
+C is a set of constructors and R is a set of rules.
+Then F is the set of those operators or constants of C that do not
+appear as a top symbol of a left-hand side of a rule in R.]
+
+     safe C',c,R',r,b,s.
+(1)  [Initialize] C':=C; F:=().
+(2)  [Check operators.] while C' # () do
+     { ADV(C'; c,C'); R':=R; b:=FALSE; s:=TSIGN(c);
+      [Check rules.] while ~b /\ R' # () do
+       { ADV(R'; r,R'); if TSIGN(ALHS(r))=s then b:=TRUE };
+      if ~b then F:=COMP(c,F)
+     } ||
+
+                    OSPFNF(O,R; F,N)
+[Operator set, partition into free constructors and non-free operators.
+Input:
+     O: set of operators (and constants)
+     R: TRS
+Output:
+     F: F subset of O 
+        s. th. /\ f in F /\ r in R: f # top-symbol(LHS(r))
+     N: N = O \ F
+]
+
+(1)  [Initialize.] O':=O; F:=(); N:=().
+(2)  [Check operators.] while O' # () do
+     { ADV(O'; o,O'); s:=TSIGN(o); R':=R; b:=false;
+       while ~b /\ R' # () do
+       { ADV(R'; r,R'); 
+         if TSIGN(ALHS(r)) = s then { F:=COMP(o,F); b:=true }
+       }; if ~b then N:=COMP(o,N)
+     }.
+(3)  [Reorder.] F:=INV(F); N:=INV(N) ||
+
+                    t:=MKTERM(o,V)
+[Make term.
+o is an operator of the data type. V is the variable
+list of the datatype. Then t = o(x1,...,x sub n) for arbitrary
+x sub i in VAR, and t is linear. All variables of the same type
+have the same SIGN.]
+     safe D,d,V',v'.
+(1)  [Initialize.]   D:=ODTYPE(o); V*:=().
+(2)  [Trivial case. All arguments ready. Build term.] if D=() then
+      {t:=TCONS(V*,o); return};
+     ADV(D; d,D); V':=V.
+(3)  [Get var of type d.] ADV(V'; v',V');
+     if d # TTYPE(v') then if V' # () then goto 3 else 
+     { CLOUT("*** error in MKTERM while using "); OPWRT(o); WRITE };
+     v:=TCONS((),v'); V*:=SUFFIX(V*,v); goto 2 ||
+
+                    V*:=OVOET(V)
+[One variable of each type.
+V is a list of variables. Then V* is a list of variables s. th.
+for each variable type  in V there is one variable in V*.]
+     safe v,V'',T,V',v',b.
+(1)  [Initialize.]  V*:=(); V'':=V.
+(2)  [Iterate on V.]  while V'' # () do
+     { ADV(V''; v,V''); T:=TTYPE(v); V':=V*; b:=FALSE;
+      [Type already in V*?]  while V' # () /\ b = FALSE do
+      { [In V* ?] ADV(V'; v',V'); if T = TTYPE(v') then b:=TRUE };
+      if b = FALSE then V*:=COMP(VCONS(TNAME(v),T),V*)
+     } ||
+
+                    p:=SBTRM(T*,T)
+[Subterm.
+T* and T are terms. Then p is a list denoting the position of
+T* in T in Dewey-decimal notation if T* is a subterm of T,
+p = 0 otherwise.]
+     safe T',T*,K,t.
+(1)  [Initialize.] T':=T; p:=0.
+(2)  [Triv. Cases.] if T*=T' then { p:=(); return }.
+(3)  if T'=() then return else K:=TKIND(T);
+     if K=DVS then { T':=VARBIND(T'); goto 2 };
+     if K # DOS then return.
+(4)  [Recursion.] T'':=OARGLST(T'); i:=0; while T'' # () /\ p = 0 do
+      { ADV(T''; t,T''); i:=i+1; p:=SBTRM(T*,t); 
+       if p # 0 then { p:=COMP(i,p); return } } ||
+ 
+                    TBVSLI(T; V*,LLB)                                 
+[Semi-bound term, variable set and linearity.                          
+T is a semi-bound term. Then v is its variable set and LLB=1, if T is   
+linear, otherwise LLB=0.]                                               
+     safe k,LLB.                                                       
+(1)  [Initialize.] V*:=(); T':=T; LLB:=1.
+(2)               k:=TKIND(T').
+(3)  [Variable.] if k=DVS then {C:=VARBIND(T');
+                    if C=() then {V*:=COMP(T',V*); return}             
+                            else {T':=C; goto 2}}.
+(4)  [Non-atomic term.] if k=DOS then                                 
+                          {TNBVSL(T'; V*,LLB); UNDO(V*)}||              
+
+                    TLRVLL(T; V,l_)
+[List of related terms; variable list and linearity.
+T is a list of related semi-bound terms.
+Then V is the list of variables occuring in T and l_ = TRUE
+if each variable occurs at most once in T.]
+
+(1)  [Initialize.] V:=(); T':=T; l_:=TRUE.
+(2)  [Trivial case.] if T' = () then { UNDO(V); return }
+                     else ADV(T'; t,T').
+(3)  [Is t a variable?] k:=TKIND(t); if k=DVS then 
+     { C:=VARBIND(t); if C=() then 
+      { [mark variable.] VARBIND(t):=1;  V:=COMP(t,V); goto 2 }
+      else  if C = 1 then { [marked] l_:=FALSE; goto 2 }
+                     else { [bound] t:=C; goto 3 }
+     }.
+(4)  [Non-atomic term.] if k=DOS then 
+     { TNBVSL(t; V1,l_1); V:=CONC(V1,V); if l_ then l_:=l_1 }; 
+     goto 2 ||
+
+                    b:=TMIXED(t)
+[Mixed term.
+T is a term possibly containig external tems.
+Then b is true if t contains an external subterm.]
+     safe k.
+(1)  [Initialize.] t':=t; b:=FALSE.
+(2)  [Term kind.] k:=TKIND(t').
+(3)  [Constants.] if k = DCS then return.
+(4)  [External term.] if k = DXT then { b:=TRUE; return }.
+(5)  [Variable.] if k = DVS then
+     { C:=VARBIND(t'); if C = () then return else { t':=C; goto 2 } }.
+(6)  [Non-atomic.] C:=OARGLST(t'); while C # () /\ ~b do 
+     { ADV(C; c,C); b:=TMIXED(c) }  ||
+ 
+
+                    e:=TSOOCC(t,L)                                     
+[Set of terms, top operator occurrence.                                      
+t is a term (or operator), L is a set of terms (or operators). 
+Then e=() if no element of L has the same TSIGN as t, otherwise e is the 
+first such element.  Formerly called TASOCC.]   
+     safe TSOOCC.                                                      
+(1)  [Initialize.] t':=TSIGN(t); L':=L.
+(2)  [Trivial case.]  if L'=() then {e:=(); return}.
+(3)  [Step.]  ADV(L'; e,L'); if TSIGN(e) # t' then go to  2 ||      
+
+                    b:=TOC(t,C)
+[Term of constructors.
+t is a term. C is a list of operators and constants.
+Then b = TRUE if t is in T(C,X), otherwise b = FALSE.]
+     safe C,K,S,t*,t',C',c.
+(1)  [Initialize.] b:=TRUE; t':=t.
+(2)  [Triv.Cases.] K:=TKIND(t'); S:=TSIGN(t');
+     if K=DVS then
+     { t*:=VARBIND(t');
+      if t* # () then {t':=t*; goto 2} else return
+     }; C':=C; b:=FALSE;
+     while C' # () /\ b=FALSE do
+     { ADV(C'; c,C'); if TSIGN(c)=S then b:=TRUE };
+     if b=FALSE \/ K # DOS then return.  
+(3)  [Recursion.]  A:=OARGLST(t'); while A # () do
+     { ADV(A; a,A); b:=TOC(a,C); if b=FALSE then return }||
+
+                    T':=TSFS(t) 
+[Semi-bound term, skip first substitutions. 
+t is a term, possibly a bound variable. Then T' is the same term 
+where bound variables are removed from the top.] 
+     safe TSFS. 
+(1)  [Initialize.] T':=t. 
+(2)  [Test kind of top of term] K:=TKIND(T'); 
+     [Record substitution.] if K=DVS then 
+     { C:=VARBIND(T'); if C # () then {T':=C; goto 2} }||
+                                                                       
+                    b:=VINT(v,T) 
+[Variable in term. 
+v  is  a  free variable, T is a non-atomic or external term with 
+variables possibly bound. 
+Then b=TRUE if v in T, b=FALSE otherwise.] 
+     safe b,v,k,t. 
+(1)  [External term.] b:=FALSE; if TKIND(T) # DOS then return;
+     [Right recursion. v in list of operands.] L:=OARGLST(T).
+(2)  [Trivial case of right recursion.] if L=() then return.
+(3)  [Left recursion. v in single operand.] 
+     [Initialize.]  ADV(L; t,L).
+(4)  [Trivial case of left recursion. Same terms.] 
+     if v=t then {b:=TRUE; return}; k:=TKIND(t).
+(5)  [Bases of left recursion. Atomic operand.] 
+     [Variable.] if k=DVS then 
+      {t:=VARBIND(t); if t=() then go to  2 else go to  4};
+     [Atomic term.]  if k # DOS then go to  2.
+(6)  [Step of left recursion. Non-atomic operand.] 
+     b:=VINT(v,t); if b=FALSE then go to  2 || 
+
+[--------------------------------------------------------------------
+     section 2.
+     Subalgorithms for internal use
+----------------------------------------------------------------------]
+
+                    TNBVSL(T; V*,LLB)
+[Non-atomic semi-bound term, variable set and linearity.
+T is a non-atomic semi-bound term. Then v is its set of free and
+variables LLB=1 if T is linear, otherwise LLB=0. The content
+fields of free variables in T are modified.]
+     safe k,t,c,V',l'.
+(1)  [Initialize right recursion.] V*:=(); LLB:=1; L:=OARGLST(T).
+(2)  [Right recursion. Process list of operands.]
+     [Basis.] if L=() then return.
+(3)  [Step. Initialize left recursion.] ADV(L; t,L).
+(4)  [Left recursion. Process single operand.] k:=TKIND(t);
+     [Bases. Atomic terms. Variable.] if k=DVS then
+     { c:=VARBIND(t); if c=1 then {LLB:=0; goto 2} else
+      if c=() then {V*:=COMP(t,V*); VARBIND(t):=1; go to  2 }
+               else {t:=c; goto 4}
+     }; [Constant/external operator.] if k # DOS then go to  2.
+(5)  [Step of left recursion. Non-atomic term.] TNBVSL(t; V',l');
+     V*:=CONC(V',V*); if l'=0 then LLB:=0; go to  2 ||

@@ -1,0 +1,369 @@
+pragma  SYINT=2, ISIZE=72.
+[A ri]
+[ReDuX initialization file.]
+
+[const bufsize=256, tnu=25000, tmy=2000.]
+
+[Initialize syint with 2 in begina (and debug with 0).]
+
+const FALSE=0, TRUE=1, false=0, true=1.
+
+safe
+     ABUFF[256],        [Auxiliary buffer.]
+     ALMAR,
+     APOS,
+     ARMAR,
+     AUNIT,
+     CHI,
+     CUNIT,
+     ECHO,
+     EJECT,
+     ENDF,
+     IBUFF[256],
+     ILINE,
+     INDEX,
+     IPOS,
+     ISIZE,
+     IUNIT,
+     LMARG,
+     LUNIT,
+     MU,
+     MUNIT,
+     OBUFF[256],
+     OLINE,
+     OPOS,
+     OUNIT,
+     PRNTR,
+     RMARG,
+     STACK[2000],
+     TAU0.
+
+[Basic system intrinsic algorithms.]
+intrinsic ABS,BKSP,DIGIT,EMPTOB,REM,EVEN,LETTER,MAX,MIN,ODD,QREM,
+          SIGN,DSGN.
+                    b:=ABS(a)
+[Absolute value.  a is a gamma-integer.  b is the absolute value
+of a.]
+     safe ABS.
+(1)  if a >= 0 then b:=a else b:=-a ||
+                    BKSP()
+[Backspace.  IPOS is decreased by 1.]
+     safe BKSP.
+(1)  IPOS:=IPOS-1 ||
+                    t:=DIGIT(C)
+[Digit.  C is a character.  If C is a digit then t=true and otherwise
+t=false.]
+     safe DIGIT.
+(1)  if '0' <= C /\ C <= '9' then t:=TRUE else t:=FALSE ||
+                    EMPTOB()
+[Empty output buffer.  If OPOS is greater than LMARG then WRITE is
+called.]
+     safe EMPTOB.
+(1)  if OPOS > LMARG then WRITE ||
+                    r:=REM(a,b)
+[Remainder.  a and b are gamma-integers, b non-zer0.
+r=a-b*integer(a/b).]
+     safe REM.
+(1)  r:=a-b * (a/b) ||
+                    t:=EVEN(a)
+[Even.  a is a \gamma-integer.  t=true if a is even and t=false 
+otherwise.]
+     safe EVEN.
+(1)  t:=REM(a,2); if t # 0 then t:=FALSE else t:=TRUE ||
+                    t:=LETTER(C)
+[Letter.  C is a character.  If C is a letter then t=true and otherwise
+t=false.]
+     safe LETTER.
+(1)  if 'A'<=C/\C<='Z' \/ 'a'<=C/\C<='z' then t:=TRUE else t:=FALSE ||
+                    c:=MAX(a,b)
+[Maximum.  a and b are gamma-integers.  c is the maximum of
+a and b.]
+     safe MAX.
+(1)  if a >= b then c:=a else c:=b ||
+                    c:=MIN(a,b)
+[Minimum.  a and b are gamma-integers.  c is the minimum of a and b.]
+     safe MIN.
+(1)  if a <= b then c:=a else c:=b ||
+                    t:=ODD(a)
+[Odd.  a is a gamma-integer.  t=true if a is odd and t=false otherwise.]
+     safe ODD.
+(1)  t:=REM(a,2);  if t # 0 then t:=TRUE else t:=FALSE ||
+                    QREM(a,b;q,r)
+[Quotient and remainder.  a and b are gamma-integers, b non-zero.
+q=integer(a/b) and r=a-b*q.]
+     safe QREM.
+(1)  q':=a/b;  r:=a-b * q';  q:=q' ||
+                    s:=SIGN(a)
+[Sign.  a is a gamma-integer.  s is the sign of a.]
+     safe SIGN.
+(1)  if a > 0 then s:=+1 else if a < 0 then s:=-1 else s:=0 ||
+                    s:=DSGN(a)
+[Digit sign.  a is a gamma-integer.  s is the sign of a.]
+     safe DSGN.
+(1)  if a > 0 then s:=+1 else if a < 0 then s:=-1 else s:=0 ||
+
+safe
+     AVAIL,
+     BETA,
+     BETA1,
+     GCC,
+     GCCC,
+     GCM,
+     NU,
+     RHO,
+     SPACE[25000],
+     TAU.
+
+intrinsic FIRST,SFIRST,RED,SRED,ADV,ADV2,RED2,SECOND,ATOM,BDIGIT.
+
+                    b:=ATOM(a)
+[Atom.  a is an object. b is true if a is an atom and false otherwise.]
+    safe ATOM.
+(1) if a<BETA then b:=true else b:=false ||
+                    b:=BDIGIT(a)
+[Beta digit.  a is an object. b is true if a is a beta-digit
+and false otherwise.]
+    safe BDIGIT.
+(1) if a<BETA then b:=true else b:=false ||
+                    a:=FIRST(L)
+[First.  L is a non-null list.  a is the first element of L.]
+safe FIRST.
+(1)  a:=SPACE[L-BETA1] ||
+                    SFIRST(L,a)
+[Set first.  L is a non-null list.  a is an object.  The first
+element of L is changed to a.]
+safe SFIRST.
+(1)  SPACE[L-BETA1]:=a ||
+                    L':=RED(L)
+[Reductum.  L is a non-null list.  L' is the reductum of L.]
+safe RED.
+(1)  L':=SPACE[L-BETA] ||
+                    SRED(L,L')
+[Set reductum.  L is a non-null list.  L' is a list.  The reductum
+of L is changed to L'.]
+safe SRED.
+(1)  SPACE[L-BETA]:=L' ||
+                    ADV(L;a,L')
+[Advance.  L is a non-null list.  a=first(L) and L'=red(L).]
+safe ADV.
+(1)  a:=FIRST(L);  L':=RED(L) ||
+                    ADV2(L;a,b,L')
+[Advance 2 elements.  L is a non-null list.  a=first(L), b=second(L) and
+L'=red2(L).]
+safe ADV2.
+(1)  ADV(L;a,L'); ADV(L';b,L') ||
+                    L':=RED2(L)
+[Reductum 2.  L is a list of length 2 or more.  L'=red(red(L)).]
+safe RED2.
+(1)  L':=RED(RED(L)) ||
+                    a:=SECOND(L)
+[Second.  L is a list of length 2 or more.  a is the second element
+of L.]
+safe SECOND.
+(1)  a:=FIRST(RED(L)) ||
+
+safe
+     DELTA,
+     EPSIL,
+     ETA,
+     RINC,
+     RMULT,
+     RTERM,
+     TABP2[64],
+     THETA,
+     ZETA.
+
+safe NPFDS.
+
+intrinsic MDDIF,MDNEG,MDPROD,MDQ,MDSUM,MDINV.
+
+                    c:=MDDIF(m,a,b)
+[Modular digit difference.  m is a positive \beta-digit.  a and b
+belong to z sub m.  c=a-b.]
+safe MDDIF.
+(1)  c:=a-b;  if c < 0 then c:=c+m ||
+                    b:=MDNEG(m,a)
+[Modular digit negative.  m is a positive \beta-digit.  a belongs
+to z sub m.  b=-a.]
+safe MDNEG.
+(1)  if a=0 then b:=0 else b:=m-a ||
+                    c:=MDPROD(m,a,b)
+[Modular digit product.  m is a positive \beta-digit.  a and b
+belong to z sub m.  c=a*b.]
+safe MDPROD.
+(1)  DPR(a,b;c1,c0);  DQR(c1,c0,m;q,c) ||
+                    c:=MDQ(m,a,b)
+[Modular digit quotient.  m is a positive \beta-digit.  a and b
+belong to z sub m.  b is a unit.  c=a/b.]
+safe MDQ.
+(1)  c:=MDPROD(m,a,MDINV(m,b)) ||
+                    b:=MDINV(m,a)
+[Modular digit inverse.  m is a positive beta-integer.  a  is a unit
+of Z_m.  b=a^{-1}.]
+     safe MDINV.
+(1)  a1:=m;  a2:=a;  v1:=0;  v2:=1;  while a2 # 1 do { q:=a1/a2;
+     a3:=a1-q * a2;  v3:=v1-q * v2;  a1:=a2;  a2:=a3;  v1:=v2;
+     v2:=v3 };  if v2 >= 0 then b:=v2 else b:=v2+m ||
+                    c:=MDSUM(m,a,b)
+[Modular digit sum.  m is a positive \beta-digit.  a and b belong
+to z sub m.  c=a+b.]
+safe MDSUM.
+(1)  c:=a+b;  c':=c-m;  if c' >= 0 then c:=c' ||
+
+safe
+     CELLS,
+     COUNT,
+     NAM,
+     SBASE,
+     TIM,
+     TRMAX.
+
+global
+     SYMTB,
+     SMPRM,
+     UZ210,
+     PRIME.
+
+intrinsic ... .
+
+                    ADIS(A; n,LHS,V^*,RHS,b)
+[Axiom display function.
+A  is  an  axiom. Then n is its number, LHS its left-hand side, V^* the
+variable set of A, RHS its right-hand side and b is its left-linearity-
+bit.]
+     safe ADIS.
+(1)  ADV3(A; LHS,V^*,RHS,A'); FIRST2(A'; n,b) ||
+
+                    P:=AGET(A,i)
+[Axiom, get property.
+The property list of the axiom A is searched under the indicator i. P is
+the property under i, if any, otherwise i is set to BETA.]
+     safe AGET.
+(1)  P:=ASSOC(i,APROP(A));  if P # () then P:=FIRST(P) ||
+
+                    ARDIS(A; LHS,V^*,RHS)
+[Axiom, rewrite-rule display.
+A  is an axiom. Then LHS is its left-hand side, V^* its variable set and
+RHS its right-hand side.]
+     safe ARDIS.
+(1)  FIRST3(A; LHS,V^*,RHS) ||
+
+                    CDIS(C; n,t)
+[Constant display function.
+C is a constant. Then t is its type, n its name.]
+     safe CDIS.
+(1)  C':=RED2(C); t:=FIRST(C'); n:=FOURTH(C') ||
+
+                    DTDIS(T; N,C,V,F,A)
+[Data type display function.
+T  is  a data type. Then N is its name and C, V, F and A are sets of its
+constants, variables, operators and axioms, respectively.]
+     safe DTDIS.
+(1)  ADV3(T; N,C,V,T'); FIRST2(T'; F,A) ||
+
+                    TDIS(T; c,k,t,n)
+[Term, display function.
+T  is  a  term. Then c is its content, k its kind, t its type, and n
+its name.]
+     safe TDIS.
+(1)  ADV3(T; c,k,t,T');  n:=THIRD(T') ||
+
+                    P:=TGET(T,i)
+[Term, get property.
+The property list of the term T is searched under the indicator i. P is
+the property under i, if any, otherwise i is set to BETA.]
+     safe TGET.
+(1)  P:=ASSOC(i,TPROP(T));  if P # () then P:=FIRST(P) ||
+
+                    VDIS(V; n,t)
+[Variable display function.
+V is a variable. Then n is its name and t its type.]
+     safe VDIS.
+(1)  V':=RED2(V); t:=FIRST(V'); n:=FOURTH(V') ||
+
+                    T':=TSFS(t)
+[Semi-bound term, skip first substitutions.
+t is a term, possibly a bound variable. Then T' is the same term
+where bound variables are removed from the top.]
+     safe TSFS.
+(1)  [Initialize.] T':=t.
+(2)  [Test kind of top of term] K:=TKIND(T');
+     [Record substitution.] if K=DVS then
+     { C:=TCONT(T'); if C # () then {T':=C; goto 2} }||
+
+                    UNDO(V)
+[Undo variable substitutions.
+V  is  a  set  of -possibly bound- variables. Then all substitutions for
+variables in V are undone.]
+     safe UNDO.
+(1)  [Initialize.]  V':=V.
+(2)  [Loop.] while V' # () do {ADV(V'; v,V'); TCONT(v):=()} ||
+
+                    CPDIS(C'; L,R,n1,n2,E)                            
+[Critical pair, display function.
+C'  is A critical pair with origination information stored. Then L and R
+are the terms comprising the critical pair (L,R), and  n1  and  n2  are  
+BETA-digits, the numbers of the parent-axioms of (L,R). E is a label 
+denoting wether C' is essential]                                               
+     safe CPDIS.
+(1)  C'':=RED(C'); ADV2(C''; L,R,C''); FIRST3(C''; n1,n2,E) ||
+
+                    s:=CPSIZ(C')
+[Critical pair, size.
+C' is a critical pair. Then s is the sum of the sizes of the
+left-hand-side and the right-hand-side of C'.]
+     safe CPSIZ.
+(1)  STI:=STI-CLOCK();
+     s:=TSIZE(CPLHS(C'))+TSIZE(CPRHS(C')); STI:=STI+CLOCK() ||
+          
+                    s:=CPMSIZ(C')
+[Critical pair, maximum size.
+C' is a critical pair. Then s is the maximum of the sizes of the
+left-hand-side and the right-hand-side of C'.]
+     safe CPMSIZ.
+(1)  STI:=STI-CLOCK();
+     s:=MAX(TSIZE(CPLHS(C')),TSIZE(CPRHS(C'))); STI:=STI+CLOCK() ||
+               
+                    s:=CPMXTN(C')
+[Critical pair, maximum extent.
+C' is a critical pair. Then s is the maximum of the extents of the
+left-hand-side and the right-hand-side of C'.]
+     safe CPMXTN.
+(1)  STI:=STI-CLOCK();
+     s:=MAX(TXTENT(CPLHS(C')),TXTENT(CPRHS(C'))); STI:=STI+CLOCK()  ||
+
+ASADV, AASSOC, SBAPPL, SBDAPP, SBFAPP, SBFUDO, SBUNDO, (safe)
+
+                    s:=TSIZE(T) 
+[Term, size. 
+T is a term. Then s is its size, not counting variable subterms.
+Flat AC-operators are considerd as composed of right associated
+binary AC-operators.] 
+     safe TSIZE. 
+(1)  [Trivial cases.] k:=TKIND(T); [Var.] if k=DVS then{s:=0; return} 
+     else [Atomic non-variable term.] if k # DOS then {s:=1; return}.
+(2)  [Non-atomic term.] s:=TNSIZE(T) ||
+
+                    s:=TXTENT(T)                                       
+[Term, extent.                                                         
+T is a term. Then s is its extent. The number of symbols in T.
+Flat AC-operators are considerd as composed of right associated
+binary AC-operators.]        
+     safe TXTENT. 
+(1)  [Initialize.] s:=1; k:=TKIND(T).
+(2)  [Non-atomic term.] if k=DOS then s:=TNXTNT(T) ||
+
+                    b:=AXNOLT(a1,a2)
+[Axiom number, less.  a1 and a2 are axioms. 
+Then b = TRUE if the axiom number of a1 is less then that of a2 else
+b= FALSE.]
+     safe AXNOLT.
+(1)  if ANUM(a1) < ANUM(a2) then b:=TRUE else b:=FALSE || 
+
+                    b:=AXNOLE(a1,a2)
+[Axiom number, less or equal. 
+Then b = TRUE if the axiom number of a1 is less then or equal to
+that of a2 else b= FALSE.] 
+     safe AXNOLE. 
+(1)  if ANUM(a1) <= ANUM(a2) then b:=TRUE else b:=FALSE ||
+

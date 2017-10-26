@@ -1,0 +1,60 @@
+\begin{figure}[htbp]
+\begin{center}
+\noindent
+\rule{\textwidth}{0.6pt}
+
+%\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs PrecedenceDecl} \= \gprod \= \kill
+{\vs DataType} \> \gprod \ts{DATATYPE} {\vs DTName} \ts{;} \gstar{{\vs Declaration}} \ts{END} \\
+\\
+{\vs Declaration} \> \gprod {\vs SortDecl} \galt {\vs ExternalDecl}
+  \galt {\vs ConstantDecl} \galt {\vs VariableDecl} \\
+  \>\> \galt{\vs OperatorDecl} \galt {\vs CoercionDecl} \galt {\vs PrecedenceDecl} \galt
+       {\vs AssocDecl} \\
+  \>\> \galt {\vs NotationDecl} \galt {\vs TheoryDecl} \galt {\vs PropertyDecl}
+       \galt {\vs AxiomDecl} \\
+{\vs SortDecl} \> \gprod \ts{SORT} {\vs SortNames} \ts{;} \\
+{\vs ExternalDecl} \> \gprod \ts{EXTERNAL} \gplus{{\vs External} \ts{;}} \\
+{\vs ConstantDecl} \> \gprod \ts{CONST} \gplus{{\vs Constant} \ts{;}} \\
+{\vs VariableDecl} \> \gprod \ts{VAR} \gplus{{\vs Variable} \ts{;}} \\
+{\vs OperatorDecl} \> \gprod \ts{OPERATOR} \gplus{{\vs Operator} \ts{;}} \\
+{\vs CoercionDecl} \> \gprod \ts{COERCION} \gplus{{\vs Coercion} \ts{;}} \\
+{\vs PrecedenceDecl} \> \gprod \ts{PREC} \gplus{{\vs Precedence} \ts{;}} \\
+{\vs AssocDecl} \> \gprod \ts{ASSOC} \gplus{{\vs Associativity} \ts{;}} \\
+{\vs NotationDecl} \> \gprod \ts{NOTATION} \gplus{{\vs Notation} \ts{;}} \\
+{\vs TheoryDecl} \> \gprod \ts{THEORY} \gplus{{\vs Theory} \ts{;}} \\
+{\vs PropertyDecl} \> \gprod \ts{PROPERTY} \gplus{{\vs Property} \ts{;}} \\
+{\vs AxiomDecl} \> \gprod \ts{AXIOM} \gplus{{\vs Axiom} \ts{;}} \\
+\\
+{\vs External} \> \gprod {\vs XSortNames} \ts{:} {\vs XInterface} \gstar{\ts{,} {\vs XInterface}} \\
+{\vs XInterface} \> \gprod \group{\ts{XREAD} \galt \ts{XWRITE} \galt \ts{XEQ} \galt \ts{XLT}
+  \galt \ts{XFG} \galt \ts{XTERM}} \ts{=} {\vs AlgoName} \\
+{\vs Constant} \> \gprod {\vs ConstNames} \ts{:} {\vs SortName} \\
+{\vs Variable} \> \gprod {\vs VarNames} \ts{:} {\vs SortName} \\
+{\vs Operator} \> \gprod {\vs OpNames} \ts{:} {\vs DomainList} \ts{->} {\vs Range} \\
+{\vs DomainList} \> \gprod {\vs Domain} \gstar {\ts{,} {\vs Domain}} \galt \gepsilon \\
+{\vs Coercion} \> \gprod {\vs CoercionOpName} \ts{:} {\vs Domain} \ts{->} {\vs Range} \\
+{\vs Precedence} \> \gprod {\vs OpNames} \gplus{\group{\ts{<} \galt \ts{=}} {\vs OpNames}} \\
+{\vs Associativity} \> \gprod {\vs OpNames} \ts{:} 
+  \group{\ts{LEFT} \galt \ts{RIGHT} \galt \ts{NONE}} \\
+{\vs Notation} \> \gprod {\vs OpNames} \ts{:} {\vs Fixity} \\
+{\vs Fixity} \> \gprod \ts{PREFIX} \galt \ts{POSTFIX} \galt \ts{INFIX} \galt \ts{CONSTANT} \\
+  \>\> \galt \ts{FUNCTION} \galt \ts{LISP} \galt \ts{ROUNDFIX} {\vs ClosingRoundfixName} \\
+{\vs Theory} \> \gprod {\vs OpNames} \ts{:} \group{\ts{AC} \galt \ts{COM}} \\
+{\vs Property} \> \gprod {\vs ObjectNames} \ts{:} {\vs PropList} \\
+{\vs PropList} \> \gprod {\vs Prop} \gstar{\ts{,} {\vs Prop}} \\
+{\vs Prop} \> \gprod {\vs Indicator} \ts{=} {\vs Value} \\
+{\vs Indicator} \> \gprod \ts{XINT} \galt \ts{KBINDEX} \galt \ts{KBWEIGHT} \galt \ts{COERC}
+   \galt \ts{XFG} \galt \ts{HASH} \galt {\vs Ident}\\
+\end{tabbing}
+\end{minipage}
+
+\noindent
+\rule{\textwidth}{0.6pt}
+%} % end fbox
+\caption{The Syntax of \redux\  Data Types, Part 1}
+\label{dtgram1}
+\end{center}
+\end{figure}

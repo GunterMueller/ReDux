@@ -1,0 +1,225 @@
+                    ASSPR(A;p,m)
+[Assignment problem.  A is a square matrix of beta-integers, say
+n by n.  p is an n-permutation for which the sum on i of
+A_i_{p_i} is maximal, and m is this maximal sum.  All matrix
+elements A_i_j must be less than beta in absolute value.]
+     safe A',A1,a11,I',i,j,m,p,U*,u1,V*,v1.
+(1)  [Compute initial U and V.]  A':=A;  U:=();  V:=();  repeat
+     {  ADV(A';A1,A');  ADV(A1;u1,A1);  while A1 # () do
+     { ADV(A1;a11,A1);  u1:=MAX(u1,a11) };  U:=COMP(u1,U);
+     V:=COMP(0,V)  } until A'=();  U:=INV(U);  V:=INV(V).
+(2)  [Compute S.]  S:=();  A':=A;  U*:=U;  repeat {  S1:=();
+     ADV(A';A1,A');  ADV(U*;u1,U*);  V*:=V;  j:=1;  repeat
+     { ADV(V*;v1,V*);  ADV(A1;a11,A1);  if u1+v1=a11 then
+     S1:=COMP(j,S1);  j:=j+1 } until V*=();  S1:=INV(S1);
+     S:=COMP(S1,S)  } until A'=();  S:=INV(S).
+(3)  [Solve sdr problem.]  SDR(S;p,I).
+(4)  [Solution found, compute maximum.]  if p # () then {  m:=0;
+     U*:=U;  V*:=V;  repeat { ADV(U*;u1,U*);  ADV(V*;v1,V*);
+     m:=m+u1+v1 } until U*=();  return  }.
+(5)  [No solution, compute union.]  J:=();  S':=S;  I':=I;  i:=1;
+     repeat {  ADV(S';S1,S');  if I' # () /\ FIRST(I')=i then
+     { I':=RED(I');  J:=SUNION(J,S1) };  i:=i+1  } until I'=().
+(6)  [Compute new U and V.]  U*:=U;  i:=1;  repeat {  if I # () /\
+     FIRST(I)=i then { SFIRST(U*,FIRST(U*)-1);  I:=RED(I) };
+     U*:=RED(U*);  i:=i+1  }  until I=();  V*:=V;  j:=1;  repeat
+     {  if J # () /\ FIRST(J)=j then { SFIRST(V*,FIRST(V*)+1);
+     J:=RED(J) };  V*:=RED(V*);  j:=j+1  } until J=();  go to  2||
+                    C:=CSFPAR(L)
+[Characteristic set from partition.  L is a list of non-negative beta-
+integers (l_1,...,l_n).  C is a characteristic set, with j
+belonging to C if and only if there is a subset I of the integers from
+1 to n such that the sum_{i in I} l_i = j.]
+     safe l,L'.
+(1)  C:=1;  L':=L;  while L' # () do { ADV(L';l,L');  D:=IMP2(C,l);
+     C:=CSUN(C,D) };  return||
+                    C:=CSINT(A,B)
+[Characteristic set intersection.  A and B are characteristic sets.
+C is the intersection of A and B.]
+     safe a,A',b,B',C.
+(1)  [A and B single-precision.]  if BDIGIT(A) /\ BDIGIT(B) then
+     { C:=DAND(A,B);  return }.
+(2)  [A single-precision.]  if BDIGIT(A) then { C:=DAND(A,FIRST(B));
+     return }.
+(3)  [B single-precision.]  if BDIGIT(B) then { C:=DAND(FIRST(A),B);
+     return }.
+(4)  [General case.]  C':=();  A':=A;  B':=B;  repeat { ADV(A';a,A');
+     ADV(B';b,B');  C':=COMP(DAND(a,b),C') } until A'=() \/ B'=();
+     while C' # () /\ FIRST(C')=0 do C':=RED(C');  C:=INV(C');
+     if C=() then C:=0;  return||
+                    t:=CSSUB(A,B)
+[Characteristic set subset.  A and B are characteristic sets.  t=1 if
+A is a subset of B and otherwise t=0.]
+     safe CSSUB.
+(1)  [A single-precision.]  if BDIGIT(A) then { if BDIGIT(B) then b:=B
+     else b:=FIRST(B);  c:=DNIMP(A,b);  if c=0 then t:=1 else t:=0;
+     return }.
+(2)  [B single-precision.]  if BDIGIT(B) then { t:=0;  return }.
+(3)  [General case.]  A':=A;  B':=B;  repeat {  ADV(A';a,A');
+     ADV(B';b,B');  c:=DNIMP(a,b);  if c # 0 then { t:=0;
+     return }  } until A'=() \/ B'=();  if A' # () then t:=0 else t:=1;
+     return||
+                    C:=CSUN(A,B)
+[Characteristic set union.  A and B are characteristic sets.  C is the
+union of A and B.]
+     safe a,A',b,B',C.
+(1)  [A and B single-precision.]  if BDIGIT(A) /\ BDIGIT(B) then
+     { C:=DOR(A,B);  return }.
+(2)  [A single-precision.]  if BDIGIT(A) then { ADV(B;b,B');
+     C:=COMP(DOR(A,b),B');  return }.
+(3)  [B single-precision.]  if BDIGIT(B) then { ADV(A;a,A');
+     C:=COMP(DOR(a,B),A');  return }.
+(4)  [General case.]  C':=();  A':=A;  B':=B;  repeat { ADV(A';a,A');
+     ADV(B';b,B');  C':=COMP(DOR(a,b),C') } until A'=() \/ B'=();
+     if A'=() then A':=B';  C:=INV(C');  SRED(C',A');  return||
+                    c:=DAND(a,b)
+[Digit AND.  a and b are non-negative beta-digits.  c is the
+bit-wise AND of a and b.]
+     safe a',b',c,c'.
+(1)  if a=0 \/ b=0 then c:=0 else { QREM(a,2;a',a1);
+     QREM(b,2;b',b1);  c':=DAND(a',b');  c:=c'+c';
+     if a1=1 /\ b1=1 then c:=c+1 };  return||
+                    c:=DNIMP(a,b)
+[Digit non-implication.  a and b are non-negative beta-digits.  c is
+the bit-wise non-implication of a and b.]
+     safe a',b',c,c'.
+(1)  if a=0 then c:=0 else { QREM(a,2;a',a1);  QREM(b,2;b',b1);
+     c':=DNIMP(a',b');  c:=c'+c';  if a1=1 /\ b1=0 then
+     c:=c+1 };  return||
+                    b:=DNOT(a)
+[Digit NOT.  a is a non-negative beta-digit.  b is the bit-wise
+NOT of a.]
+(1)  b:=BETA1-a;   return||
+                    c:=DOR(a,b)
+[Digit OR.  a and b are non-negative beta-digits.  c is the
+bit-wise OR of a and b.]
+     safe a',b',c,c'.
+(1)  if a=0 then c:=b else if b=0 then c:=a else
+     { QREM(a,2;a',a1);  QREM(b,2;b',b1);  c':=DOR(a',b');
+     c:=c'+c';  if a1 > 0 \/ b1 > 0 then c:=c+1 };  return||
+                    B:=IBCIND(A,n,k)
+[Integer binomial coefficient induction.  n and k are beta-integers
+with 0 <= k <= n.  A is the binomial coefficient n over k.  B is
+the binomial coefficient n over k+1.]
+     safe k',n'.
+(1)  n':=n-k;  k':=k+1;  if BDIGIT(A) /\ n' < BETA/A then
+     B:=(A * n')/k' else B:=IDQ(IDPR(A,n'),k');  return||
+                    A:=IBCOEF(n,k)
+[Integer binomial coefficient.  n and k are beta-integers with
+0 <= k <= n.  A is the binomial coefficient n over k.]
+     safe j,k'.
+(1)  k':=MIN(k,n-k);  A:=1;  for j=0,...,k'-1 do A:=IBCIND(A,n,j);
+     return||
+                    A:=IBCPS(n,k)
+[Integer binomial coefficient partial sum.  n and k are
+beta-integers, 0 <= k <= n.  A is the sum on i, from 0 to k, of the
+binomial coefficient n over i.]
+     safe j.
+(1)  A:=1;  B:=1;  for j=0,...,k-1 do { B:=IBCIND(B,n,j);
+     A:=ISUM(A,B) };  return||
+                    A:=IFACTL(n)
+[Integer factorial.  n is a non-negative beta-integer.  A is
+n factorial.]
+     safe D,k.
+(1)  A:=1;  D:=1;  for k=2,...,n do {  if k <= BETA/D then D:=D * k
+      else
+     { A:=IDPR(A,D);  D:=k }  };  if A=1 then A:=D else A:=IDPR(A,D);
+     return||
+                    B:=LEXNEX(A)
+[Lexicographically next.  A is a non-null list (a_1,...,a_m)
+such that a_i is a non-null reductant of a_{i+1} for each 1 <=
+i < m.  B is the lexicographically next such list of the same length,
+if one exists, and is () otherwise.]
+     safe a,b,c,i,j.
+(1)  [Step first element.]  ADV(A;b,B);  c:=RED(b);  if c # ()
+     then { B:=COMP(c,B);  return };  i:=1.
+(2)  [Find an element to step.]  while B # () do { ADV(B;a,B);  i:=
+     i+1;  c:=RED(a);  if c # b then go to  3;  b:=a };  return.
+(3)  [Found one.]  for j=1,...,i do { B:=COMP(c,B);  c:=RED(c) };
+     return||
+                    L':=LPERM(L,P)
+[List permute.  L is a list (a_1,...,a_n).  P is a list
+(p_1,...,p_n) of integers in the range 1,...,n.  L' is the
+list (a_{p_1},...,a_{p_n}).]
+     safe a,p,P'.
+(1)  L':=();  P':=P;  while P' # () do { ADV(P';p,P');  a:=LELT(L,p);
+     L':=COMP(a,L') };  L':=INV(L');  return||
+                    Q:=PARTN(P)
+[Partition, next.  Let n be a positive beta-integer. Then P is a 
+partition of n.  Q is the next partition of n after P in lexicographical
+order, if any.  Otherwise Q=().]
+     safe a,a',b,i,P',q,r.
+(1)  [r=1.]  r:=LENGTH(P);  if r=1 then { Q:=();  return }.
+(2)  [r >= 2.]  Q:=();  P':=P;  for i=1,...,r-2
+     do { ADV(P';a,P');  Q:=COMP(a,Q) };  a:=FIRST(P');  b:=SECOND(P');
+     a':=a+1;  QREM(a+b,a';q,r);  for i=1,...,q-1 do
+     Q:=COMP(a',Q);  Q:=COMP(a'+r,Q);  Q:=INV(Q);  return||
+                    P:=PARTR(n)
+[Partition, random.  n is a positive beta-integer, n <= 100. P is
+a partition of n whose elements are the cycle lengths of a random
+n-permutation.]
+     safe A[100].
+     safe h,i,j,k.
+(1)  [Generate random permutation.]  for i=1,...,n do A[i]:=i;
+     for j=n,n-1,...,2 do { i:=MDRAN(j)+1;  k:=A[i];  A[i]:=A[j];
+     A[j]:=k }.
+(2)  [Obtain cycle lengths.]  P:=();  i:=1;  repeat {  h:=0;  j:=i;
+     repeat { k:=A[j];  A[j]:=-j;  j:=k;  h:=h+1 } until A[j] < 0;
+     P:=COMP(h,P);  repeat i:=i+1 until i > n \/ A[i] > 0  }
+     until i > n.
+(3)  [Sort.]  P:=LBIBMS(P);  return||
+                    A:=PARTSS(p)
+[Partition sumset.  p is a partition.  A is the sum set of p,
+a characteristic set.]
+     safe a,p'.
+(1)  A:=1;  p':=p;  while p' # () do { ADV(p';a,p');
+     B:=IMP2(A,a);  A:=CSUN(A,B) };  return||
+                    L:=PERMR(n)
+[Permutation, random.  n is a positive integer, n <= 100.  L is a
+list of the first n positive integers in random order.]
+     safe A[100],i,j,t.
+(1)  [Initialize array.]  for i=1,...,n do A[i]:=i.
+(2)  [Random interchanges.]  for j=n,n-1,...,1 do
+     { i:=MDRAN(j)+1;  t:=A[i];  A[i]:=A[j];  A[j]:=t }.
+(3)  [Form list.]  L:=();  for i=1,...,n do L:=COMP(A[i],L);
+     return||
+                    SDR(S;A,I)
+[System of distinct representatives.  S is a list (S_1,...,S_n),
+n >= 1, where each S_i is a set of beta-integers represented as a
+list.  Either A is a list (a_1,...,a_n) of distinct representatives
+for (S_1,...,S_n) and I=(), or else A=() and I=(i_1,...,i_k)
+is a subsequence of (1,...,n) such that (S_i_1,...,S_i_k)
+has no system of distinct representatives.]
+     safe a,b,B,i,j,k,r,S',S1,T'1.
+(1)  [Initialize.]  A:=();  A*:=();  S':=S;  r:=0.
+(2)  [Test for completion.]  if S'=() then { A:=INV(A);  I:=();
+     return }.
+(3)  [Direct extension.]  ADV(S';S1,S');  B:=SDIFF(S1,A*);  if B # ()
+     then { a:=FIRST(B);  A:=COMP(a,A);  A*:=LINSRT(a,A*);  r:=r+1;
+     go to  2 }.
+(4)  [Initialize indirect extension.]  T1:=S1;  T*1:=T1;  T:=().
+(5)  [Test for non-extensibility.]  if T1=() then go to  9.
+(6)  [Compute next t_i.]  T2:=();  T'1:=T1;  repeat { ADV(T'1;a,T'1);
+     i:=LSRCH(a,A);  j:=r-i+1;  S2:=LELT(S,j);  T2:=SUNION(T2,S2) }
+     until T'1=();  T2:=SDIFF(T2,T*1);  T*1:=SUNION(T*1,T2).
+(7)  [Prepare for next t_i.]  B:=SDIFF(T2,A*);  T:=COMP(T1,T);  T1:=T2
+;
+     if B=() then go to  5.
+(8)  [Substitute in A.]  b:=FIRST(B);  A*:=LINSRT(b,A*);  repeat
+     {  ADV(T;T1,T);  repeat { ADV(T1;a,T1);  i:=LSRCH(a,A);
+     j:=r-i+1;  S1:=LELT(S,j);  k:=LSRCH(b,S1) } until k # 0;
+     SLELT(A,i,b);  b:=a  } until T=();  A:=COMP(b,A);  r:=r+1;
+     go to  2.
+(9)  [Compute I.]  I:=LIST1(r+1);  while T*1 # () do
+     { ADV(T*1;a,T*1);  i:=LSRCH(a,A);  j:=r-i+1;  I:=LINSRT(j,I) };
+     A:=();  return||
+                    B:=SFCS(A)
+[Set from characteristic set.  A is a characteristic set.  B is the
+same set represented as an increasing list of beta-integers.]
+     safe a,A',b,n,r.
+(1)  [A empty.]  if A=0 then { B:=();  return }.
+(2)  [A single-precision.]  if BDIGIT(A) then A':=(A) else A':=A.
+(3)  [General case.]  n:=0;  B:=();  repeat { ADV(A';a,A');  b:=1;
+     repeat { r:=REM(a,2);  a:=a/2;  if r # 0 then B:=COMP(n,B);
+     n:=n+1;  b:=b+b } until b=BETA  } until A'=();  B:=INV(B);
+     return||

@@ -1,0 +1,39 @@
+%% 
+DATATYPE SIMS2;
+%%  AUTHOR Denzinger/Buendgen
+%%  ORIGIN Denzinger's Dissertation, 1993
+%%         Modified for the setting of Knuth and Bendix
+%%  KBO T:1>t:1>S:1>s:1>R:1>r:1
+SORT
+	EL;
+CONST
+	1, r, s, t: EL;
+VAR
+	X, Y, Z: EL;
+OPERATOR
+	*: EL, EL -> EL;
+	/: EL -> EL;
+NOTATION
+	/: FUNCTION;
+	*: INFIX;
+AXIOM
+ [1] (1 * X)          ==  X;
+ [2] (/(X) * X)       ==  1;
+ [3] ((X * Y) * Z)    ==  (X * (Y * Z));
+ [4] (/(X) * (X * Z)) ==  Z;
+ [5] (X * 1)          ==  X;
+ [6] (X * /(X))       ==  1;
+ [7] /(1)             ==  1;
+ [8] /(/(X))          ==  X;
+ [9] (X * (/(X) * Z)) ==  Z;
+[10] /((X * Y))       ==  (/(Y) * /(X));
+[11]  (t * (t * (/(s) * (/(t) * (s * (/(t) * (r * (t * (/(r) * (/(r) * 
+     (/(s) * (t * (s * (/(t) * (/(t) * (r * (r * (/(t) * (/(r) * (t * 
+     (r * (r * (/(t) * (/(r) * t )))))))))))))))))))))))) == 1;
+[12]  (r * (r * (/(t) * (/(r) * (t * (/(r) * (s * (r * (/(s) * (/(s) * 
+     (/(t) * (r * (t * (/(r) * (/(r) * (s * (s * (/(r) * (/(s) * (r * 
+     (s * (s * (/(r) * (/(s) * r )))))))))))))))))))))))) == 1;
+[13]  (s * (s * (/(r) * (/(s) * (r * (/(s) * (t * (s * (/(t) * (/(t) * 
+     (/(r) * (s * (r * (/(s) * (/(s) * (t * (t * (/(s) * (/(t) * (s * 
+     (t * (t * (/(s) * (/(t) * s )))))))))))))))))))))))) == 1;
+END

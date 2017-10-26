@@ -1,0 +1,36 @@
+DATATYPE RNG;
+SORT
+	RNG;
+CONST
+	0: RNG;
+VAR
+	x, X, Y, Z: RNG;
+OPERATOR
+	S: RNG -> RNG;
+	P: RNG -> RNG;
+	+: RNG, RNG -> RNG;
+	*: RNG, RNG -> RNG;
+	I: RNG -> RNG;
+NOTATION
+	S, P, +, *, I: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+ [1] I(0) == 0;
+ [2] +(0,X) == X;
+ [3] S(P(X)) == X;
+ [4] P(S(X)) == X;
+ [5] I(I(Y)) == Y;
+ [6] *(0,Y) == 0;
+ [7] I(S(Y)) == P(I(Y));
+ [8] I(P(Y)) == S(I(Y));
+ [9] +(I(X),X) == 0;
+[10] +(S(X),Y) == S(+(X,Y));
+[11] +(P(X),Y) == P(+(X,Y));
+[12] *(S(X),Y) == +(Y,*(X,Y));
+[13] *(P(X),Y) == +(I(Y),*(X,Y));
+[14] I(+(X,Y)) == +(I(Y),I(X));
+[15] *(X,I(Y)) == I(*(X,Y));
+[16] *(X,+(Y,Z)) == +(*(X,Y),*(X,Z));
+END
+; This file is ZC.typ 

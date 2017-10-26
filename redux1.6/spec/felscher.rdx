@@ -1,0 +1,19 @@
+%% 
+DATATYPE FELSCHER;
+SORT
+	S;
+VAR
+	p, q, r, s: S;
+OPERATOR
+	/\: S, S -> S;
+	\/: S, S -> S;
+NOTATION
+	/\, \/: INFIX;
+AXIOM
+[1] ((p \/ q) /\ (r \/ s)) == ((p /\ r) \/ ((p /\ s) \/
+                              ((q /\ r) /\ (q /\ s))));
+[2] ((p \/ q) /\ s) == ((p /\ s) \/ (q /\ s));
+[3] (p /\ (q \/ r)) == ((p /\ q) \/ (p /\ r));
+
+[4] (p \/ (q \/ r)) == ((p \/ q) \/ r);
+END

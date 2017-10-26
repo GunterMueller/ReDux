@@ -1,0 +1,28 @@
+[ #include tp.h ]
+[ #include globs.h ]
+
+                    DTEVIN(DT)
+[Data type initialize for evaluation.
+DT is a data type.
+Each external sort of DT is assiged a property under indicator
+DXCN containing the list of constructors wrt. to the external
+sort as a pair (F0,F) whers F0 is a list of constants and F is a 
+list of operators.
+For each sort a variable of that sort is stored under indicator
+DVS as property of that sort. ]
+
+(1)  [Initialize.] DTDIS(DT; N,C,V,O,A); 
+     X:=DTXSORTS(DT); S:=DTSORTS(DT).
+(2)  [Enter contructors for external sorts.] while X # () do
+     { ADV(X; x,X); if GET(x,DXCN) = () then
+       { F0:=(); C':=C; while C' # () do
+         { ADV(C'; c,C'); if TGET(c,x) # () then F0:=COMP(c,F0) };
+         F0:=INV(F0); F:=(); O':=O; while O' # () do
+         { ADV(O'; o,O'); if TGET(o,x) # () then F:=COMP(o,F) };
+         F:=INV(F); PUT(x,DXCN,LIST2(F0,F))
+     } }.
+(3)  [Enter variables as sort properties.] while S # () do
+     { ADV(S; s,S); v:=VSFVY(V,s); 
+       if v = () then VGCONS((),s; v,V*); PUT(s,DVS,v)
+     } ||
+

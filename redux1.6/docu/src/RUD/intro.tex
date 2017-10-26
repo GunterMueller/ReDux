@@ -1,0 +1,92 @@
+\section{Introduction}
+The \redux\  system is a work bench for term rewriting systems, based on 
+the (low level modules of the) SAC-2 computer algebra system
+(\cite{Collins:80}).
+It consists of a large collection of algorithms written in \ALDES\
+(\cite{Loos:76}, \cite{LoosCollins:92}) and a set of demo programs which
+both show how to use
+the \redux\  algorithms and solve some interesting problems in the area of
+term rewriting.
+This article describes the {\em use} of these programs, i.\,e.\ it
+describes how to run the demo programs.
+The implementation aspects of the \redux\  demo programs and 
+a guide to programming
+using the \redux\  algorithms can be found in \cite{RSD1.4}.
+
+\redux\  demo programs manipulate a many sorted algebraic specification.
+They allow for experiments with term orderings (Knuth-Bendix-,
+polynomial interpretation- and path orderings).
+In addition, there are several versions of Knuth-Bendix completion procedures
+employing different confluence criteria.
+In order to reason about the initial algebra of an algebraic specification
+there are tools to analyze the set of ground normal forms and to prove
+inductive theorems by inductive completion.
+There is also a rewrite laboratory for specifications with commutative and
+associative-commutative operators providing unification, matching, reduction 
+and completion (\`{a} la Peterson and Stickel) procedures.
+Some of the programs work with {\em external terms} which contain ordinary 
+\ALDES/SAC-2 objects.
+Table~\ref{ta:dp} gives an overview of the existing demo programs.
+The UC-system is considered experimental and is not described here.
+See for the documentation along with the code.
+\begin{table}
+ \centering
+ \begin{tabular}{|l|l|l|l|l|}
+  \hline
+  program & sub-   & uses & program description & main \\ 
+          & system &      &                     & authors \\
+   \hline\hline
+   TO & to &  tp & test environment for term orderings: & K\"{u}chlin \\
+      &    &     & Knuth-Bendix ordering,               & Schw\"arzler \\
+      &    &     & Recursive Path ordering,             & Joswig \\
+      &    &     & Polynomial interpretation ordering   & B\"{u}ndgen \\
+      &    &     & and lexicographic combinations       & Lauterbach \\
+      &    &     & there of                             &  \\
+  \hline
+   TC & tc & tp, to & plain Knuth-Bendix completion procedure, & B\"{u}ndgen \\ 
+      &    &        & Knuth-Bendix completion procedure        & K\"{u}chlin \\
+      &    &        & applying subconnectedness criterion,     & \\ 
+      &    &        & Knuth-Bendix completion procedure        & \\
+      &    &        & applying transformation  criterion,      & \\ 
+      &    &        & Knuth-Bendix completion procedure        & \\
+      &    &        & applying both the transformation and the & \\
+      &    &        & subconnectedness criteria                & \\ 
+  \hline
+   TS & ic & tc, tp & top set tree and ground normal   & B\"{u}ndgen \\
+      &    &        & form grammar computation,        & Eckhardt \\ 
+      &    &        & interleaved top set computation  & \\
+      &    &        & based on top set trees,          & \\ 
+      &    &        & pruned top set tree and ground   & \\
+      &    &        & normal form grammar computation  & \\ 
+  \hline
+   IC  & ic &tc, to, tp & inductive completion laboratory   & B\"{u}ndgen \\
+       &    &           & according to (\cite{Kuechlin:89}) & \\ 
+  \hline
+   AC   & ac &tc, to, tp & rewrite laboratory for term rewriting &B\"{u}ndgen \\
+        &    &           & systems with associative and commutative& \\
+        &    &           & operators & \\ 
+  \hline
+   EV   & acn &tc, to, tp & AC-system with support for &B\"{u}ndgen \\
+        &    & ev        & partial evaluation domains  &Lauterbach  \\
+  \hline
+   TRD  & rd & tp, tc & random term generator & Walter \\
+  \hline
+   UC  & uc & tp, tc & unfailing completion & Hoss \\
+       &    &       &                      & Mayer \\
+       &    &       &                      & Sinz \\
+       &    &       &                      & B\"{u}ndgen \\
+  \hline
+ \end{tabular}
+ \caption{The \redux\  demo programs} \label{ta:dp}
+\end{table}
+
+The following description is based on the \redux\  installation at the
+Wilhelm-Schickard-Institut at the Universit\"{a}t T\"{u}bingen.
+This installation uses an \ALDES\ to C translator and runs on SPARCstation
+under Solaris 2.x or SunOS 4.1.x.
+Installations on Sun~3/SunOS, PC/Linux and
+IBM RS6000/AIX have already been tested, too.
+Because of the high portability of \ALDES\ all programs should behave much 
+the same on other installations.
+The only differences might be observed in the few I/O and operating system
+dependent features (file names, shell scripts, etc.).

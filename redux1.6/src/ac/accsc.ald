@@ -1,0 +1,162 @@
+[ #include tp.h ]
+[ #include ac.h ]
+
+[-----------------------------------------------------------------------
+     section 0.
+     Completion strategy control.
+----------------------------------------------------------------------]
+
+                    C:=CSCCNS(S,n,i,c,s,g,r)
+[Completion strategy control construct.
+Input
+=====
+S: in {0,1}, select step mode (1)
+n: in {0,1}, keep all critical  pairs normalized (1)
+i: in {0,1}, priority to input equations (1)
+c: in {0,1}, priority to collapsed rules
+s: in {0,1}, apply subconnectedness criteriion to collapsed rules
+g: in {0,1}, compute generalized critical paiqrs
+r: in {0,1}, delete subsumed (= redundant) critical pairs 
+Output
+======
+C=(S,n,i,c,s,g,r).]
+
+(1) C:=COMP3(S,n,i,COMP4(c,s,g,r,())) ||
+
+                    CSCDIS(C; S,n,i,c,s,g,r,y)
+[Completion strategy control, construct.
+Input
+=====
+C: a list of eight beta-integers
+Output
+======
+S: in {0,1}, select step mode (1)
+n: in {0,1}, keep all critical  pairs normalized (1)
+i: in {0,1}, priority to input equations (1)
+c: in {0,1}, priority to collapsed rules
+s: in {0,1}, apply subconnectedness criteriion to collapsed rules
+g: in {0,1}, compute generalized critical pairs
+r: in {0,1}, delete subsumed (= redundant) critical pairs 
+y: a list, if y # () then the first cell of y contains the  maximum 
+   number of orientations to be performed during a symmmetrization
+   and the res contains a full CSC record to be used for a
+   symmmetrization
+]
+
+(1) ADV4(C; S,n,i,c,C'); ADV3(C'; s,g,r,y) ||
+
+                    QCCSC(DT; R,C,y,R*)
+[Query concerning completion strategy control.
+A list of completion control parameters is queried.
+Input
+=====
+DT: a data type
+
+Output
+======
+R: a list of rules in DT known to be canonical.
+C: a completion strategy control record (possibly including a
+   completion strategy control record for a symmetrization process)
+y: in {0,1}, if y = 1 then a symmetrization based completion is
+   requested.
+R*: A copy of a subset of R. Symmetrization shall be performed wrt
+    R*.
+    ==== symmertization is not yet supported ===
+]
+(1)  [Initialize.] L:=(); R:=(); y:=0; R*:=().
+(2)  [Get canonical subset.] 
+     STROUT("Is a subset of the rules in the ");
+     STOUTL("data type known to be canonical [y/n]?  *");
+     READ; c:=UCASE(CREAD()); if c='N' then goto 3;
+     STOUTL("Enter list of rule numbers of canonical rule set! *");
+     READ; L:=LEREAD(); 
+     STOUTL("Shall the orignal rule priority be preserved [y/n]?");
+     READ; c:=UCASE(CREAD());  A:=DTAX(DT); while A # () do
+     { ADV(A; a,A); if INTMEM(ANUM(a),L) then 
+       if c = 'Y' then R:=COMP(ACOPY(a),R) else R:=ALINS(R,ACOPY(a))
+     }; if c = 'Y' then R:=INV(R).
+(3)  [Completion strategy control.] 
+     STOUTL("Select completion strategy control parameters.");
+     C:=QCCSC1(CSCCNS(1,1,1,0,1,0,0)) ||
+[=== symmetrization === not === yet === supported ==================
+(4)  [Ask for symmetrization.]
+     STOUTL("Do you want to use symmetrization [n/y]? *");
+     READ; c:=UCASE(CREAD()); 
+     if c = 'Y' then y:=1 else { y:=0; return };
+     STOUTL("Enter list of rule numbers of rule set wrt. which the");
+     STOUTL("symmetrization shall be performed! *");
+     READ; L*:=LEREAD();
+     STOUTL("Shall the orignal rule priority be preserved [y/n]?");
+     READ; c:=UCASE(CREAD());  A:=DTAX(DT); while A # () do
+     { ADV(A; a,A); n:=ANUM(a); if INTMEM(n,L*) then 
+       if INTMEM(n,L) then 
+       if c = 'Y' then R*:=COMP(ACOPY(a),R*) else R*:=ALINS(R*,ACOPY(a))
+       else { STROUT("All rules must be contained in the set of ");
+              STOUTL("canonical rules!"); goto 4
+     }      };  if c = 'Y' then R*:=INV(R*).
+(5)  [Ask for maximum symmetrization]
+     STROUT("How many orientations should a symmetrization");
+     STOUTL(" maximally comprise? *");
+     n:=AREADR().
+(6)  [Ask for symmetrization strategy control parameters.]
+     STOUTL("Select completion strategy control parameters.");
+     C':=QCCSC1(C); C'':=CONC(C,COMP(n,C')); C:=C'' ||
+============end of not supported code =======================]
+
+
+                    C:=QCCSC1(D)
+[Query concerning simple completion strategy control.
+D is a list containing a default value for a CSC record.
+A list of completion control parameters is returned.]
+
+(1) [Default.] 
+    STOUTL("Do you wish to use"); 
+    STOUTL("  d - default settings, ");
+    STOUTL("      (or previous settings for symmetrization resp.)");
+    STOUTL("  q - a quick query or");
+    STOUTL("  v - a verbose query? ");
+    STOUTL("Enter your choice [d/q/v]. *");
+    READ; CH:=UCASE(CREAD()); 
+    if CH = 'D' then { C:=COPY(D); return }.
+(2) [Quick Query.] if CH # 'Q' then goto 3;
+    STOUTL("Enter settings in list format. *");
+    C:=LREAD(); if LENGTH(C) # CSCCOUNT then
+    { STROUT("There should be "); AWRITE(CSCCOUNT); 
+      STOUTL(" items!"); goto 2 
+    } else return.
+(3) [Dialog query.] STOUTL("Do you want to work");
+     STOUTL("  s -  in step mode (manual orientation), "); 
+     STOUTL("  a -  in automatic mode ");
+     STOUTL("       (manual orientation on failure) or"); 
+     STOUTL("  A -  in strict automatic mode?");
+     STOUTL("Enter your choice [s/a/A]. *");
+     READ; C^:=CREAD(); if UCASE(C^) = 'S' then S:=0
+     else if C^ = 'A' then S:=2 else S:=1;
+    STROUT("Do you want to keep all critical pairs normalized");    
+    STOUTL(" [y/n]? *");
+    READ; CH:=UCASE(CREAD()); if CH = 'Y' then n:=1 else n:=0;
+    STOUTL("Do you want to give priority to input equations [y/n]? *");
+    READ; CH:=UCASE(CREAD()); if CH = 'Y' then i:=1 else i:=0;
+    STOUTL("Do you want to give priority to collapsed rules [y/n]? *");
+    READ; CH:=UCASE(CREAD()); if CH = 'Y' then c:=1 else c:=0;
+    STROUT("Do you want to apply subconnectedness criterion ");
+    STOUTL("to collapsed rules [y/n]? *");
+    READ; CH:=UCASE(CREAD()); if CH = 'Y' then s:=1 else s:=0;
+    STROUT("Do you want to compute generalized critical pairs");
+    STOUTL(" [y/n]? *");
+    READ; CH:=UCASE(CREAD()); if CH = 'Y' then g:=1 else g:=0;
+    STROUT("Do you want to delete subsumed critical pairs");
+    STOUTL(" [y/n]? *");
+    STOUTL("(may be incompatible with subconnectedness criterion)");
+    READ; CH:=UCASE(CREAD()); if CH = 'Y' then r:=1 else r:=0.
+(4) [Compose completion startegy control variable.] 
+    C:=CSCCNS(S,n,i,c,s,g,r) ||
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,205 @@
+\section{Data Structures Used by Parser}
+
+The new parser forced a change of fundamental \redux\ data structures
+as well as the introduction of new ones. 
+These structures are explained in the following.
+
+\subsection{New Global Variables}
+In order to handle new term properties like precedence or associativity,
+additional notations and output modes, new global variables had to be
+inserted.
+See Table~\ref{globsym} for a list of new global symbols, and 
+Appendix~\ref{globals} for a complete list of additional variables.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Symbol Name & Print Name & Kind & Meaning \\
+\hline \hline
+DAM & AMBIG & indicator & ambiguity list \\ \hline
+DBN & BRACKET & grammar symbol & dummy symbol: bracket object \\ \hline
+DDF & DEFFIX & indicator & default fixity (notation) \\ \hline
+DFF & FUNC & property & function notation \\ \hline
+DLA & ALEFT & property & left associativity \\ \hline
+DNA & ANONE & property & no associativity status \\ \hline
+DOA & ASSOC & indicator & infix operator associativity \\ \hline
+DOP & PREC & indicator & operator precedence \\ \hline
+DRA & ARIGHT & property & right associativity \\ \hline
+DXEF & XPREF & grammar symbol & external prefix operator \\ \hline
+DXRF & XRNDF & grammar symbol & external roundfix operator \\ \hline
+\end{tabular}
+\end{center}
+\caption{Global Symbols Used by Parser}
+\label{globsym}
+\end{table}
+
+All new symbols are initialized by function {\tt ITGLPR} of file
+{\tt pinit.ald}.
+
+For compatibility reasons, symbols used by the old parser are still
+maintained.
+
+\subsection{New Term Properties and Usage of Old Properties}
+
+All term properties which were available in the old version of the
+parser keep their validity in the new version, too. Under indicator
+{\tt DFS} (operator fixing) the new property {\tt DFF} can be set.
+Additional term properties (respectively indicators) include {\tt DAM},
+{\tt DDF}, {\tt DOA} and {\tt DOP}. All of these have been explained formerly.
+
+\subsection{New Data Type Structure}
+The parser now stores sort and external sort information explicitly
+within the data type and makes use of a symbol list.
+Therefore a change of the data structure for the data types was necessary. 
+The new structure of data types can be seen in Table~\ref{datatype}.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l|p{2in}|p{2in}|}
+\hline
+Field No. & Mnemonic & Name & Possible Entries\\
+\hline \hline
+1 & DTAX & data type axiom set & list of axioms \\ \hline
+2 & DTCONST & data type constant set & list of constants \\ \hline
+3 & DTVARS & data type variable set & list of variables \\ \hline
+4 & DTOPERS & data type operator and coercion operator set 
+  & list of (coercion) operators \\ \hline
+5 & DTNAME & data type name & symbol denoting data type name \\ \hline
+6 & DTSORTS & data type sorts & list of symbols denoting sorts \\ \hline
+7 & DTXSORTS & data type external sorts
+  & list of symbols denoting external sorts \\ \hline
+8 & DTSYMLST & data type symbol list & list of signature objects \\ \hline
+$>$8 & DTPROP & data type properties & property list \\ \hline
+\end{tabular}
+\end{center}
+\caption{The New Data Type Structure}
+\label{datatype}
+\end{table}
+
+\subsection{Parser Variable Dictionary Structure}
+On declaring a variable with name $n$ in the {\tt VAR}-section of
+a data type, indexed variables $n_i$ are declared implicitly, where
+$n_0$ is identified with $n$.
+This feature allows re-parsing terms containing auxiliary variables printed by
+\redux.
+
+Variables with same indices are represented uniquely, whereas variable
+instances (variables with same name, but different index) share only a
+common signature information ({\tt TSIGN} field). 
+Their binding field ({\tt VARBIND} field) may be different.
+
+To handle these variable instances the parser has to keep track of
+which indices are used. This is done by a data structure called
+{\em parser variable dictionary}.
+
+A parser variable dictionary is a (possibly empty) list of period two
+$$ PD = (n_1,vl_1,\dots,n_k,vl_k), $$
+where at the odd positions
+variable names (symbols $n_j$) are stored, and at the even positions
+corresponding variable lists ($vl_j$). These variable lists
+$$ vl_j = (i_{j1},v_{j1},\dots,i_{jl},v_{jl}) $$
+contain variable indices ($i_{jm}$) and occurrences of variable signature
+objects (variable terms) assigned to the variable with name $n_j$ 
+and index $i_{jm}$.
+
+It is not recommended to access parser variable dictionaries directly,
+use the macros of {\tt parse.h} instead. The definition of these
+macros is:
+$$\begin{array}{rcl}
+  \mbox{PDVARCONS}(n,vl,PD) & = & \begin{array}{lcl}
+     (n,vl,n_1,vl_1,\dots,n_k,vl_k) & if & 
+     PD = (n_1,vl_1,\dots,n_k,vl_k) \end{array} \\
+  \mbox{PDVARNAME}(PD) & = & \left\{ \begin{array}{lcl}
+     undefined & if & PD = () \\
+     n_1 & if & PD = (n_1,vl_1,\dots,n_k,vl_k) \end{array}
+   \right. \\
+   \mbox{PDVARLIST}(PD) & = & \left\{ \begin{array}{lcl}
+     undefined & if & PD = () \\
+     vl_1 & if & PD = (n_1,vl_1,\dots,n_k,vl_k) \end{array}
+   \right. \\
+   \mbox{PDVARNEXT}(PD) & = & \left\{ \begin{array}{lcl}
+     undefined & if & PD = () \\
+     (n_2,vl_2,\dots,n_k,vl_k) & if & PD = (n_1,vl_1,\dots,n_k,vl_k)
+   \end{array} \right. \\
+   \\
+  \mbox{PDVLCONS}(i,v,VL) & = & \begin{array}{lcl}
+     (i,v,i_1,v_1,\dots,i_k,v_k) & if & 
+     VL = (i_1,v_1,\dots,i_k,v_k) \end{array} \\
+  \mbox{PDVLINDEX}(VL) & = & \left\{ \begin{array}{lcl}
+     undefined & if & VL = () \\
+     i_1 & if & VL = (i_1,v_1,\dots,i_k,v_k) \end{array}
+   \right. \\
+   \mbox{PDVLVAR}(VL) & = & \left\{ \begin{array}{lcl}
+     undefined & if & VL = () \\
+     v_1 & if & VL = (i_1,v_1,\dots,i_k,v_k) \end{array}
+   \right. \\
+   \mbox{PDVLNEXT}(VL) & = & \left\{ \begin{array}{lcl}
+     undefined & if & VL = () \\
+     (i_2,v_2,\dots,i_k,v_k) & if & VL = (i_1,v_1,\dots,i_k,v_k)
+   \end{array} \right. \\   
+\end{array}$$
+
+It should be mentioned, that variable indices may differ between input
+and output of terms. So a variable with name {\tt v\_100} during term parsing
+may be written, for example, as {\tt v\_2}.
+
+\subsection{Ambiguity List Structure}
+
+To avoid ambiguous term output, which can be caused by writing
+two identifiers (variable, constant, operator names,\dots)
+directly one after the other without separating blanks or parentheses,
+ambiguity lists are stored within the term structure (more exactly: within
+signature objects), if necessary.
+These ambiguity lists are added as a term property under indicator {\tt DAM}.
+
+The ambiguity list of a symbol $s$ represents a set of symbol lists
+such that $(s_1,\ldots,s_n)$ being in the ambiguity list of $s$ means that
+if $s$ is to be printed followed by the symbols $s_1, \ldots, s_n$ then
+a space charater must be written between $s$ and $s_1$.
+
+Ambiguity lists are represented in a trie structure, thus
+avoiding to dulpicate common prefixes of several different members.
+An ambiguity list is a (possibly empty) list of period two
+$$ AL = (n_1,al_1,\dots,n_k,al_k), $$
+where the $n_i$ are object names (symbols) and the $al_i$ are further
+ambiguity lists, called continuation lists.
+
+Like parser variable dictionaries, ambiguity lists should not be accessed
+directly. The parser provides the following macros to manipulate
+them:
+
+$$\begin{array}{rcl}
+  \mbox{AMBCONS}(n,c,AL) & = & \begin{array}{lcl}
+     (n,c,n_1,al_1,\dots,n_k,al_k) & if &
+     AL = (n_1,al_1,\dots,n_k,al_k) \end{array} \\
+  \mbox{AMBNAME}(AL) & = & \left\{ \begin{array}{lcl}
+     undefined & if & AL = () \\
+     n_1 & if & AL = (n_1,al_1,\dots,n_k,al_k) \end{array}
+   \right. \\ 
+  \mbox{AMBCONT}(AL) & = & \left\{ \begin{array}{lcl}
+     undefined & if & AL = () \\
+     al_1 & if & AL = (n_1,al_1,\dots,n_k,al_k) \end{array}
+   \right. \\ 
+  \mbox{AMBNEXT}(AL) & = & \left\{ \begin{array}{lcl}
+     undefined & if & AL = () \\
+     (n_2,al_2,\dots,n_k,al_k) & if & AL = (n_1,al_1,\dots,n_k,al_k)
+  \end{array} \right. \\
+\end{array}$$
+
+The semantics of such a list can be defined as follows:
+If $s$ is a signature object with name $n$ and ambiguity list 
+$al=(n_1,al_1,\ldots,n_k,al_k)$,
+then a separator (space or parentheses) has to be written
+after $n$, if the sequence $(s_1,\dots,s_n)$ of symbols to be written
+directly following $n$ on term output is in
+% a maximal sequence of the set
+\[
+  \mbox{set}(al) = \{ (s_1,\dots,s_j)  \mid  \;
+         \exists i: s_1 = n_i \land (s_2,\ldots,s_j) \in \mbox{set}(al_i) \}
+\]
+where $\mbox{set}(()) = \{ () \}$.
+
+The current implementation may add additional alternatives to ambiguity
+lists. As this case occurs rarely, it is an acceptable compromise
+between simple algorithms and minimal ambiguity lists.

@@ -1,0 +1,13 @@
+                    R:=PCALL(p,m,n,A)
+[Call procedure.
+p is a beta-integer denoting a procedure P. m and n are non-negative
+beta-integers less then MAXOUT and MAXIN respectively. P has m output 
+and n input paramters.  A = (a1, ..., an) is a list of lenght n.
+Then R = (r1, ..., rm) is a list of length m where the ri are computed
+by calling P(a1, ..., an; r1, ..., rm).]
+
+     safe a, r. array a[ITMAXIN], r[ITMAXOUT].
+
+(1)  [Get arguments.] A':=A; for i=1,...,n do ADV(A'; a[i], A').
+(2)  [Dispatch.] case p of
+     { [ <i> do <procedure i>(a[1],...,a[n]; r[1], ..., r[m]);]

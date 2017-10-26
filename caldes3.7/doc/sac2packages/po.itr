@@ -1,0 +1,106 @@
+Introduction to the SAC-2 Polynomial System
+
+The SAC-2 Polynomial System provides algorithms for performing elementary operations on polynomials in several variables. Operations classified as elementary include input and output, the arithmetic operations (addition, subtraction, multiplication, division, etc.), substitution and evaluation, transformations, differentiation and integration, solution of simultaneous congruencies (Chinese remainder theorem), interpolation, generation of random polynomials, various homorphisms and isomorphisms, conversions of representation, etc. Algorithms for more complex operations on polynomials such as greatest common divisors, resultants, polynomial zero isolation and refinement and complete factorization are contained in other SAC-2 systems.
+
+The SAC-2 system uses several different representations for polynomials, but the primary representation ist the recursive canonical form. Any commutative ring R can be chosen as the coefficient ring  for the polynomial ring R[x1...,xr] of polynomials in r variables 
+(indeterminates) x1,...,xr, r31, provided that a representation has already been specified for the elements of R and algorithms are available for arithmetic in R and other required operations in R, for example input-output. In the recursive representation R[x1,...,xr] is identified with (...((R[x1][x2])...)[xr]. That is, a polynomial A(x1,...,xr) e R[x1,...,xr] is considered as a polynomial in the main variable xr, whose coefficients belong to R[x1,...,xr-1] and are thus themselves polynomials if r>1. Thus the recursive representation of A(x1,...,xr) is defined by induction on r. Let
+
+A(x1,...,xr) = Ski=1Ai(x1,...,xr-1)xrei  (1)
+
+be a non-zero polynomial with each Ai(x1...,xr-1)- 0 and e1>e2>...>ek. By induction we may assume that the recursive representation ai of Ai, as a list or b-integer, has already been defined. Then the recursive representation a of A is defined to be the list
+
+a = (e1, a1,..., er,ar).
+
+The polynomial zero is represented by the b-integer zero. Notice that the variables xi do not occur in the representation.
+
+If A(x1,...,xr) - 0 the degree of A, written deg(A), is e1.Thus "degree" always means "degree in the main variable," not total degree. The degree of the zero polynomial is by convention zero. If A(x1,...,xr) - 0 the leading coefficient of A, written ldcf(A), is A1(x1,...xr-1). By convention ldcf(0) = 0. If A(x1,...,xr) - 0 then the leading term of A is the polynomial
+							ei					
+			1dt(A) = A1(x1,...,xr-1)xr
+
+and the reductum of A is
+
+red (A) = Sk-1i=1Ai(x1,...,xr-1)xrei.
+
+By convention, ldt (0) = red(0) = 0.
+
+The current version of SAC-2 provides recursive polynomials for several choices of coefficient ring R; additional choices will be provided in subsequent versions. Currently available coefficient rings are Z (the integers), Q (the rational numbers) and Zm (the integers modulo m); polynomials with algebraic number coefficients are also provided, but these algorithms belong to the SAC-2 Algebraic Number System. The first letters of algorithm names generally designate 
+the coefficient ring. The letters IP (integral polynomial) are associated with Z, RP (rational polynomial) with Q, MP (modular integral polynomial) with Zm in case m is a b-integer, and MIP (modular integral polynomial) with ZM in case M is arbitrary. Some of the algorithms are for univariate polynomials only; in such cases the letter U precedes the P in the algorithm name. Also, a few polynomial algorithms are independent of the coefficient ring; the names of these algorithms begin with P.
+
+Although the leading coefficient of a polynomial is in general a polynomial in one less variable, the leading base coefficient of a polynomial belongs to the coefficient ring R. If (A x1,...,xr) - 0 the leading base coefficent of A, lbcf(A) = lbcf(ldcf(A)) if r > 1.
+
+In general, the number r of variables in a polynomial can not be deduced from the list which represents it. Therefore, the number r must usually be an input to the algorithm; usually r is the first input. When the coefficient ring depends on a parameter, for example when R = ZM, the parameter is 
+also an input, usually the second. Thus to compute C = A + B we write C + IPSUM(r,A,B) if A,B eZM[x1...,xr]. Some algorithms permit r = 0; for example if A,B Z we can obtain C = A + B if we write C,IPSUM(O,A,B). Each algorithm specification states whether r must be positive.
+
+In order to output a polynomial, a variable list must be supplied to the output algorithm as an input along with the polynomial. For example we can output the integral polynomial A(x1,...,xr) with the subroutine call IPWRIT(r,A,V) where V is a list (v1,...,vr) and vi is a variable naming xi. A variable is a non-null character string whose elements are letters and digits, the first a letter. Internally a variable is represented by a first-order list whose ith element is the SAC-2 code for the ith character in the string.
+
+An example will illustrate the external form of a recursive polynomial. Let A(x1,x2) = (3x31-2)x22 + (-x1+5)x2-4. Suppose we write "V,LIST2("X1","X2");IPWRIT(2,A,V).". As output we obtain:
+
+((3*X1**3-2*X1**0)*X2**2+(-1*X1**1+5*X1**0)*X2**1+
+(-4*X1**0)*X2**0)		(2)
+
+Notice that all exponents and non-zero integer coefficients occur explicitly. Exponents do not carry signs; integer coefficients, except positive leading coefficients, do have signs. Terms of multivariate polynomials are always separated by plus signs, and their coefficients, since they are polynomials, are enclosed in parentheses. The entire polynomial is also enclosed in parentheses.
+
+The same external form is assumed by the input algorithm IPREAD. The subroutine call IPREAD (;r,A,V) assigns to A the internal list representation of the poynomial which is read, sets r to the number of variables of A, and produces a variable list V for A, containing the variable names which were used in the external form of A. IPREAD 
+does a limited amount of error checking; if an error is detected the message "error found by IPREAD" is printed and the input buffer is printed with a bar under the character read just prior to discovery of the error. This indication usually reveals the location and nature of the error.
+
+The external form of zero polynomial is the single character "0". In output zero can be regarded as a polynomial in any number of variables. It should be kept in mind, however, that inputting zero causes r to be set to zero an V to be set to ( ).
+
+Similar algorithms RPREAD are provided for input and output of rational polynomials. The external form of a rational polynomial is the same as that of an integral polynomial except that the external form of a rational number (see Introduction to the SAC-2 Arithmetic System) is used for coefficients. Since ZM is a subset of Z, IPREAD and IPWRIT are used for input and output of polynomials over ZM(whether or not m is a b-integer).
+
+The trailing coefficient of a polynomial A(x1,...,xr) is the coefficient in A of x0r, a polynomial in x1,...,xr), denoted by trcf(A). The trailing base coefficient of A, denoted by tbcf(A), is defined by induction on r. If r = 1 then tbcf(A) = trcf(A) and if r > 1 then tbcf(A) = tbcf(trcf(A)).
+
+Let A(x1,...,xr) be an integral polynomial. The maximum norm  of A, |A|0, and the sum norm of A, |A|1are defined as follows, by induction on r3 0. If A =0 then |A|0 = |A| = 0. If r = 0 then |A|0 = |A|1 = |A|, the absolute value of A. If r- 0 is given by (1) then
+
+|A|0  = max12i2k|Ai|0,
+
+|A|1 = S12i2k|Ai|1.
+
+
+If A(x1,...,xr) is an integral polynomial, the sign of A is sign (A) = sign (lbcf(A)) and the absolute value of A is abs (A) = sign (A) . A. A is a positive polynomial in case sign (A) = 1.
+
+Let A(x1,...,xr), B(x1,...xr) eR[x1,...,xr], B - 0. The pseudoremainder of A and B, psrem(A,B), is defined as follows. If A = 0 or
+deg(A) < deg(B) then psrem(A,B) = A. If deg(A) = m 3 deg(B) = n and b = 1dcf(B) then there is a unique pair of polynomials Q and R such that bm-n A = BQ + R with either R = 0 or deg(R) < n and 
+then psrem(A,B) = R. The natural remainder of A and B, rem(A,B), is defined only if r = 1 and b is a unit of R. If A = 0 or deg(A) < deg(B) then rem(A,B) = A. Otherwise there is a unique pair of polynomials Q and R such that A = BQ + R with either R = 0 or deg(R) < deg(B) and then rem(A,B) = R.
+
+The SAC-2 Polynomial System also contains some algorithms for the rings Z[x1,...,xr]/I and ZM[x1,...,xr]/I where I is an ideal of the form (x1d1,...,xr-1dr-1) or (x1,...,xr). These algorithms generally contain the letter I in their names standing for the word "ideal". For example, IPIPR stands for "integral polynomial, modulo ideal, product".
+
+Since ZM and Z'M are isomorphic, operations in Z'M[x1,...,xr] are usually supplanted by operations in ZM[x1,...xr]. Hence there are algorithms to convert polynomials from either of these rings to the other. The letters SM (symmetric modular) are used to refer to the ring Z'M[x1,...,xr].
+
+Besides the recursive representation of polynomials there is a distributive representation. Let R be a coefficient ring and let A(x1,...,xr) e R[x1,...,xr], r3 1 and A - 0. Let
+
+			A(x1,...,xr) = Smi=1aixei         (3)
+
+where each ei is an r-tuple (ei,1,...,ei,r) of non-negative integers and xe1 stands for x1ei,1... xrei,r. We assume further that e1>e2>...>em in lexicographic order where e1 is the inverse of ei and that each ai is a non-zero element of R. Then the distributive representation of A is the list	
+
+(e1*,a1*,...,em*,am*)     (4)
+
+where ai* represents ai and ei* is a list representing ei as follows. Let j1 <j2<...<jk be the non-zero j's such that ei,j - 0. Then ei* is the list
+
+(jk,ei,jk,...,j1,ei,j1).
+
+If k = 0 (ei = (0,...,0) then ei* is the null list. For example, if A(x1,x2) is the polynomial in (2) then the distributive representation of A is the list
+
+((2,2,1,3),3(2,2),-2,(2,1,1,1),-1,(2,1),5,( ),-4).
+
+The distributive representation is appropriate for very sparse polynomials, polynomials in a large number of variables in which each term usually depends on only a small number of these variables.
+
+There is also an external form for distributive polynomials. If the algorithm DIIPWR is applied to the polynomial A and the variable list V used for IPWRIT above, the resulting output is:
+
+( +3*X1**3*X2**2 -2*X2**2 -X1**1*X2**1 +5*X2**1 -4)       (5)
+
+The algorithms for distributive polynomials do not take the number of variables, r, as an input. Note that in (3) zero exponents are suppressed along with their associated variable names and double asterisks. Also, the coefficient 11 is suppressed, but not its sign. When preparing a polynomial for input by DIIPRD, such suppression is optional; so are the blanks occurring before and after each term in (5). The algorithm DIIPRD requires a
+ variable list as an input since some variables may not explicitly occur in the external form. The external form of the zero polynomial is the single character "0". The external form of a distributive rational polynomial is the same except that the external form of rational numbers replaces the external form of integers in coefficients. In algorithm names the key letters for the distributive representation are DI.
+
+The SAC-2 Polynomial System also uses a dense representation for polynomials. Let A(x1,...,xr) e R[x1,...,xr]. If A = 0 then A is represented by the b-integer O. Otherwise let
+
+A(x1,...,xr) = Sn i=0 Ai(x1,...,xr-1) xir
+
+where  n= deg(A). Then the dense representation of A is the list
+
+(n,A*n,A*n-1,...,A*0),
+
+where A*i is the dense representation of Ai (or, if r=1, the assumed given representation of Ai as an element of R).
+
+The SAC-2 Polynomial Systeme contains an algorithm, BEGIN3, which should be called in the first executable statement of any main algorithm which uses the system. It generates a list of prime numbers just slightly less than b, and assigns this list to the system global variable PRIME, then calls BEGIN2 to initialize the SAC-2 Arithmetic System. The user will ordinarily wish to call END2 (belonging to the SAC-2 Arithmetic System) at the end of his main algorithm.
+
+

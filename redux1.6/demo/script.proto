@@ -1,0 +1,106 @@
+#!/bin/csh -f
+# Select data type and call ReDuX demo program
+# Synopsis: <scriptname> [<file> | -D [directory]]
+#     No options: take data type in <scriptname>.in
+#         <file>: Look for data type file in the ReDuX data type
+#                 specifications directory tree.
+#             -D: Select from the ReDuX data type directory.
+# -D <directory>: Select from data type directory <directory>.
+set RDX=REDUXPATH
+set RDXB=${RDX}/bin
+set TMPFILE = /tmp/REDUXDEMO.$$
+
+onintr ON_INTERRUPT
+
+if ( REDUXDEMO == ac || REDUXDEMO == tc || REDUXDEMO == trd ) then
+   if ( -f algos ) then
+      set CALL_PRG = "REDUXDEMO REDUXDEMO.in algos"
+   else
+      set CALL_PRG = "REDUXDEMO REDUXDEMO.in $RDX/src/it/algos"
+   endif
+else
+   set CALL_PRG = "REDUXDEMO REDUXDEMO.in"
+endif
+
+# No command line arguments
+if ($#argv == 0) then
+    if ( -f REDUXDEMO.in ) then
+       $CALL_PRG
+    else
+       echo "There is no file REDUXDEMO.in, aborting."
+    endif
+    exit
+endif
+
+# Option -D given in command line
+if ($1 == -D) then
+    if ($#argv > 1) then 
+       if ( -d $2) then 
+         set DIR=$2
+       else
+         echo "${0}: Error: $2 doesn't exist or is no directory, aborting."
+         exit 1
+       endif
+    else
+       set DIR=$RDX/spec
+    endif
+    foreach i ($DIR/*.rdx)
+       set type=$i:t
+       echo $type:r >>! $TMPFILE
+    end
+    more $TMPFILE
+    rm -f $TMPFILE
+    echo -n "Which type do you want to work with? * "
+    set DT=$<
+    set file=$DIR/$DT.rdx
+    if ( ! -f $file ) then
+       echo "${0}: Error: File $file not found."
+       echo "(Typing mistake?)"
+       exit 1
+    else
+       echo "Using data type $DT, file $file."
+       rm -f REDUXDEMO.in
+       ln -s $file REDUXDEMO.in
+    endif
+   $CALL_PRG
+   exit
+endif
+
+# File name given in command line
+# adjust file name
+if ($1:e == rdx) then
+    set file=$1
+else
+    set file=$1.rdx
+endif
+
+if ( -f $file ) then   # Search in current directory
+   set files = ( $file )
+else                   # Search standard specification directory
+   set files = ( `find $RDX/spec/. -name $file -print` )
+endif
+
+if ($#files == 1) then
+   set file = $files[1]
+   goto LOAD
+else
+   foreach file ($files)
+      echo -n "Loading $file [y/n]? * "
+      set answ=$<
+      if ($answ == "y" || $answ == "Y" ) goto LOAD
+   end
+endif
+
+echo "No data type copied, aborting."
+exit 1
+
+LOAD:
+   echo "Loading file $file"
+   rm -f REDUXDEMO.in
+   ln -s $file REDUXDEMO.in
+   # Call ReDuX program
+   $CALL_PRG
+   exit
+
+ON_INTERRUPT:   # Actions to be performed when an interrupt occurs
+   rm -f $TMPFILE

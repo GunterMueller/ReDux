@@ -1,0 +1,3 @@
+adb  <<! 
+$<PHBINPATH/backwalk2
+$q !

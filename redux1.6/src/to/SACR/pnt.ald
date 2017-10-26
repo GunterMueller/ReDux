@@ -1,0 +1,8 @@
+                     n:=PNT(r,A)
+[Polynomial number of terms. 
+A is a polynomial in r variables, r>=0.
+n is the number of non-zero terms of A.]
+     safe PNT.
+(1)  [A=0.] if A=0 then {n:=0; return}.
+(2)  [r=0.] if r=0 then {n:=1; return}.
+(3)  [A#0.] n:=LENGTH(A)/2 ||

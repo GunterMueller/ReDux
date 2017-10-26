@@ -1,0 +1,56 @@
+%% 
+DATATYPE RXDIFF;
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1: KOEF;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	': KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+	D: POLYNOM -> POLYNOM;
+NOTATION
+	~, D: FUNCTION;
+	+, *, |, ', #, @: INFIX;
+THEORY
+	+, *, |, #, @: AC;
+AXIOM
+[1] (0 + a) == a;
+[2] (0 * a) == 0;
+[3] (1 * a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] (a + ~(a)) == 0;
+[7] ~((a + b)) == (~(a) + ~(b));
+[8] (a * ~(b)) == ~((a * b));
+[9] (a * (b + c)) == ((a * b) + (a * c));
+
+[10] (x | I) == x;
+
+[11] (0 ' x) == O;
+[12] ((a ' x) # (b ' x)) == ((a + b) ' x);
+[13] ((a ' x) @ (b ' y)) == ((a * b) ' (x | y));
+
+[14] (p # O) == p;
+[15] (p @ O) == O;
+[16] (p @ (1 ' I)) == p;
+[17] (p @ (q # r)) == ((p @ q) # (p @ r));
+[18] ((p @ (a ' x)) # (p @ (b ' x))) == (p @ ((a + b) ' x));
+[19] (p @ ((1 + b) ' I)) == (p # (p @ (b ' I)));
+[20] (p # (p @ (~(1) ' I))) == O;
+[21] (p # (p @ ((~(1) + a) ' I))) == (p @ (a ' I));
+
+[22] D((p # q)) == (D(p) # D(q));
+[23] D((p @ q)) == ((D(p) @ q) # (p @ D(q)));
+END
+%%  This file is RX.typ 

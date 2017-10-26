@@ -1,0 +1,12 @@
+                        B:=RPEXP(r,A,n)
+[Rational polynomial exponentiation. 
+A is a rational polynomial in r variables, r>=0. 
+If n is not a non-negative \beta-digit an error
+message is given. Otherwise $B=A^n$.]
+
+(1) [Error?] if n<0\/n>=BETA then {print "Error found by RPEXP";
+    DIBUFF; stop}.
+(2) [Basis.] if n=0 then {B:=PFCV(r,RNINT(1),0); return} else
+    if n=1 then {B:=A; return}.
+(3) [Recursion.] m:=n/2; B:=RPEXP(r,A,m); B:=RPPROD(r,B,B);
+    if 2*m<n then B:=RPPROD(r,A,B) ||

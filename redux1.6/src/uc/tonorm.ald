@@ -1,0 +1,153 @@
+[--------------------------------------]
+[ Terms order normalization algorithms ]
+[--------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----------------]
+[ EXPORT section ]
+[----------------]
+
+
+
+                    t*:=TONORM(t,R,E,O)
+[Term, ordered normalization.
+ t is a non-external term. R is a terminating term rewrite
+ system, E is a set of equations, O is a string denoting a
+ term ordering. Then t* is the normal form of t by ordered
+ rewriting w.r.t. R, E and O. If t could not be reduced, 
+ then t*=t. Otherwise t is destroyed.]
+
+(1) [init]
+    t* := t.
+(2) [reduce t*]
+    repeat
+      t' := TIREDS(t*,R);
+      TORED1(t',E,O; t*,b);
+    until ~b ||
+    
+[---------------------]
+[ INTERNAL algorithms ]
+[---------------------]
+
+
+
+                    TORED1(t,E,O; t*,b)
+[Term, constrained 1-step reduction.
+ t is a non-external, free term, E is a set of equations,
+ O is a string denoting a term ordering. Then t* is the free term
+ derived from t by applying a one-step reduction, that simplifies
+ t according to O. In this case b=TRUE and t is modified, if no
+ reduction is possible b=FALSE and t*=t.]
+
+(1) [init]
+    t* := t;
+    b := FALSE.
+(2) [apply equation to top operator]
+    E':=E;
+    while E'#() do
+    { ADV(E'; CP, E');
+      t* := TCAPPL(t,CP,'S',O);
+      if t*=t then t*:=TCAPPL(t,CP,'R',O);
+      if t*#t then { b:=TRUE; return }
+    }.
+(3) [recursive descent]
+    L:=OARGLST(t);         [is freeness claim correct???]
+    while L#() do
+    { t':=FIRST(L);
+      TORED1(t',E,O; t^,b);
+      if b=TRUE then
+      { [equation applied to principle subterm]
+        FIRST(L) := t^;
+        return
+      };
+      L:=RED(L)
+    } ||
+
+
+
+                    t*:=TCAPPL(t,C,o,O)
+[Term, constrained application of equation.
+ t is a non-external term. C is an equation (represented as a 
+ criticle pair), O is a string denoting a term ordering and 
+ o is 'S' or 'R' (for straight or reverse ordering of equation C).
+ Then t* is the free term, derived from t by a one-step reduction
+ on top position using (the ordered) equation C. If no reduction
+ is possible t*=t.]
+
+(1) [init]
+    t* := t.
+(2) [reverse or straight ordering?]
+    if o='R' then goto 6.
+(3) [straight ordering; get variable set]
+    lhs := CPLHS(C);
+    TBVSLI(lhs; V, LLB).
+(4) [match LHS]
+    if TKIND(lhs) = DCS then
+    { [constant]
+      if lhs#t then return
+    }
+    else if TKIND(lhs) = DVS then
+    { [variable]
+      VARBIND(lhs) := t
+    }
+    else
+    { [non-atomic LHS]
+      I:=TMATCH(lhs,t);
+      if I = () then
+      { [match failed]
+        UNDO(V);
+        return
+      }
+    }.
+(5) [order terms of critical pair and apply substitution]
+    c:=TPPO(C,O);
+    if c='S' then
+    { [t*=sigma(RHS)]
+      t' := TBPCPM(CPRHS(C));
+      TCMPRS(t'; t*,V*);
+      UNDO(V);
+      return
+    }
+    else
+    { [failure]
+      UNDO(V);
+      return
+    }.
+
+(6) [reverse ordering; get variable set]
+    rhs := CPRHS(C);
+    TBVSLI(rhs; V, LLB).
+(7) [match RHS]
+    if TKIND(rhs) = DCS then
+    { [constant]
+      if rhs#t then return
+    }
+    else if TKIND(rhs) = DVS then
+    { [variable]
+      VARBIND(rhs) := t
+    }
+    else
+    { [non-atomic RHS]
+      I:=TMATCH(rhs,t);
+      if I = () then
+      { [match failed]
+        UNDO(V);
+        return
+      }
+    }.
+(8) [order terms of critical pair and apply substitution]
+    c:=TPPO(C,O);
+    if c='R' then
+    { [t*=sigma(LHS)]
+      t' := TBPCPM(CPLHS(C));
+      TCMPRS(t'; t*,V*);
+      UNDO(V);
+      return
+    }
+    else
+    { [failure]
+      UNDO(V);
+      return
+    } ||

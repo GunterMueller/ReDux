@@ -1,0 +1,37 @@
+\begin{figure}[htbp]
+\begin{center}
+\noindent
+\rule{\textwidth}{0.6pt}
+ 
+%\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs PrecedenceDecl} \= \gprod \= \kill
+{\vs Axiom} \> \gprod \ts{[} {\vs Number} \ts{]} {\vs Term} \ts{==} {\vs Term} \\
+\\
+{\vs Term} \> \gprod {\vs Var} \gopt{\ts{\_} {\vs Number}} \galt {\vs Const} 
+       \galt \ts{(} {\vs Term} \ts{)} \galt {\vs PrefixTerm} \\
+  \>\> \galt {\vs PostfixTerm} \galt {\vs InfixTerm} \galt {\vs FunctionTerm} \\
+  \>\> \galt {\vs LispTerm} \galt {\vs RoundfixTerm} \galt {\vs CoercionTerm} \\
+{\vs PrefixTerm} \> \gprod {\vs PrefixOp} {\vs Term} \\
+{\vs PostfixTerm} \> \gprod {\vs Term} {\vs PostfixOp} \\
+{\vs InfixTerm} \> \gprod {\vs Term} {\vs InfixOp} {\vs Term} \\
+{\vs FunctionTerm} \> \gprod {\vs FuctionOp} \ts{(} \gopt{{\vs Term} 
+  \gstar{\ts{,} {\vs Term}}} \ts{)} \\
+{\vs RoundfixTerm} \> \gprod {\vs RoundfixOp} {\vs Term} \gstar{\ts{,} {\vs Term}}
+   {\vs RoundfixOp} \\
+{\vs LispTerm} \> \gprod \ts{(} {\vs LispOp} \gstar{{\vs Term}} \ts{)} \\
+{\vs CoercionTerm} \> \gprod {\vs CoercionRoundfixOp} {\vs ExternalObject} {\vs CoercionRoundfixOp} \\
+  \>\> \galt {\vs CoercionPrefixOp} {\vs ExternalObject} \\
+  \>\> \galt {\vs CoercionFunctionOp} \ts{(} {\vs ExternalObject} \ts{)} \\
+  \>\> \galt \ts{(} {\vs CoercionLispOp} {\vs ExternalObject} \ts{)}
+\end{tabbing}
+\end{minipage}
+ 
+\noindent
+\rule{\textwidth}{0.6pt}
+%} % end fbox
+\caption{The Syntax of ReDuX Data Types, Part 2}
+\label{dtgram2}
+\end{center}
+\end{figure}

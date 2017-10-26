@@ -1,0 +1,279 @@
+\section{The TO-Subsystem} \label{se:to}
+
+The {\it to}-subsystem contains term orderings according to which critical
+pairs may be oriented such that the resulting term rewriting system is
+terminating.
+So far, three different term orderings have been implemented:
+\begin{enumerate}
+ \item the Knuth-Bendix ordering (\cite{KnuthBendix:67}),
+\index{ordering!Knuth-Bendix}
+ \item the path ordering (with lexicographical l-r and r-l status) described in
+\index{ordering!path}
+       \cite{KapurNarendranSivakumar:85} and
+ \item  the polynomial interpretation ordering described in
+       \cite{BenCherifaLescanne:87}.
+ \item a polynomial interpretation ordering based on 
+\index{ordering!polynomial}
+       quantifier elimination (\cite{Weispfenning:88},
+       \cite{Loos:90}) has been tested too, but it is not available
+       with all \redux-installations.
+
+\end{enumerate}
+The Knuth-Bendix ordering should not be used with terms containing AC-operators.
+\index{operators!AC{-}}
+To use the path ordering with terms containing AC-operators, the input
+terms must be guaranteed to be flat.
+\index{term!flat}
+The {\it to}-subsystem contains the main program {\tt to} as a test environment.
+It is described in \RUD.
+
+\index{critical pair}
+There is a general driver routine TPPO which orients a critical pair\footnote{A
+{\em critical pair} is a list whose second and third elements contain the 
+terms of the pair} 
+as described in the {\it tc}-subsystem ({\tt tccp}) according to
+the control information encoded in a string O.
+Each character in O denotes an ordering and the input terms are to be ordered 
+w.\,r.\,t.\ the lexicographic combination the orderings listed in the string
+O.
+TPPO returns a character which corresponds to the users answers for
+manual critical pair orientation:
+\begin{itemize}
+ \item `S' if the left term is greater than the right term (straight ordering),
+ \item `R' if the right term is greater than the left term (reverse ordering)
+ \item`$=$' if both terms are equivalent or
+ \item 'H' if the two terms are incomparable (help requested).
+\end{itemize}
+
+Before using a term ordering it must be initialized. 
+Among others the following
+operations must be performed: 
+\begin{description}
+ \item[Knuth-Bendix ordering:] the operator weights and - indices must be
+  initialized,
+ \item[path ordering:] the l-r or r-l status of binary operators must be known,
+ \item[polynomial ordering:] the polynomial interpretations of constants
+  and operators must be set.
+\end{description}
+In addition certain symbols must be entered in the global symbol table.
+\index{symbol}
+\index{symbol table!global}
+
+\subsection{The {\tt toint}-Module}
+
+The module {\tt toint} contains interactive routines to initialize all
+\index{initialization}
+term orderings needed (TORDIN) and to construct a lexicographical 
+\index{lexicographical combination}
+combination of the initialized orderings (TORDSE).
+There is also a procedure to output the result of an ordering (ORDWRT).
+In the current implementation it is not possible to initialize and/or
+select more than one Knuth-Bendix- or more than one path-ordering
+simultaneously.
+However up to nine different polynomial orderings may be installed.
+
+\subsection{The {\tt torm}-module}
+
+The module {\tt torm} contains algorithms to deinstall term orderings.
+TORDGT determines which orderings have been installed.
+TORDRM removes deinstalls term orderings interactively.
+
+\subsection{The Knuth-Bendix Ordering}
+The implementation of the Knuth-Bendix ordering in the ReDuX-system is 
+\index{ordering!Knuth-Bendix}
+described in \cite{Kuechlin:82a}.
+The original implementation has been modified such that only variables with 
+the same representation are considered equal.
+The Knuth-Bendix ordering associates to each constant, operator, and
+variable both an index and a weight.
+Two terms are compared according to their cumulative  weights and the
+indices of their top operators.
+
+In module {\tt tokb} the procedure BGNKBO initializes the Knuth-Bendix ordering 
+by storing indices and weights of 
+\index{initialization}
+constants, operators and variables under the indicators KBOI (index) and
+KBOW (weight) in the property list of the constants, operators and variables
+of the data type.
+The symbols KBOI and KBOW are entered in the global symbol table.
+The indices and weights of the constants and operators are entered
+interactively.
+
+There is also a procedure (ENDKBO) to remove an initialized 
+Knuth-Bendix-ordering
+of the property lists of all variables, constants and operators of a data type.
+
+CPKB is a procedure which orients a critical pair w.\,r.\,t.\ the 
+Knuth-Bendix ordering.
+
+\subsection{The Path Ordering}
+
+The original implementation of the path ordering 
+\cite{KapurNarendranSivakumar:85} \index{ordering!path}
+available in the ReDuX system is described in \cite{Schwaerzler:86}.
+The original implementation has been modified to handle operators with
+l-r and r-l status and to ensure that only variables with the same 
+representation are considered equal.\footnote{We implemented the l-r-
+and r-l stati as defined in \cite{KapurNarendranSivakumar:85}.
+However this difinition seems not to be complete.}
+In addition the global list variable SPECL has been eliminated and the new 
+implementation uses recursion.
+
+%In order to use the path ordering the variable SPECL must be declared 
+%\index{variable, global}
+%externally global in the main program.
+
+The path ordering algorithms are subdivided into three modules:
+{\tt tosqol}, {\tt toknsl} and {\tt toknsli}.
+
+%{\tt tosqol} implements a quasi ordering on symbols 
+%(operator and constant names).
+%The information needed for this ordering is stored in the global list
+%SPECL.
+%Each element of SPECL has four components: 
+%\begin{description}
+ %\item[SYMBL:] operator symbol (TNAME of a constant or an operator),
+ %\item[STATUS:] operator status (none, l-r, r-l) of binary operators,
+ %\item[ASK:] a list of  constant- and operator names whose relation to the
+  %symbol in SYMBL is not known and
+ %\item[LEQ:]a list of  constant- and operator names which are less than or
+  %equal to the symbol in SYMBL.
+%\end{description}
+%BGNPO initializes SPECL and SYMQUO($f$,$g$) determines whether the operator
+%symbol $f$ is greater than or equal to the operator symbol $g$.
+
+{\tt tosqol} implements a quasi ordering $\succ$ over constants and operators.
+BGNPO  initializes this quasi-ordering.
+It first creates (global) symbols which are used as indicators for 
+term property lists describing $\succ$:
+\begin{description}
+ \item[POASK:] if \( g \in \mbox{TGET}(f,\mbox{POASK}) \) 
+               then it is not known whether \( f \succeq g \).
+ \item[POGEQ:] if  \( g \in \mbox{TGET}(f,\mbox{POGEQ}) \) 
+                then \( g \succeq f \).
+ \item[POLEQ:] if  \( g \in \mbox{TGET}(f,\mbox{POLEQ}) \) 
+                then \( f \succeq g \).
+ \item[POSTS] is used to record the lexicographical status of each
+              constant or operator.
+\end{description}
+To begin with all relations among constants and operators are initialized to
+be unknown  and the lexicographical status is initialized interactively.
+OPQUO and OPQUOI implements the quasi ordering $\succ$. Missing information
+is added interactively.
+TSSTAT extracts the lexicographical (none, l-r, r-l) status of a constant
+or operator.
+ENDPO, finally, removes a previously initialized path-ordering by
+removing the indicators POASK, POGEQ, POLEQ and POSTS from the property lists
+of all variables, constants and operators of a given data type.
+
+The module {\tt toknsl} implements the path ordering with l-r and r-l status
+and provides the procedure CPPO to orient a critical pair.
+The data structure {\em path} is represented by a list of terms 
+\index{path}
+(in reverse order).
+%The procedure PO is an example of how to program indirect recursion in
+%ALDES if the linker does not allow for mutually dependent procedures.
+
+The module {\tt toknsli} contains the interactive procedure OASKST to query
+for the status of a constant or an operator.
+
+\subsection{The Polynomial Interpretation Ordering}
+
+The implementation of the polynomial interpretation ordering 
+\index{ordering!polynomial}
+available in the ReDuX system is described in \cite{BenCherifaLescanne:87}.
+
+To use the polynomial ordering, the SAC-2 and SACR systems are needed.
+\index{SAC-2}
+Therefore \redux\ must be initialized such that the SAC-2 polynomial system
+is initialized too 
+(I.\,e.\ BGNRWD must be called with an  argument greater than 3.).
+So far the system computes a formula in prenex normal form 
+for two terms to be compared.
+This formula can then be decided using a positivity-test.
+\index{positivity-test}
+(\cite{BenCherifaLescanne:87}).
+The algorithms for the polynomial ordering are subdivided into five modules.
+
+The module {\tt topiti} contains interactive algorithms to compute the
+(ranked) integral polynomial interpretations of a term or a term pair.
+A ranked integral polynomial is a pair $(r,l)$ where $r$ is a $\beta$-integer
+denoting the rank (number of indeterminates) of the integral polynomial $p$.
+Integral polynomials are represented in recursive form.
+PRIP2I and RIPTIV compute the polynomial interpretation of a term and a term
+pair respectively and they ask the user for the missing information only
+when the information is needed.
+
+The module {\tt topit} contains auxiliary algorithms to build
+polynomial interpretation from terms.
+
+The module {\tt tospi} contains algorithms to initialize the
+polynomial interpretation ordering and display a polynomial
+interpretation. 
+The procedure BGNPYO interactively initializes the
+polynomial interpretation. All constants and operators are initialized
+with empty polynomial interpretations. Missing information is added
+interactively. 
+For each constant or operator a list of polynomial interpretations
+can be stored in its property list under indicator DIS.
+ENDPYO removes a previously initialized polynomial
+ordering from all constants and operators of a given data type.
+
+The module {\tt tobcl} contains algorithms to order two terms.
+The procedure CPPI compares the terms in a critical pair w.\,r.\,t.\ a 
+polynomial interpretation ordering. The algorithm IPPT is an
+implementation of the positivity-test described in 
+\cite{BenCherifaLescanne:87}.
+There are two change-coefficient-algorithms CCCLS1, CCCLS2 and one
+choose-monomial-algorithm RPCMSD.
+
+The module {\tt SACR} provides some basic algorithms for  polynomials
+(IPCONV, PCOMP, PDEC, PFCV, PNT, RPEXP, RPFCV, RPFFML)
+and formulas (FCOMP, FDEC, FVARS, INFVIV, ROMIN, RPFFML, TREAD1, VRD).
+
+% right now not supported
+%\subsection{The Linear Polynomial Interpretation Ordering}
+%
+%The implementation of the linear polynomial interpretation ordering
+%\index{ordering, polynomial}
+%available in the ReDuX system is described in \cite{Joswig:90}.
+%
+%To use the polynomial ordering, the SAC-2 and SACE systems are needed.
+%\index{SAC-2}
+%So far the system computes a linear formula in prenex normal form for two terms
+%to be compared.
+%This formula can then be decided using a linear quantifier elimination
+%\index{quantifier elimination}
+%(\cite{Weispfenning:88}, \cite{Weber:89}).
+%Most ReDuX distributions will not include the needed libraries.
+%In this case dummy procedures ({\tt qewdummy}) are provided for the missing
+%interface procedures and the polynomial ordering cannot be used.
+%The sources of this module are provided anyway to show how to implement
+%a map from ReDuX-terms to SAC-2-polynomials.
+%The algorithms for the polynomial ordering are subdivided into two modules.
+%
+%The module {\tt PI} contains algorithms to compute the (ranked) integral
+%polynomial interpretations of a term or a term pair.
+%A ranked integral polynomial is a pair $(r,l)$ where $r$ is a $\beta$-integer
+%denoting the rank (number of indeterminates) of the integral polynomial $p$.
+%Integral polynomials are represented in recursive form.
+%
+%The procedure ARIPDI interactively initializes the polynomial interpretation
+%of all constants and variables, whereas ENDPYO removes a previously initialized
+%polynomial ordering from all variables, constants and operators of a given
+%data type.
+%However no support is provided to check whether the polynomial interpretations
+%yield a simplification ordering (\cite{Dershowitz:79}).
+%PRIP2 and RIPTV compute the polynomial interpretation of a term and a term
+%pair respectively.
+%PRIP2I and RIPTIV do so without requiring an initializing call of ARIPDI,
+%but they ask the user for the missing information by need.
+%The procedure CPPI compares the terms in a critical pair w.\,r.\,t.\ a
+%polynomial interpretation ordering based on quantifier elimination.
+%
+%The module {\tt YW} provides the interface to the quantifier elimination.
+%QE calls the quantifier elimination and QEFORM computes the input formulas
+%derived from the polynomial interpretations of two terms.
+%In addition {\tt YW} contains some basic algorithms for constructing and
+%destructing polynomials (IPMON, PCOMP, PCONST, PDEC, PINCR)
+%and formulas (FDEC, RPFFML, INFVIV).

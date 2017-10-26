@@ -1,0 +1,10 @@
+const
+     ALDESNEG(x) = -x.
+
+                    r:=FCALL1(f,a1)
+[Call function with 1 argument.
+f is a1 beta-integer denoting a unary function F.
+Then r is the result of calling F(a1).]
+
+(1)  [Dispatch.] case f of
+     { [ <i> do r:=<function nu. i>(a1);]

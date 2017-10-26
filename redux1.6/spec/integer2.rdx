@@ -1,0 +1,43 @@
+DATATYPE INT;
+SORT
+	INT;
+CONST
+	0: INT;
+VAR
+	x, y, z: INT;
+OPERATOR
+	+: INT, INT -> INT;
+	*: INT, INT -> INT;
+	~: INT -> INT;
+	s: INT -> INT;
+	p: INT -> INT;
+NOTATION
+	+, *, ~, s, p: FUNCTION;
+AXIOM
+[1]  s(p(x))         == x;
+[2]  p(s(x))         == x;
+[3]  +(0,x)          == x;
+[4]  +(s(x),y)       == s(+(x,y));
+[5]  +(p(x),y)       == p(+(x,y));
+[6]  +(x,0)          == x;
+[7]  +(x,s(y))       == s(+(x,y));
+[8]  +(x,p(y))       == p(+(x,y));
+[9]  ~(0)            == 0;
+[10] ~(s(x))         == p(~(x));
+[11] ~(p(x))         == s(~(x));
+[12] *(0,x)          == 0;
+[13] *(s(x),y)       == +(y,*(x,y));
+[14] *(p(x),y)       == +(~(y),*(x,y));
+[15] *(x,0)          == 0;
+[16] *(x,s(y))       == +(*(x,y),x);
+[17] *(x,p(y))       == +(*(x,y),~(x));
+[18] ~(~(x))         == x;
+[19] +(~(x),x)       == 0;
+[20] +(x,~(x))       == 0;
+[21] +(x,+(~(x),z))  == z;
+[22] +(~(x),+(x,z))  == z;
+[23] ~(+(x,y))       == +(~(y),~(x));
+[24] +(+(x,y),z)     == +(x,+(y,z));
+END
+;This file is integer2.typ
+;by Rety et al as presented in [Bockmayr: JAR 3 (1987)]

@@ -1,0 +1,204 @@
+[Project:  ReDuX Term Completion
+   module name        : TCKBQ -- Knuth-Bendix completion: Queues 
+   modulespecification: Critical pair and axiom queue handling
+                        algorithms for the Knuth-Bendix Completion.
+                        Queue types: lists of axioms, lists of critical 
+                        pairs and lists of ordered critical pairs;
+                        Manipulation types: deletion and normalization.
+                        variables are uniquely defined by their TCONT.
+                        Algorithms taken from tccp*.ald and tckb*.ald.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen [RB]
+   language           : aldes
+   last change        : $Date: 1995/01/03 10:31:31 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.9 $
+   bugs               : none known
+   modules needed     : sac2/ba, sac2/sy, sac2/lp
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+     const
+     TNORM(T,A)=TIREDS(T,A),
+               [TNORM computes a normal form of term T under
+                 the set of axioms A.]
+     STRATV(CP)=CPMSIZ(CP).
+               [STRATV computes the value of critical pair CP
+                according to the current strategy.]
+  
+[--------------------------------------------------------------------- 
+     section 1.                                                         
+     1.1 Axiom list management.
+-----------------------------------------------------------------------]
+                                                                       
+                    A*:=ALINS(A,a)
+[List of axioms, insert element.
+A is a list of axioms, a is a single axiom. A is sorted in ascending
+order of the sizes of the left-hand sides. Then A* is A, with a
+inserted at its proper place such that A* is again sorted.]
+     safe P, P', w, w'.
+(1)  [Trivial case.] if A=() then {A*:=COMP(a,A); return}.
+(2)  [Initialize.] A*:=A; P:=A;
+     w:=TXTENT(ALHS(a)); w':=TXTENT(ALHS(FIRST(A))).
+(3)  [Prefix a.] if w < w' then {A*:=COMP(a,A); return}.
+(4)  [Postfix a.] P':=P; P:=RED(P);
+     if P=() then {RED(P'):=COMP(a,()); return}.
+(5)  [Insert a.] w':=TXTENT(ALHS(FIRST(P)));
+     if w >= w' then go to  4; RED(P'):=COMP(a,P) ||
+
+                    ALPUR(A,a; A*,C*)
+[List of axioms, purge.
+A is a list of axioms,a is an axiom. Then C* is the list of all axioms
+in A whose lhs contains an instance of the lhs of a.  A* = A minus C*,
+where all right-hand sides of axioms in A* are in normal form with
+respect to A union a. A is destroyed.]
+     safe A'',a',l,v,r,l',v',b.
+(1)  [Initialize.] A*:=A; C*:=(); A':=A*; [Init TRS for normalizations 
+     which must not contain the rule to be normalized.] A_:=LIST1(a).
+(2)  [Trivial case.] if A'=() then return; ARDIS(a; l,v,r).
+(3)  [Top(A*).] ADV(A'; a',A''); ARDIS(a'; l',v',r');
+     [Match at lhs. Disconnect.] b:=TSMTH(l,v,l'); if b then
+     {A*:=RED(A*); RED(A'):=C*; C*:=A'; A':=A*; go to  2};
+     [Reduce rhs.] RED(A_):=A''; b:=TSMTH(l,v,r'); if b then
+     { r_:=TNORM(r',A_); ARHS(a'):=TSTDR(r_) }.
+(4)  [Rest A*.] RED(A_):=A'; A'':=A'; A':=RED(A'); while A' # () do
+     {  a':=FIRST(A'); ARDIS(a'; l',v',r');
+      b:=TSMTH(l,v,l'); if b then
+      { [Disc.] RED(A''):=RED(A'); RED(A'):=C*; C*:=A'; A':=RED(A'')}
+      else
+       { [Reduce.] b:=TSMTH(l,v,r'); if b then
+         { [Reduce wrt. A_ \ {a'}.] RED(A''):=RED(A'); r_:=TNORM(r',A_); 
+           [Recover A_.] RED(A''):=A'; ARHS(a'):=TSTDR(r_)
+         }; A'':=A'; A':=RED(A')
+     } } ||
+
+[---------------------------------------------------------------------
+     1.2 Critical pair list management.
+-----------------------------------------------------------------------]
+
+                    CPLCCA(C*,A*; C'*,s)                  
+[List of critical pairs, clearance of children of axioms.
+C*  is  a list of critical pairs, A* is a list of axioms. Then C'* is C*
+with all those pairs removed that have a parent axiom in A*. s  is  the
+number  of  critical  pairs  removed  from  C*,  a  BETA-integer.  C* is
+destroyed.]
+     safe s,A,A',n,L,V,R,b,CP,c,l,r,n1,n2,C'',E.
+(1)  [Initialise.] C'*:=C*; A':=A*; s:=0;
+     [Trivial case.] if C*=() then return.
+(2)  [Recursion on A*. Trivial case.] if A'=() then return;
+     [Get number.] ADV(A'; A,A'); ADIS(A; n,L,V,R,b).
+(3)  [Recursion on C*. Disconnect top.] CP:=C'*; if CP=() then return;
+     ADV(CP; c,CP); CPDIS(c; l,r,n1,n2,E); if n=n1 \/ n=n2 then
+     {C'*:=RED(C'*); s:=s+1; CC:=CC+1; go to  3}.
+(4)  [Loop over tail.] C'':=C'*; while CP # () do
+     { ADV(CP; c,CP); CPDIS(c; l,r,n1,n2,E); if n=n1 \/ n=n2
+      then {RED(C''):=CP; s:=s+1; CC:=CC+1} else C'':=RED(C'') }.
+(5)  [Recursion on A*. Recursive call.] go to  2 ||
+
+                    CPLCLR(L,a; L',L*)
+[List of critical pairs, clearance of matches.
+L  is  a  list of critical pairs, a is an axiom. Then L* is the list of
+all rules in L whose lhs or rhs contain an instance of the lhs of a  as
+subterm. L' = L minus L*, L is destroyed.]
+     safe L'',L''',r',t,b,l,v,r.
+(1)  [Initialize.] L':=L; L*:=(); L'':=L'.
+(2)  [Trivial case.] if L''=() then return; ARDIS(a; l,v,r).
+(3)  [Disconnect top(L').] r':=FIRST(L''); t:=CPLHS(r');
+     RTI:=RTI-CLOCK(); b:=TSMTH(l,v,t); RTI:=RTI+CLOCK(); if ~ b then
+     { t:=CPRHS(r'); 
+       RTI:=RTI-CLOCK(); b:=TSMTH(l,v,t); RTI:=RTI+CLOCK()
+     }; if b then 
+     { L':=RED(L'); RED(L''):=L*; L*:=L''; L'':=L'; go to  2 }.
+(4)  [Loop.] L''':=L''; L'':=RED(L''); while L'' # () do
+     { r':=FIRST(L''); t:=CPLHS(r');
+      RTI:=RTI-CLOCK(); b:=TSMTH(l,v,t); RTI:=RTI+CLOCK(); if ~ b then
+      { t:=CPRHS(r'); 
+        RTI:=RTI-CLOCK(); b:=TSMTH(l,v,t); RTI:=RTI+CLOCK()
+      }; if b then 
+      { RED(L'''):=RED(L'');RED(L''):=L*; L*:=L''; L'':=RED(L''') }
+      else {L''':=L''; L'':=RED(L'')} } ||
+
+                    CPLOPR(C1,a,A; C*1,C*2)
+[List of oriented critical pairs, purge.
+C1 is a list oriented critical pairs, a is an axiom, A is a set of 
+axioms. 
+Then C*2 is the set of all critical pairs in C1 whose LHS contains an 
+instance of the LHS of a. C*1 = C minus C*2 where all right-hand sides 
+of axioms in A* are in normal form with respect to A union {a}. 
+C1 is destroyed.
+The weight information of the critical pairs in C*1 is not updated 
+because their left-hand sides do not change.]
+     safe C',C'',c',l,v,r,l',n1,n2,E,b.
+(1)  [Initialize.] C*1:=C1; C*2:=(); C':=C*1; A_:=COMP(a,A).
+(2)  [Trivial case.] if C'=() then return; ARDIS(a; l,v,r).
+(3)  [Top(C*1).] c':=FIRST(C'); CPDIS(c'; l',r',n1,n2,E);
+     [Match at lhs. Disconnect.] b:=TSMTH(l,v,l'); if b then
+     {C*1:=RED(C*1); RED(C'):=C*2; C*2:=C'; C':=C*1; go to  2};
+     [Reduce rhs.] b:=TSMTH(l,v,r'); if b then
+     { TFCVS1(r',(),(); r'',V',V''); r_:=TNORM(r'',A_);
+      CPRHS(c'):=TCHGVS(r_,V'',V')
+     }.
+(4)  [Rest A*.] C'':=C'; C':=RED(C'); while C' # () do
+     {  c':=FIRST(C'); CPDIS(c'; l',r',n1,n2,E);
+      b:=TSMTH(l,v,l'); if b then
+      { [Disc.] RED(C''):=RED(C'); RED(C'):=C*2; C*2:=C'; C':=RED(C'')}
+      else
+       { [Reduce.] b:=TSMTH(l,v,r'); if b then
+         { TFCVS1(r',(),(); r'',V',V''); r_:=TNORM(r'',A_);
+          CPRHS(c'):=TCHGVS(r_,V'',V')
+         }; C'':=C'; C':=RED(C')
+     } } ||
+
+                    CPNLNF(C,A; C*,s,s')
+[List of new critical pairs, normal forms.
+C is a list of critical pairs, A is a set of axioms.
+Then C* is C where the critical pairs are in normal form with
+respect to A. s=length(C), s'=length(C*). C is destroyed.
+According to the setting of the global variables TRC2 and TRC3,
+appropriate messages for an immediate reduction of theorems are given.]
+     safe s,s',C'',c,M,N.
+(1)  [Trivial case.] C*:=(); s:=0; s':=0; if C=() then return.
+(2)  [Initialize.] CP:=C; if TRC2 then
+     { BLINES(1); CLOUT(" Deriving the set of new theorems "); 
+       if ~TRC3 then CLOUT("which cannot be proved"); CWRIT2(' ','-'); 
+       WRITE
+      }.
+(3)  [Normalize.]  while CP # () do
+     {  c:=FIRST(CP); s:=s+1; if TRC2 /\ TRC3 then MCPDER(c);
+      M:=CPLHS(c); N:=CPRHS(c); RTI:=RTI-CLOCK(); M_:=TNORM(M,A); 
+      N_:=TNORM(N,A); RTI:=RTI+CLOCK(); if TEQU(M_,N_) then
+      { if TRC2 /\ TRC3 then
+       {CLOUT(" and proved."); WRITE}; CP:=RED(CP) } else
+      { s':=s'+1; CPRHS(c):=N_; CPLHS(c):=M_; CPW8(c):=STRATV(c);
+       if TRC2 then if TRC3 then
+       {CLOUT(" and retained as"); WRITE;
+        RRWRT(M_,N_); CWRIT2(' ','.'); WRITE} else
+       {MCPDER(c); CLOUT(" and retained"); CWRITE('.'); WRITE};
+       C'':=RED(CP); RED(CP):=C*; C*:=CP; CP:=C'' }  }.
+(4)  if TRC2 then BLINES(1) ||
+
+                    CPOLNF(C,A; C*,s,s')
+[List of old critical pairs, normal forms.
+C is a list of critical pairs, A is a set of axioms.
+Then C* is C where the critical pairs are in normal form with
+respect to A. s=length(C), s'=length(C*). C is destroyed.
+According to the setting of the global variable TRC3, appropriate
+messages for A reduction of queued theorems are output.]
+     safe s,s',C'',c,M,N.
+(1)  [Trivial case.] C*:=(); s:=0; s':=0; if C=() then return.
+(2)  [Initialize.] CP:=C; if TRC3 then
+     {BLINES(1); CLOUT(" Reducing the set of old theorems -");
+      WRITE }.
+(3)  [Normalize.]  while CP # () do
+     {  c:=FIRST(CP); s:=s+1; M:=CPLHS(c); N:=CPRHS(c);
+      if TRC3 then { BLINES(1); MCPB(c,0); CLOUT(" reduced") };
+      RTI:=RTI-CLOCK(); M_:=TNORM(M,A); N_:=TNORM(N,A); 
+      RTI:=RTI+CLOCK(); if TEQU(M_,N_) then
+      { if TRC3 then {CLOUT(" and proved."); WRITE}; CP:=RED(CP) } else
+      { s':=s'+1; CPRHS(c):=N_; CPLHS(c):=M_; CPW8(c):=STRATV(c);
+       if TRC3 then
+       {CLOUT(" and retained as"); WRITE;
+        RRWRT(M_,N_); CWRIT2(' ','.'); WRITE};
+       C'':=RED(CP); RED(CP):=C*; C*:=CP; CP:=C'' }  }.
+(4)  if TRC3 then BLINES(1) ||

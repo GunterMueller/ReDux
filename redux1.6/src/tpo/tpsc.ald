@@ -1,0 +1,156 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPSC -- SCanner
+   modulespecification: Scanner for ReDuX input
+                        derived from tpdd, Revision: 1.12 
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : $Date: 1996/05/10 10:00:39 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.3 $
+   bugs               : none known
+   modules needed     : SAC-2: low/bs, low/sy, low/lp
+
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+                                                                       
+[----------------------------------------------------------------------
+     Section 2.                                                         
+     The symbol scanner.                                                
+-----------------------------------------------------------------------]
+
+                    GETSYM()                                           
+[Get next symbol.                                                      
+The  next  symbol  is  read,  entered into SYMTB, and assigned to SYM, a
+global variable. If SYM  is  not  a  grammar-symbol  then  SYM  is  also
+assigned  the  property  with  the  values  IDENT,  XIDENT  or INT under
+indicator KIND, according to the kind of symbol read.
+ADD STB 2.92: If symbol DCM is read then this symbol and the rest of line
+will be discarded. DCM may be defined as textsymbol or grammar-symbol]
+     safe b,k,C,P*.                                                   
+(1)  [Initialize.] C:=CREADB(); b:=LETTER(C).
+(2)  [(identifier)] if b then {BKSP; SYM:=SSYM(); 
+     if SYM=DCM then {READ; goto 1};
+     k:=GET(SYM,KIND);
+     if k=() then PUT(SYM,KIND,IDENT); return}.
+(3)  [(integer)] b:=DIGIT(C); if b then {BKSP; SYM:=SIS();
+     k:=GET(SYM,KIND); if k=() then PUT(SYM,KIND,INT); return}.
+(4)  [(extraordinary identifier)] C^*:=LIST1(C); P*:=PACK(C^*).
+(5)  [Grammar symbol.] SYM:=STSRCH(SYMTB,P*); if SYM # () then         
+     {if SYM=DCM then {READ; goto 1};
+     k:=GET(SYM,KIND); if k=GRSYM then return};
+[*** Change here to restrict operator names, not to consist
+     of any character with a leading special symbol. Thus the 
+     unconvenient blanks between the infix and roundfix operator
+     symbols and their argument lists could be redundant. ***]
+     [Read next character.] C:=CREAD();
+[*** Remove comments to accept separator symbol as a symbol-end
+     defining character and to get rid of the blank that has to be 
+     written between the closing roundfix operator symbol and the
+     separator symbol at the fort.4 operator definition. ***]
+     [End of symbol - blank, DOB, DCB or DRS read.]                    
+     [This condition to be changed along with DCB, DOB, DRS or DSS.]        
+     if C=' ' \/ C='(' \/ C=')' \/ C=','  \/ C='.' then {BKSP;
+      SYM:=STINS(P*); PUT(SYM,KIND,XIDNT); PUT(SYM,FLAT,C^*); return};
+     C^*:=SUFFIX(C^*,C); P*:=PACK(C^*); goto 5 ||                      
+                                                                       
+                    SCB(c)                                             
+[Scan closing bracket.                                                 
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. The closing bracket is scanned.]                            
+     safe SCB.                                                         
+(1)  GETSYM; if SYM # DCB then {ERRORD(7,c); go to  1} ||              
+                                                                       
+                    SID(c)                                             
+[Scan identifier.                                                      
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. An identifier is scanned.]                                  
+     safe SID.                                                         
+(1)  GETSYM; if GET(SYM,KIND) # IDENT then                             
+     {ERRORD(2,c); go to  1} ||                                        
+                                                                       
+                   SII(c)                                              
+[Scan identifier or integer.                                           
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. An identifier or an integer is scanned.]                    
+     safe SII.                                                         
+(1)  GETSYM; k:=GET(SYM,KIND); if k # IDENT /\ k # INT             
+     then {ERRORD(11,c); go to  1} ||                                  
+
+                   SIIX(c)
+[Scan identifier, extraordinary identifier or integer.
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. An identifier, extraordinary identifier or an integer
+is scanned.]
+     safe SIIX.
+(1)  [Scan symbol.] GETSYM; k:=GET(SYM,KIND);
+     if k # IDENT /\ k # INT /\ k # XIDNT then
+     {[Error message does not cover integers.] ERRORD(12,c); goto 1 } ||
+                                                                       
+                    I:=SIS()                                           
+[Scan integer symbol.                                                  
+The integer I is read and stored as a symbol.]                         
+     safe C,b.                                                         
+(1)  [Initialize.] I:=(); C:=CREAD().
+(2)  [Digits] repeat I:=COMP(C,I);C:=CREAD();b:=DIGIT(C) until b=FALSE.
+(3)  [Form symbol.] BKSP; I:=INV(I); I:=SCONS(I) ||                    
+                                                                       
+                    SIX(c)                                             
+[Scan identifier or extraordinary identifier.                          
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. An identifier or an extraordinary identifier is scanned.]   
+     safe SIX.                                                         
+(1)  GETSYM; k:=GET(SYM,KIND); if k # IDENT /\ k # XIDNT           
+     then {ERRORD(12,c); go to  1} ||                                  
+                                                                       
+                    SLS(c)                                             
+[Scan link-symbol.                                                     
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. The link-symbol is scanned.]                                
+     safe SLS.                                                         
+(1)  GETSYM; if SYM # DLS then {ERRORD(14,c); go to  1} ||             
+                                                                       
+                    SNS(c)
+[Scan enumeration-symbol.
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. The enumeration-symbol is scanned.]
+(1)  GETSYM; if SYM # DNS then {ERRORD(17,c); goto 1} ||
+
+                    SOB(c)                                             
+[Scan opening bracket.                                                 
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. The opening bracket is scanned.]                            
+     safe SOB.                                                         
+(1)  GETSYM; if SYM # DOB then {ERRORD(8,c); go to  1} ||              
+                                                                       
+                    SON(c)                                             
+[Scan object name.                                                     
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. A non-grammar-symbol is scanned.]                           
+     safe SON.                                                         
+(1)  GETSYM; k:=GET(SYM,KIND); if k=GRSYM then                         
+     {ERRORD(13,c); go to  1}||                                        
+                                                                       
+                    SPS(c)                                             
+[Scan production-symbol.                                               
+c  is  a  number indicating the calling algorithm to the error-handling
+functions. The production-symbol is scanned.]                          
+     safe SPS.                                                         
+(1)  GETSYM; if SYM # DPS then {ERRORD(6,c); go to  1} ||              
+                                                                       
+                    SSS(c)
+[Scan separator-symbol.
+c  is  a  number ating the calling algorithm to the error-handling
+functions. The separator-symbol is scanned.]
+     safe SSS.
+(1)  GETSYM; if SYM # DSS then {ERRORD(3,c); go to  1} ||              
+
+                    S:=SSYM()
+[Scan symbol.
+A  symbol  is  read from input. Its character-list is stored as property
+under indicator FLAT.]
+     safe SSYM.
+(1)  C:=SREAD1(); S:=ENTER(C); PUT(S,FLAT,C) ||
+

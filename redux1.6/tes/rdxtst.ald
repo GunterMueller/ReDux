@@ -1,0 +1,36 @@
+[Stacksize:]
+    pragma TMU=10000.
+[Heapsize:]
+    pragma TNU=1000000.
+
+                    RDXTST.
+[Test ReDuX i/o.]
+
+[--- Standard preamble of ReDuX main pgrogram                ---]
+
+[ #include globs.h ]
+
+(1)  [Initialize ReDuX system.] BGNRWD(1).
+(2)  [Output breadth: 80 characters.] RMARG:=79.
+(3)  [Garbage collector messages on.] GCM:=1. 
+(4)  [Use I/O-stream 4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.] STOUTL("ReDuX - Testprogramm").
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); 
+     [Set maximal size of input lines.] ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=-CLOCK(); DT:=DTPRS(); t:=t+CLOCK();
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.").
+(8)  [Set input unit back to keybord.] IUNIT:=CRT; ISIZE:=80.
+(9)  [Write data type.] BLINES(1); DTWRT(DT).
+
+[--- End of  standard preamble                               ---]
+
+[--- Start of application specific code (to be modified)     ---]
+
+(10) [Enter term from keyboard.] STOUTL("Gib Term ein: *"); 
+     [Read the term.] READ; t:=TEPRS(DT).
+(11) [Write term.] STROUT("Term read: "); TWRT(t); WRITE.
+
+[--- End of application specific code                        ---]
+
+(12) [Finish up.] ENDS ||

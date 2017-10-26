@@ -1,0 +1,24 @@
+DATATYPE R2;
+SORT
+	R2;
+CONST
+	0: R2;
+VAR
+	x, y, z: R2;
+OPERATOR
+	f: R2, R2 -> R2;
+	g: R2, R2 -> R2;
+	P: R2 -> R2;
+	S: R2 -> R2;
+NOTATION
+	f, g, P, S: FUNCTION;
+AXIOM
+[1] S(S(y))==y;
+[2] P(0)==S(0);
+[3] g(0,x)==0;
+[4] g(S(x),y)==f(g(x,y),0);
+[5] f(0,y)==y;
+[6] f(S(x),y)==S(f(x,y));
+[7] f(f(g(y,z),0),0)==g(y,z);
+END
+;This file is knz86R2.typ

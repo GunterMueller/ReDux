@@ -1,0 +1,72 @@
+8 Nov 1994 WSI Universitaet Tuebingen ReDuX Tools
+
+This package provides two tools: blif2rdx and GetPathOrdering.
+
+1) Blif2rdx:
+
+Usage: blif2rdx -l ISIZE filename
+
+Blif2rdx translates file filename using a subset of the Berkeley Logic
+Interchange Format (BLIF) into an algebraic specification for the ReDuX term
+rewriting system, which can be used to verify circuits. The output-file has
+the prefix BLIF_ followed by the filename, without the extension .blif called
+as model name, and the postfix .rdx.
+
+Option:
+
+    -l ISIZE
+
+    The argument ISIZE expects an integer, that determines the width of the
+    lines of the algebraic specification. ISIZE is preset to 80, which is the
+    usual input width of ReDuX programs.
+
+Restrictions:
+    The supported subset of BLIF statements is:
+        .model
+                 with substatements .inputs .outputs .clock .end allowed. Only
+                 one .model statement with one .clock substatement is
+                 supported!
+        .names
+        .latch I O i
+                 with i in {0,1}
+        .latch I O i type control
+                 with i in {0,1}, type in {fe,re} and control being a
+                 clockname. All .latch statements must have the same type and
+                 the same control parameters. If .clock is defined in .model
+                 control must be this clock.
+
+Output:
+    BLIF_modelname.rdx
+        The ReDuX file.
+    BLIF_modelname.variables
+        This file gives a reference of the hardware variables and there
+        representation in ReDuX.
+
+2) Blif2typ:
+
+The same as Blif2rdx, but the output is suitable for the old
+specification parser.
+
+
+3) GetPathOrdering:
+
+Usage: GetPathOrdering filename
+
+GetPathOrdering produces a file that is used as input-file for ReDuX
+and describes the path-ordering of the file filename, that is produced
+by blif2rdx or a normalized derivative of it. Each Rule of the input
+file filename must be on one line or each line-break but the last one
+must ends with a comma.
+
+Output:
+    filename.PathOrdering
+
+4) GetPathOrdering_old:
+
+The same as GetPathOrdering, but the output is suitable for the old
+specification parser.
+
+For more information see blif2rdx(l), blif2typ(l), GetPathOrdering(l) and
+GetPathOrdering_old(l).
+
+Werner Lauterbach

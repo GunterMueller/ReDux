@@ -1,0 +1,1090 @@
+[ #include tp.h ]
+[ #include it.h ]
+[ #include globs.h ]
+[ #include rd.h ]
+
+[-----------------------------------------------------------------------
+
+    Algorithms for the abstract data type signature descriptor
+
+-----------------------------------------------------------------------]
+
+
+                    n:=SDSRTI(s)
+[Signature descriptor sort initialization.   s is a sort in a ReDuX
+data type. Then n is the index of s in SDSRT. SDSRT is updated if s was
+not already contained in it.]
+
+     safe i, n.
+
+(1)  [Search.]
+     for i=1,...,SDSRT[MAXSORTS+1] do   [Loop over sorts.]
+        if SDSRT[i]=s then { n:=i; return }.
+(2)  [Add new sort.]
+     if SDSRT[MAXSORTS+1]=MAXSORTS then {
+        STOUTL("Data type contains too many sorts.");
+        STOUTL("Increase MAXSORTS and recompile!");
+        HALT
+     };
+     SDSRT[MAXSORTS+1]:=SDSRT[MAXSORTS+1]+1;
+     SDSRT[SDSRT[MAXSORTS+1]]:=s;
+     n:=SDSRT[MAXSORTS+1] ||
+
+                    n:=SDDOMI(s)
+[Signature descriptor domain initialization.   s is a domain in a ReDuX
+data type. Then n is the index of s in SDDOM. SDDOM is updated if s was
+not already contained in it.]
+
+     safe i, n.
+
+(1)  [Search.]
+     for i=1,...,SDDOM[MAXDOMS+1] do   [Loop over domains.]
+        if EQUAL(SDDOM[i],s) then { n:=i; return }.
+(2)  [Add new domain.]
+     if LENGTH(s)>MAXARITY then {
+        STOUTL("Data type contains operator whose arity is too big.");
+        STOUTL("Increase MAXARITY and recompile!");
+        HALT
+     };
+     if SDDOM[MAXDOMS+1]=MAXDOMS then {
+        STOUTL("Data type contains too many domains.");
+        STOUTL("Increase MAXDOMS and recompile!");
+        HALT
+     };
+     SDDOM[MAXDOMS+1]:=SDDOM[MAXDOMS+1]+1;
+     SDDOM[SDDOM[MAXDOMS+1]]:=s;
+     n:=SDDOM[MAXDOMS+1] ||
+
+                    SDATMI(s)
+[Signature descriptor atomic term initialization.   s is an atomic term
+(i.e. a constant, variable, nullary operator or external operator (with
+a defined TCONT-field)) in a ReDuX data type. Then s is entered into
+SDATM. SDATM is modified if s was not already contained in it.]
+
+     safe d, i, s'.
+
+(1)  [Determine depth.] d:=DEPTH(s)+1.
+(2)  [Search.] s':=SDSRTI(TTYPE(s));
+     for i=1,...,SDATM[s',d,MAXATOM+1] do
+        if TEQU(SDATM[s',d,i],s) then return.
+(3)  [Insert.]
+     if SDATM[s',d,MAXATOM+1]=MAXATOM then {
+        STOUTL("Data type contains too many atomic terms.");
+        STOUTL("Increase MAXATOM and recompile!");
+        HALT
+     };
+     SDATM[s',d,MAXATOM+1]:=SDATM[s',d,MAXATOM+1]+1;
+     SDATM[s',d,SDATM[s',d,MAXATOM+1]]:=s ||
+
+                    SDXOPI(f)
+[Signature descriptor external operator initialization.   f is an
+external operator of an ReDuX data type. The user is asked to enter a
+value which is used as TCONT-field for the external operator.  Then
+SDATM is updated if f was not already contained in it.]
+
+     safe R, W, d.   [d is a dummy variable.]
+
+(1)  [Get external read/write function.]
+     R:=GET(XOBTYPE(f),DXRA); W:=GET(XOBTYPE(f),DXWA).
+(2)  [Get data for TCONT-field.] BLINES(1);
+     STROUT("External operator "); SWRT(TNAME(f));
+     STOUTL(" is treated like a constant (with fixed TCONT-field)!");
+     repeat
+        STROUT("Please enter the value of the TCONT-field");
+        STROUT(" in a format suitable for ");
+        if R=() then STOUTL("UREAD. *")
+        else { SWRITE(R); STOUTL(". *") };
+        READ;
+        if R=() then t:=UREAD()
+        else t:=FCALL0(ALGIDNT(GET(R,DAK)));
+        repeat
+           STROUT("You entered the value ");
+           if W=() then { UWRIT1(t); BKSP }
+           else d:=PCALL1(ALGIDNT(GET(W,DAK)),0,t);
+           CWRITE('.'); WRITE;
+           STOUTL("Is this correct ? [y/n] *");
+           READ; c:=UCASE(CREAD())
+        until c='Y' \/ c= 'N'
+     until c='Y'.
+(3)  [Store f.] d:=SDATMI(COMP(t,TSIGN(f))) ||
+
+                    SDOPI(F)
+[Signature descriptor operator initialization.   F is a list of
+function symbols of a ReDuX data type. Then those function symbols are
+stored in the variables which held the signature descriptor.]
+
+     safe F', f, s, t, t'.
+     safe D.   [D is a dummy variable which holds return values
+                of function invocations which are not needed
+                in this algorithm.]
+
+(1)  [Initialize.] F':=F.
+(2)  [Begin of while-loop.] if F' = () then return; ADV(F'; f,F').
+(3)  [Sort already in SDSRT?]  t:= ODTYPE(f);
+     while t # () do {
+        ADV(t; t',t); D:=SDSRTI(t')}.
+(4)  [Domain already in SDDOM?] D:=SDDOMI(ODTYPE(f)).
+(5)  [Nullary function symbol.]
+     if LENGTH(ODTYPE(f)) = 0 then { D:=SDATMI(f); go to 8 }.
+(6)  [External operator.] 
+     if TKIND(f)=DXT then {
+        SDXOPI(f);
+        go to 8
+     }.
+(7)  [Non-nullary function symbol.] s:=SDSRTI(ORTYPE(f));
+     if SDOPS[s,MAXOPPS+1]=MAXOPPS then {
+        STOUTL("Data type contains too many proper operators.");
+        STOUTL("Increase MAXOPPS and recompile!");
+        HALT
+     };
+     SDOPS[s,MAXOPPS+1]:=SDOPS[s,MAXOPPS+1]+1;
+     SDOPS[s,SDOPS[s,MAXOPPS+1]]:=f;
+     if TUSTAT(f)#() then {
+        STROUT("Operator "); SWRT(TNAME(f)); CWRITE(':');
+        STROUT(" Unification state "); SWRITE(TUSTAT(f));
+        STOUTL(" is ignored!")
+     }.
+(8)  [End of while-loop.] go to 2 ||
+
+                    SDINIT(T)
+[Signature descriptor initialization.   T is a ReDuX data type.  Then
+the global variables which hold the signature descriptor are
+initialized.]
+
+     safe i,N,C,V,F,A.
+(1)  [Decompose] DTDIS(T; N,C,V,F,A).
+(2)  [Pre-initialize global variables.] SDNAM:=N;
+     SDSRT[MAXSORTS+1]:=0;   SDDOM[MAXDOMS+1]:=0;
+     for i=1,...,MAXSORTS do {
+        SDOPS[i,MAXOPPS+1]:=0;
+        SDATM[i,1,MAXATOM+1]:=0;   SDATM[i,2,MAXATOM+1]:=0}.
+(3)  [Process constants.]
+     while C # () do {
+        ADV(C; i,C); A:=SDATMI(i) }. 
+(4)  [Process variables.]
+     while V # () do {
+        ADV(V; i,V); A:=SDATMI(i) }.
+(5)  [Process function symbols.] SDOPI(F)||
+
+                           DOMWRT(D)
+[Domain write.   D is a list of symbols which describes a domain of a
+function symbol of a ReDuX data type.  Then D is written to OUNIT.]
+
+     safe D', d.
+
+(1)  [Empty list.] if D = () then { CWRIT2('{','}'); return }.
+(2)  [Non-empty domain.] ADV(D; d,D'); SWRITE(d);
+     while D' # () do {
+        CWRIT3(' ','x',' '); ADV(D'; d,D'); SWRITE(d)
+     } ||
+
+                           SDWRIT()
+[Signature descriptor write.   The signature descriptor is written to
+OUNIT.]
+
+     safe i, j.
+
+(1)  [Name.] STROUT("The signature name is "); SWRITE(SDNAM);
+     CWRITE('.'); EMPTOB.
+(2)  [Sorts.]
+     STROUT("The signature contains the sorts ");
+     for i=1,...,SDSRT[MAXSORTS+1] do {
+        SWRITE(SDSRT[i]);
+        if i<SDSRT[MAXSORTS+1] then CWRIT2(',',' ')
+     };
+     CWRITE('.'); EMPTOB.
+(3)  [Domains.] STROUT("The signature contains the domains ");
+     for i=1,...,SDDOM[MAXDOMS+1] do {
+        DOMWRT(SDDOM[i]);
+        if i<SDDOM[MAXDOMS+1] then CWRIT2(',',' ')
+     };
+     CWRITE('.'); EMPTOB.
+(4)  [Operators of each sort.]
+     STOUTL("Proper operators:");
+     for i=1,...,SDSRT[MAXSORTS+1] do {
+        if SDOPS[i,MAXOPPS+1]>0 then {
+           STROUT(" - of sort "); SWRITE(SDSRT[i]); CWRIT2(':',' ');
+           for j=1,...,SDOPS[i,MAXOPPS+1] do {
+              SWRT(TNAME(SDOPS[i,j]));
+              if j<SDOPS[i,MAXOPPS+1] then CWRIT2(',',' ')
+           };
+           CWRITE('.'); EMPTOB
+        }
+     }.
+(5)  [Atomic terms of each sort.]
+     STOUTL("Atomic terms:");
+     for i=1,...,SDSRT[MAXSORTS+1] do {
+        if SDATM[i,1,MAXATOM+1]+SDATM[i,2,MAXATOM+1]>0 then {
+           STROUT(" - of sort "); SWRITE(SDSRT[i]); CWRITE(':'); WRITE;
+
+           if SDATM[i,1,MAXATOM+1]>0 then {
+              STROUT("    - of depth 0: ");
+              for j=1,...,SDATM[i,1,MAXATOM+1] do {
+                 TWRT(SDATM[i,1,j]);
+                 if j<SDATM[i,1,MAXATOM+1] then CWRIT2(',',' ')
+              };
+              CWRITE('.'); EMPTOB
+           };
+
+           if SDATM[i,2,MAXATOM+1]>0 then {
+              STROUT("    - of depth 1: ");
+              for j=1,...,SDATM[i,2,MAXATOM+1] do {
+                 TWRT(SDATM[i,2,j]);
+                 if j<SDATM[i,2,MAXATOM+1] then CWRIT2(',',' ')
+              };
+              CWRITE('.'); EMPTOB
+           }
+        }
+     } ||
+
+[-----------------------------------------------------------------------
+
+        Algorithms for initialization of the global arrays
+                NB1, NB2, NB3 and MB1, MB2, MB3.
+
+-----------------------------------------------------------------------]
+
+                    GDINIE(p)
+[Global data initialization (extent).   1<=p<=MAXPOS. Then the
+global arrays NB1, NB2, NB3 are initialized for up to p positions. It
+is assumed that the global variable DIPOS is set to a reasonable value,
+i.e. to 0 if the global data arrays NB1, NB2, NB3 are completely
+uninitialized and that the global variables which hold the signature
+descriptor are initialized.]
+
+     safe d, i, j, p'.
+     array N[MAXDOMS].   [Holds intermediate results to avoid
+                          re-computation.]
+ 
+(1)  [Trivial case.] if p<=DIPOS then return;
+     if DIPOS>=1 then { p':=DIPOS+1; go to 3 }.
+(2)  [Data for one position.]
+     NB2[1,1]:=SDATM[1,1,MAXATOM+1]+SDATM[1,2,MAXATOM+1];
+     for i=2,...,SDSRT[MAXSORTS+1] do   [Loop over sorts.]
+        NB2[1,i]:=SDATM[i,1,MAXATOM+1]+SDATM[i,2,MAXATOM+1]
+                  +NB2[1,i-1];
+
+     NB1[1]:=NB2[1,SDSRT[MAXSORTS+1]];
+     p':=2.
+(3)  [Begin of for-loop with loop index p'.]
+     if p'>p then { DIPOS:=p; return }.
+(4)  [Initialize NB3.]
+     for i=1,...,SDDOM[MAXDOMS+1] do N[i]:=-1;
+
+     for i=1,...,SDSRT[MAXSORTS+1] do {   [Loop over sorts.]
+        if SDOPS[i,MAXOPPS+1]>0 then {    [Op. with rtyp SDSRT[i] ex.]
+
+           d:=SDDOMI(ODTYPE(SDOPS[i,1]));   [Initialize for first op.]
+           if N[d]=-1 then N[d]:=N3CMPT(p'-1,d);   [of rtyp SDSRT[i].]
+           NB3[p',i,1]:=N[d];
+
+           for j=2,...,SDOPS[i,MAXOPPS+1] do { [Loop over remaining op.
+                                                of rtyp SDSRT[i].]
+              d:=SDDOMI(ODTYPE(SDOPS[i,j]));
+              if N[d]=-1 then N[d]:=N3CMPT(p'-1,d);
+              NB3[p',i,j]:=ISUM(NB3[p',i,j-1],N[d])
+           }
+        }
+     }.
+(5)  [Initialize NB2.]
+     NB2[p',1]:=N2CMPT(p',1);   [Initialize for first sort.]
+
+     for i=2,...,SDSRT[MAXSORTS+1] do {   [Loop over remaining sorts.]
+        NB2[p',i]:=ISUM(NB2[p',i-1],N2CMPT(p',i))
+     }.
+(6)  [Initialize NB1.] 
+     NB1[p']:=ISUM(NB1[p'-1],NB2[p',SDSRT[MAXSORTS+1]]).
+(7)  [End of for loop.] p':=p'+1; go to 3 ||
+
+                    GDINID(d)
+[Global data initialization (depth).   0<=d<MAXDEPTH1. Then the global
+arrays MB1, MB2, MB3 are initialized for up to depth d. It is assumed
+that the global variable DIDPT is set to a reasonable value, i.e. to -1
+if the global data arrays MB1, MB2, MB3 are completely uninitialized
+and that the global variables which hold the signature descriptor are
+initialized.]
+
+     safe d', f, i, j.
+     array N[MAXDOMS].   [Holds intermediate results to avoid
+                          re-computation.]
+ 
+(1)  [Trivial case.] if d<=DIDPT then return;
+     if DIDPT>=0 then { d':=DIDPT+1; go to 3 }.
+(2)  [Data for depth 0.]
+     MB2[1,1]:=SDATM[1,1,MAXATOM+1];
+     for i=2,...,SDSRT[MAXSORTS+1] do   [Loop over sorts.]
+        MB2[1,i]:=SDATM[i,1,MAXATOM+1]+MB2[1,i-1];
+
+     MB1[1]:=MB2[1,SDSRT[MAXSORTS+1]];
+     d':=1.
+(3)  [Begin of for-loop with loop index d'.]
+     if d'>d then { DIDPT:=d; return }.
+(4)  [Initialize MB3.]
+     for i=1,...,SDDOM[MAXDOMS+1] do N[i]:=-1;
+
+     for i=1,...,SDSRT[MAXSORTS+1] do {   [Loop over sorts.]
+        if SDOPS[i,MAXOPPS+1]>0 then {    [Op. with rtyp SDSRT[i] ex.]
+
+           f:=SDDOMI(ODTYPE(SDOPS[i,1]));   [Initialize for first op.]
+           if N[f]=-1 then N[f]:=M3CMPT(d'-1,f);   [of rtyp SDSRT[i].]
+           MB3[d'+1,i,1]:=N[f];
+
+           for j=2,...,SDOPS[i,MAXOPPS+1] do { [Loop over remaining op.
+                                                of rtyp SDSRT[i].]
+              f:=SDDOMI(ODTYPE(SDOPS[i,j]));
+              if N[f]=-1 then N[f]:=M3CMPT(d'-1,f);
+              MB3[d'+1,i,j]:=ISUM(MB3[d'+1,i,j-1],N[f])
+           }
+        }
+     }.
+(5)  [Initialize MB2.]
+     MB2[d'+1,1]:=M2CMPT(d',1);   [Initialize for first sort.]
+
+     for i=2,...,SDSRT[MAXSORTS+1] do {   [Loop over remaining sorts.]
+        MB2[d'+1,i]:=ISUM(MB2[d'+1,i-1],M2CMPT(d',i))
+     }.
+(6)  [Initialize MB1.] 
+     MB1[d'+1]:=ISUM(MB1[d'],MB2[d'+1,SDSRT[MAXSORTS+1]]).
+(7)  [End of for loop.] d':=d'+1; go to 3 ||
+
+                    GDINIM(n,k,f)
+[Global data initialization, show statistical messages.   The argument
+n is a non-negative integer, k and f are BETA-integers.
+
+If k=0, the arrays NB1, NB2, NB3 are initialized to allow for
+computations of terms sorted according to their extent. If f=0, then
+the arrays are initialized for up to n>=1 positions, otherwise they are
+initialized for computation of up to the first n terms (which are
+numbered 0..n-1).
+
+If k=1, the arrays MB1, MB2, MB3 initialized to allow for computations
+of terms sorted according to their depth.  If f=0, the arrays are
+initialized for terms with depth up to n>=0, otherwise they are
+initialized for computation of up to the first n terms (which are
+numbered 0..n-1). If the arrays have too small dimensions to hold the
+data, the program is aborted.]
+
+     safe d, t, t', p.
+
+(1)  [Initialize.] t:=CLOCK(); t':=TAU; p:=DIPOS; d:=DIDPT;
+     if k=0 then
+        if f=0 then go to 2 else go to 3
+     else
+        if f=0 then go to 4 else go to 5.
+(2)  [Initialize for up to n pos.]
+     if n<=DIPOS then return;
+     if n>MAXPOS then {
+        STROUT("Error in GDINIM: Cannot initialize global data");
+        STROUT(" for up to "); AWRITE(n); STOUTL(" positions.");
+        STOUTL("Increase MAXPOS and recompile!");
+        HALT
+     };
+     GDINIE(n); go to 6.
+(3)  [Initialize for the first n terms (extent).]
+     if p=0 then GDINIE(1);
+     if ICOMP(NB1[DIPOS],n)>=0 then return;
+     while ICOMP(n,NB1[DIPOS])>0 /\ DIPOS<MAXPOS do
+        GDINIE(DIPOS+1);
+     if ICOMP(n,NB1[DIPOS])>0 then {
+        STROUT("Error in GDINIM: Cannot initialize global data");
+        STROUT(" for the first "); IWRITE(n);
+        STOUTL(" terms (position).");
+        STOUTL("Increase MAXPOS and recompile!");
+        HALT
+     };
+     go to 6.
+(4)  [Initialize for generation of terms with depth up to n.]
+     if n<=DIDPT then return;
+     if n>=MAXDEPTH1 then {
+        STROUT("Error in GDINIM: Cannot initialize global data");
+        STROUT(" for depth "); AWRITE(n); STOUTL(".");
+        STOUTL("Increase MAXDEPTH1 and recompile!");
+        HALT
+     };
+     GDINID(n); go to 6.
+(5)  [Initialize for the first n terms (depth).]
+     if d=-1 then GDINID(0);
+     if ICOMP(MB1[DIDPT+1],n)>=0 then return;
+     while ICOMP(n,MB1[DIDPT+1])>0 /\ DIDPT<MAXDEPTH1-1 do
+        GDINID(DIDPT+1);
+     if ICOMP(n,MB1[DIDPT+1])>0 then {
+        STROUT("Error in GDINIM: Cannot initialize global data");
+        STROUT(" for the first "); IWRITE(n); STOUTL(" terms (depth).");
+        STOUTL("Increase MAXPDEPTH1 and recompile!");
+        HALT
+     }.
+(6)  [Write message.]
+     t:=CLOCK()-t; t':=TAU-t';
+     STROUT("Initialized global data from ");
+     if k=0 then {
+        AWRITE(p); STROUT(" positions to "); AWRITE(DIPOS);
+        STOUTL(" positions")
+     }
+     else {
+        STROUT("depth "); AWRITE(d); STROUT(" to depth ");
+        AWRITE(DIDPT); EMPTOB
+     };
+     STROUT("in "); AWRITE(t-t');
+     STROUT(" ms (+ "); AWRITE(t'); STOUTL(" ms in GC).") ||
+
+                    s:=N3CMPT(p,d)
+[Compute N3.   p>=LENGTH(d) is the number of positions, d is a domain
+number (an index in SDDOM). Then s is the number of term n-tuples with
+p positions and domain d. It is assumed that NB2 is initialized for up
+to max{p-1,1} position.]
+
+     safe i, a, d', d^,
+          n[MAXARITY],   [Holds the distribution of positions, n[a] is
+                          additionally used as a flag to indicate
+                          that there are no more distributions.]
+          t[MAXARITY].   [Holds indices of the types in d.]
+             
+(1)  [Trivial case, arity=1.] a:=LENGTH(SDDOM[d]);
+     if a=1 then {
+        i:=SDSRTI(FIRST(SDDOM[d]));
+        s:=NB2[p,i];
+        if i>1 then s:=IDIF(s,NB2[p,i-1]);
+        return
+     }.
+(2)  [Initialization for non-trivial case.] d':=SDDOM[d];
+     for i = 1,...,a do {
+        ADV(d'; d^,d');
+        t[i]:=SDSRTI(d^);
+        n[i]:=1
+     };
+     n[a]:=1+(p-a); s:=0.
+(3)  [Process distribution.] if n[a]=0 then return;
+     s':=1;
+     for i=1,...,a do {
+        s'':=NB2[n[i],t[i]];
+        if t[i]>1 then s'':=IDIF(s'',NB2[n[i],t[i]-1]);
+        s':=IPROD(s',s'')
+     };
+     s := ISUM(s,s').
+(4)  [Compute next distribution, no carry.]
+     if n[a] > 1 then {
+        n[a-1]:=n[a-1]+1;   n[a]:=n[a]-1;   go to 3
+     }
+     else
+        if a=2 then { n[a]:=0; go to 3}.
+(5)  [Compute next distribution, carry.] i:=a-1;
+     while i>2 /\ n[i]=1 do i:=i-1;
+     if n[i]=1 then
+        n[a]:=0
+     else {
+        n[i-1] := n[i-1]+1;   n[a] := 1+(n[i]-2);   n[i]:=1
+     };
+     go to 3 ||
+
+                    n:=N2CMPT(p,s)
+[Compute N2.   p is the number of positions, s is a sort number (an
+index in SDSRT). Then n is the number of terms with p positions and
+sort s. It is assumed that NB3 is initialized for up to p positions.]
+
+(1)  [Trivial case, p=1.]
+     if p=1 then {
+       n:=SDATM[s,1,MAXATOM+1]+SDATM[s,2,MAXATOM+1];
+       return
+     }.
+(2)  [Non-trivial case, p>1.] n:=NB3[p,s,SDOPS[s,MAXOPPS+1]] ||
+
+                    s:=M3CMPT(d,D)
+[Compute M3.   d>=0 is the depth, D is a domain number (an index in
+SDDOM). Then s is the number of term n-tuples with depth d and domain
+D. It is assumed that MB2 is initialized up to depth max{d-1,0}.]
+
+     safe i, j, a, D', D^,
+          n[MAXARITY],   [Holds the distribution of depths, n[a] is
+                          additionally used as a flag to indicate
+                          that there are no more distributions.]
+          t[MAXARITY].   [Holds indices of the types in D.]
+             
+(1)  [Trivial case, arity=1.] a:=LENGTH(SDDOM[D]);
+     if a=1 then {
+        i:=SDSRTI(FIRST(SDDOM[D]));
+        s:=MB2[d+1,i];
+        if i>1 then s:=IDIF(s,MB2[d+1,i-1]);
+        return
+     }.
+(2)  [Initialization for non-trivial case.] D':=SDDOM[D];
+     for i = 1,...,a do {
+        ADV(D'; D^,D');
+        t[i]:=SDSRTI(D^);
+     };
+     s:=0;
+     if d=0 then i:=1 else i:=a.
+     [Trick to compute correct results if d=0!]
+(3)  [Next fixed component.] if i=0 then return;
+     for j=1,...,a do n[j]:=0;
+     n[i]:=d.
+(4)  [Process distribution.]
+     s':=1;
+     for j=1,...,a do {
+        s'':=MB2[n[j]+1,t[j]];
+        if t[j]>1 then s'':=IDIF(s'',MB2[n[j]+1,t[j]-1]);
+        s':=IPROD(s',s'')
+     };
+     s := ISUM(s,s').
+(5)  [Compute next distribution, to the right of fixed component.]
+     if i=a then { j:=a-1; go to 6 } else j:=a;
+
+     while n[j]=d /\ i<j do { n[j]:=0; j:=j-1 };
+     if i<j then { n[j]:=n[j]+1; go to 4 };
+     j:=j-1;
+     if j=0 then { i:=i-1; go to 3 }.
+(6)  [Compute next distribution, to the left of fixed component.]
+     while n[j]=d-1 /\ 1<j do { n[j]:=0; j:=j-1 };
+     if n[j]<d-1 then { n[j]:=n[j]+1; go to 4 };
+     i:=i-1; go to 3 ||
+
+                    n:=M2CMPT(d,s)
+[Compute M2.   d>=0 is the depth, s is a sort number (an index in SDSRT).
+Then n is the number of terms with depth d and sort s. It is assumed
+that MB3 is initialized for depth d.]
+
+(1)  [Trivial case, d=0.]
+     if d=0 then {
+       n:=SDATM[s,1,MAXATOM+1];
+       return
+     }.
+(2)  [Trivial case, d=1.]
+     if d=1 then {
+        n:=ISUM(SDATM[s,2,MAXATOM+1],MB3[d+1,s,SDOPS[s,MAXOPPS+1]]);
+        return
+     }.
+(3)  [Non-trivial case, d>1.] n:=MB3[d+1,s,SDOPS[s,MAXOPPS+1]] ||
+
+                    GDWRIT()
+[Global data write.   The global arrays NB1, NB2, NB3, MB1, MB2, MB3
+are written to OUNIT.]
+
+     safe p, s, f.
+
+(1)  [Header (position).]
+     if DIPOS=0 then {
+        STROUT("The global arrays NB1, NB2, NB3 are completely ");
+        STOUTL("uninitialized.");
+        go to 5
+     };
+     STROUT("The global arrays NB1, NB2, NB3 are initialized for ");
+     STROUT("up to "); AWRITE(DIPOS); STOUTL(" positions:").
+(2)  [NB1.] STOUTL("####### NB1 #######");
+     for p=1,...,DIPOS do {
+        STROUT("NB1["); AWRITE(p); STROUT("]=");
+        IWRITE(NB1[p]); WRITE
+     };
+     BLINES(1).
+(3)  [NB2.] STOUTL("####### NB2 #######");
+     for p=1,...,DIPOS do {
+        for s=1,...,SDSRT[MAXSORTS+1] do {
+           STROUT("NB2["); AWRITE(p); CWRITE(',');
+           SWRITE(SDSRT[s]); STROUT("] = ");
+           IWRITE(NB2[p,s]); WRITE
+        };
+        BLINES(1)
+     }.
+(4)  [NB3.] STOUTL("####### NB3 #######");
+     for p=2,...,DIPOS do {
+        for s=1,...,SDSRT[MAXSORTS+1] do {
+           for f=1,...,SDOPS[s,MAXOPPS+1] do {
+              STROUT("NB3["); AWRITE(p); CWRITE(',');
+              SWRITE(SDSRT[s]); CWRITE(',');
+              SWRT(TNAME(SDOPS[s,f])); STROUT("] = ");
+              IWRITE(NB3[p,s,f]); WRITE;
+           };
+           if SDOPS[s,MAXOPPS+1]>0 then BLINES(1)
+        }
+     }.
+(5)  [Header (depth).]
+     if DIDPT=-1 then {
+        STROUT("The global arrays MB1, MB2, MB3 are completely ");
+        STOUTL("uninitialized.");
+        return
+     };
+     STROUT("The global arrays MN1, MB2, MB3 are initialized for ");
+     STROUT("depth "); AWRITE(DIDPT); CWRITE('.'); WRITE.
+(6)  [MB1.] STOUTL("####### MB1 #######");
+     for p=0,...,DIDPT do {
+        STROUT("MB1["); AWRITE(p); STROUT("]=");
+        IWRITE(MB1[p+1]); WRITE
+     };
+     BLINES(1).
+(7)  [MB2.] STOUTL("####### MB2 #######");
+     for p=0,...,DIDPT do {
+        for s=1,...,SDSRT[MAXSORTS+1] do {
+           STROUT("MB2["); AWRITE(p); CWRITE(',');
+           SWRITE(SDSRT[s]); STROUT("] = ");
+           IWRITE(MB2[p+1,s]); WRITE
+        };
+        BLINES(1)
+     }.
+(8)  [MB3.] STOUTL("####### MB3 #######");
+     for p=1,...,DIDPT do {
+        for s=1,...,SDSRT[MAXSORTS+1] do {
+           for f=1,...,SDOPS[s,MAXOPPS+1] do {
+              STROUT("MB3["); AWRITE(p); CWRITE(',');
+              SWRITE(SDSRT[s]); CWRITE(',');
+              SWRT(TNAME(SDOPS[s,f])); STROUT("] = ");
+              IWRITE(MB3[p+1,s,f]); WRITE;
+           };
+           if SDOPS[s,MAXOPPS+1]>0 then BLINES(1)
+        }
+     } ||
+
+[-----------------------------------------------------------------------
+
+              Algorithms for mapping numbers to terms
+        (Terms are distributed according to their extent.)
+
+-----------------------------------------------------------------------]
+
+                    p:=CNOPOS(n,N)
+[Compute the number of positions.   n is a non-negative integer, N is a
+positive BETA-integer >= the number of positions of the term whose
+number is n. N must be less than or equal to DIPOS. Then p is the
+number of positions of that term. The signature descriptor variables
+and the global arrays NB1, NB2, NB3 must be correctly initialized.]
+
+     safe CNOPOS.
+
+(1)  [Search.]
+     [In this algorithm, a linear search in the array NB1 from large
+      indices down to small indices is done. Since the values of NB1
+      increase very fast for most signatures, for most numbers n fewer
+      comparisons are needed than with a binary search. An exception
+      are signatures with only one operator which is unary. In this
+      pathological case, the values of NB1 increase linearly and in the
+      average case N/2 calls to ICOMP are needed.]
+
+     if N>1 then {
+        p:=N;
+        while p>=1 /\ ICOMP(NB1[p],n)>0 do p:=p-1;
+        p:=p+1;
+     }
+     else p:=1 ||
+
+                    t:=NT2TE(n,N)
+[Natural number to term (extent).   n is a non-negative integer, N is
+a positive BETA-integer >= the number of positions of the desired term.
+N must be less than or equal to MAXPOS. Then t is a term over the
+signature which is held in the signature descriptor variables.  The
+mapping n |--> t is bijective and the condition
+|O(NT2TE(m))| < |O(NT2TE(n))| ==> m<n is true.
+The global arrays NB1, NB2, NB3 must be correctly initialized.
+Variables with the same name share one TCONT-field!
+
+N is used as upper bound in the search for the number of positions of
+the desired term. This search will be executed faster if N is a tight
+bound. If no upper bound for the number of positions is known, but the
+global data arrays are correctly initialized, the global variable DIPOS
+can be used as actual parameter for N.]
+
+     safe p.
+
+(1)  [Compute number of positions.]
+     if ICOMP(n,NB1[N])>=0 then {
+     STOUTL("Number too large in NT2TE"); HALT };
+
+     p:=CNOPOS(n,N).
+(2)  [Compute term with p positions.]
+     if p>1 then n':=IDIF(n,NB1[p-1]) else n':=n;     
+     if TGTRC then {
+        STROUT("NT2TE: n="); IWRITE(n);
+        STROUT(" no. of positions="); AWRITE(p); EMPTOB
+     };
+     t:=NT2T1E(p,n') ||
+
+                    t:=NT2T1E(p,n)
+[Natural number to term 1 (extent).   p is a positive BETA-digit, n
+an integer with 0<=n<=N1(p)-1.  Then t is a term with p positions over
+the signature which is held in the signature descriptor variables. The
+mapping n |--> t is bijective. Variables with the same name share one
+TCONT-field!]
+
+     safe s.
+
+(1)  [Compute sort of term.] s:=1;
+     while ICOMP(n,NB2[p,s])>=0 do s:=s+1.
+(2)  [Compute term with p positions and sort s.]
+     if s>1 then n':=IDIF(n,NB2[p,s-1]) else n':=n;
+     if TGTRC then {
+        STROUT("NT2T1E: n="); IWRITE(n);
+        STROUT(" sort="); SWRITE(SDSRT[s]); EMPTOB
+     };
+     t:=NT2T2E(p,s,n');
+     if TGTRC then WRITE  ||
+
+                    t:=NT2T2E(p,s,n)
+[Natural number to term 2 (position).   p and s are BETA-digits, n is
+an integer with 0 <= n <= N2(p,s)-1. Then t is a term with p positions
+and sort SDSRT[s] over the signature which is held in the signature
+descriptor variables. The mapping n |--> t is bijective. Variables with
+the same name share one TCONT-field!]
+
+     array d[MAXARITY].   [Holds position distribution.]
+
+(1)  [Trace output.]
+     if TGTRC then {
+        STROUT("NT2T2E{ p="); AWRITE(p);
+        STROUT(" s="); SWRITE(SDSRT[s]);
+        STROUT(" n="); IWRITE(n); EMPTOB
+     }.
+(2)  [Trivial case.]
+     if p=1 then {
+        if n<SDATM[s,1,MAXATOM+1] then
+           t:=SDATM[s,1,n+1]
+        else
+           t:=SDATM[s,2,n+1-SDATM[s,1,MAXATOM+1]];
+
+        if TGTRC then {
+           STROUT("NT2T2E} "); SWRT(TNAME(t)); EMPTOB
+        };
+
+        return
+     }.
+(3)  [Compute top-level operator.] f:=1;
+     while ICOMP(n,NB3[p,s,f])>=0 do f:=f+1.
+(4)  [Distribute no. of positions over arguments.]
+     if f>1 then n':=IDIF(n,NB3[p,s,f-1]) else n':=n;
+
+     if TGTRC then {
+        STROUT("   top-level operator="); SWRT(TNAME(SDOPS[s,f])); 
+        STROUT(" n'="); IWRITE(n'); EMPTOB
+     };
+
+     a:=LENGTH(ODTYPE(SDOPS[s,f]));
+     if a=1 then [Arity 1.]
+        d[1]:=p-1
+     else
+        n':=IDIF(n',DSTPOS(p-1,SDDOMI(ODTYPE(SDOPS[s,f])),n',d)).
+(5)  [Compute arguments of f.] 
+     if TGTRC then {
+        STROUT("   distribution of pos. over arguments (");
+        for i=1,...,a do {
+           AWRITE(d[i]); if i#a then CWRIT2(',',' ')};
+        CWRITE(')');
+        STROUT(" n''="); IWRITE(n'); WRITE
+     };
+
+     A:=(); D:=ODTYPE(SDOPS[s,f]);
+     for i=1,...,a do { ADV(D; D',D);
+        D':=SDSRTI(D');
+        N:=NB2[d[i],D'];
+        if D'>1 then N:=IDIF(N,NB2[d[i],D'-1]);
+        IQR(n',N; n',n'');
+        A':=NT2T2E(d[i],D',n'');
+        A:=COMP(A',A);
+     }.
+(6)  [Compose term.] 
+     t:=TCONS(INV(A),SDOPS[s,f]);
+     if TGTRC then {
+        STROUT("NT2T2E} "); TWRT(t); EMPTOB
+     } ||
+
+                    n':=DSTPOS(p,d,n,N)
+[Distribute positions over arguments.   p > LENGTH(d) > 1 is a
+BETA-integer, the number of positions which have to be distributed over
+a LENGTH(d)-tuple of terms whose return types are given by the domain
+number (index in SDDOM) d. n is a non-negative integer. N is an unsafe
+array with MAXARITY dimensions whose components are modified. Then the
+first distribution for which \bar{N}_4(p,N) > n is stored to N, n' is
+set to \bar{N}_4(p,N).]
+
+
+     safe a, d', d^, i,
+          t[MAXARITY].      [Holds indices of the types in d.]
+     array N[MAXARITY].     [Holds position distribution. N[a] is
+                             additionally used as a flag to indicate
+                             that there are no more distributions.]
+             
+(1)  [Initialization.] a:=LENGTH(SDDOM[d]); d':=SDDOM[d];
+     for i = 1,...,a do {
+        ADV(d'; d^,d');
+        t[i]:=SDSRTI(d^);
+        N[i]:=1;
+     };
+     N[a] := 1+(p-a); s:=0; n':=0.
+(2)  [Process distribution.]
+     s':=1;
+     for i=1,...,a do {
+        s'':=NB2[N[i],t[i]];
+        if t[i]>1 then s'':=IDIF(s'',NB2[N[i],t[i]-1]);
+        s':=IPROD(s',s'')
+     };
+     s := ISUM(s,s');
+     if ICOMP(s,n)>0 then return else n':=s.
+(3)  [Compute next distribution, no carry.]
+     if N[a] > 1 then {
+        N[a-1] := N[a-1]+1; N[a]:=N[a]-1; go to 2
+     }
+     else 
+        if a=2 then { N[a]:=0; go to 2}.
+(4)  [Compute next distribution, carry.] i := a-1;
+     while i>2 /\ N[i]=1 do i:=i-1;
+     if N[i]=1 then
+        N[a]:=0
+     else {
+        N[i-1]:=N[i-1]+1;   N[a]:=1+(N[i]-2);   N[i]:=1
+     };
+     go to 2 ||
+
+[-----------------------------------------------------------------------
+
+            Algorithms for mapping numbers to terms
+         (Terms are distributed according to their depth.)
+
+-----------------------------------------------------------------------]
+
+                    d:=CDEPTH(n,N)
+[Compute depth.   n is a non-negative integer, N is a non-negative
+BETA-integer >= the depth of the term whose number is n. N must be less
+than DIDPT. Then d is the depth of that term. The signature
+descriptor variables and the global arrays MB1, MB2, MB3 must be
+correctly initialized.]
+
+     safe CDEPTH.
+
+(1)  [Search.]
+     [In this algorithm, a linear search in the array MB1 from large
+      indices down to small indices is done. Since the values of MB1
+      increase very fast for most signatures, for most numbers n fewer
+      comparisons are needed than with a binary search. An exception
+      are signatures with only one operator which is unary. In this
+      pathological case, the values of MB1 increase linearly and in the
+      average case N/2 calls to ICOMP are needed.]
+
+     if N>0 then {
+        d:=N;
+        while d>=0 /\ ICOMP(MB1[d+1],n)>0 do d:=d-1;
+        d:=d+1;
+     }
+     else d:=0 ||
+
+                    t:=NT2TD(n,N)
+[Natural number to term (depth).   n is a non-negative integer, N is a
+non-negative BETA-integer >= the depth of the desired term. N must be
+less than MAXDEPTH1. Then t is a term over the signature which is held
+in the signature descriptor variables.  The mapping n |--> t is
+bijective and the condition DEPTH(NT2TD(m)) < DEPTH(NT2TD(n)) ==> m<n
+is true.  The global arrays MB1, MB2, MB3 must be correctly
+initialized.  Variables with the same name share one TCONT-field!
+
+N is used as upper bound in the search for the depth of the desired
+term. This search will be executed faster if N is a tight bound. If no
+upper bound for the depth is known, but the global data arrays are
+correctly initialized, the global variable DIDPT can be used as actual
+parameter for N.]
+
+     safe d.
+
+(1)  [Compute depth.]
+     if ICOMP(n,MB1[N+1])>=0 then {
+     STOUTL("Number too large in NT2TD"); HALT };
+
+     d:=CDEPTH(n,N).
+(2)  [Compute term with depth d.]
+     if d>0 then n':=IDIF(n,MB1[d]) else n':=n;     
+     if TGTRC then {
+        STROUT("NT2TD: n="); IWRITE(n);
+        STROUT(" depth="); AWRITE(d); EMPTOB
+     };
+     t:=NT2T1D(d,n') ||
+
+                    t:=NT2T1D(d,n)
+[Natural number to term 1 (depth).   d is a non-negative BETA-digit, n
+an integer with 0<=n<=M1(d)-1.  Then t is a term with depth d over the
+signature which is held in the signature descriptor variables. The
+mapping n |--> t is bijective. Variables with the same name share one
+TCONT-field!]
+
+     safe s.
+
+(1)  [Compute sort of term.] s:=1;
+     while ICOMP(n,MB2[d+1,s])>=0 do s:=s+1.
+(2)  [Compute term with depth d and sort s.]
+     if s>1 then n':=IDIF(n,MB2[d+1,s-1]) else n':=n;
+     if TGTRC then {
+        STROUT("NT2T1D: n="); IWRITE(n);
+        STROUT(" sort="); SWRITE(SDSRT[s]); EMPTOB
+     };
+     t:=NT2T2D(d,s,n');
+     if TGTRC then WRITE ||
+
+                    t:=NT2T2D(d,s,n)
+[Natural number to term 2 (depth).   d is a non-negative, s is a
+positive BETA-digit, n is an integer with 0 <= n <= M2(d,s)-1. Then t
+is a term with depth d and sort SDSRT[s] over the signature which is
+held in the signature descriptor variables. The mapping n |--> t is
+bijective. Variables with the same name share one TCONT-field!]
+
+     array M[MAXARITY].   [Holds depth distribution.]
+
+(1)  [Trace output.]
+     if TGTRC then {
+        STROUT("NT2T2D{ d="); AWRITE(d);
+        STROUT(" s="); SWRITE(SDSRT[s]);
+        STROUT(" n="); IWRITE(n); EMPTOB
+     }.
+(2)  [Trivial cases.]
+     if d=0 then {   [Atomic term with depth 0.]
+        t:=SDATM[s,1,n+1];
+
+        if TGTRC then {
+           STROUT("NT2T2D} "); SWRT(TNAME(t)); EMPTOB
+        };
+
+        return
+     };
+     if d=1 /\ n < SDATM[s,2,MAXATOM+1] then {
+                                             [Atomic term with depth 1.]
+        t:=SDATM[s,2,n+1];
+
+        if TGTRC then {
+           STROUT("NT2T2D} "); SWRT(TNAME(t)); EMPTOB
+        };
+
+        return
+     }.
+(3)  [Compute top-level operator.] f:=1;
+     while ICOMP(n,MB3[d+1,s,f])>=0 do f:=f+1.
+(4)  [Distribute depths over arguments.]
+     if f>1 then n':=IDIF(n,MB3[d+1,s,f-1]) else n':=n;
+
+     if TGTRC then {
+        STROUT("   top-level operator="); SWRT(TNAME(SDOPS[s,f])); 
+        STROUT(" n'="); IWRITE(n'); EMPTOB
+     };
+
+     a:=LENGTH(ODTYPE(SDOPS[s,f]));
+     if a=1 then [Arity 1.]
+        M[1]:=d-1
+     else
+        n':=IDIF(n',DSTDPT(d-1,SDDOMI(ODTYPE(SDOPS[s,f])),n',M)).
+(5)  [Compute arguments of f.] 
+     if TGTRC then {
+        STROUT("   distribution of depths over arguments (");
+        for i=1,...,a do {
+           AWRITE(M[i]); if i#a then CWRIT2(',',' ')};
+        CWRITE(')');
+        STROUT(" n''="); IWRITE(n'); WRITE
+     };
+
+     A:=(); D:=ODTYPE(SDOPS[s,f]);
+     for i=1,...,a do { ADV(D; D',D);
+        D':=SDSRTI(D');
+        N:=MB2[M[i]+1,D'];
+        if D'>1 then N:=IDIF(N,MB2[M[i]+1,D'-1]);
+        IQR(n',N; n',n'');
+        A':=NT2T2D(M[i],D',n'');
+        A:=COMP(A',A);
+     }.
+(6)  [Compose term.] 
+     if SDOPS[s,f]<=BETA then {
+     STROUT(">>> s,f "); AWRITE(s); CWRITE(' '); AWRITE(f); WRITE;
+     STROUT(">>> d="); AWRITE(d); WRITE;
+     stop};
+     t:=TCONS(INV(A),SDOPS[s,f]);
+     if TGTRC then {
+        STROUT("NT2T2D} "); TWRT(t); EMPTOB
+     } ||
+
+                    n':=DSTDPT(d,D,n,N)
+[Distribute depths over arguments.   d >= 0 is a BETA-integer, the
+maximal depth of the terms in a LENGTH(D)-tuple (LENGTH(D)>1) of terms
+whose return types are given by the domain number (index in SDDOM) D. n
+is a non-negative integer. N is an unsafe array with MAXARITY
+dimensions whose components are modified. Then the first distribution
+for which \bar{M}_4(d,N) > n is stored to N, n' is set to
+\bar{M}_4(d,N).]
+
+     safe i, j, a, D', D^,
+          t[MAXARITY].   [Holds indices of the types in D.]
+     array N[MAXARITY].  [Holds the distribution of depths.]
+
+(1)  [Initialization.]
+     a:=LENGTH(SDDOM[D]); D':=SDDOM[D];
+     for i = 1,...,a do {
+        ADV(D'; D^,D');
+        t[i]:=SDSRTI(D^);
+     };
+     s:=0;
+     if d=0 then i:=1 else i:=a.
+     [Trick to compute correct results if d=0!]
+(2)  [Next fixed component.]
+     if i<1 then {
+        STOUTL("Katastrophe in DSTDPT!");
+        HALT
+     };
+     for j=1,...,a do N[j]:=0;
+     N[i]:=d.
+(3)  [Process distribution.]
+     s':=1;
+     for j=1,...,a do {
+        s'':=MB2[N[j]+1,t[j]];
+        if t[j]>1 then s'':=IDIF(s'',MB2[N[j]+1,t[j]-1]);
+        s':=IPROD(s',s'')
+     };
+     s := ISUM(s,s');
+     if ICOMP(s,n)>0 then return else n':=s.
+(4)  [Compute next distribution, to the right of fixed component.]
+     if i=a then { j:=a-1; go to 5 } else j:=a;
+
+     while N[j]=d /\ i<j do { N[j]:=0; j:=j-1 };
+     if i<j then { N[j]:=N[j]+1; go to 3 };
+     j:=j-1;
+     if j=0 then { i:=i-1; go to 2 }.
+(5)  [Compute next distribution, to the left of fixed component.]
+     while N[j]=d-1 /\ 1<j do { N[j]:=0; j:=j-1 };
+     if N[j]<d-1 then { N[j]:=N[j]+1; go to 3 };
+     i:=i-1; go to 2 ||
+
+
+[-----------------------------------------------------------------------
+
+            Algorithms to generate random terms
+
+-----------------------------------------------------------------------]
+
+                    t:=TRANDE(p)
+[Random term (extent).   p is a positive BETA-integer. Then t is a
+random term over the signature which is held in the signature
+descriptor variables with at most p positions. The global data arrays
+NB1, NB2 and NB3 are initialized if necessary.  Variables with the same
+name share one TCONT-field!]
+
+     safe n, n'.
+
+(1)  [Global data arrays already initialized?]
+     GDINIM(p,0,0).
+(2)  [Pathological case.] if NB1[p]=1 then { r:=0; go to 6 }.
+(3)  [Determine argument for IRAND.]
+     IFCL2(ISUM(NB1[p],1); n,n');
+     if n=n' then n:=n-1.
+(4)  [Determine displacement.] d:=IDIF(IMP2(1,n),1).
+(5)  [Get random number in the range 0..NB1[p]-1.]
+     repeat
+        r:=ISUM(IRAND(n),d)
+     until ICOMP(r,NB1[p])<0.
+(6)  [Generate term.] t:=NT2TE(r,p) ||
+
+                    t:=TRANDD(d)
+[Random term (depth).   d is a non-negative BETA-integer. Then t is a
+random term over the signature which is held in the signature
+descriptor variables with at most depth d. The global data arrays
+MB1, MB2 and MB3 are initialized if necessary.  Variables with the same
+name share one TCONT-field!]
+
+     safe n, n'.
+
+(1)  [Global data arrays already initialized?]
+     GDINIM(d,1,0).
+(2)  [Pathological case.] if MB1[d+1]=1 then { r:=0; go to 6 }.
+(3)  [Determine argument for IRAND.]
+     IFCL2(ISUM(MB1[d+1],1); n,n');
+     if n=n' then n:=n-1.
+(4)  [Determine displacement.] D:=IDIF(IMP2(1,n),1).
+(5)  [Get random number in the range 0..\bar{M}_1(d)-1.]
+     repeat
+        r:=ISUM(IRAND(n),D)
+     until ICOMP(r,MB1[d+1])<0.
+(6)  [Generate term.] t:=NT2TD(r,d) ||

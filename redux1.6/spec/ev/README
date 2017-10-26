@@ -1,0 +1,14 @@
+How to decode filenames:
+
+<data-type name>C<...>         complete data type
+
+<...>_ev-<evaluation domain name>.rdx 
+                               uses one (partial) evaluation domain
+<...>_ev-<evaluation domain name>-<evaluation domain name>.rdx
+                               uses two (partial) evaluation domains
+
+<evaluation domain name> = fg  == free group
+                           ag  == abelian group
+                           ipr == integral polynomial ring
+                           bp  == boolean polynomial ring
+                           fdd == functional decision diagrams

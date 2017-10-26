@@ -1,0 +1,257 @@
+                    b:=ABS(a)
+[Absolute value.  a  is a gamma-integer.  b=|a|.]
+     safe ABS.
+(1)  if a >= 0 then b:=a else b:=-a ||
+                    N:=ARGNO()
+[Arguments number on the command line.  N becomes the number of command 
+line arguments, N>=1.]
+    const input=0, output=2, cmdline=4, open=5, close=6.
+    safe ARGNO.
+(1) [Basic IO.] N:=IO(-1,cmdline) ||
+                    BEGIN0()
+[Begin 0.  Initialize the basic system with ASCII character codes.
+Set IUNIT to standard input, OUNIT to standard output and MUNIT to
+standard error, if there are such standards.]
+     const ioinit=8.
+     safe BEGIN0. 
+(1)  [Read clock.]  TAU0:=CLOCK().
+(2)  [Input globals.] r=IO(0,ioinit); IUNIT:=5;  CUNIT:=3;  ISIZE:=80;
+     IPOS:=ISIZE;  ECHO:=false.
+(3)  [Output globals.]  MUNIT:=0;  OUNIT:=6;  PRNTR:=6; LUNIT:=0; 
+     RMARG:=131; SLMARG(0); ILINE:=0; OLINE:=0; EJECT:=false; OPOS:=0 ||
+                    BKSP()
+[Backspace.  IPOS is decreased by 1.]
+     safe BKSP.
+(1)  IPOS:=IPOS-1 ||
+                    BKSP1(I)
+[Backspace 1.  I is a saved IPOS position to which IPOS is reset.]
+     safe BKSP1.
+(1)  if IPOS <= I then IPOS:=0 else IPOS:=I||
+                    BLINES(n)
+[Blank lines.  n is a positive integer.  n records of one blank each
+are output.]
+     safe BLINES.
+(1)  EMPTOB;  for i=1,...,n do { CWRITE(' ');  WRITE } ||
+                    CLOSE(U)
+[Close.  The file connected to the unit U is closed.]
+     safe CLOSE.
+    const input=0, output=2, cmdline=4, open=5, close=6.
+(1) [Basci IO.] n:=IO(U,close) ||
+                    c:=CREAD()
+[Character read.  The output c is the next character from IBUFF.]
+     safe CREAD.
+(1)  if IPOS >= ISIZE then READ;  IPOS:=IPOS+1; c:=IBUFF[IPOS] ||
+                    c:=CREADB()
+[Character read, skipping blanks.  c is the next non-blank character
+in the input stream.]
+     safe CREADB.
+(1)  repeat c:=CREAD() until  c # ' ' ||
+                    CWRIT2(c1,c2)
+[Character write, 2 characters.  c1 and c2 are sequentially transmitted
+to OBUFF using CWRITE.]
+     safe CWRIT2.
+(1)  CWRITE(c1);  CWRITE(c2) ||
+                    CWRIT3(c1,c2,c3)
+[Character write, 3 characters.  c1, c2 and c3 are sequentially
+transmitted to OBUFF using CWRITE.]
+     safe CWRIT3.
+(1)  CWRITE(c1);  CWRITE(c2);  CWRITE(c3) ||
+                    CWRIT4(c1,c2,c3,c4)
+[Character write, 4 characters.  c1, c2, c3, and c4 are sequentially
+transmitted to OBUFF using CWRITE.]
+     safe CWRIT4.
+(1)  CWRITE(c1);  CWRITE(c2);  CWRITE(c3);  CWRITE(c4) ||
+                    CWRIT5(c1,c2,c3,c4,c5)
+[Character write, 5 characters.  c1, c2, c3, c4 and c5 are
+sequentially transmitted to OBUFF using CWRITE.]
+     safe CWRIT5.
+(1)  CWRITE(c1);  CWRITE(c2);  CWRITE(c3);  CWRITE(c4);  CWRITE(c5) ||
+                    CWRIT6(c1,c2,c3,c4,c5,c6)
+[Character write, 6 characters.  c1, c2, c3, c4, c5 and c6 are
+sequentially transmitted to OBUFF using CWRITE.]
+     safe CWRIT6.
+(1)  CWRITE(c1);  CWRITE(c2);  CWRITE(c3);  CWRITE(c4);  CWRITE(c5);
+     CWRITE(c6) ||
+                    CWRITE(c)
+[Character write.  The character c is transmitted to OBUFF.  If this
+fills OBUFF to RMARG then WRITE is called.]
+     safe CWRITE.
+(1)  OPOS:=OPOS+1;  OBUFF[OPOS]:=c;  if OPOS >= RMARG then WRITE ||
+                    DIBUFF()
+[Display input buffer.  The input buffer status is displayed if at least
+one READ was performed.]
+     safe DIBUFF, ILINE. global ILINE.
+(1)  [Check READ.] if ILINE<=0 then return.
+(2)  [Display.]
+     print "Input buffer follows, last character read underscored.";
+     SOBUFF;  for i=1,...,ISIZE do CWRITE(IBUFF[i]);  EMPTOB;
+     for i=1,...,IPOS-1 do CWRITE(' ');  CWRITE('^');  EMPTOB; ROBUFF||
+                    t:=DIGIT(c)
+[Digit.  c is a character.  If c is a digit then t is true and otherwise
+t is false.]
+     safe DIGIT.
+(1)  if '0'<=c /\ c <= '9' then t:=TRUE else t:=FALSE ||
+                    EMPTOB()
+[Empty output buffer.  If OPOS > LMARG then WRITE is
+called.]
+     safe EMPTOB.
+(1)  if OPOS > LMARG then WRITE ||
+                    END0()
+[End 0.  Terminating algorithm for the basic system.  Prints
+the time since BEGIN0 was called.]
+     safe END0.
+(1)  EMPTOB;  OUNIT:=MUNIT;  CWRIT5('T','o','t','a','l');  CWRITE(' ');
+     CWRIT4('t','i','m','e');  CWRITE(' ');  GWRITE(CLOCK()-TAU0);
+     CWRITE(' ');  CWRIT3('m','s','.');  EMPTOB ||
+                    t:=EVEN(a)
+[Even.  a  is a gamma-integer.  t is true if a  is even and t is false
+otherwise.]
+     safe EVEN.
+(1)  t:=a-(a/2)*2;  if t = 0 then t:=TRUE else t:=FALSE ||
+                    c:=EXPF(a,b)
+[Exponential function.  a  and b are gamma-integers, b>=0.
+c=a^b, with 0^0=1.]
+     safe EXPF.
+(1)  c:=1;  for i=1,...,b do c:=a * c ||
+                    a:=GREAD()
+[Gamma-integer read.  A gamma-integer a  is read from the input stream.
+Any preceding blanks are skipped.]
+     safe GREAD.
+(1)  [Skip blanks and read sign, if any.]  s:=1;  c:=CREADB();
+     if c='+' then c:=CREADB() else if c='-' then { c:=CREADB(); s:=-1};
+     if ~ DIGIT(c) then go to 3.
+(2)  [Read digits and convert.]  a:=0;  c0:='0'; 
+     repeat a:=10 * a+(c-c0); c:=CREAD() until ~ DIGIT(c);  BKSP;  
+     a:=s * a;  return.
+(3)  [Error.]  print "Error found by GREAD.";  DIBUFF;  stop ||
+                    GWRITE(a)
+[Gamma-integer write.  The gamma-integer a  is written in the output
+stream.]
+     safe GWRITE.
+     safe D[20].
+(1)  [Write minus sign.]  if a < 0 then { a':=-a;  CWRITE('-') }
+     else a':=a.
+(2)  [Convert to decimal.]  N:=0;  repeat q:=a'/10;  N:=N+1;
+     D[N]:=a'-10 * q+'0';  a':=q until a'=0.
+(3)  [Write digits.]  repeat CWRITE(D[N]);  N:=N-1 until N=0 ||
+                    IDN(n)
+[Index down.  n is a positive beta-integer.  INDEX is decreased
+by n.]
+     safe IDN.
+(1)  INDEX:=INDEX-n ||
+                    INPUT()
+[Input.  An input record is trasnferred from the IUNIT to the input
+buffer IBUFF. If ECHO = true, the buffer is echoed to MUNIT.]
+    const input=0, output=2, cmdline=4, open=5, close=6.
+    safe INPUT.
+(1) [Basic IO.] n:=IO(IUNIT,input).
+(2) [Echo ?] if n/\ECHO=true then{SOBUFF; OPOS:=ISIZE-1; OUNIT:=MUNIT;
+    RMARG:=72; for i=1,...,OPOS do OBUFF[i]:=IBUFF[i]; 
+    OUTPUT; ROBUFF; return}.
+(3) [End of file?] if n\/ENDF then return.
+(4) [Error message already given.] stop ||
+                    IUP(n)
+[Index up.  n is a positive beta-integer.  INDEX is increased by n,
+and the new STACK positions are set to zero.]
+     safe IUP.
+(1)  [Move index.]  INDEX:=INDEX+n.
+(2)  [Initialize stack.]  if INDEX > MU then { PSOFM;  stop };
+     for i=INDEX-n+1,...,INDEX do STACK[i]:=0 ||
+                    c:=LCASE(C)
+[Lower case.  C is any character. If C is an upper case letter,
+then c is the same letter in lower case, otherwise c=C.]
+    safe LCASE.
+(1) if 'A' <= C /\ C <= 'Z' then c:=C+'a'-'A' else c:=C ||
+                    t:=LETTER(c)
+[Letter.  c is a character.  If c is a letter then t is true, otherwise
+t is false.]
+     safe LETTER.
+(1)  if 'A' <= c /\ c <= 'Z' \/ 'a' <= c /\ c <= 'z' then t:=TRUE
+     else t:=FALSE ||
+                    c:=MAX(a,b)
+[Maximum.  a  and b are gamma-integers.  c is the maximum of a  and b.]
+     safe MAX.
+(1)  if a >= b then c:=a else c:=b ||
+                    c:=MIN(a,b)
+[Minimum.  a  and b are gamma-integers.  c is the minimum of a  and b.]
+     safe MIN.
+(1)  if a <= b then c:=a else c:=b ||
+                    t:=ODD(a)
+[Odd.  a  is a gamma-integer.  t is true if a  is odd, t is false
+otherwise.]
+     safe ODD.
+(1)  t:=a-2*(a/2);  if t # 0 then t:=TRUE else t:=FALSE ||
+                    OUTPUT()
+[Output.  The output buffer OBUFF is transferred between 1 and OPOS to 
+ unit OUNIT. If OUNIT=PRNTR, then if EJECT=1, a formfeed is sent 
+first, otherwise a blank for line control. If LUNIT>0 then the output
+buffer is also transferred to unit LUNIT.]
+    const input=0, output=2, cmdline=4, open=5, close=6.
+    safe OUTPUT. 
+(1) [Basic IO.] if ~IO(OUNIT,output) then stop.
+(2) [Log file?] if OUNIT=MUNIT/\MUNIT#LUNIT/\LUNIT>0 then 
+    n:=IO(LUNIT,output) ||
+                    PSOFM()
+[Print stack overflow message.]
+     safe PSOFM.
+(1)  print "STACK overflow" ||
+                    QREM(a,b;q,r)
+[Quotient and remainder.  a  and b are gamma-integers, b#0.
+q=[a/b] and r=a-b*q.]
+     safe QREM.
+(1)  q':=a/b;  r:=a-b * q';  q:=q' ||
+                    READ()
+[Read.  A record is read from IUNIT and the ALDES codes for the first
+ISIZE characters are placed in IBUFF. IPOS is set to zero.]
+     safe READ. 
+(1)  [Input.]  INPUT; IPOS:=0; if ~ENDF then ILINE:=ILINE+1 ||
+                    r:=REM(a,b)
+[Remainder.  a  and b are gamma-integers, b#0.  r=a-b*[a/b].]
+     safe REM.
+(1)  r:=a-b * (a/b) ||
+                    ROBUFF()
+[Restore output buffer.  OBUFF is restored from ABUFF, OPOS from APOS,
+LMARG from ALMAR, RMARG from ARMAR and OUNIT from AUNIT.]
+     safe ROBUFF. global AUNIT. safe AUNIT.
+(1)  for i=1,...,APOS do OBUFF[i]:=ABUFF[i];  OPOS:=APOS;  LMARG:=ALMAR;
+     RMARG:=ARMAR;  OUNIT:=AUNIT ||
+                    s:=SIGN(a)
+[Sign.  a  is a gamma-integer.  s is the sign of a.]
+     safe SIGN.
+(1)  if a > 0 then s:=+1 else if a < 0 then s:=-1 else s:=0 ||
+                    SLMARG(n)
+[Set left margin.  LMARG is set to n, OPOS is set to zero, and then
+n blanks are transmitted to OBUFF by CWRITE.]
+     safe SLMARG.
+(1)  LMARG:=n;  OPOS:=0;  for i=1,...,n do CWRITE(' ') ||
+                    SOBUFF()
+[Save OBUFF.  OBUFF is saved in ABUFF, OPOS in APOS, LMARG in ALMAR,
+RMARG in ARMAR and OUNIT in AUNIT.  Then LMARG and OPOS are set to
+zero and RMARG is set to 80 and OUNIT is set to MUNIT.]
+     safe SOBUFF. global AUNIT. safe AUNIT.
+(1)  for i=1,...,OPOS do ABUFF[i]:=OBUFF[i];  APOS:=OPOS;  ALMAR:=LMARG;
+     ARMAR:=RMARG; AUNIT:=OUNIT; OPOS:=0;  LMARG:=0;  RMARG:=80;
+     OUNIT:=MUNIT ||
+                    TAB(n)
+[Tabulate.  n is a positive integer.  If LMARG<=n<=RMARG+1 and OPOS<n
+then blanks are inserted in OBUFF until OPOS=n-1.]
+     safe TAB.
+(1)  [Check n.] if ~(LMARG <= n /\ n <= RMARG+1) then return.
+(2)  [Advance.] while OPOS # n-1 do CWRITE(' ') ||
+                    C:=UCASE(c)
+[Upper case.  c is any character.  If c is a lower case
+letter then C is the same letter in upper case, otherwise C=c.]
+    safe UCASE. intrinsic UCASE.
+(1) if 'a' <= c /\ c <= 'z' then C:=c-('a'-'A') else C:=c ||
+                    WRITE()
+[Write.  A record of length OPOS is written on OUNIT from ALDES codes
+in OBUFF.  Then LMARG blanks are inserted in the left end of OBUFF,
+OPOS is set to LMARG, and OLINE is increased by 1.]
+     safe WRITE.
+(1)  [Write out.]  OUTPUT.
+(2)  [Fill in blanks.]  for i=1,...,LMARG do OBUFF[i]:=' '. 
+(3)  [Set OPOS and OLINE.]  OPOS:=LMARG;  OLINE:=OLINE+1 ||
+                    WRITEM()
+[Write on MUNIT.  The output buffer is written on MUNIT.]
+     safe WRITEM.
+(1)  U:=OUNIT;  OUNIT:=MUNIT;  WRITE;  OUNIT:=U ||

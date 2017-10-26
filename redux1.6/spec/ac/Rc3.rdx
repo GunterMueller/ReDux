@@ -1,0 +1,24 @@
+DATATYPE RNG;
+SORT
+	RNG;
+CONST
+	0, 1: RNG;
+VAR
+	x, X, Y, Z: RNG;
+OPERATOR
+	+: RNG, RNG -> RNG;
+	*: RNG, RNG -> RNG;
+	~: RNG -> RNG;
+NOTATION
+	+, *, ~: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+[1]  +(0,X)==X;
+[2]  *(0,X)==0;
+[3]  *(1,X)==X;
+[4]  ~(X)==+(X,X);
+[5]  *(X,+(Y,Z))==+(*(X,Y),*(X,Z));
+[6]  +(+(1,1),1)==0;
+END
+; This file is R3C.typ 

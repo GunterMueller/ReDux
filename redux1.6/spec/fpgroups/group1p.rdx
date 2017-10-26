@@ -1,0 +1,29 @@
+%%  comment symbol
+DATATYPE Group;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS not complete
+%%  DESCRIPTION Group (a;) ground definition
+%%  DESCRIPTION inversion only defined on generators
+%%              may be completed
+%%              (x * ~(x)) == 1 is an inductive theorem
+SORT
+	G;
+CONST
+	1, a: G;	%%  Generator a
+VAR
+	x, y, z: G;
+OPERATOR
+	*: G, G -> G;
+	~: G -> G;
+NOTATION
+	~: FUNCTION;
+	*: INFIX;
+AXIOM
+ [1] (1 * x) == x;
+ [2] ((x * y) * z) == (x * (y * z));
+ [3] (a * ~(a)) == 1;
+ [4] (~(a) * a) == 1;
+ [5] ~(1)==1;
+ [6] ~(~(x)) == x;
+ [7] ~((x * y))== (~(y) * ~(x));
+END

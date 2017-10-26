@@ -1,0 +1,252 @@
+[----------------------------------------------------------------------]
+[- This file contains routines to ascertain non-ambiguous term output. ]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "parse.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                 CHKAMB(DT)
+[Check for ambiguities.
+ DT is a data type. Possible ambiguities during term output
+ are detected and stored under property DAM of the signature
+ object causing the conflict.]
+
+(1) [init] sl:=SOTLSO(DTSYMTAB(DT)); s*:=sl.
+(2) [finished?] if sl = () then return; 
+    ADV(sl; so,sl);  k:=TKIND(so); f:=TGET(so,DFS).
+(3) [operator signature objects with fixity infix, lispfix or
+     functionfix need not be considered - because in the output
+     they are always followed by a blank.]
+    if k = DOS /\ (f = DIF \/ f = DLF \/ f = DFF) then goto 2.
+(4) [search for common prefix] exit:=FALSE;
+    nam:=GET(TNAME(so),FLAT); if nam = () then nam:=EXPLOD(TNAME(so));
+    l:=LENGTH(nam); s':=sl; al:=();  
+    while s' # () /\ ~exit do 
+    { ADV(s'; ao,s'); an:=GET(TNAME(ao),FLAT); if an = () then
+        an:=EXPLOD(TNAME(ao)); j:=LENGTH(an);
+      if j <= l then exit:=TRUE else
+      if LEQRF(nam,an,l) then 
+      { [ TNAME(so) is prefix of an]
+        r:=REDUCT(an,l); al:=CONC(al,CKAMB2(so,r,s*))
+      } else  [R.B.: 28.5.96] exit:=TRUE
+    }.
+(5) [handle variables (consider underscore for indices)]
+    if k = DVS then { s':=s*; while s' # () do
+      { ADV(s'; ao,s'); an:=GET(TNAME(ao),FLAT); if an = () then
+          an:=EXPLOD(TNAME(ao));
+        if FIRST(an) = '_' /\ POSCOM(so,ao) then
+          al:=AMBCONS(TNAME(ao),(),al)
+    } }.
+(6) [handle identifiers starting with comment symbol char. %]
+    if FIRST(LAST(nam)) = '%' then 
+    { s':=s*; while s' # () do
+      { ADV(s'; ao,s'); an:=GET(TNAME(ao),FLAT); 
+        if an = () then an:=EXPLOD(TNAME(ao));
+        if FIRST(an) = '%' /\ POSCOM(so,ao) then
+          al:=AMBCONS(TNAME(ao),(),al)
+    } }.
+(7) [post processing] al:=ALPOPR(al); if al # () then TPUT(so,DAM,al).
+(8) [next entry] goto 2 ||
+
+                b:=SPTDA(so,t)
+[Space necessary to disambiguate.
+ so is a signature object, t is a term. Then b=TRUE iff
+ it is necessary to print a space after symbol so
+ in t to disambiguate term output.
+ NOTE: "so" mustn't be a closing roundfix operator's
+       signature object.]
+(1) b:=SPCDAO(so,t,TRUE) ||
+
+                b:=SPCRDA(ro,t)
+[Space necessary to disambiguate closing roundfix operator.
+ ro is the signature object of a closing roundfix operator,
+ t is a term. Then b=TRUE iff it is necessary to print a
+ space after symbol ro in t to disambiguate term output.]
+(1) b:=SPCDAO(ro,t,FALSE) ||
+
+
+[----- Section 2: algorithms for internal use -------------------------]
+
+                AL:=CKAMB2(bs,name,s)
+[Check for ambiguities, subalgorithm.
+ AL is an ambiguity list, name is a list of
+ characters, s is a list of signature objects.
+ bs is the base signature object, i.e. the signature
+ object for which ambiguities are calculated.
+ Minimal sequences s_0,...,s_n of signature objects of s 
+ where name is a prefix of s_0 o ... o s_n (o stands for
+ concatenation of the signature objects' names) are
+ added to the ambiguity list AL.
+ If s_n is a coercion operator then the sequence is added
+ iff name is a prefix of s_0 o ... o s_n o w, where w is 
+ an arbitrary string.]
+(1) [init] s*:=s; l:=LENGTH(name); AL:=().
+(2) [search in s* for common prefix]
+    while s*#() do { ADV(s*; so,s*); n:=GET(TNAME(so),FLAT);
+      if n=() then n:=EXPLOD(TNAME(so));
+      i:=EQUALN(name,n); if i=l then
+      { [name is prefix of n, add alternative and delete
+         continuation]
+         if POSCOM(bs,so) then { AL:=AMBCONS(TNAME(so),(),AL) } }
+      else if i=LENGTH(n) then
+      { [n is prefix of name, add alternative (and contin.)]
+        if POSCOM(bs,so) then
+        { if TKIND(so)=DXT then AL:=AMBCONS(TNAME(so),(),AL)
+          else
+          { r:=REDUCT(name,i); a':=CKAMB2(so,r,s); if a'#() then
+              AL:=AMBCONS(TNAME(so),a',AL)
+    } } } }; return ||
+
+               n:=EQUALN(l,l')
+[Equal n. l=(a_1,...,a_r) and l'=(b_1,...,b_s) are lists.
+ Then n is the integer with 1<=n<min(r,s)
+ s.th. a_i = b_i for all 1<=i<=n and a_(n+1) # b_(n+1) or
+ n=r if l is a prefix of l' or n=s if l' is a prefix of l.]
+(1) [init] n:=0; l^:=l; l*:=l'.
+(2) [trivial case] if l^=() \/ l*=() then return.
+(3) [compare first elements] ADV(l^; a,l^); ADV(l*; b,l*);
+    if EQUAL(a,b) then n:=n+1 else return.
+(4) [next element] goto 2 || 
+
+
+               t:=POSCOM(s,s')
+[Possible combination of signature objects.
+ s and s' are signature objects. Then t is TRUE iff
+ TNAME(s) can precede TNAME(s') in a syntactically
+ correct term. (It is possible however, that a
+ combination of more than two signature objects
+ is syntactically incorrect, but nevertheless 
+ stored in the ambiguity list!)]
+(1) [init] k:=TKIND(s); k':=TKIND(s'); f:=TGET(s,DFS);
+    f':=TGET(s',DFS).
+(2) [s is variable, constant or constfix-operator]
+    if k=DVS \/ k=DCS \/ (k=DOS /\ f=DCS) then
+    { if k'=DOS /\ f'=DPF then t:=TRUE else t:=FALSE;
+      return }.
+(3) [s is prefix or opening roundfix operator]
+    if k=DOS /\ (f=DEF \/ f=DRF) then
+    { if k'=DVS \/ k'=DCS \/ (k'=DOS /\ (f'=DCS 
+      \/ f'=DEF \/ f'=DFF \/ f'=DRF)) \/ k'=DXT
+        then t:=TRUE else t:=FALSE;
+      return }.
+(4) [s is postfix or closing roundfix operator]
+    if (k=DOS /\ f=DPF) \/ k=DCR then
+    { if (k'=DOS /\ f'=DPF) \/ k'=DCR then 
+        t:=TRUE else t:=FALSE;
+      return }.
+(5) [external operators]
+    if k=DXT then { t:=TRUE; return }.
+(6) [infix, lispfix and funcfix operators]
+    if k=DOS /\ (f=DFF \/ f=DIF \/ f=DLF) then
+    { t:=FALSE; return }.
+(7) [error!] STOUTL("Internal error in POSCOM !!!");
+    stop || 
+
+                L:=ALPOPR(al)
+[Ambiguity list, post processing.
+ al and L are ambiguity lists. Entries in al
+ with same names are joined.]
+(1) [init] L:=al; l:=al.
+(2) [finished?] if l=() then return.
+(3) [first element for comparison]
+    w:=AMBNAME(l); c:=AMBCONT(l); l':=AMBNEXT(l); last:=l.
+(4) [search for element with same name]
+    while l'#() do { w':=AMBNAME(l'); c':=AMBCONT(l');
+      if w=w' then { [join] if c=() \/ c'=() then
+        c:=() else c:=CONC(c,c'); AMBNEXT(last):=AMBNEXT(l') }
+      else last:=l'; l':=AMBNEXT(l') }.
+(5) [recursion] c:=ALPOPR(c); AMBCONT(l):=c.
+(6) [next entry] l:=AMBNEXT(l); goto 2 ||
+
+                s:=SONEXT(t,pos)
+[Signature object, next.
+ t is a (possibly bound) term, pos is a position
+ in t and s is the signature object of the symbol
+ following the symbol at position pos in term t
+ during term output.
+ s=() if the symbol at position pos is an infix,
+ lispfix or functionfix operator, or if the 
+ following symbol must be a comma or parantheses.
+ If a roundfix term is at position pos then
+ s=(so,sc) is a tupel of signature objects, where so
+ is the object following the opening roundfix and
+ sc is the object following the closing roundfix.]
+(1) [init] p:=pos; s:=().
+(2) [examine pos] k:=TKIND(pos); f:=TGET(pos,DFS);
+      c:=OARGLST(pos).
+(3) [prefix, roundfix] if k=DOS /\ (f=DEF \/ f=DRF) then
+    { while c#() do { p:=FIRST(c); k':=TKIND(p);
+        f':=TGET(p,DFS); c:=OARGLST(p); 
+        if k'=DOS /\ f'=DLF then { if f=DRF then
+          goto 4 else return };
+        if k'=DCS \/ (k'=DVS /\ c=()) \/ ((k'=DOS \/
+          k'=DXT) /\ f'=DRF \/ f'=DCS \/ f'=DEF \/ 
+          f'=DFF) then { s:=p; if f=DRF then goto 4
+            else return }; 
+    }; goto 6 }.
+(4) [(free) variable, constant, roundfix, constfix
+     or postfix]
+    vb:=VARBIND(pos);
+    if (k=DVS /\ vb=()) \/ k=DCS \/ (k=DOS /\ (f=DRF \/
+      f=DCS \/ f=DPF)) then 
+    { pa:=TRPATH(t,pos); if pa=() then goto 6;
+      pa:=RED(pa); while pa#() do
+      { lp:=pa; ADV(pa; so,pa); k':=TKIND(so);
+        f':=TGET(so,DFS);
+        if (k'=DOS \/ k'=DXT) /\ (f'=DFF \/ f'=DLF) \/
+          ((f'=DRF \/ f'=DIF) /\ lp=FIRST(LAST(so)))
+        then { if f=DRF then s:=(s,()); return };
+        if (k'=DOS \/ k'=DXT) /\ (f'=DPF \/ f'=DRF)
+        then { if f=DRF then s:=(s,so) else s:=so;
+          return }
+      }; if f=DRF then s:=(s,()) }.
+(5) [no match] return.
+(6) [error] STOUTL("Internal error in SONEXT !!!");
+    stop ||
+
+                p:=TRPATH(t,pos)
+[Term, reverse path.
+ t is a term, pos is a position in t, p is the path
+ from pos to the top position of t, i.e. the sequence
+ of positions from top to pos in reverse.]
+(1) [trivial case] if t=pos then { p:=LIST1(pos); return }.
+(2) [init] k:=TKIND(t); p:=().
+(3) [external] if k=DXT then return.
+(4) [variable] if k=DVS then c:=VARBIND(t)
+    [operator] else if k=DOS then c:=OARGLST(t)
+    [constant] else return.
+(5) [search] while c#() do { ADV(c; t',c);
+      p':=TRPATH(t',pos); if p'#() then
+      { p:=CONC(p', LIST1(t)); return } } ||
+
+                c:=ALMEMB(al,name)
+[Ambiguity list, member.
+ AL and al are ambiguity lists, name is a symbol.
+ If name is in the ambiguity list al then
+ c is the continuation of name, otherwise c=0.]
+(1) [init & trivial case] c:=0; if al=() then return.
+(2) [test for membership] l:=al; while l#() do
+    { n:=AMBNAME(l); c':=AMBCONT(l); if n=name then
+     { c:=c'; return };  l:=AMBNEXT(l) } ||
+
+                b:=SPCDAO(so,t,op)
+[Space necessary to disambiguate output.
+ so is a signature object, t is a term. Then b=TRUE iff
+ it is necessary to print a space after symbol so
+ in t to disambiguate term output.
+ If op=TRUE then a following roundfix operator is
+ opening else closing.]
+(1) [init] al:=TGET(so,DAM); s*:=so; b:=FALSE.
+(2) [trivial case] if al=() then return; open:=op.
+(3) [ambiguities?] s':=SONEXT(t,s*);
+    if TGET(s*,DFS)=DRF then if open then s':=FIRST(s')
+    else s':=SECOND(s'); if s'=() then return;
+    if TGET(s',DFS)=DRF then { if ~open then sn:=TGET(s',DCR) }
+    else sn:=TNAME(s'); l:=ALMEMB(al,sn); if l=0 then return;
+    if l=() then { b:=TRUE; return };
+    s*:=s'; al:=l; k:=TKIND(s*); f:=TGET(s*,DFS);
+    if k=DCS \/ k=DVS \/ (k=DOS /\ (f=DCS \/ f=DRF)) then
+      open:=FALSE; goto 3 ||

@@ -1,0 +1,210 @@
+[Project: Term Orderings
+   module name        : TOBPIT -- Term Ordering Build Polynomial
+                        Interpretation from Terms.
+   modulespecification: Algorithms to build polynomial interpretation
+                        from terms.
+   programmer         : ????????/Werner Lauterbach
+   language           : aldes
+   last change        : 16.08.93
+                        $Date: 1994/12/21 20:54:28 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   bugs               : none known
+   modules needed     : 
+]
+
+[ #include "tp.h" ]
+[ #include "to.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------.
+   Section 1
+   Algorithms for export
+-----------------------------------------------------------------------]
+
+                    p:=RIPTV(T,V,i)
+[Ranked polynomial from term, variable list supplied. 
+T is term. Assume that any in T occuring constant or operator has
+polynomial associated to symbol DIS in signum's property list.
+V is association list of variables occuring in T and integral
+polynomials. i is an integer. Then p is ranked polynomial given
+by substitution of associated polynomials of the subterms into the
+associated polynomial of main term using the polynomial
+interpretation of the i polynomial ordering. [modified by WL]]
+(1)  [Init.] T':=T.
+(2)  [Empty term corresponds to zero polynomial; otherwise display T'.]
+     if T' = () then {
+        STOUTL("RIPTV called with empty term"); p:=(0,0); return
+     } else k:=TKIND(T'). 
+(3)  [Constant.] if k = DCS then { p:=GETPI(T',i); return }.
+(4)  [Variable.] if k = DVS then 
+     { c:=VARBIND(T'); if c = () then 
+        { a':=ASSOC(T',V);
+          if a' # () then p:=FIRST(a') else p:=(0,0);
+          return
+        } else { T':=c; goto 2 }
+     }.
+(5)  [No operator, failure.] if k # DOS then 
+     { STROUT("RIPTV failed "); TWRT(T'); p:=(0,0); return }.
+(6)  [T' is operator; get polynomial arguments (recursive descent).]
+     c:= OARGLST(T'); a*:=(); r:=0; s:=0;
+     while c # () do {
+        ADV(c;o,c); q:=RIPTV(o,V,i); s:=MAX(s,RANK(q));
+        a*:=COMP(q,a*); r:=r+1
+     }.
+(7)  [Assure that all argument polynomials have same order s.]
+     a:=();
+     while a* # () do {
+        ADV(a*;o,a*); d:=RANK(o); q:=POLY(o);
+        while d < s do { q:=(0,q); d:=d+1 };
+        a:=COMP(q,a)
+     }.
+(8)  [Get associated polynomial of T'.] p':=GETPI(T',i).
+(9)  [Order of p' must correspond to number of arguments.]
+     if RANK(p') # r then {
+        STROUT("RIPTV: order differs from arity of op ");
+        OPWRT(T'); p:=(0,0); return
+     }.
+(10) [Perform substitution.] if r = 0 then p:=p'
+     else { p*:=IPGSUB(r,POLY(p'),s,a); p:=(s,p*) } ||
+
+                    P:=PRIP2(S,T,n)
+[Pair of ranked polynomials from two terms. 
+Polynomials associated with operators and constants are assumed to be 
+accessible by property list entry DIS. S and T are terms, n is an
+integer. Then P is a triple of rank and two integral polynomials build
+from the polynomial interpretation of the n-th polynomial ordering.
+[modified by WL]]
+(1)  [Build association list of free variables and polynomials.]
+     V:=VRIPL2(S,T).
+(2)  [Call RIPTV.] p:=RIPTV(S,V,n); q:=RIPTV(T,V,n);
+     r:=MAX(RANK(p),RANK(q));
+     s:=RANK(p); p':=POLY(p); while s<r do {p':=(0,p'); s:=s+1};
+     s:=RANK(q); q':=POLY(q); while s<r do {q':=(0,q'); s:=s+1};
+     P:=(r,p',q').
+(3)  if PITRC then {
+        [Switch off timer.] OTI:=OTI+CLOCK();
+        [Build variable dictionary.] TDICT(S,();VD); TDICT(T,VD;VD);
+        [Build variable name list. Straight ordered.] V*:=();
+           while V#() do {ADV2(V;v,p,V); V*:=COMP(VDWTS(v,VD),V*)};
+        [Revert order.] V*:=INV(V*);
+        [Send message.] WRITE; STROUT("PRIP2: (");
+           IPWRTV(RANK(P),p',V*); CWRITE(','); 
+           IPWRTV(RANK(P),q',V*); CWRIT2(')','.'); WRITE;
+        [Switch on timer.] OTI:=OTI-CLOCK()} ||
+
+                    L:=VRIPL(T)
+[Variable and ranked polynomial list. 
+T is term.  Then L is an association list of all free variables of T 
+and its associated ranked polynomials (increasing order according to 
+first occurrence starting left).]
+(1)  [Init. Order straight.]
+     f:=INV(VFREE(T,())); c:=1; r:=LENGTH(f); s:=1; L':=().
+(2)  [Associate polynomials.]
+     while f#() do {
+        d:=(1,c); t:=s; while r>t do {d:=(0,d); t:=t+1};
+        ADV(f;v,f); L':=COMP2(v,(r,d),L'); s:=s+1; c:=(0,c)
+     }.
+(3)  [Return.] L:=L'; return ||
+
+                    L:=VRIPL2(S,T)
+[Variable and ranked polynomial list of two terms. 
+S and T are terms.  Then L is an association list of all free variables
+of S and T and its associated ranked polynomials (increasing order 
+according to first occurence starting left with term S).]
+(1)  [Init.] f:=INV(VFREE(T,VFREE(S,()))); c:=1; r:=LENGTH(f); s:=1;
+     L':=().
+(2)  [Associate polynomials.]
+     while f#() do {
+        d:=(1,c); t:=s; while r>t do {d:=(0,d); t:=t+1};
+        ADV(f;v,f); L':=COMP2(v,(r,d),L'); s:=s+1; c:=(0,c)
+     }.
+(3)  [Return.] L:=L' ||
+
+                    T':=TDFLAT(T)
+[Term deflattened.
+T is a term. Then T' is T with deflattened arguments of the top level
+operator. [WL]]
+(1)  [Init.] T':=T.
+(2)  [Test: top level of T is in flat form then deflat.]
+     if ~TUSTAT(T') = DAC then return
+     else {
+        c':=COPY(OARGLST(T')); s':=COPY(TSIGN(T'));
+        s:=LENGTH(ODTYPE(T)); r:=LENGTH(c');
+        if r > s then { T':=TDFL1(c',s',s) }
+     } ||
+
+                    f:=VFREE(T,f')
+[Term, free variables. 
+ T is term. f' is set of variables.
+ Then f is union of f' and free variables of T.
+ Order is reverse, in respect to occurrence.]
+(1)  [Init.]
+     if T=() then {
+        STOUTL("VFREE called with empty term."); f:=f'; return}
+     else k:=TKIND(T).  
+(2)  [Constant.] if k=DCS then {f:=f'; return}.
+(3)  [Variable.] if k=DVS then 
+     { c:=VARBIND(T); if c # () then f:=VFREE(c,f')
+        else { if INTMEM(T,f') then f:=f' else f:=COMP(T,f') };
+       return
+     }.
+(4)  [Operator.] if k=DOS then 
+     { c:=OARGLST(T); f*:=f'; while c # () do 
+        { ADV(c;a,c); f*:=VFREE(a,f*) };
+        f:=f*; return
+     }.
+(5)  [Failure.] STROUT("VFREE failed "); TWRT(T); WRITE; return ||
+
+[-----------------------------------------------------------------------
+   Section 2
+   Algorithms for internal use.
+-----------------------------------------------------------------------]
+
+                    T':=TDFL1(c,s',s)
+[Term deflattened 1.
+c is the TCONT of a flat term, s' is the TSIGN of c and s is the 
+length of the operator domain type of c.
+Then T' is c with deflattened arguments of the
+top level operator. [WL]]
+(1)  [Init.] c':=c; T':=().
+(2)  [Build deap term recursiv.]
+     if LENGTH(c') = s then {
+        while c' # () do { ADV(c'; t',c'); T':=COMP(t',T') };
+        T':=CONC(INV((T')),s')
+     } else {
+        if LENGTH(c') > s then {
+           for i=1,...,s-1 do { ADV(c'; t',c'); T':=COMP(t',T') };
+           T':=CONC(INV((COMP(TDFL1(c',s',s),T'))),s')
+        } else  STOUTL("ERROR in TDFL1: To few arguments left.") 
+     } ||
+
+[-----------------------------------------------------------------------
+   Section 3
+   Algorithms for trace and output
+-----------------------------------------------------------------------]
+
+                    IPWRTV(r,A,V)
+[Integral polynomial with variable list, write. 
+A is a polynomial in r variables, r>=0. V is a list of variable
+names (reverse order: FIRST(V) belonging to x_r).
+A is written to the output stream.
+(Taken vom sace package; parameter V introduced instead of
+using global variable VARL {hidden in call of VFIN}.)]
+(1)  [A=0 or r=0?.] if A=0\/r=0 then { IWRITE(A); return }.
+(2)  [Write terms.] A':=A; k:=0; [x:=VFIN(r);] x:=FIRST(V);
+     while A'#0 do {
+        PDEC(A';i,c,A'); k:=k+1;
+        s:=IPSIGN(r-1,c);
+        if s<0 then {
+           c:=IPNEG(r-1,c); CWRITE('-')
+        } else if k>1 then CWRITE('+');
+        if i=0\/~IPONE(r-1,c) then {
+           n:=PNT(r-1,c);
+           if n>1 then CWRITE('(');
+           IPWRTV(r-1,c,RED(V));
+           if n>1 then CWRITE(')');
+        };
+        if i#0 then { CLOUT(x) };
+        if i>1 then { CWRITE('^'); AWRITE(i) }
+     } ||

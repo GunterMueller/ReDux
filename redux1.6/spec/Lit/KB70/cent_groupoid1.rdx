@@ -1,0 +1,17 @@
+%%  comment symbol
+DATATYPE CGROUPOID;
+%% AUTHOR Knuth and Bendix
+%% ORIGIN Word Problems in Universa Algebras, 1970
+%% DESCRIPTION central groupoid
+%% STAUTUS uncompleted
+SORT
+	S;
+VAR
+	u, v, x, y, z: S;
+OPERATOR
+	*: S, S -> S;
+NOTATION
+	*: INFIX;
+AXIOM
+  [1] ((x * y) * (y * z)) == y;
+END

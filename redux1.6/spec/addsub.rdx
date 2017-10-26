@@ -1,0 +1,21 @@
+DATATYPE INT;
+SORT
+	INT;
+CONST
+	0: INT;
+VAR
+	A, B, C, D, E: INT;
+OPERATOR
+	+: INT, INT -> INT;
+	SUB: INT, INT -> INT;
+	S: INT -> INT;
+NOTATION
+	+, SUB, S: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(S(B),A)==S(+(B,A));
+[3] SUB(S(A),S(B))==SUB(A,B);
+[4] SUB(0,A)==A;
+[5] SUB(A,0)==A;
+END
+;This file is addsub.typ, similar to Goebel, ground confluence, p.18

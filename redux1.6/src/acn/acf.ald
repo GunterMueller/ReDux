@@ -1,0 +1,160 @@
+[Project:  ReDuX  AC-Completion 
+   module name        : ACF -- Fertilization
+   modulespecification: Algorithms to firtilize the completion
+                        process by adding valid rules
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 4.1.90
+                        $Date: 1995/02/23 08:52:28 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.9 $
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include ev.h ]
+[ #include globs.h ]
+
+     const                                                             
+     TNORM(T,A)=TNRMLZ(T,A),
+[     TNORM(T,A)=TIRDSE(T,A), ]
+               [TNORM computes a normal form of term T under           
+                 the set of axioms A.]                                 
+     STRATV(CP)=CPMSIZ(CP).                                            
+               [STRATV computes the value of critical pair CP          
+                according to the current strategy.]                    
+                                                                       
+[--------------------------------------------------------------------- 
+     Section 1.   Algorthms for export
+-----------------------------------------------------------------------]
+
+                    c*:=CPFERT(c,A,O*)
+[Critical pair fertilization.
+c is a critical pair and A is a set of rewrite rules.  O* is a string. 
+It determines which orderings will be used during the completion process 
+automatically. Empty string means no automatic ordering.
+Then c* is c or it is a critical pair between a rule in A and c oriented 
+as a rule depending on user guidance.]
+
+(1)  [Initialize.] c*:=c; M_:=CPLHS(c); N_:=CPRHS(c); n:=0.
+(2)  [Orient c.] C^:=CPORDL(c,O*); if C^ = 'Q' then return;
+     if C^ = 'S' then { M_:=CPLHS(c); N_:=CPRHS(c)}
+     else if C^ = 'R' then { N_:=CPLHS(c); M_:=CPRHS(c)} else return.
+(3)  [Create rule. - LHS.] if TKIND(M_) = DOS 
+     then TFCVS1(M_,(),(); L,V_,V*) else { L:=M_; V_:=(); V*:=() }; 
+     [RHS.] k:=TKIND(N_); if k = DCS \/ k = DXT then R:=N_ 
+                          else if k = DVS then R:=ILPASS(N_,V_,V*) 
+                          else TFCVS1(N_,V_,V*; R,V_,V*); 
+     a:=ACONS(0,L,V*,R).
+(4)  [Extension rule.] a*:=APUTXR(a,A); if a* # () then 
+     { m:=QCXRDL(a); if m =  2 then a:=a* else if m = 1 then 
+       a:=ACONS(0,L,V*,R) else if m = 0 then return
+     }.
+(5)  [Choose rule.] n:=ACHCDL(A,n); if n = 0 then return;
+     if n = -2 then { a1:=ACOPY(a); goto 7 }.
+(6)  [Search rule.] A':=A; b:=FALSE; while A' # () /\ ~ b do
+     { ADV(A'; a1,A'); if ANUM(a1) = n then b:=TRUE }; 
+     if ~b then goto 5.
+(7)  [Compute critical pairs.] 
+     if NSTR = evalsupport then A^:=() else A^:=A;
+     C:=ACPAC(a,LIST1(a1),A^,FALSE); 
+     if C = () then 
+     { STOUTL(" All critical pairs can be resolved. "); n:=0;
+       goto 5 
+     }; C':=LOISE((),C,LENGTH(C)).
+(8)  [Choose critical pair.] c*:=CPCHDL(C'); if c* = () then c*:=c ||
+
+[---------------------------------------------------------------------
+     Section 2.   Algorthms for  internal use
+-----------------------------------------------------------------------]
+
+[---------------------------------------------------------------------
+     Section 3.   Dialog procedures
+-----------------------------------------------------------------------]
+
+                    n:=ACHCDL(A,n')
+[Axiom choice dialog.
+A is a set of axioms with unique number each. n' is a beta-integer.
+n' # 0 if the dialog is repeated. Then n is the answer of the dialog, a 
+beta-integer.] 
+
+(1)  [Init.] if n' # 0 then STOUTL(" Invalid choice, repeat input!").
+(2)  [Menue.] 
+     STOUTL(" Which axiom do you want to create critical pairs with?");
+     BLKW(6); STOUTL(" n -  Axiom number n");
+     BLKW(6); STOUTL("-1 -  List axioms");
+     BLKW(6); STOUTL("-2 -  Intrinsic pair");
+     BLKW(6); STOUTL(" 0 - quit fertilization"); WRITE.
+(3)  [Answer.] STOUTL(" Input integer:  *"); READ(); n:=AREADR(); 
+     if n = -1 then
+      { l:=1; A':=A; while A' # () do 
+        { ADV(A'; a,A'); if l = 10 then 
+         { STOUTL("READY?  *"); READ; l:=0 }; AXWRT(a); l:=l+1 
+        }; WRITE; goto 2
+      } ||
+
+                    c:=CPCHDL(C)
+[Critical pair choice dialog.
+C is a set of critical pairs. Then c is an element of C.]
+
+(1)  [Init.] C':=(); k:=LENGTH(C); l:=1. 
+(2)  [Help.]  CWRITE(' '); GWRITE(k);
+     STOUTL(" critical pairs were created.");
+     STOUTL(" Choose a critical pair in oder to continue the");
+     STOUTL(" completion with! You have the following choices: ");
+     WRITE;
+     BLKW(6); STOUTL(" T - Take the presented critical pair"); 
+     BLKW(6); STOUTL(" N - go on to the Next critical pair");
+     BLKW(6); STOUTL(" S - Skip 5 critical pairs");
+     BLKW(6); STOUTL(" H - Help, this menu");
+     BLKW(6); STOUTL(" Q - Quit fertilization"); WRITE.
+(3)  [Present critical pairs.] 
+     if C' = () then { STOUTL(" Starting presentation."); C':=C };
+     ADV(C'; c,C'); STROUT(" Presenting  "); CPWRT(c); WRITE;
+     if l = 1 then
+      { STOUTL(" Input choice [T)ake, N)ext, S)kip, H)elp, Q)uit]  *"); 
+        READ; C^:=UCASE(CREAD()); if C^ = 'T' then return
+        else if C^ = 'N' then { goto 3 }
+        else if C^ = 'S' then { l:=5; goto 3 }
+        else if C^ = 'Q' then { c:=(); return }
+        else goto 2
+      } else { l:=l-1; goto 3 } ||
+                 
+                    C^:=CPORDL(C',O*)
+[Critical pair orientation dialog.
+C' is a critical pair. O* is a string. It determines 
+which orderings will be used during the completion process 
+automatically. Empty string means no automatic ordering. 
+Then C^ is the answer of the dialog, a character.]
+
+(1)  [Menue.] 
+     STOUTL(" How do you want to orient the following critical pair ");
+     CPWRT(C'); WRITE; WRITE;
+     BLKW(6); STOUTL("A - automatic ordering");
+     BLKW(6); STOUTL("S - straight");
+     BLKW(6); STOUTL("R - reverse");
+     BLKW(6); STOUTL("Q - quit fertilization"); WRITE.
+(2)  [Answer.] STOUTL(" Input character [A/S/R/Q]:  *"); 
+     READ; C^:=UCASE(CREAD()). 
+(3)  [Automatic ordering.] if C^ = 'A' then 
+     { C^:=TPPO(C',O*); if C^ # 'S' /\ C^ # 'R' then
+       STOUTL(" Automatic ordering failed!")
+     }.
+(4)  [Valid ordering?] if C^ # 'S' /\ C^ # 'R' /\ C^ # 'Q' then 
+      { STOUTL(" Invalid choice, repeat input!"); goto 1 } ||
+
+                    n:=QCXRDL(a)
+[Query concerning extension rule, dialog.
+a is a rule with extension rule. Then 0 <= n <= 3 is an integer.]
+
+(1)  [Initialize.] STROUT(" The critical pair is turned into a rule");
+     STOUTL(" with extension rule:"); AXWRT(a).
+(2)  [Question.] STROUT(" Which of the following shall be used for ");
+     STOUTL("critical pair computation?"); 
+     BLKW(6); STOUTL("1 - only unextended rule"); 
+     BLKW(6); STOUTL("2 - only extension rule"); 
+     BLKW(6); STOUTL("3 - both"); 
+     BLKW(6); STOUTL("0 - quit fertilization"); WRITE.
+(3)  [Answer.] STOUTL(" Input number [0-3]:  *"); 
+     READ; n:=AREADR(); if n < 0 \/ n > 4 then goto 2 ||

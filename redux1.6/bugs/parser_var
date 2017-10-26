@@ -1,0 +1,25 @@
+From sinz@cembalo.informatik.uni-tuebingen.de Thu Jan 25 15:57:15 1996
+Return-Path: <sinz@cembalo.informatik.uni-tuebingen.de>
+Received: from cembalo.informatik.uni-tuebingen.de by orgel.informatik.uni-tuebingen.de (4.1/SMI-4.1)
+	id AA04198; Thu, 25 Jan 96 15:57:14 +0100
+Received: from chacha.informatik.uni-tuebingen.de by cembalo.informatik.uni-tuebingen.de (4.1/SMI-4.1)
+	id AA13701; Thu, 25 Jan 96 15:57:12 +0100
+Date: Thu, 25 Jan 96 15:57:12 +0100
+From: sinz@cembalo.informatik.uni-tuebingen.de (Carsten Sinz)
+Message-Id: <9601251457.AA13701@cembalo.informatik.uni-tuebingen.de>
+To: buendgen@cembalo.informatik.uni-tuebingen.de
+Subject: Redux-parser Warnungen
+Status: RO
+
+Hallo Reinhard!
+
+Inzwischen habe ich die Warnung, wenn neue Variablen in RHS auftreten
+in den Parser eingebaut. Zusaetzlich gibt der Parser (und nicht nur ACONS)
+auch eine Warnung aus, wenn LHS nur eine Variable oder Konstante ist.
+Die geaenderten Files sind in /home/sinz.ca/rt/redux1.4/src/nparser:
+  check.ald
+  semerr.ald
+  parse.y
+Tschuess
+  Carsten
+

@@ -1,0 +1,12 @@
+Verzeichnis io (input/output primitives)
+=========================================
+
+input.fort und output.fort enthalten input und output Routinen, die
+den Bildschirmdialog auf der I/O-unit9 (fort.9) protokollieren.
+
+Um entspechende Objekte zu erstellen input.fort und output.fort
+nach input.f und output.f kopieren und 
+      alde -O input.f output.f 
+aufrufen.
+
+[Die Idee stammt von Wolfang Kuechlin]

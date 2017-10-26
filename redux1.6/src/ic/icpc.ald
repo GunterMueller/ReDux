@@ -1,0 +1,162 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICPC -- PreConditioning
+   modulespecification: algorithms to compute defined operators         
+                        constructors and a ground reduction test        
+                        set of an algebra                               
+                        ground reduction test set will be only computed 
+                        if the constructors are not free.
+   programmer         : Reinhard Buendgen
+   language           : aldes                                           
+   last change        : 04.06.87, 15.7.88 01.08.88 15.11.90
+                        19.9.92: DTCDGR returs also the top set tree
+                        $Date: 1994/12/22 09:11:16 $
+                        by $Author: buendgen $
+   version            : formerly icpc2
+                        without lables                                  
+                        like ICPC1 but DEPTH is replaced by
+                        DEPTH1 this allows to compute smaller
+                        top sets in most cases.
+                        DDCST is replaced by DDCST1
+                        $Revision: 1.2.1.4 $
+   bugs               : none known                                
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        redux/ax, redux/co, redux/tp, redux/tc
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+ 
+[--------------------------------------------------------------------  
+
+   Section 2   algorithms for export                                    
+
+--------------------------------------------------------------------]
+
+
+                    d:=DCSLR(R,C)                                      
+[Deepest constructor subterm in left-hand side of rule set.            
+R is a set of rules, C is a set of constructors. Then d is the deepest
+depth of all subterms in T(C,X) which occur in the left hand side of 
+the rules in R.] 
+     safe d,R',r.                          
+(1)  [Initialize.] R':=R; d:=0; if PNTRC=1 then STOUTL("DCSLR").
+(2)  [Scan R.] while R' # () do
+     { ADV(R'; r,R'); d:=MAX(d,DDCST1(ALHS(r),C)) } ||                 
+ 
+
+                    DTCDGR(DT; C,f,D,T*,G)                          
+[Data type, constructors, defined operators, ground reduction test set.
+DT is the data type. Then C is the set of constructor symbols in  
+that data type, D is the set of defined operators and f=TRUE if C 
+is a set of free constructors, otherwise f = FALSE; T* is a d-top set 
+s. th. d is the depth of the deepest subterm in T(C,X) of a left-hand 
+side of a rule in the TRS of DT and G is the repective top set tree.]
+     safe b,f,l,n,C*,V,O',R,D',o,C^.                                 
+(1)  [Initialize.] DTDIS(DT; n,C*,V,O',R);
+     if PNTRC=1 then STOUTL("DTCDGR");
+     [Constructors.] C:=COPY(C*); OSPFNF(O',R; C',D); C:=CONC(C,C').
+(2)  [Hypothesis.] RROC(R,C; R*,l); f:=FREEC(C,R); d := DCSLR(R,C); 
+     CTOPS(C,V,R*,d; T*,G); G:=TSTSSN(G); D':=D; E:=().
+(3)  [Test hypothesis.] while D' # () do                               
+     { ADV(D'; o,D'); 
+      [Test if ground irreducible terms in domain(o).] O:=ODTYPE(o);
+      b := TRUE; while O # () do
+      { ADV(O; o~,O); C':=C; b := FALSE;
+        repeat  ADV(C'; c,C'); if ORTYPE(c) = o~ then b := TRUE
+        until b \/ C'=()
+      }; if b then
+      { t:=MKTERM(o,V); GTI:=GTI-CLOCK(); R':=IRPOS(t,R,C,G); 
+        GTI:=GTI+CLOCK(); if R' = () then E:=COMP(o,E)
+     }}; if E # () then 
+     { D:=INTDIF(D, E); C:=CONC(C,E); goto 2 }.
+(4)  [ 1st test whether G is constrained.] G^:=TSTTRV(G,(),0,44); 
+     while G^ # () do
+     { ADV(G^; g^,G^); if g^ # () then [Collect non-ground leaves.]
+       { [TRC.] STOUTL("Constrained node found!"); 
+         L:=TSTTRV(G,(),0,22); N:= (); while L # ()  do
+         { ADV(L; l*,L); if l* # () then N:=COMP(l*,N) }; 
+         N:=INV(N); goto 5 
+     } }; return.
+(5)  [Expand G.] TSTLXP(G,N; G*,N*); TSTTGS(G*,N*; G,N);
+     [Constrained?] G^:=TSTTRV(G,(),0,44); while G^ # () do
+     { ADV(G^; g^,G^); if g^ # () then
+       { C^:=WCCTST(g^); if C^ = 'Y' then goto 5
+                                     else { TSFAIL(C); return }
+     } }.
+(6)  [Sort successor lists and extract top set.] G:=TSTSSN(G); 
+     T*:=(); L:=TSTTRV(G,(),0,30); while L #  () do 
+     { ADV(L; l*,L); if l* # () then T*:=COMP(l*,T*)  } ||
+ 
+
+                    RROC(R,C; R*,l)                                    
+[Rule restriction to constructor left-hand sides. 
+R is a set of rules. C is a set of operators and constants. 
+Then R* is a subset of R s.th. every left hand side of a rule in R* 
+consists only of elements in C and variables. l=1 if all rules in R* 
+are left-linear. l=0 otherwise.] 
+     safe l,R',r.                   
+(1)  [Initialize.] R*:=(); R':=R; l:=1.
+(2)  [Iterate on R.] while R' # () do                                  
+      {ADV(R'; r,R'); if TOC(ALHS(r),C)=TRUE then                     
+       { R*:=COMP(r,R*); if ALLB(r) # 1 then l:=0 }                   
+      }||                                                              
+ 
+                    C*:=TSTECN(T*,DT)
+[Top set tree, extract constructors.
+T* is a (pruned) top set tree and DT is the data type.
+Then C* is the set of operators in T*.]
+
+(1)  [Initialize.] DTDIS(DT; N,C,V,F,A); C*:=COPY(C); T':=T*.
+(2)  [For each sort.] while T' # () do
+     { ADV(T'; T1, T'); S:=NTSSUC(T1);
+       [For each operator.] while S # () do
+       { ADV(S; n,S); t:=NTSLAB(n); if TKIND(t) = DOS then
+         { c:=TSOOCC(t,F); if c # () then C*:=COMP(c,C*) }
+     } } || 
+ 
+[----------------------------------------------------------------------
+ 
+    Section 3    auxiliary algorithms for internal use                 
+ 
+-----------------------------------------------------------------------]
+
+                    d:=DDCST1(t,C)                                       
+[Depth deepest constructor subterm.                                    
+t is a term, C is a set of constructors. Then d is the depth          
+of the deepest subterm of t built of constructors of C and             
+variables. The term depth is measured with DEPTH1.]
+     safe C,t',k,t^.
+(1)  [Initialize.] t':=t; d:=0; if PNTRC=1 then STOUTL("DDCST").
+(2)  [C-term.] if TOC(t',C)=TRUE then { d:=DEPTH1(t'); return }.
+(3)  [Non-C-term.] k:=TKIND(t'); if k=DCS then return;
+     if k=DVS then 
+     { T:=VARBIND(t'); if T # () then {t':=T; goto 2} else return }.
+(4)  [Recursion.]  T:=OARGLST(t'); while T # () do   
+     { ADV(T; t^,T); d:=MAX(DDCST1(t^,C),d) }||                   
+ 
+ 
+                    C^:=WCCTST(t)
+[Warning concerning constrained top set tree.
+t is a  term which is a constrianed node of a top set tree.
+A warrning is printed and the user is asked if s/he wants to expand
+the top set tree. C^ is a character denoting the anwer: 'Y' for yes
+and 'N' for no.]
+     safe C^.
+(1)  [Warning.]  STROUT("*** Warning! "); TWRT(t);
+     STOUTL(" is constrained!").
+(2)  [Continue?] STROUT("Do you wish to compute the next level of");
+     STOUTL(" the top set tree [y/n]? * ").
+(3)  [Answer.] READ; C^:=UCASE(CREAD()); 
+     if C^ # 'Y' /\ C^ # 'N' then goto 2 ||
+
+                    TSFAIL(C)                                            
+[Prints out a message that the method cannot be applied to the problem.
+C is a set of operands and constants which is to be printed out.]      
+     safe C',c.
+(1)  STOUTL("*** Method failure in DTCDGR ***");
+     STOUTL("The rules restriced to constructors are not left-linear.");
+     STOUTL("Constructors found so far:"); C':=C;
+     while C' # () do { ADV(C'; c,C'); TWRT(c); WRITE; };
+     HALT||                                                            

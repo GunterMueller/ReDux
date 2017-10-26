@@ -1,0 +1,35 @@
+%% 
+DATATYPE ZV2V3;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS complete
+%%  DESCRIPTION Z(V2,V3)
+%%              square root of 2 adjoined to the integers
+SORT
+	RING;
+CONST
+	0, 1, V2, V3	%%  V2 is square root of 2
+%%  V3 is square root of 3: RING;
+VAR
+	a, b, c, d, e: RING;
+OPERATOR
+	+: RING, RING -> RING;
+	*: RING, RING -> RING;
+	~: RING -> RING;
+NOTATION
+	~: FUNCTION;
+	+, *: INFIX;
+THEORY
+	+, *: AC;
+AXIOM
+[1] (0 + a) == a;
+[2] (0 * a) == 0;
+[3] (1 * a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] (a + ~(a) ) == 0;
+[7] ~( (a + b) ) == (~(a) + ~(b));
+[8] (a * ~(b)) == ~((a * b));
+[9] (a * (b + c)) == ((a * b) + (a * c));
+[10] (V2 * V2) == (1 + 1);
+[11] (V3 * V3) == (1 + 1 + 1);
+END

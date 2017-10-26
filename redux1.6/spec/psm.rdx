@@ -1,0 +1,21 @@
+DATATYPE PSM;
+SORT
+	INT;
+CONST
+	0: INT;
+VAR
+	x, y, z: INT;
+OPERATOR
+	minus: INT -> INT;
+	s: INT -> INT;
+	p: INT -> INT;
+NOTATION
+	minus, s, p: FUNCTION;
+AXIOM
+ [1] s(p(x)) == x;
+ [2] p(s(x)) == x;
+ [3] minus(0) == 0;
+ [4] minus(s(x)) == p(minus(x));
+END
+
+; taken from [KNZ91] introduction

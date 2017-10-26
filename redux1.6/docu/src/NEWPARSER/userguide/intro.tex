@@ -1,0 +1,45 @@
+\section{Introduction}
+
+The \redux\ system consists of a large set of algorithms as well as a collection of demo
+programs covering the realm of term rewriting. For almost every practical purpose
+(e.g. proving equational consequences, performing completion procedures, etc.)
+it is necessary to
+have an algebraic specification consisting of a signature description
+and a set of equations. The language and the corresponding parser presented here
+offer a notation for many-sorted algebraic specifications, which allows the
+definition and usage in an easy and intuitive manner.
+Throughout \redux, this language is used to perform input and output of
+terms, axioms and complete specifications.
+
+Algebraic specifications, called ``data types'', consist of constants, variables
+and operators with associated types, which constitute the signature of the
+data type. The equations usually following this specification make use of the
+preceding definitions in order to build up complex terms and axioms.
+
+One of the goals in the design process of the parser was to give the user a
+simple and intuitive specification language, similar to normal mathematical notation.
+This includes different common notations, such as prefix, postfix, infix, roundfix
+(e.g. for absolute value operator) and lisp (e.g. for program verification) as well
+as the usual function notation.
+Further on, parentheses and blanks between symbols can be omitted whenever possible;
+any prefix, postfix or infix operator can obtain a precedence in relation to another,
+in order to allow the operators' usual binding powers; associativity can be specified
+for infix operators.
+Another objective was to put as little restrictions as possible on variable,
+constant and function names.
+
+A special feature of the parser is its ability to work with external objects.
+External objects comprise, for example, \ALDES\ integers, 
+lists or SAC-2 long integers.
+Each of these object classes can be used almost like standard sorts, but
+their objects additionally allow direct manipulation.
+
+As a first example showing the outlines of a data type we present  
+a specification of an additive group:
+
+\begin{example}
+$ $ \input{group.rdx}
+\end{example}
+
+In due course, lexical, syntactical and semantic aspects of the data type 
+language will be described in full detail.

@@ -1,0 +1,24 @@
+%%  comment symbol
+DATATYPE WRONGSTACK;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS uncompleted
+%%  DESCRIPTION stack (wrong)
+%%              specification does not deal with TOP(NIL) or POP(NIL)
+SORT
+	EL, STACK;
+CONST
+	0: EL;
+	NIL: STACK;
+VAR
+	A, B, C: EL;
+	R, S, T: STACK;
+OPERATOR
+	PUSH: EL, STACK -> STACK;
+	POP: STACK -> STACK;
+	TOP: STACK -> EL;
+NOTATION
+	PUSH, POP, TOP: FUNCTION;
+AXIOM
+  [1] POP(PUSH(A,S))==S;
+  [2] TOP(PUSH(A,S))==A;
+END

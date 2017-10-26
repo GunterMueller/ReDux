@@ -1,0 +1,28 @@
+%% 
+DATATYPE SET;
+SORT
+	EL, SET;
+CONST
+	0: EL;
+VAR
+	v, x, y, z: SET;
+	a, b, c: EL;
+OPERATOR
+	s: EL -> EL;
+	{}:  -> SET;
+	{: EL -> SET;
+	U: SET, SET -> SET;
+	^: SET, SET -> SET;
+NOTATION
+	s: FUNCTION;
+	U, ^: INFIX;
+	{: ROUNDFIX };
+THEORY
+	U, ^: AC;
+AXIOM
+   [1] ({} U x) == x;
+   [2] (x U x) == x;
+   [3] ({} ^ x) == {};
+   [4] (x ^ x) == x;
+   [5] (x ^ (y U z)) == ((x ^ y) U (x ^ z));
+END

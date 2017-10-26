@@ -1,0 +1,32 @@
+%% 
+DATATYPE SIMS2;
+%%  AUTHOR Denzinger
+%%  ORIGIN Dissertation, 1993
+%%  KBO T:1>t:1>S:1>s:1>R:1>r:1
+SORT
+	EL;
+VAR
+	x: EL;
+OPERATOR
+	r: EL -> EL;
+	R: EL -> EL;
+	s: EL -> EL;
+	S: EL -> EL;
+	t: EL -> EL;
+	T: EL -> EL;
+NOTATION
+	r, R, s, S, t, T: FUNCTION;
+AXIOM
+[1]  T(t(x)) == x;
+[2]  t(T(x)) == x;
+[3]  S(s(x)) == x;
+[4]  s(S(x)) == x;
+[5]  R(r(x)) == x;
+[6]  r(R(x)) == x;
+[7]  t(t(S(T(s(T(r(t(R(R(S(t(s(T(T(r(r(T(
+    R(t(r(r(T(R(t(x))))))))))))))))))))))))) == x;
+[8]  r(r(T(R(t(R(s(r(S(S(T(r(t(R(R(s(s(R(
+    S(r(s(s(R(S(r(x))))))))))))))))))))))))) == x;
+[9]  s(s(R(S(r(S(t(s(T(T(R(s(r(S(S(t(t(S(
+    T(s(t(t(S(T(s(x))))))))))))))))))))))))) == x;
+END

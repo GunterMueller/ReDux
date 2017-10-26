@@ -1,0 +1,339 @@
+[Project: Term Orderings
+   module name        : TOSPI -- Term Ordering Symbol Polynomial
+                        Interpretation.
+   modulespecification: Algorithms to initialize polynomial
+                        interpretation of symbols.
+   programmer         : Werner Lauterbach/???????
+   language           : aldes
+   last change        : 19.08.93
+                        $Date: 1994/06/08 17:50:24 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.3 $
+   bugs               : none known
+   modules needed     : 
+]
+
+[ #include "tp.h" ]
+[ #include "to.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+
+                    BGNPYO(D~,n)
+[Begin polynomial ordering.
+Initialization routine on ordering level. D~ is the data type and n an
+integer denoting the n-th. polynomial ordering. Then the n-th.
+polynomial interpretations is initializied. [WL]]
+     safe DUM1,C,DUM2,O,DUM3.
+(1)  [Initialize.] DTDIS(D~; DUM1,C,DUM2,O,DUM3); O':=O; C':=C.
+(2)  [Initialization menu of polynomial-ordering.] BLINES(1);
+     STROUT("Initialization of the "); IWRITE(n);
+     STOUTL(". polynomial ordering:"); BLINES(1);
+     STOUTL("You have following choices: ");
+     STROUT(" n - initialize polynomial interpretation for constants ");
+     STOUTL("and operators by need");
+     STROUT(" q - query polynomial interpretation for each constant ");
+     STOUTL("and operator"); STOUTL("   [n/q]? *");
+     READ; c':= UCASE(CREAD());
+     if c' # 'Q' /\ c' # 'N' then goto 2.
+(3)  [Choose configuration of the positivity test.]
+     BLINES(1); STOUTL("Configuration of the positivity test:");
+     STROUT("You have following choices for the change of");
+     STOUTL(" coefficients: ");
+     STOUTL(" o - use the solution 1 of Ben Cherifa and Lescanne");
+     STOUTL(" t - use the solution 2 of Ben Cherifa and Lescanne");
+     STOUTL("   [o/t]? *"); WRITE;
+     READ; c'' := UCASE(CREAD()); m*:=SDIF;
+     if c'' = 'O' then c*:=CLS1
+     else if c'' = 'T' then c*:=CLS2
+     else if c'' # 'T' then goto 3.
+(4)  [Init DIS.] t:= FIRST(O');
+     if TGET(t,DIS)=() then {
+        while C' # () do { ADV(C'; c,C'); INIPYO(c) };
+        while O' # () do { ADV(O'; o,O'); INIPYO(o) }
+     }; C':=C; O':=O;
+     while C' # () do { ADV(C'; c,C'); PUTCPO(c,n,c*,m*) };
+     [Add ranked polynomials to all operators.]
+     while O' # () do { ADV(O'; o,O'); PUTCPO(o,n,c*,m*) };
+     if c' = 'N' then return.
+(5)  [Add ranked polynomials to all constants.] C':=C; O':=O;
+     while C' # () do {
+        ADV(C'; c,C'); PUTPI(c,n,OPINRD(c,n))
+     };
+     [Add ranked polynomials to all operators.]
+     while O' # () do {
+        ADV(O'; o,O'); PUTPI(o,n,OPINRD(o,n))
+     } ||
+
+                    ENDPYO(DT,n)
+[End Polynomial ordering.
+D~ is the data type and n an integer denoting the n-th. polynomial
+ordering. Then the n-th. polynomial interpretations is removed from
+property list of data type DT. If the last polynomial interpretations
+is removed the property list is also. [WL]]
+     safe DUM1,C,DUM2,O,DUM3.
+(1)  [Init.] DTDIS(DT; DUM1,C,DUM2,O,DUM3); C':=C; O':=O.
+(2)  [Remove.]
+     while C' # () do {
+        ADV(C'; c,C'); P:=TGET(c,DIS); SLELT(P,n,())
+     };
+     while O' # () do {
+        ADV(O'; o,O'); P:=TGET(o,DIS); SLELT(P,n,())
+     };
+     if ~ISPYO(DT) then {
+        while C'#() do { ADV(C'; c,C'); DUM4:=TPRRM(c,DIS) };
+        while O'#() do { ADV(O'; o,O'); DUM4:=TPRRM(o,DIS) }
+     } ||
+
+                    p':=GETPI(t,n)
+[Get polynomial interpretation.
+t is a term. n is an integers. Then p' is the polynomial
+interpretation of the n-th polynomial ordering of t stored in the
+property list of t under indicator DIS. [WL]]
+(1)  [Init.] P:=TGET(t,DIS); p':=().
+(2)  [Trivial case.] if P = () then return.
+(3)  [Get polynomial interpretation.]
+     p':=LELT(P,n); p':=PLYOINT(p') ||
+
+                    j:=GETCCA(t,n)
+[Get choose coefficient algorithm.
+t is a term and n is an integer denoting the n-th polynomial ordering.
+Then j is the id of the choose coefficient algorithm. [WL]]
+(1)  [Init.] P:=TGET(t,DIS).
+(2)  [Trivial case.] if P = () then { j:=0; return }.
+(3)  [Get id of choose coefficient algorithm.]
+     p':=LELT(P,n); j:=PLYOCCA(p') ||
+
+                    j:=GETCMA(t,n)
+[Get choose monomial algorithm.
+t is a term and n is an integer denoting the n-th polynomial ordering.
+Then j is the id of the choose monomial algorithm. [WL]]
+(1)  [Init.] P:=TGET(t,DIS).
+(2)  [Trivial case.] if P = () then { j:=0; return }.
+(3)  [Get id of change monomial algorithm.]
+     p':=LELT(P,n); j:=PLYOCMA(p') ||
+
+                    GETCPO(t,n; c*,m*)
+[Get configuratin of polynomial ordering.
+t is a term and n is an integer denoting the n-th polynomial ordering.
+Then c* is the id of the choose coefficient algorithm and m* is the id
+of the choose monomial algorithm. [WL]]
+(1)  [Init.] P:=TGET(t,DIS); c*:=0; m*:=0.
+(2)  [Trivial case.] if P = () then return.
+(3)  [Get configuration.]
+     p':=LELT(P,n); c*:=PLYOCCA(p'); m*:=PLYOCMA(p') ||
+
+                    INIPYO(t)
+[Init the polynomial orderings.
+t is a term. Then the polynomial ordering of t is initializied. [WL]]
+(1)  [Init] P:=TGET(t,DIS).
+(2)  [Init polynomial ordering.] for i=1,...,9 do P:=COMP((),P);
+     TPUT(t,DIS,P) ||
+
+                    p:=OPINRD(o,i)
+[Operator interpretation read.
+o is an operator (or a consatant) with arity n and i an integer
+denoting the i-th polynomial ordering. Then p is a polynomial ordering
+p is read from standard input using TREAD1. [modified by WL].]
+     const PLUS=20.
+(1)  [Initialize.] V:=(); p:=(); k:=TKIND(o); e:=FALSE;
+     BLINES(1); IWRITE(i); STOUTL(". polynomial ordering:").
+(2)  [Get arity.] n:=LENGTH(ODTYPE(o)).
+(3)  [Construct variable list.]
+     for j=n,n-1,...,1 do V:=COMP(COMP('x',STRFBI(j)),V).
+(4)  [Read polynomials.]
+     if k = DXT then {
+        STOUTL("External operator occurs:");
+        STOUTL("External operators are not supported!");
+        BLINES(1); p:=20; return
+     };
+     while e = FALSE do {
+        V':=V;
+        STROUT("Input polynomial interpretation of ");
+        if k = DOS then {
+           STOUTL("operator: "); OPWRT(o); STOUTL(".");
+           STROUT("Use variables ");
+           while V' # () do {
+              ADV(V'; v,V'); CLOUT(v); if V' # () then STROUT(", ")
+           };
+           STROUT(" for arguments 1 to "); GWRITE(n);
+           STOUTL(". *");
+        } else {
+           STOUTL("constant: "); CONWRT(o);
+           STOUTL("Interpretations of constants must be >= 2. *");
+        };
+        [Read polynomial.] READ; t:=TREAD1(PLUS); V~:=FVARS(t);
+        [Check variables.]
+        if USDIFF(V~,V) # () then {
+           STOUTL("Bad variable name found. Repeat input!")
+        } else {
+           if USDIFF(V~,V) = () /\ USDIFF(V,V~) # () then {
+              STOUTL("Too few variable names found. Repeat input!")
+           } else {
+              P:=IPFRP(n,RPFFML(n,t,V)); s':=TUSTAT(o);
+              if k = DCS then {
+                 if P >= 2 then { p:=COMP2(n,P,()); e:=TRUE }
+                 else {
+                    STROUT("Interpretations of constants must be ");
+                    STOUTL(">= 2. Repeat input!")
+                 }
+              } else {
+                 if s' = DAC \/ s' = DCO then {
+                    C':=PICOMT(P);
+                    if s' = DCO then {
+                       if C' then { p:=COMP2(n,P,()); e:=TRUE }
+                       else {
+                          STROUT("This polynomial is not compartible ");
+                          STOUTL("with commutativity. Repeat input!")
+                       }
+                    } else {
+                       A':=PIASST(P);
+                       if C' /\ A' then { p:=COMP2(n,P,()); e:=TRUE }
+                       else {
+                          STROUT("This polynomial is not compartible ");
+                          STROUT("with");
+                          if ~C' then STROUT(" commutativity");
+                          if ~C' /\ ~A' then STROUT(" and");
+                          if ~A' then STROUT(" associativity");
+                          STOUTL("."); STOUTL("Repeat input!")
+                       }
+                    }
+                 } else { p:=COMP2(n,P,()); e:=TRUE }
+              }
+           }
+        }
+     } ||
+
+                    PUTPI(t,n,p)
+[Put polynomial interpretation.
+t is a term, n is an integers and p is a polynomial interpretation.
+Then p is put in the property list of the term t under indicator DIS
+for the n-th polynomial ordering. [WL]]
+(1)  [Init.] P:=TGET(t,DIS).
+(2)  [Add p.] P':=P; for i=1,...,n do ADV(P'; p',P');
+     PLYOINT(p'):=p ||
+
+                    PUTCPO(t,n,c*,m*)
+[Put configuration of the polynomial ordering.
+t is a term . c*, m* and n are integers. Then the n-th polynomial
+ordering is initializied with a list: The first element denote the id
+of the choose coefficient algorithm c*, the second the id of the choose
+monomial algorithm m* and the third is an empty polynomial
+interpretation list. [WL]]
+(1)  [Put configuration.] p:=PLYOCOM(c*,m*,(),());
+     SLELT(TGET(t,DIS),n,p) ||
+
+[-----------------------------------------------------------------------
+   Section 2
+   Algorithms for internal use.
+-----------------------------------------------------------------------]
+
+                    b:=PICOMT(P)
+[Polynomial interpretation commutativity test.
+P is a integral polynomial (an polynomial inperpretation of an
+operator). Then b is TRUE if P is an interpretation of an commutativ
+operator else FALSE. [WL]]
+(1)  [Build polynomials.] X:=(0,(1,1)); Y:=(1,(0,1));
+     a'1:=COMP2(Y,X,()); a'2:=COMP2(X,Y,());
+     LHSP:=IPGSUB(2,P,2,a'1); RHSP:=IPGSUB(2,P,2,a'2);
+     if PITRC > 1 then {
+        STROUT("PICOMT: "); IPWRTV(2,LHSP,("X","Y")); WRITE;
+        STROUT("PICOMT: "); IPWRTV(2,RHSP,("X","Y")); WRITE
+     }.
+(2)  [Test commutativity.] P':=IPDIF(2,LHSP,RHSP);
+     if IPPT(2,P',CLS2,SDIF)='=' then b:=TRUE
+     else b:=FALSE ||
+
+                    b:=PIASST(P)
+[Polynomial interpretation associativity test.
+P is a integral polynomial (an polynomial inperpretation of an
+operator). Then b is TRUE if P is an interpretation of an associativ
+operator else FALSE. [WL]]
+(1)  [Build polynomials.]
+     X:=(0,(0,(1,1))); Y:=(0,(1,(0,1))); Z:=(1,(0,(0,1)));
+     a'1:=COMP2(Z,Y,()); a'2:=COMP2(Y,X,());
+     LHSSP:=IPGSUB(2,P,3,a'1); RHSSP:=IPGSUB(2,P,3,a'2);
+     a'3:=COMP2(LHSSP,X,()); a'4:=COMP2(Z,RHSSP,());
+     LHSP:=IPGSUB(2,P,3,a'3); RHSP:=IPGSUB(2,P,3,a'4);
+     if PITRC > 1 then {
+        STROUT("PIASST: "); IPWRTV(3,LHSP,("X","Y","Z")); WRITE;
+        STROUT("PIASST: "); IPWRTV(3,RHSP,("X","Y","Z")); WRITE
+     }.
+(2)  [Test associativity.] P':=IPDIF(2,LHSP,RHSP);
+     if IPPT(2,P',CLS2,SDIF)='=' then b:=TRUE
+     else b:=FALSE ||
+
+[-----------------------------------------------------------------------
+   Section 3
+   Algorithms for trace and output
+-----------------------------------------------------------------------]
+
+                    PIWRT(DT,n)
+[Polynomial interpretation write.
+DT is the data type.
+Then the polynomial interpretation of the n-th polynomial ordering is
+displayed. [WL]]
+     safe DUM1,C,DUM2,O,DUM3.
+(1)  [Init.] DTDIS(DT; DUM1,C,DUM2,O,DUM3); O':=O; C':=C;
+     GETCPO(FIRST(O'),n; c*,m*).
+(2)  [Display configuration.] BLINES(1);
+     STROUT("Polynomial interpretation of the "); IWRITE(n);
+     STOUTL(". polynomial ordering:");
+     STROUT("Choose monomial algorithm: ");
+     case m* of {
+        SDIF do STROUT("Smallest difference of exponents.");
+     };
+     WRITE;
+     STROUT("Change coefficient algorithm: ");
+     case c* of {
+        CLS1 do STROUT("Solution 1 of Ben Cherifa and Lescanne.");
+        CLS2 do STROUT("Solution 2 of Ben Cherifa and Lescanne.")
+     };
+     WRITE.
+(3)  [Display constants.]
+     while C' # () do {
+        ADV(C'; c,C');
+        STROUT("Constant: "); CONWRT(c); WRITE;
+        P:=GETPI(c,n);
+        if P # () then {
+           P:=POLY(P); STROUT("Interpretation");
+           STROUT(": "); IPWRTV(0,P,()); WRITE
+        } else { STOUTL(" is not initialized.") }
+     }.
+(4)  [Display operators.]
+     while O' # () do {
+        ADV(O'; o,O');
+        STROUT("Operator: "); OPWRT(o); WRITE;
+        r:=LENGTH(ODTYPE(o)); V:=();
+        for j=1,...,r do V:=COMP(COMP('x',STRFBI(j)),V);
+        P:=GETPI(o,n);
+        if P # () then {
+           P:=POLY(P); STROUT("Interpretation"); 
+           STROUT(": "); IPWRTV(r,P,V); WRITE
+        } else { STOUTL(" is not initialized.") }
+     } ||
+
+                    PYODIS(DT)
+[Polynomial ordering display.
+DT is the data type. [WL]]
+      safe DUM1,DUM2,DUM3,O,DUM4.
+(1)  [Init.] DTDIS(DT; DUM1,DUM2,DUM3,O,DUM4); O':=O.
+(2)  [Menu.] BLINES(1);
+     STOUTL("Polynomial ordering display.");
+     STOUTL("The following polynomial orderings are installed:");
+     for i=1,...,9 do {
+        if ISNPYO(DT,i) then {
+           STROUT("  "); IWRITE(i); STOUTL(". -- polynomial ordering");
+           O':=COMP(STRFBI(i),O')
+        }
+     };
+     BLINES(1); STROUT("To display an polynomial ordering ");
+     STOUTL("enter the identification number");
+     STOUTL("or 0 to quit display. *");
+     READ; I^:=AREADR();
+     if 0 < I^ /\ I^ < 10  then 
+        if ISNPYO(DT,I^) then { PIWRT(DT,I^); goto 2 }
+     else if I^ # '0' then goto 2 ||

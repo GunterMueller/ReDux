@@ -1,0 +1,18 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/intint
+   modulespecification: intersection of unordered sets of gamma integers
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/lp                       
+]                                                                      
+
+                    C:=INTINT(A,B)                                     
+[Integer intersection. 
+A, B are unsorted sets of gamma integers. 
+Then C is the intersection of A and B.] 
+     safe A', a.
+(1)  A':=A; C:=(); while A' # () do { ADV(A'; a,A');
+     if INTMEM(a,B) then C:=COMP(a,C) }||                         

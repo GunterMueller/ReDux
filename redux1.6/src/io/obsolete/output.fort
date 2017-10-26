@@ -1,0 +1,25 @@
+C*-*-*OUTPUT                                                    
+      SUBROUTINE OUTPUT                                                 
+      IMPLICIT INTEGER (A-Z)                                            
+      COMMON /ZEJECT/EJECT                                              
+      COMMON /ZOBUFF/OBUFF(132)                                         
+      COMMON /ZOPOS/OPOS                                                
+      COMMON /ZOUNIT/OUNIT                                              
+      COMMON /ZPRNTR/PRNTR                                              
+      IF (OPOS.EQ.0) RETURN                                             
+      IF (OUNIT.EQ.PRNTR) GO TO 20                                      
+      WRITE (OUNIT,10) (OBUFF(I),I=1,OPOS)                              
+C Next two lines on: write on logfile 9 if output to terminal.
+      if (OUNIT.ne.6) return
+      write (9,10) (OBUFF(I),I=1,OPOS)
+ 10   FORMAT (132A1)                                                    
+      RETURN                                                            
+ 20   IF (EJECT.EQ.1) GO TO 30                                          
+      WRITE (OUNIT,25) (OBUFF(I),I=1,OPOS)                              
+ 25   FORMAT (1H ,132A1)                                                
+      RETURN                                                            
+ 30   WRITE (OUNIT,35) (OBUFF(I),I=1,OPOS)                              
+ 35   FORMAT (1H1,132A1)                                                
+      EJECT=0                                                           
+      RETURN                                                            
+      END                                                               

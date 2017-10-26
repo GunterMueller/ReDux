@@ -1,0 +1,117 @@
+[Project:  ReDuX Term Primitives
+   module name        : TPCP -- Critical Pairs 
+   modulespecification: Critical pair basic algorithms 
+                        Variables are uniquely defined by their TCONT.
+                        Algorithms taken from tccp0u and tckbt.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen [RB]
+   language           : aldes
+   last change        : same as tccp (r1.3)
+                        $Date: 1994/05/27 13:43:37 $ 
+                        by $Author: buendgen $
+   version:           : $Revision: 1.12 $
+   bugs               : none known
+   modules needed     : sac2/ba, sac2/sy, sac2/lp
+                        tp/tpdd, tp/tpcy, tc/tcu
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+
+[---------------------------------------------------------------------
+     Function to compute the weight of CRITICAL PAIRS
+---------------------------------------------------------------------]
+ 
+const
+     STRATV(CP)=CPMSIZ(CP).
+               [STRATV computes the value of critical pair CP
+                according to the current strategy.]
+
+[--------------------------------------------------------------------- 
+     Section 1.                                                         
+     Constructors and selectors for critical pairs.                     
+-----------------------------------------------------------------------]
+                                                                       
+                    C':=CPCONS(L,R,n1,n2,E)
+[Critical pair constructor.               
+L and R are all terms. n1 and n2 are BETA-digits s.th. n1 and n2
+are the numbers of the parent-axioms of critical pair (L,R). I.e., L and
+R were obtained by applying axioms no n1 and n2, respectively,  to the
+superposition s of these axioms. E = ESS or E = INESS is a label.
+Then C' is the critical pair (L,R) with origination information (n1,n2), 
+essentiallity label E and a weight initialized to 0.]       
+(1)  C':=(0,L,R,n1,n2,E) ||
+                                                                       
+                    CPDIS(C'; L,R,n1,n2,E)                            
+[Critical pair, display function.
+C'  is A critical pair with origination information stored. Then L and R
+are the terms comprising the critical pair (L,R), and  n1  and  n2  are  
+BETA-digits, the numbers of the parent-axioms of (L,R). E is a label 
+denoting wether C' is essential]                                               
+     safe CPDIS.
+(1)  C'':=RED(C'); ADV2(C''; L,R,C''); FIRST3(C''; n1,n2,E) ||
+                                                                       
+[--------------------------------------------------------------------- 
+     section 2.                                                         
+     Measurements for critical pairs.
+-----------------------------------------------------------------------]
+                                                                       
+                    s:=CPSIZ(C')
+[Critical pair, size.
+C' is a critical pair. Then s is the sum of the sizes of the
+left-hand-side and the right-hand-side of C'.]
+     safe CPSIZ.
+(1)  STI:=STI-CLOCK();
+     s:=TSIZE(CPLHS(C'))+TSIZE(CPRHS(C')); STI:=STI+CLOCK() ||
+          
+                    s:=CPMSIZ(C')
+[Critical pair, maximum size.
+C' is a critical pair. Then s is the maximum of the sizes of the
+left-hand-side and the right-hand-side of C'.]
+     safe CPMSIZ.
+(1)  STI:=STI-CLOCK();
+     s:=MAX(TSIZE(CPLHS(C')),TSIZE(CPRHS(C'))); STI:=STI+CLOCK() ||
+               
+                    s:=CPMXTN(C')
+[Critical pair, maximum extent.
+C' is a critical pair. Then s is the maximum of the extents of the
+left-hand-side and the right-hand-side of C'.]
+     safe CPMXTN.
+(1)  STI:=STI-CLOCK();
+     s:=MAX(TXTENT(CPLHS(C')),TXTENT(CPRHS(C'))); STI:=STI+CLOCK()  ||
+
+                    l:=CPLW8(C)
+[Critical pair list, weights.
+C is a list of critical pairs.
+Then the weight information of all critical pairs in C will be updated
+and l is the length of C.]
+
+(1)  [Initialize.] C':=C; l:= 0.
+(2)  [Compute weight for each crit. pair.] while C' # () do
+     { ADV(C'; c',C'); CPW8(c'):=STRATV(c'); l:=l+1 } ||
+
+[--------------------------------------------------------------------  
+     section 3.                                                         
+     Output functions.                                                  
+----------------------------------------------------------------------]
+                                                                       
+                    CPLWRT(L)                                          
+[Critical pair list, write.]                                       
+     safe L',C'.                                                       
+(1)  [Trivial case.] BLINES(1); if L=() then return.
+(2)  [Write header.] BLKW(2); CLOUT("origin"); BLKW(3);
+     CLOUT("weight"); BLKW(4); CLOUT("theorem"); BLINES(2).
+(3)  [Write pairs.] L':=L; while L' # () do                            
+     {ADV(L'; C',L'); CPWRT(C'); WRITE} ||                             
+                                                                       
+                    CPWRT(C')                                          
+[Critical pair, write.]                                                
+     safe CPWRT.                                                       
+(1)  [Initialize.]  CPDIS(C'; L,R,n1,n2,E); w:=CPW8(C').
+(2)  [Write origination information.]  CWRITE('(');
+     if n1 < 10 then CWRITE(' '); AWRITE(n1);
+     CWRIT5(' ','a','n','d',' ');
+     if n2 < 10 then CWRITE(' '); AWRITE(n2); CWRITE(')').
+(3)  [Write weight.] if w < 100 then CWRITE(' '); CWRITE('(');
+     if w < 10 then CWRITE(' '); AWRITE(w); CWRITE(')'); TAB(19).
+(4)  [Write pair of terms.] RRWRT(L,R) ||                              

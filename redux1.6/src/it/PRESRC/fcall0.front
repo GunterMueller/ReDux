@@ -1,0 +1,12 @@
+const
+     ALDESNIL()  = (),
+     ALDESZERO() = 0,
+     ALDESONE()  = 1.
+
+                    r:=FCALL0(f)
+[Call function with 0 arguments.
+f is a beta-integer denoting a constant  function F.
+Then r is the result of calling F().]
+
+(1)  [Dispatch.] case f of
+     { [ <i> do r:=<function nu. i>();]

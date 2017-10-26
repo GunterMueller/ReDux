@@ -1,0 +1,30 @@
+#!/bin/sh
+
+ AWK=AWK
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+RDX=RDX
+#^^^^^^^          Only to be modified by the ReDuX
+#                 installation make file!
+
+B2RDIR=$RDX/tool/Blif2rdx # Directory with Blif-to-ReDuX conversion tools.
+
+if [ $# -eq 0 ] 
+   then
+      echo "usage: blif2typ [-l ISIZE] filename"
+      exit
+   fi
+ISIZE=80
+if [ $# -eq 1 ]
+   then
+      blifname=`basename $1 .blif`
+   fi
+if [ $# -eq 3 ]
+   then
+      ISIZE=$2;shift;shift
+      blifname=`basename $1 .blif`
+   fi
+($AWK -f $B2RDIR/preblif.awk $1;
+$AWK -f $B2RDIR/blif2typ.awk $blifname.PRE;
+$AWK -f $B2RDIR/postblif2typ.awk ISIZE=$ISIZE $blifname.2AS)
+rm $blifname.PRE $blifname.2AS

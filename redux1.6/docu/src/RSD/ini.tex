@@ -1,0 +1,101 @@
+\section{ReDuX System Initalization: The INI-Subsystem}
+\label{se:ini} %\label{ss:tpbgn}
+
+The \redux\ subsystem {\em ini} contains procedures needed to
+initialize the \redux\ system.
+
+The system initialization routine BGNRWD must be called at the beginning of
+\index{system initialization}
+each ReDuX program.
+Depending on its argument it calls the initialization routines 
+of other SAC-2 subsystems
+\index{SAC-2}
+including at least the basic- ({\tt bs}), the list processing- ({\tt lp})
+and the symbol processing systems ({\tt sy}).
+Optionally the SAC-2 arithmetic-, - polynomial-, - polynomial factorization- 
+and the \redux\ interpreter systems (see Section~\ref{se:it})
+can be initialized (ISTINI).
+
+BGNRWD also opens a file from which the \redux\ program expects to read
+a data type.
+The default name of this file is {\it program-name}{\tt .in}.
+It may be overwritten by the first command line argument.
+In addition BGNRWD opens a file on which the current session is recorded.
+The default name of this file is {\it program-name}{\tt .log}.
+It may be overwritten by the last command line argument.
+Note that if the interpreter system is initialized by BGNRWD
+then a file is opened that contains symbol table entries for each algorithm 
+to be callable by the interpreter (cf.\ Section~\ref{se:it}).
+By default this file is called {\it program-name}{\tt .algos} unless it
+is overwitten by the second command line argument.
+
+Then BGNRWD initializes the global symbol table of grammar symbols 
+\index{symbol table, global}
+\index{symbol!grammar}
+(see Table~\ref{tb:sym}).
+The interpreter initialization also defines a new global vaiable DAK.
+With the new parser it initializes further variables calling the routine
+ITGLPR (see \NPPG).
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+ \hline
+ symbol name & print name & kind & meaning\\
+ \hline\hline
+  DAC        & ``AC''     & grammar symbol & AC-unification status \\
+  %DAK        &            & indicator      & algorithm key (interpreter) \\
+  DAS        & ``AXIOMS'' & grammar symbol & axiom symbol \\
+  DAV        & ``ARGVAR'' & indicator      & variable of argument type \\
+  DCB        & ``)''      & grammar symbol & closing bracket \\
+  DCM        &            & grammar symbol & comment symbol \\
+  DCO        & ``COM''    &  grammar symbol & commutative-unification status \\
+  DCR        & ``ROUND''  & indicator      & $2^{nd}$ roundfix 
+                                             operator symbol \\
+  DCS        & ``CONST''  & grammar symbol & constant symbol \\
+  DEF        & ``PREFIX'' & property       & operator notation: prefix \\
+  DES        & ``END''    & grammar symbol & end symbol \\
+  DFS        & ``FIX''    & indicator      & operator notation \\
+  DIF        & ``INFIX''  & property       & operator notation: infix \\
+  DIS        & ``POLY''   & indicator      & polynomial interpretation \\
+  DLF        & ``LISP''   & property       & operator notation: Lisp \\
+  DLS        & ``--''     & grammar symbol & link symbol \\ 
+  DNS        & ``:''      & grammar symbol & enumeration symbol \\  
+  DOB        & ``(''      & grammar symbol & opening bracket \\ 
+  DOS        & ``OPS''    & grammar symbol & operator symbol \\  
+  DPF        & ``POSTFIX'' & property       & operator notation: postfix \\
+  DPS        & ``==''     & grammar symbol & production symbol \\   
+  DRF        & ``ROUNDFIX'' & property       & operator notation: roundfix \\
+  DRS        & ``,''      & grammar symbol & repeater symbol \\    
+  DSH        & ``HASH''   & indicator      & suitable for hashing \\
+  DSS        & ``.''      & grammar symbol & separator symbol \\     
+  DST        & ``CSBTERM'' & indicator     & constrained subterms \\
+  DTS        & ``TYPE''   & grammar symbol & type symbol \\      
+  DUS        & ``USTAT''  & indicator      & unification status \\
+  DVS        & ``VARS''   & grammar symbol & variable symbol \\      
+  %DXDA       & ``XDEC''   & indicator      & ext.\ type decomposition \\
+  DXCN       & ``XCONSTRUCTORS'' & indicator & ext.\ type constructors \\
+  DXCO       & ``COERC''  & indicator      & ext.\ type coercion operator \\
+  DXFG       & ``XFG''    & indicator      & ext.\ type free generator algo. \\
+  DXIA       & ``XINT''   & indicator      & ext.\ type interpretation \\
+  DXLA       & ``XLT''    & indicator      & ext.\ type less-than algo. \\
+  DXQA       & ``XEQ''    & indicator      & ext.\ type equal algorithm \\
+  DXRA       & ``XREAD''  & indicator      & ext.\ type read algorithm \\
+  DXTA       & ``XTERM''  & indicator      & term from ext.\ object algo. \\
+  DXWA       & ``XWRITE'' & indicator      & ext.\ type write algorithm \\
+  DXR        & ``EXT.RULE'' & indicator    & extension rule \\
+  DXT        & ``EXTERNAL'' & grammar symbol & external term symbol \\
+  KIND       &            & indicator      & symbol kind \\
+  IDENT      &            & property       & kind: identifier \\
+  XIDENT     &            & property       & kind: extraordinary identifier \\
+  INT        &            & property       & kind: integer \\
+  GRSYM      &            & property       & kind: grammar symbol \\
+  FLAT       &            & indicator      & external name \\
+  \hline
+\end{tabular}
+\caption{Global symbols initialized by BGNRWD} \label{tb:sym}
+\end{center}
+\end{table}
+
+The routine SCONS called by BGNRWD constructs a symbol and stores its
+string under indicator FLAT.

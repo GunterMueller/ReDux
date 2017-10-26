@@ -1,0 +1,126 @@
+\section{The ReDuX System}
+
+The ReDuX\footnote{ReDuX is not really an acronym. It is a mixture of the
+words `reduce' and `redex' and is the result of a brain storming of the author
+and Wolfgang K\"{u}chlin --- it just sounds good.}  
+system is written in the \ALDES\ language 
+(\cite{Loos:76,Loos:91,LoosCollins:92}) 
+\index{ALDES}
+and uses the 
+low level modules of the SAC-2 computer algebra system (\cite{Collins:80}).
+\index{SAC-2}
+
+ReDuX is based on the TC- and IC-systems.
+The TC-system is an implementation of the Knuth-Bendix completion
+procedure by K\"{u}chlin (\cite{Kuechlin:82a}).
+The IC-system (\cite{Buendgen:87}) is an induction prover based on 
+the inductive completion procedure described in \cite{Kuechlin:89}.
+Several other programs of the author and some other programmers have also been 
+included in ReDuX. 
+A first overview of the ReDuX system was given in \cite{Buendgen:91b}.
+A short system description can be found in \cite{Buendgen:93}.
+
+As the SAC-2 system, ReDuX consists mainly of a collection of \ALDES\ procedures
+meant to be a tool box for implementing programs in the term rewriting area.
+In addition, several applications have been implemented using this tool box.
+
+The ReDuX system consists of the following eleven subsystems:
+\index{subsystem}
+\begin{quote}
+\begin{tabbing}
+ {\bf oo} \underline{co}mbinatorial algorithmsxxxxxxxxxxxxxx, \= \kill
+ {\bf io} \underline{i}nput-\underline{o}utput primitives, \>
+ {\bf ax} \underline{a}u\underline{x}iliary algorithms, \\
+ {\bf ini} ReDuX system \underline{ini}tialization, \>
+ {\bf tio} \underline{t}erm \underline{i}nput-\underline{o}utput \\
+ {\bf it} \underline{i}n\underline{t}erpreter \>
+ {\bf tp} \underline{t}erm \underline{p}rimitives, \\
+ {\bf co} \underline{co}mbinatorial algorithms, \>
+ {\bf to} \underline{t}erm \underline{o}rderings, \\
+ {\bf tc} \underline{t}erm \underline{c}ompletion, \>
+ {\bf ic} \underline{i}nductive \underline{c}ompletion, \\
+ {\bf ev} \underline{ev}aluation domains, \>
+ {\bf ac}({\bf n}) \underline{AC} completion (\underline{n}ew), \\
+ {\bf rd} \underline{r}andom term generation, \>
+ {\bf uc} \underline{u}nfailing \underline{c}ompletion \\
+\end{tabbing}
+\end{quote}
+all of which consist of some modules implementing abstract data types or
+certain complex algorithms.
+Only six subsystems include applications and will therefore be 
+mentioned independently as the ReDuX-TO, -TC, -IC, -AC, -TRD, -EV and
+-UC systems.
+Table~\ref{ta:subsys} lists the subsystems together with their call 
+dependencies, authors and documentation other than on-line documentation.
+\begin{table}[hbp]
+ \centering
+ \begin{tabular}{|l|p{2.9cm}|p{3.6cm}|p{4.6cm}|}
+  \hline
+  subsystem & calls to & authors & documentation \\ \hline\hline
+    io &           & Walter                   &                      \\ \hline
+    ax & SAC-2-low & B\"{u}ndgen              &                      \\ \hline
+    co & SAC-2-low & B\"{u}ndgen              & (\cite{Buendgen:87}) \\ \hline
+    ini & SAC-2    & B\"{u}ndgen              &       \\ \hline
+    it &  SAC-2 (ev/ED) &  B\"{u}ndgen              &  \\ \hline
+    tio & SAC-2-low, ax & B\"{u}ndgen, K\"{u}chlin, Sinz 
+                                              & \cite{SinzBuendgen:95} \\ 
+                                                 \hline
+    tp & tio & K\"{u}chlin, B\"{u}ndgen & 
+                                                \cite{Kuechlin:82a},
+                                                \cite{Buendgen:87},
+                                                \cite{Buendgen:91b}
+                                                %\cite{Wendel:93} 
+                                                \\ \hline
+    to & SAC-2, tp & B\"{u}ndgen, K\"{u}chlin, Joswig, Lauterbach,
+                          Schw\"{a}rzler, Wendel &  
+                                              \cite{Kuechlin:82a},
+                                              \cite{Joswig:90},
+                                              \cite{Schwaerzler:86},
+                                              \cite{Buendgen:91b} \\ \hline
+    tc & to & K\"{u}chlin, B\"{u}ndgen & \cite{Kuechlin:82a}, 
+                                                \cite{Kuechlin:86}, 
+                                                \cite{Buendgen:91b} \\ \hline
+    ic & co, tc & B\"{u}ndgen, Eckhardt & \cite{Buendgen:87},
+                                              \cite{Buendgen:91b},
+                                              \cite{Eckhardt:91} \\ \hline
+    ac & tc, it, co      & B\"{u}ndgen &  \cite{Buendgen:91b} \\ \hline
+    ev & it, tp          & B\"{u}ndgen, Lauterbach & \\ \hline
+    acn & tc, ev, co     & B\"{u}ndgen & \\ \hline
+    rd & SAC-2, tp & Walter & \\ \hline
+    uc & tc & B\"{u}ndgen, Hoss, Mayer, Sinz & on line documentation \\ \hline
+ \end{tabular}
+ \caption{The ReDuX subsystems} \label{ta:subsys}
+\end{table}
+
+Table~\ref{ta:dem} gives an overview of the application (or demo) programs
+\index{demo program}
+belonging to ReDuX.
+\begin{table}
+ \centering
+ \begin{tabular}{|c|c|p{9.5cm}|}
+  \hline
+  program & subsystem & program description \\ \hline\hline
+   TO & to & test environment for term orderings \\ \hline
+   TC & tc & Rewrite laboratory including Knuth-Bendix completion 
+             procedures with and without critical pair criteria
+             (subconnectedness and/or transformation criteria) \\ \hline
+   TS & ic &  (pruned) top set, (pruned) top set tree,
+              ground normal form grammar computation 
+              algebra separation \\ \hline 
+   IC  & ic & inductive completion laboratory \\ \hline
+   AC   & ac & rewrite laboratory for term rewriting systems \\
+        &    & with (associative-)commutative and
+               external operators. \\ \hline
+   EV   & acn & like AC, with momoization and partial evaluation domain 
+                support \\ \hline
+   TRD & rd & Generator for random terms \\ \hline
+   UC  & uc & unfailing completion \\ \hline
+ \end{tabular}
+ \caption{The ReDuX demo programs} \label{ta:dem}
+\end{table}
+A description of these programs from a user's point of view can be found in
+\RUD.
+This not does {\em not} yet include the documentation of the UC-system
+which is so far considered experimental.
+For the documentation of the UC-system see the documentation accompanying
+the code.

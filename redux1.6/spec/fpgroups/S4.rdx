@@ -1,0 +1,21 @@
+DATATYPE S4;
+SORT
+	S4;
+CONST
+	0, x, y: S4;
+VAR
+	A, B, C: S4;
+OPERATOR
+	+: S4, S4 -> S4;
+	I: S4 -> S4;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(I(A),A)==0;
+[3] +(+(A,B),C)==+(A,+(B,C));
+[4] +(x,+(x,x))==0;
+[5] +(y,+(y,+(y,y)))==0;
+[6] +(x,+(y,+(x,y)))==0 ;
+END
+; This file is S4.typ 

@@ -1,0 +1,18 @@
+DATATYPE PEANOL;
+SORT
+	PEANOL;
+CONST
+	0: PEANOL;
+VAR
+	A, B, C, D, E: PEANOL;
+OPERATOR
+	+: PEANOL, PEANOL -> PEANOL;
+	S: PEANOL -> PEANOL;
+NOTATION
+	+, S: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(S(B),A)==S(+(B,A));
+[3] +(+(A,A),B)==+(A,+(A,B)) ;
+END
+;This file is ppeano.typ

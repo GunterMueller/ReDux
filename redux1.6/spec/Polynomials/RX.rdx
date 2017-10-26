@@ -1,0 +1,54 @@
+%%  comment symbol
+DATATYPE RX;
+%%  AUTHOR Reinhard Buendgen
+%%  ORIGIN Reinhard Buendgen: Term Completion versus Algebraic Completion
+%%  ORIGIN PhD-thesis, 1991, Spec. 5.1
+%%  DESCRIPTION 3-variate polynomials (distributive representation)
+%%  STATUS incomplete
+%%  in order to complete automatically call (Unix / ReDuX 1.4)
+%%  % cp <typ-path>Polynomials/RX.rdx <demo-path>ac.in
+%%  % cd <demo-path>
+%%  % cat <typ-path>Polynomials/RX-\>RXC.in | ac
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1: KOEF;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	-: KOEF -> KOEF;
+	.: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+NOTATION
+	M: FUNCTION;
+PREC
+        + < * ;
+        # < @;
+THEORY
+	+, *, ., #, @: AC;
+AXIOM
+  [1] 0 + a == a;
+  [2] 1 * a == a;
+  [3] a + -a == 0;
+  [4] a * (b + c) == a * b + a * c;
+  
+  [5] x . I == x;
+  
+  [6] M(a,x) # M(b,x) == M(a + b,x);
+  [7] M(a,x) @ M(b,y) == M(a * b,x . y);
+  [8] p # O == p;
+  [9] p @ M(1,I) == p;
+ [10] p @ (q # r) == p @ q # p @ r;
+ [11] p # p @ M(-1,I) == O;
+END
+
+
+

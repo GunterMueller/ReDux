@@ -1,0 +1,84 @@
+\section{The RD-Subsystem}
+\label{se:rd}
+
+The ReDuX random term generation program consists of several files:
+\begin{itemize}
+\item {\tt rd.h} which contains declarations of global
+   variables and some macro definitions.
+\item {\tt trand.ald} holds the algorithms for initializing
+   the signature descriptor variables, the global data arrays, for
+   mapping natural numbers to terms and to compute random terms.
+\item {\tt trd.front}, {\tt trd.end} and {\tt trdsub.ald} contain the main
+   algorithm for the ReDuX random term generation demo program and some
+   algorithms for generating sequences of random terms (which can be
+   written to a file) and for making statistics.
+\end{itemize}
+
+To use the the random term generator, several things need to be done:
+\begin{enumerate}
+\item {\tt rd.h} must be included within the main program to
+   define the global variables in the main algorithm. If any of the
+   global variables or macro definitions are used outside the main
+   algorithm, {\tt rd.h} must additionally be included outside
+   the main algorithm before the first occurrence of a global variable
+   or macro. Appropriate values for {\tt STACK}-- and {\tt SPACE}--size
+   have to be chosen.
+\item The ReDuX-system (including the {\tt it}-module) must be
+   initialized by a call to {\tt BGNRWD} with an argument greater than
+   or equal to 5.
+\item The signature descriptor variables must be initialized. This is
+   done by a call to the function {\tt SDINIT} which has one argument,
+   the ReDuX data type as returned by {\tt DTPRS}.
+\item The global variable {\tt DIPOS} (data initialized for number of
+   positions) has to be set to $0$.  (It contains the number of
+   positions up to which the global data arrays are initialized.) The
+   global variable {\tt DIDPT} (data initialized for depth) has to be
+   set to $-1$. (It contains the depth up to which the global data arrays
+   are initialized.)
+\item The global variable {\tt TGTRC} (term generation trace) must be
+   initialized to 0 (no term generation trace) or 1 (the term
+   generation trace is turned on).
+\end{enumerate}
+
+After those mandatory initializations, the further initializations
+depend on the algorithms to be used:
+\begin{itemize}
+\item If the high-level random term generation routines {\tt TRANDE}
+   ({\tt TRANDD}) are used, nothing else must be initialized. They
+   are called with one argument, the maximal extent (depth) the
+   random term should have.
+\item If the algorithm {\tt NT2TE}  is called explicitly, the global
+   arrays must be initialized by a call to {\tt GDINIM} (global data
+   initialization, show statistical messages).  Either the largest
+   number of positions {\tt p} of the terms to be computed or the
+   largest number {\tt n} which should be mapped to a term is known.
+   In the former case, the globals arrays are initialized with {\tt
+   GDINIM(p,0,0)}. In the latter case the global arrays are initialized
+   with {\tt GDINIM(IADD(n,1),0,1)}.
+\item If the algorithm {\tt NT2TD}  is called explicitly, the global
+   arrays must be initialized by a call to {\tt GDINIM} (global data
+   initialization, show statistical messages).  Either the largest
+   depth {\tt d} of the terms to be computed or the largest number {\tt
+   n} which should be mapped to a term is known.  In the former case,
+   the globals arrays are initialized with {\tt GDINIM(d,1,0)}. In the
+   latter case the global arrays are initialized with {\tt
+   GDINIM(IADD(n,1),1,1)}.
+\end{itemize}
+The advantage of a direct call to {\tt NT2TE} ({\tt NT2TD}) is a slight
+(usually negligible) increase in performance. For an example of a direct
+call, look at the algorithms {\tt TRGENE} ({\tt TRGEND}) in file {\tt
+trdsub.ald}. It can be copied to other programs if step 6 is
+replaced by suitable statements. The random term generation program
+allows to compare both possibilities by using the menu items {\tt r}
+and {\tt R}. The difference between the two algorithms is rather
+small.
+
+The variables in a term returned by {\tt NT2TE} and {\tt NT2TD} (and
+subsequently {\tt TRANDE} and {\tt TRANDD}) which have the same {\tt
+TKIND}--field are not independent, i.\,e.\ they share the same {\tt
+TCONT}--field. To get terms with independent variables, the generated
+terms can either be copied using algorithms from the {\tt
+tpcy}--module, written to a file and read-in by another program or step
+2 in algorithm {\tt NT2T2E} ({\tt NT2T2D}) can be modified to return
+variables with distinct {\tt TCONT}--fields.
+

@@ -1,0 +1,10 @@
+                     T:=FCOMP(T1,p,T2) 
+[Form composition. 
+T1 and T2 are formulas or terms in internal prefix representation. 
+p is an operator symbol. 
+If p is unary then T1 is undefined. T is the prefix form of p with 
+operands T1 and T2.] 
+    const NOTS=10, MINUS=21, EXP=25. 
+(1) [Form prefix.] if p=NOTS\/p=MINUS\/p>EXP then T:=(p,T2) else 
+    T:=(p,T1,T2)|| 
+ 

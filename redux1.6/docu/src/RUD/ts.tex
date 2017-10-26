@@ -1,0 +1,190 @@
+\section{Ground Normal Form Analysis}
+The {\tt ts} demo program allows to analyze the set of ground normal 
+forms of an algebraic specification described by a term rewriting system.
+It works for left-linear term rewriting systems and
+{\em well-behaved} non-left-linear systems.
+In case of a method failure a warning is output.
+The program further assumes that for each sort occurring in the data
+type at least one variable is declared.
+
+\subsection{The Main Menu}
+After reading an algebraic specification, the program shows the main
+menu:
+
+\begin{quote}
+\begin{verbatim}
+You have the following choices: 
+ 
+  l - compute a top set tree (by levels),
+  p - compute a pruned top set tree,
+  i - interleaved top set tree computation,
+  d - display data type,
+  s - show times and counters,
+  r - reset times and counters,
+  m - reclaim memory,
+  t - set/unset trace options
+  h - help, print menu
+  q - quit.
+[l/p/i/d/s/r/m/t/h/q] *
+\end{verbatim}
+\end{quote}
+
+\begin{itemize}
+\item{\bf Compute Top Set Tree (by Levels) (l)}\\
+This allows the computation of top set trees.  See Section~\ref{TopSetTrees}.
+
+\item{\bf Compute Pruned Top Set Tree (p)}\\
+This algorithm performs the same tasks as the previous one, except that 
+it computes pruned top set trees and pruned top sets described in
+\cite{Buendgen:91b}, \cite{Eckhardt:91}, \cite{BuendgenEckhardt:92}.
+
+\item{\bf Interleaved Top Set Tree Computation (i)}\\
+This menu item allows the computation of top set trees in an interleaved
+way.  See Section~\ref{InterleavedTopSetTrees}.
+
+\item{\bf Display Data Type (d)}\\
+The program displays the current data type.
+
+\item{\bf Show Times and Counters (s)}\\
+The counters (number of matches, created top set nodes, reductions 
+and unifications) and
+the timers (cpu-time used so far, cpu-time spent for ground reduction
+tests, matching, reduction and unification) are displayed.
+Furthermore, the number of available cells in {\tt SPACE} is shown.
+
+\item{\bf Reset Times and Counters (r)}\\
+The counters and timers are reset, either altogether or selectively.
+
+\item{\bf Reclaim Memory (m)}\\
+The number of available cells in {\tt SPACE} is displayed. Then
+the garbage collector is started. The garbage collector prints the
+number of available cells after execution.
+
+\item{\bf Set/Unset Trace Options (t)}\\
+Five traces can be selected, namely the counter example trace, the
+substitution trace, the procedure name trace, the tree extension trace 
+and the node deletion trace. A description of these traces is given in
+Appendix~\ref{Traces}.
+
+\item{\bf Help, Print Menu (h)}\\
+This item prints the main menu. It can be useful if the program
+displays the short form  of the main menu.
+
+\item{\bf Quit (q)}\\
+The program can be stopped by selecting this menu item.
+\end{itemize}
+
+\subsection{Computing (Pruned) Top Set Trees}
+\label{TopSetTrees}%
+If the menu item ``compute top set tree (by levels)'' has been 
+selected, the program computes \(d\)-top sets $GR_{\cal R}(d)$, top set 
+trees and ground normal form grammars (GNF grammars) for
+the the given algebra according to \cite{Buendgen:91},
+\cite{BuendgenEckhardt:92}.
+
+The user must enter the deepest level of the top set tree.
+Usually the depth of the
+deepest left-hand side in the set of rewrite rules is be  chosen.
+If the chosen level is too small, it is possible that a node of the computed
+top set tree is constrained.
+
+If the top set tree is unconstrained, the program prints the computed 
+top set 
+
+\begin{quote}
+\begin{verbatim}
+Topset: 
+0 / OPP(SUCC(0)) / OPP(SUCC(SUCC(A))) / SUCC(SUCC(0)) /
+                                              SUCC(SUCC(SUCC(A))) / SUCC(0) /
+Top set size is 6.
+\end{verbatim}
+\end{quote}
+
+and the top set tree.
+For each node the corresponding label is printed, starting with the root
+at the left margin.
+The  child of a node is shifted two positions to the right-hand side.
+
+\noindent
+{\bf Example:} (In this example, the data type {\tt spec/canopp.rdx} is used.)
+\begin{quote}
+\begin{verbatim}
+Prefix Traversal: 
+A
+  SUCC(A)
+    SUCC(0)
+    SUCC(SUCC(A))
+      SUCC(SUCC(SUCC(A)))
+      SUCC(SUCC(0))
+  OPP(A)
+    OPP(SUCC(A))
+      OPP(SUCC(SUCC(A)))
+      OPP(SUCC(0))
+  0
+\end{verbatim}
+\end{quote}
+
+Then the GNF grammar is output by the program:
+\begin{quote} 
+\begin{verbatim}
+GNF grammar for data type OP
+<OP> ::= <A>
+<SUCC(A)> ::= SUCC(<SUCC(A)>)  |
+     SUCC(0)
+<A> ::= 0  |
+     OPP(<SUCC(A)>)  |
+     SUCC(<SUCC(A)>)  |
+     SUCC(0)
+\end{verbatim}
+\end{quote}
+
+In the grammar, the usual meta symbols are used, {\tt ::=} is the
+production symbol, nonterminal symbols are enclosed in \verb+<+ \verb+>+ and 
+alternatives are separated by \verb+|+.
+
+If the top set tree is constrained, the program prints the labels of
+the constrained nodes:
+\begin{quote}
+\begin{verbatim}
+OPP(A) is constrained!
+\end{verbatim}
+\end{quote}
+Then it prints the top set tree. The output of a GNF grammar is omitted.
+
+\subsection{Interleaved Top Set Trees Computation}
+\label{InterleavedTopSetTrees}
+The procedure for interleaved top set trees partitions the signature of an 
+algebraic
+specification into a set of {\em free constructors} and {\em defined function
+symbols} according to the algebra separation algorithm in 
+\cite{BuendgenKuechlin:89}, \cite{Buendgen:91b}, \cite{Eckhardt:91},
+\cite{BuendgenEckhardt:92}.
+
+\noindent
+{\bf Example:}
+\begin{quote}
+\begin{verbatim}
+Data type composition:
+constructors: 
+0: OP
+SUCC: OP -> OP
+OPP: OP -> OP
+defined function symbols: 
++: OP, OP -> OP
+\end{verbatim}
+\end{quote}
+
+Then it computes the ground reduction test set of the given algebra.
+\begin{quote}
+\begin{verbatim}
+ground reduction test set: 
+SUCC(0)
+SUCC(SUCC(SUCC(A)))
+SUCC(SUCC(0))
+OPP(SUCC(SUCC(A)))
+OPP(SUCC(0))
+0
+\end{verbatim}
+\end{quote}
+
+Subsequently it prints the top set tree and the GNF grammar.

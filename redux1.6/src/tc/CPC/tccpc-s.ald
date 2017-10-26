@@ -1,0 +1,117 @@
+[Project:  ReDuX Term Completion
+   module name        : TCCPC-S -- Critical Pair iComputation
+                                   with Subconnectedness criterion
+   modulespecification: Critical pair computation algorithms with 
+                        confluence criterion (as in tccp2), but 
+                        variables are uniquely defined by their TCONT.
+                        Formerly tccp2u.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen [RB]
+   language           : aldes
+   last change        : 2.7.90
+                        RSDCPS added (r1.2)
+                        $Date: 1994/12/21 20:14:20 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.9 $
+   bugs               : none known
+   modules needed     : sac2/bas, sac2/sy, sac2/lp
+                        tp/tpdd, tp/tpcy, tc/tcu, tc/tckbq
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+
+[---------------------------------------------------------------------
+     Section 1.  Algorithms for Export
+----------------------------------------------------------------------]
+
+                    C*:=ASCPSU(A,a)
+[Set of axioms, set of unconnected critical pairs.
+a  is  an axiom. A=(a sub 1, ..., a sub n) is A set of axioms s.th.
+for any two axioms in A all critical pairs are connected. Then C* is the
+set of all unconnected critical pairs of a and a, and of axioms  in  A
+and  a,  where  for  each pair of a and a sub i in A, 1 <= i <= n,
+connectedness may be established by creating a stepping stone  with  the
+help of any a sub j s.th. j < i. ]
+     safe A',a'.
+(1)  [Initialize.] C*:=(); A':=A; R':=().
+(2)  [Loop.] while A' # () do
+     {ADV(A'; a',A'); C*:=CONC(ACPSU(R',a',a),C*); R':=COMP(a',R')}.
+(3)  [Intrinsic critical pairs.] C*:=CONC(AICPSU(R',a),C*) ||
+ 
+                    C':=RSDCPS(R)
+[Rule set, divergent critical pairs with subconnectedness criterion.
+R is a set of terminating  rules.
+Then C' is the set of all non-conluent R-normalized critcal pairs
+between rules in R for which the subconnectedness criterion does not
+apply.]
+
+(1)  [Initialize.] R':=RED(R); R*:=LIST1(FIRST(R)); C':=().
+(2)  [Compute critical pairs.] while R' # () do
+     { ADV(R'; r,R'); C0:=ASCPSU(R*,r); R*:=COMP(r,R*);
+       CPNLNF(C0,R; C1,s0,s1); C':=CONC(C',C1)
+     } ||
+
+[---------------------------------------------------------------------
+     Section 2.  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    C:=ACPSU(R,a1,a2)                                
+[Axioms, set of unconnected critical pairs.                            
+Both  a1 and a2 are axioms, a1 # a2. R=(a' sub 1, ..., a' sub n)
+is a set of axioms s.th. for all a'  sub  i,  1  <=  i  <=  n,  all
+critical  pairs  of  a1  and  a'  sub  i,  and a2 and a' sub i are
+connected. Then C is the set of those critical  pairs  of  a1  and  a2
+which  cannot  be connected through pairs with R as parent.]
+     safe n1,L1,V1,R1,n2,L2,V2,R2,U,b1,b2,b,i.                
+(1)  [Initialize.] C:=(); ADIS(a1; n1,L1,V1,R1,b1);
+     ADIS(a2; n2,L2,V2,R2,b2); if b1=1 then b:=1 else b:=b2.
+(2)  [Critical pair at top position.] U:=TNMGCI(L1,L2,b);
+     if U # () then [ U = L1m =L2m.]
+     { i:=TNASMS(L1,R); if i=0 then                                    
+      { [Copy R2m and R1m.] TRPCVS(R1,R2; c1,c2,V_0);
+       C:=COMP(CPCONS(c1,c2,n1,n2,ESS),C)} else CC:=CC+1 };
+     UNDO(V1); UNDO(V2).
+(3)  [Critical pairs at proper subterms of L2.]                        
+     C:=CONC(C,ACPSU1(R,b,n2,L2,V2,R2,L2,n1,L1,V1,R1)).
+(4)  [Critical pairs at proper subterms of L1.]                        
+     C:=CONC(C,ACPSU1(R,b,n1,L1,V1,R1,L1,n2,L2,V2,R2)) ||           
+
+                    C:=ACPSU1(R,b,N1,L1,V1,R1,l1,n2,l2,v2,r2)    
+[Axioms, set of unconnected critical pairs, subalgorithm.              
+Both (N1,L1,V1,R1) and (n2,l2,v2,r2) are axioms. l1 is a non-atomic
+subterm  of L1. b=0 if  none  of the  axioms is left-linear, b=1 
+otherwise. R=(a sub 1, ..., a sub n) is a set of axioms s.th. for all 
+a sub i, 1 <= i <= n, all critical pairs of the input axioms and 
+a sub i are connected. 
+Then C is the set of those critical pairs which are obtained by 
+superposing l2  on  every proper  subterm of l1, and which cannot be 
+connected through pairs with R as parent.]                                                          
+     safe R,b,N1,n2,L1,V1,R1,l2,v2,r2,l',t,t',U,k,i.
+(1)  [Initialize.] C:=(); l':=TSIGN(l2).
+(2)  [Process subterms of l1.] L':=OARGLST(l1); while L' # () do       
+     {    t:=FIRST(L'); k:=TKIND(t); if k=DOS then                    
+      {   t':=TSIGN(t); if t'=l' then                                
+       {  UTI:=UTI-CLOCK(); U:=TNRMCI(t,l2); UTI:=UTI+CLOCK(); UC:=UC+1;
+        if U # () then [ U = tm =l2m.]
+        { i:=TNASMS(L1,R); if i=0 then                                 
+          { [Copy L1[L'<-r2]m and r1m.] t^:=t; FIRST(L'):=r2;
+            TRPCVS(L1,R1; c2,c1,V_0); FIRST(L'):=t^;
+          t^:=CPCONS(c2,c1,n2,N1,ESS); C:=COMP(t^,C)} else CC:=CC+1 };
+        UNDO(V1); UNDO(v2)  };
+       C:=CONC(C,ACPSU1(R,b,N1,L1,V1,R1,t,n2,l2,v2,r2))   };
+      L':=RED(L')    } ||                                              
+
+                    C:=AICPSU(R,a)                                   
+[Axiom, set of unconnected intrinsic critical pairs.                   
+a  is  an axiom. R=(a sub 1, ..., a sub n) is a set of axioms s. Th.
+For all a sub i, 1 <= i <= n, all critical pairs of a and a sub i
+are connected. Then C is the set  of  those  critical  pairs  which  are
+obtained  by  superposing  the  left-hand-side  of  a  on itself at all
+non-trivial subterms, and which cannot be connected through pairs with R
+as parent.]
+     safe l,v',r,b,l_,v_,r_,n.                                  
+(1)  [Initialize.] a_:=ACOPY(a);
+     ADIS(a; n,l,v',r,b); ARDIS(a_; l_,v_,r_).
+(2)  [Critical pairs at subterms.]                                     
+     C:=ACPSU1(R,b,n,l,v',r,l,n,l_,v_,r_) ||                 

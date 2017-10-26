@@ -1,0 +1,25 @@
+#csh
+
+set RDX=RDX                 # ReDuX directory
+#   ^^^^^^^                   Only to be modified by the ReDuX 
+#                             installation make file!
+set RDXB=$RDX/bin           # ReDuX binaries
+
+set AWK=AWK                 # awk tool
+#   ^^^^^^^                   Only to be modified by the ReDuX 
+#                             installation make file!
+
+rm -f toc.tmp
+echo >!  toc.tmp # need if shell variable noclobber is set otherwise redundant
+foreach i ($argv)
+ if ($i !~ *.ald) then
+   set i=($i.ald)
+ endif
+ $AWK -f $RDXB/toc.awk $i >> toc.tmp
+end
+< toc.tmp  sed s/\;\ /\+/ | \
+ $AWK -F= '{if (NF == 3) {print $3" "$2" "$3" "$1} else {print $2" "$2" "$1} }' \
+ | sed  -e "s/\:/\:\=/" -e "s/\ *\ /\ /g" -e "s/^\ //"  |  sort  | \
+ $AWK '{I=2; while (I<NF) {printf("%s", $I); I++ }; printf("  %s\n", $NF) }' \
+ | $AWK '{printf("%-50s : %s\n", $1, $2)}' | sed s/\+/\;/
+rm -f toc.tmp

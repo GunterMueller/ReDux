@@ -1,0 +1,23 @@
+DATATYPE Z3;
+SORT
+	Z3;
+CONST
+	0, 1, 2: Z3;
+VAR
+	A, B, C: Z3;
+OPERATOR
+	+: Z3, Z3 -> Z3;
+	I: Z3 -> Z3;
+	S: Z3 -> Z3;
+NOTATION
+	+, I, S: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(I(A),A)==0;
+[3] +(+(A,B),C)==+(A,+(B,C));
+[4] +(S(A),B)==S(+(A,B));
+[5] S(0)==1;
+[6] S(1)==2;
+[7] S(2)==0;
+END
+; This file is  Z3.TYP

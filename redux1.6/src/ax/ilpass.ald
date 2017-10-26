@@ -1,0 +1,23 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/ilpass
+   modulespecification: associate gama integer in list pair
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   status             : 
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+]                                                                      
+  
+                    L*:=ILPASS(l,L1,L2)
+[Integer associate in list pair.
+l is a gamma integer. L1 = (l1 sub 1, ..., l1 sub n) is a list and 
+L2 = (l2 sub 1, ... , l2 sub n) is a list.
+Then L* = l2 sub i if i is the smallest index s. th. l = l1 sub i.]
+     safe ILPASS.
+(1)  [Initialize.] L*:=(); L*1:=L1; L*2:=L2.
+(2)  [Loop through L1.] while L*1 # () do
+     {ADV(L*1; l1,L*1); ADV(L*2; l2,L*2);
+      if l=l1 then { L*:=l2; return}
+     }  ||

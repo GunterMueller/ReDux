@@ -1,0 +1,30 @@
+%% 
+DATATYPE XMONOID;
+SORT
+	EXTERN, MONOID;
+CONST
+	1: EXTERN;
+VAR
+	v, x, y, z: MONOID;
+	V, X, Y, Z: EXTERN;
+OPERATOR
+	i:  -> MONOID;
+	*: MONOID, MONOID -> MONOID;
+	": EXTERN -> MONOID;
+	@: EXTERN, EXTERN -> EXTERN;
+NOTATION
+	*, @: INFIX;
+	": ROUNDFIX ";
+AXIOM
+   [1] (i * x) == x;
+   [2] (x * i) == x;
+   [3] ((x * y) * z) == (x * (y * z));
+
+  [11] (1 @ X) == X;
+  [12] (X @ 1) == X;
+  [13] ((X @ Y) @ Z) == (X @ (Y @ Z));
+
+  [21] i == " 1 ";
+  [22] (" X " * " Y ") == " (X @ Y) ";
+
+END

@@ -1,0 +1,40 @@
+\section{Miscellaneous}
+
+\subsection{Error Detection and Recovery}
+When a syntactical error occurs an error message and the faulty
+input line are written to the output stream immediately.
+On semantic errors it is possible that the error is not reported
+before parsing of the complete line (or the term) has finished.
+All input following an error up-to a semicolon or {\tt END}-keyword,
+depending on the kind of parser that is used\footnote{Semicolon is
+used only in the axiom, operator, term and operator-relation-operatorlist parser.},
+is discarded.
+The erroneous object must then be re-typed.
+
+\subsection{Ambiguities During Term Parsing and Term Output}
+As there are only few limitations on which identifier names
+(i.e. names for variables, constants or operators) are allowed,
+it may be the case that a written term is ambiguous.
+\begin{example} $ $
+\begin{verbatim}
+VAR        f: N;
+OPERATOR  ff: N -> N;
+         fff: N -> N;
+NOTATION  ff: PREFIX;
+         fff: POSTFIX;
+\end{verbatim}
+{\rm
+The term {\tt ff((f)fff)} may be written as {\tt ffffff}, but can not
+be re-parsed afterwards (principle of longest match, see below).
+}
+\end{example}
+During parsing there is one rule to disambiguate term input: Always
+match the longest possible identifier (principle of longest match).
+
+Thus, to enter the term of the example above without parentheses, one
+could write: {\tt ff f fff}.
+
+On term output similar problems arise. They are coped with by
+writing (depending on term output mode) parentheses around subterms
+or spaces between identifiers, when necessary.
+

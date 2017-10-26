@@ -1,0 +1,21 @@
+DATATYPE EX1;
+SORT
+	NAT, VARI;
+CONST
+	0: NAT;
+	INIT: VARI;
+VAR
+	a, b, c, d, e: NAT;
+	x, y, z: VARI;
+OPERATOR
+	S: NAT -> NAT;
+	ASS: VARI, NAT -> VARI;
+	VALUE: VARI -> NAT;
+NOTATION
+	S, ASS, VALUE: FUNCTION;
+AXIOM
+[1] ASS(ASS(x,a),b) == ASS(x,b);
+[2] ASS(x,0) == INIT;
+[3] VALUE(INIT) == 0;
+[4] VALUE(ASS(x,a)) == a;
+END

@@ -1,0 +1,281 @@
+\section{The Random Term Generation Program}
+The \redux\ random term generation demo program {\tt trd} is used to
+experiment with the random term generation algorithms, to produce files
+with random terms and to make statistics on the algorithms. The random
+term generator is based on the SAC--2 random number generator {\tt
+IRAND} and algorithms which establish two bijective mappings from the
+natural numbers to the set of terms over a given signature:
+\begin{itemize}
+\item For the first mapping algorithm ({\tt NT2TE}), the function
+   \(n \rightarrow |O(\mbox{\tt NT2TE}(n))|\) is monotonous,
+   i.\,e.\ the terms are sorted according to their extents.
+\item For the other mapping algorithm ({\tt NT2TD}) the function
+   \(n \rightarrow \mbox{DEPTH}(\mbox{\tt NT2TD}(n))\) is monotonous,
+   i.\,e. the terms are sorted according to their depths.
+\end{itemize}
+
+The program uses the same standard files ({\tt trd.in}, {\tt trd.log}
+and {\tt algos}) as the other \redux\ demo programs. Additionally, the
+file {\tt file.1} is used if the global data arrays are written to a
+file (using menu option {\tt w}), {\tt file.2} is used to store
+generated random terms and {\tt file.3} is used to hold the output of
+the statistics algorithms.
+
+\subsection{Program Start}
+Since it can use data types with external operators, the random term
+generation program must first read the file {\tt algos} which holds data for
+the \redux\ interpreter module.  Subsequently, it reads a \redux\ data type
+which is presented to the user.
+
+When the user strikes the $\langle$return$\rangle$ key to proceed, the program
+may issue messages concerning the unification state of some
+operators:
+\begin{quote}
+\begin{verbatim}
+Operator +: Unification state AC is ignored!
+Operator *: Unification state COM is ignored!
+\end{verbatim}
+\end{quote}
+The program is able to generate terms over signatures containing AC--
+or commutative operators, but it ignores those properties.  This means
+that two terms which are equivalent with respect to an unification
+state are considered to be distinct by the program. This changes
+the distribution of terms in a generated term sequence.
+
+If the data type contains external operators, the program will
+display messages like the following:
+\begin{quote}
+\begin{verbatim}
+External operator " is treated like a constant (with fixed TCONT-field)!
+Please enter the value of the TCONT-field in a format suitable for IREAD. *
+\end{verbatim}
+\end{quote}
+The random term program can work with data types containing external
+operators in a restricted fashion, i.\,e., it can generate terms with
+external operators, but each of their {\tt TCONT}--fields holds a
+constant value which must be entered by the user.  This value is read
+by a function which is determined in the data type via the {\tt XREAD}
+specifier in the {\tt EXTERNAL} part of a \redux\ data type
+specification.
+
+\subsection{The Main Menu}
+After those program initializations, the main menu is displayed:
+\begin{quote}
+\begin{verbatim}
+You have following choices: 
+  s - show signature descriptor
+  w - write global data
+  i - initialize global data
+  e - enumerate terms
+  r - generate random terms
+  R - generate random terms, using TRANDE or TRANDD
+  S - statistics
+  t - toggle term generation trace
+  g - toggle garbage collection messages
+  o - determine output mode
+  h - help, print menu
+  q - quit
+ 
+[s/w/i/e/r/R/S/t/g/o/h/q]  * 
+\end{verbatim}
+\end{quote}
+For most options it does not matter if letters are entered in upper or
+lower case.  Exceptions are {\tt r} and {\tt s}.
+
+\begin{itemize}
+\item{\bf Show signature descriptor (s)}\\
+   The signature of the data type is shown. The printed values
+   include the signature name, a list of all types (sorts), a list of
+   all domains (the Cartesian product is denoted by an {\tt x}), a list
+   of operators sorted according to their return types and a list of all
+   atomic terms (constants, variables, nullary operators and external
+   operators (with fixed {\tt TCONT}--field)) sorted according to their
+   type.
+
+\item{\bf Write global data (w)}\\
+   The algorithms which map natural numbers to terms use several data
+   arrays. This menu item allows to show these arrays. They can either
+   be displayed on the console or written to {\tt file.1}. Some
+   knowledge of the involved algorithms is needed to benefit from the
+   output. It is mainly for debugging purposes.
+
+\item{\bf Initialize global data (i)}\\
+   This menu item allows to initialize the aforementioned data arrays
+   manually. First, the user must choose which arrays shall be
+   initialized, either those for generation of terms sorted according
+   to their extent or those for generation of terms sorted according to
+   their depth.  Then the extent (depth) up to which the initialization
+   should take place has to be entered. All algorithms in this program
+   initialize the arrays automatically, so there is no real need to
+   select this menu item.  It can be used to compare the initialization
+   time necessary for different data types.
+
+Every time the program enhances the global data, it issues a message like
+\begin{quote}
+\begin{verbatim}
+Initialized global data from 4 positions to 24 positions
+in 0 ms (+ 0 ms in GC).
+\end{verbatim}
+\end{quote}
+(In this case, the initialization took less than one clock tick.)
+
+\item{\bf Enumerate terms (e)}\\
+   If this item is selected, the program maps a sequence of natural
+   numbers to terms which are displayed.  Again, the user must choose
+   which of the two mapping algorithms should be used.  Then the first
+   and the last number in the sequence must be specified.  The
+   generated terms are written to the console, each one on a new line.
+
+\item{\bf Generate random terms (r)}\\
+   This option allows to generate a sequence of random terms.  Once
+   more the user has to enter which of the two mapping algorithms
+   should be used. Then the number of terms to generate, the maximal
+   extent (depth) per term and if the term sequence should be displayed
+   on the console or written to {\tt file.2} have to be specified.
+   The terms will be separated by lines containing a single character.
+   Therefore, the program asks for this character. If the terms are to
+   be read by another \redux\ program, a semicolon must be chosen.
+
+   Since there are more terms with large extent (depth) than such
+   with smaller ones, the probability to get terms with small extents
+   (depths) is negligibly small.
+
+\item{\bf Generate random terms, using TRANDE or TRANDD (R)}\\
+   This menu item performs the same task as the previous one. The
+   difference is that here the high-level algorithms {\tt TRANDE} and
+   {\tt TRANDD} are used, whereas in the former item the algorithms
+   {\tt NT2TE} and {\tt NT2TD} are called directly. The direct call
+   leads to a slightly better performance, so usually the previous menu
+   item should be used. This item is intended to compare the
+   performance of both algorithms.
+
+\item{\bf Statistics (S)}\\
+   This menu item is a facility to make some statistics on the random
+   term generation algorithms. There are statistics on the term
+   generation time, the distribution of term depths and the
+   distribution of term extents.  See
+   Section~\ref{StatsOnRandomTermGenerator} for more information on
+   this topic.
+
+\item{\bf Toggle term generation trace (t)}\\
+   The term generation algorithms can print some trace information.
+   With this option, the user can turn on and off these messages. Note
+   that the trace output is quite voluminous. Further information on
+   the term generation trace can be found in
+   Appendix~\ref{TermGenerationTrace}.
+
+\item{\bf Toggle garbage collection messages (g)}\\
+   This option allows to turn on and off the messages which are
+   displayed by the garbage collector.
+
+\item{\bf Determine output mode (o)}\\
+   This menu item allows the user to change the term write mode. The
+   term write mode is described by 10 flags. They are explained in {\em
+   A New Parser for \redux\  --- User Guide} in the section about the
+   parser demo program.
+
+\item{\bf Help, print menu (h)}\\
+   By selecting this menu item, the user can display the menu. This may
+   be useful if the short form of the menu is displayed.
+
+\item{\bf Quit (q)}\\
+   This terminates the program.
+\end{itemize}
+
+\subsection{Statistics on the Random Term Generator}
+\label{StatsOnRandomTermGenerator}
+If the statistics option has been selected in the main menu, the
+programs shows another menu with the different possibilities to make
+statistics:
+\begin{quote}
+\begin{verbatim}
+You have the following choices:
+ 
+  Concerning terms distributed according to extent:
+  t - Statistics on generation time
+  d - Statistics on term depth
+  e - Statistics on term extent
+ 
+  Concerning terms distributed according to depth:
+  T - Statistics on generation time
+  D - Statistics on term depth
+  E - Statistics on term extent
+ 
+  x - Exit, return to main menu
+  *
+\end{verbatim}
+\end{quote}
+There are the same statistics for both mapping algorithms.  In either
+case, there is the possibility to write a copy of the results to {\tt
+file.3} in GNUPLOT--readable format.
+
+\subsubsection{Statistics on Term Generation Time}
+First the user must enter a range of extents (depths) and the number of
+terms to test.  For each extent (depth) in the given range, the program
+generates the specified number of terms.  Note that in spite of the
+fact that the generated terms can have any extent (depth) from one
+(zero) up to the specified upper border, most of the generated terms
+will have an extent (depth) near to the upper border. (The distribution
+of the term extents (depths) can also be examined with the statistics
+part of the program, look below for more information.)
+
+Then the program prints a table of the results to the console. The
+first column contains the term extent (depth), the second column the
+CPU--time needed for the creation of the terms with that maximal
+extent (depth).
+
+\subsubsection{Statistics on Term Depth}
+Here the program will generate a number of terms with a fixed maximal
+value for the term extent (depth).  Then the depth of each term is
+determined and a table of the distribution of term depths is shown. Its
+first column contains term depths, the second column contains the
+number of generated terms with that depth.
+
+Note that the definition of term depth realized by the \redux\ algorithm
+{\tt DEPTH} is used, i.\,e., variables and constants have depth 0.
+
+\subsubsection{Statistics on Term Extent}
+If one of these menu items has been chosen, the program will generate
+a number of terms with a fixed maximal value for the term extent
+(depth).  Then the extent of each generated term is determined and a
+table of the distribution of term extents is shown. Its first
+column contains term extents, the second column contains the number of
+generated terms with that extent.
+
+If the second mapping algorithm is chosen (menu item {\tt E}), the term
+extent can become quite large even for small term depths.  The program
+therefore must store the number of terms of each extent for large
+extents.  To avoid undesired large tables, the maximal
+term extent which will be considered separately must be specified. The
+numbers of terms with larger extents are not stored separately but are
+added.
+
+\subsubsection{Displaying Graphs of Statistics Using GNUPLOT}
+If the user chooses to create a file with the results which were gained
+in the statistics part of the program, it can be used to display a
+graph using GNUPLOT. The file {\tt file.3} is read by GNUPLOT using the
+statement {\tt load "file.3"} from within GNUPLOT.  GNUPLOT will
+display the graph on the default device, usually a window on the
+console. Other output devices can be selected with the {\tt set output}
+and {\tt set terminal} statements. Note that the position of the {\tt
+ylabel}-string depends on the output device. The random term program
+produces output files in which the {\tt ylabel}-string is shifted
+about ten characters downwards form the default position. This is
+suitable for most terminals. If a graphic should be printed on a
+PostScript printer, the default position is better suited, i.\,e., the
+position in the {\tt set ylabel} command should be deleted. If it should
+be output in \LaTeX-format, the y--coordinate should be set to zero and
+the x-coordinate to a small negative value. Additionally, line break
+commands (\verb|\\|) should be inserted in the {\tt ylabel}-string.
+
+Due to the fact that a GNUPLOT--file usually cannot hold both commands
+and data, in {\tt file.3} the data lines are marked as comments with a
+{\tt \#}--sign. The plot statement (in the last lines of {\tt file.3})
+filters the file through {\tt sed} to get rid of all non-data lines and
+comment characters. If {\tt file.3} is renamed, the argument {\tt
+file.3} in the plot statement has to be replaced by the new name.
+
+If the statistics routines are called more than once during one program
+run, all output is collected in one file. GNUPLOT cannot handle such
+files correctly, so they should be splitted.
+

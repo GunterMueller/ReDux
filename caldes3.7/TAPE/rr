@@ -1,0 +1,498 @@
+                    L*:=IIC(A,A',I,L)
+[Isolating interval conversion.  A is a squarefree univariate integral
+polynomial.  A' is the derivative of A.  I is a left open right closed
+interval (a,b) with binary rational endpoints represented by the list
+(a,b).  L is a list of isolating intervals with binary rational end-
+points for the real roots of A in I.  L=((a_1,b_1),...,(a_k,
+b_k)) with a_1 <= b_1 <= ... <= a_k <= b_k and (a_i,
+b_i) represents the open interval (a_i,b_i) if a_i <
+b_i, the closed interval (a_i,b_i) if a_i=b_i.  L* is a
+list ((a*_1,b*_1),...,(a*_k,b*_k)) of isolating intervals for
+the same roots and satisfying the same conditions except that each pair
+(a*_i,b*_i) represents the left open right closed interval
+(a*_i,b*_i).]
+     safe a1,a2,b1,b2,I1,I2,s,s1.
+(1)  [Initialize.]  L':=CINV(L);  L*:=().
+(2)  [Finish.]  if L'=() then return.
+(3)  [I2 open.]  ADV(L';I2,L');  FIRST2(I2;a2,b2);
+     s:=RNCOMP(a2,b2);  if s # 0 then { L*:=COMP(I2,L*);  go to  2 }.
+(4)  [L' empty.]  if L'=() then { a2:=FIRST(I);  L*:=COMP(LIST2(a2,
+     b2),L*);  return }.
+(5)  [I1 not adjacent.]  I1:=FIRST(L');  FIRST2(I1;a1,b1);
+     s:=RNCOMP(b1,a2);  if s # 0 then { a2:=b1;  L*:=COMP(LIST2(a2,
+     b2),L*);  go to  3 }.
+(6)  [Bisect I1.]  L':=RED(L');  s1:=IUPBES(A,a1);  if s1=0 then
+     s1:=IUPBES(A',a1);  c:=a1;  repeat { c:=RIB(c,b1);
+     s:=IUPBES(A,c) } until s1 * s <= 0.
+(7)  [Adjoint two intervals.]  L*:=COMP(LIST2(c,b1),L*);
+     L*:=COMP(LIST2(a1,c),L*);  go to  2||
+                    L:=IPFSD(r,A)
+[Integral polynomial factorization, second derivative.  A is a positive
+primitive integral polynomial in r variables of positive degree.  L is
+a list (A_1,...,A_k) where k >= 1, A = sum_{i=1}^{k} A_i 
+and, for each i, A_i is a positive primitive integral poly-
+nomial of positive degree with deg(A_i) <= 2 or gcd(A_i,A''_i)=1
+where A''_i is the second derivative of A_i.]
+     safe B2,n.
+(1)  L:=();  S:=LIST1(A);  repeat {  ADV(S;B,S);  n:=FIRST(B);
+     if n <= 2 then L:=COMP(B,L) else { B'':=IPHDMV(r,B,2);
+     IPGCDC(r,B,B'';C,B1,B2);  if IPONE(r,C)=1 then L:=COMP(B,L)
+     else S:=COMP2(B1,C,S) }  } until S=();  return||
+                    M:=IPLRRI(L)
+[Integral polynomial list real root isolation.  L is a non-empty list
+(a_1 , ..., a_n ) of distinct univariate integral polynomials
+which are positive, of positive degree, squarefree, and pairwise
+relatively prime.  M is a list (I_1 , B_1 ,..., I_M ,
+B_M ), where I_1  <  I_2  <  ...  <  I_M are strongly
+disjoint isolating intervals for all of the real roots of 
+a = prod_{j = 1}^{n} a_j.  Each I_i has binary
+rational number endpoints, and is either left-open and right-closed
+or is a one-point interval.  B_i is the unique a_j
+which has a root in I_i.]
+     safe A1,A2,B1,L',L'',M,s,S',S''.
+(1)  [Isolate roots of each a_i.]  L':=L;  S:=();  repeat
+     { ADV(L';A1,L');  S1:=IPRIM(A1);  S:=COMP(S1,S) }
+     until L' = ();  S:=INV(S).
+(2)  [Refine to disjoint isolating intervals.]  L':=L;  S':=S;
+     while RED(L') # () do {  A1:=FIRST(L');  S1:=FIRST(S');
+     L'':=RED(L');  S'':=RED(S');  repeat { A2:=FIRST(L'');
+     S2:=FIRST(S'');  IPRRLS(A1,A2,S1,S2;S*1,S*2);  S1:=S*1;
+     SFIRST(S'',S*2);  L'':=RED(L'');  S'':=RED(S'') }
+     until L'' = ();  SFIRST(S',S1);
+     L':=RED(L');  S':=RED(S')  }.
+(3)  [Prepare to merge intervals.]  L':=L;  S':=S;  T:=();  repeat
+     {  ADV(L';A1,L');  ADV(S';S1,S');  T1:=();
+     while S1 # () do { ADV(S1;I11,S1);  T1:=COMP2(A1,I11,T1) };
+     T:=COMP(INV(T1),T)  } until L' = ();  T:=INV(T).
+(4)  [Merge-sort isolating intervals.]
+     while RED(T) # () do
+     {   S:=();  while T # () /\ RED(T) # () do
+     {  ADV2(T;T1,T2,T);
+     S1:=();  while T1 # () /\ T2 # () do { I11:=FIRST(T1);
+     I21:=FIRST(T2);  s:=RNCOMP(FIRST(I11),FIRST(I21));
+     if s < 0 then ADV2(T1;I1,B1,T1) else ADV2(T2;I1,B1,T2);
+     S1:=COMP2(B1,I1,S1) };  if T1 = () then T1:=T2;
+     S1:=CONC(INV(S1),T1);  S:=COMP(S1,S)  };  if T # () then
+     S:=COMP(FIRST(T),S);  T:=INV(S)   };  M:=FIRST(T);  return||
+                    L:=IPRCH(A,I,k)
+[Integral polynomial real root calculation, high precision.  A is a
+univariate integral polynomial of positive degree.  I is either the null
+list () or a standard interval or an interval whose positive and non-
+positive parts are standard.  k is a gamma-integer.  L is a list
+((e_1,I_1),...,(e_r,I_r)) where the e_j are beta-integers,
+1 <= e_1 <= ... <= e_r, and the I_j are binary rational isolating
+intervals, I_j=(a_j,b_j), for the r distinct real roots of A if
+I=(), or for the r distinct real roots of A in I if I # ().  E_j is
+the multiplicity of the root alpha_j in I_j and ABS(b_j-a_j)
+<= 2**k.  I_j is a left-open and right-closed interval if a_j
+< b_j, a one-point interval if a_j=b_j.]
+     safe A1,e.
+(1)  [Squarefree factorization.]  A_:=IPABS(1,A);  L1:=IPSFSD(1,A_).
+(2)  [Compute roots of factors.]  L:=();  repeat {  ADV(L1;P,L1);
+     FIRST2(P;e,A1);  L2:=IPRCHS(A1,I,k);  while L2 # () do
+     { ADV(L2;J,L2);  P:=LIST2(e,J);  L:=COMP(P,L) }  } until
+     L1=();  L:=INV(L);  return||
+                    L:=IPRCHS(A,I,k)
+[Integral polynomial real root calculation, high-precision special.
+A is a positive, primitive, squarefree, univariate, integral polynomial
+of positive degree with gcd(A,A'')=1.  I is either the null list () or a
+standard interval or an interval whose positive and non-positive parts
+are standard.  k is a gamma-integer.  L is a list (I_1,...,I_r) of
+binary rational isolating intervals I_j=(a_j,b_j) for the r
+distinct real roots of A if I=(), for the r distinct real roots of A of
+I if I # (), with b_j-a_j <= 2**k.  I_j is a left-open and
+right-closed interval if a_j # b_j, a one-point interval if
+a_j=b_j.]
+     safe b,s,s',s'',t.
+(1)  [Find strong isolation list for A.]  L:=();  L1:=IPSRM(A,I);
+     if L1=() then return.
+(2)  [Refine isolation list.]  repeat {   ADV(L1;J,L1);  b:=SECOND(J);
+     if IUPBRE(A,b)=0 then J:=LIST2(b,b) else {  IPRCNP(A,J;
+     s',s'',J);  t:=RILC(J,k);  if t=0 then { s:=s' * s'';
+     J:=IPRCN1(A,J,s,k) }  };  L:=COMP(J,L)   } until L1=();
+     L:=INV(L);  return||
+                    J:=IPRCN1(A,I,s,k)
+[Integral polynomial real root calcuation, 1 root.  A is a positive
+primitive univariate integral polynomial of positive degree. I is an
+open interval (a1,a2) with binary rational endpoints containing a
+unique root alpha of A and containing no roots of A' or A''.  s, a
+beta-integer, is the sign of A'*A'' on I.  MIN(ABS(A'(a1)),ABS(A'(a2))
+) <= (3/4)*MAX(ABS(A'(a1)),ABS(A'(a2))).  k is a beta-integer.  J is
+a subinterval of I of length 2**k or less containing alpha and with
+binary rational endpoints.]
+     safe b.
+(1)  [Initialize.]  A':=IPDMV(1,A);  J:=I.
+(2)  [Refine interval.]  while RILC(J,k)=0 do { FIRST2(J;b1,b2);
+     d1:=IUPBRE(A,b1);  d2:=IUPBRE(A,b2);  if s < 0 then b:=b1
+     else b:=b2;  d':=IUPBRE(A',b);  q1:=RNQ(d1,d');
+     q2:=RNQ(d2,d');  b1:=RNDIF(b1,q1);  b2:=RNDIF(b2,q2);
+     J:=LIST2(b1,b2);  if RNCOMP(b1,b2)=0 then return;
+     J:=RINT(J) };  return||
+                    IPRCNP(A,I;s',s'',J)
+[Integral polynomial real root calculation, Newton method preparation.
+A is a positive, primitive, squarefree, univariate integral polynomial
+of positive degree.  I is an open interval (a1,a2) with binary
+rational endpoints containing no roots of A' and A''.  s' and s'',
+beta-integers, are the signs of A' and A'' on I.  J is a subinterval
+(b1,b2) of I with binary rational endpoints, containing alpha and
+such that s''*sign(A'(b1)+f*A'(b2)) >= 0, where f=(-3/4)**(s'*s'').
+J is a left-open and right-closed interval if b1 < b2, the one-
+point interval if b1=b2.]
+     safe J,s,s',s'',t.
+(1)  [Initialize.]  FIRST2(I;b1,b2);  h:=LIST2(1,2).
+(2)  [Compute s'.]  s':=IUPBES(A,b2).
+(3)  [Compute s''.]  A':=IPDMV(1,A);  d1:=IUPBRE(A',b1);
+     d2:=IUPBRE(A',b2);  d:=RNDIF(d2,d1);  s'':=RNSIGN(d).
+(4)  [Compute f.]  if s' * s'' > 0 then f:=LIST2(-3,4)
+     else f:=LIST2(-4,3).
+(5)  [Test for completion.]  d:=RNPROD(f,d2);  d:=RNSUM(d1,d);
+     t:=RNSIGN(d);  if s'' * t >= 0 then go to  7.
+(6)  [Bisect interval.]  b:=RNSUM(b1,b2);  b:=RNPROD(b,h);
+     s:=IUPBES(A,b);  if s=0 then { b1:=b;  b2:=b;  go to  7 };
+     d:=IUPBRE(A',b);  if s=s' then { b2:=b;  d2:=d } else
+     { b1:=b;  d1:=d };  go to  5.
+(7)  [Finish.]  J:=LIST2(b1,b2);  return||
+                    L:=IPRIM(A)
+[Integral polynomial real root isolation, modified Uspensky method.
+A is a non-zero squarefree univariate integral polynomial.  L is
+a list (I_1 ,..., I_r ) of isolating intervals for the real roots
+of A with I_1 < I_2 < ... < I_r. Each interval has binary rational
+endpoints and is either a one-point interval or an open interval
+whose endpoints are not zeros of A.]
+     safe h,k,L',n,s.
+(1)  [Degree zero.]  n:=PDEG(A);  L:=();  if n=0 then return.
+(2)  [Compute positive roots.]  A_:=PDBORD(A);  b:=IUPRB(A_);
+     RNFCL2(b;h,k);  A*:=IUPBHT(A_,k);  L*:=IPRIMU(A*);
+     while L* # () do { ADV(L*;I,L*);  I:=RIRNP(I,b);
+     L:=COMP(I,L) };  L:=INV(L).
+(3)  [Zero A root.]  if FIRST(A_) < n then L:=COMP(LIST2(0,0),L).
+(4)  [Compute negative roots.]  A*:=IUPNT(A*);  L*:=IPRIMU(A*);
+     b*:=RNNEG(b);  while L* # () do { ADV(L*;I,L*);
+     I:=RIRNP(I,b*);  L:=COMP(I,L) }.
+(5)  [Insulate roots.]  L':=L;  while L'#() do { I:=FIRST(L');
+     FIRST2(I;a,b); if ~EQUAL(a,b) then {IUPRIN(A,a,b;a',b');
+     I':=(a',b'); SFIRST(L',I') }; L':=RED(L') } ||
+                    L:=IPRIMO(A,A',I)
+[Integral polynomial real root isolation, modified Uspensky method,
+open interval.  A is a univariate integral polynomial without multiple
+roots.  A' is the derivative of A.  I is an open interval (a,b) with
+binary rational endpoints, represented by the list (a,b), such that
+there are integers h and k for which a=h*2**k and b=(h+1)*2**k.
+L is a list (I_1,...,I_r) of isolating intervals for the real roots
+of A in I.  Each I_j is a left open right closed interval with binary
+rational endpoints and I_1 < I_2 < ... < I_r.]
+     safe b,c,J.
+(1)  L:=IPRIMS(A,A',I);  if L # () then { L:=INV(L);  J:=FIRST(L);
+     b:=SECOND(I);  c:=SECOND(J);  if RNCOMP(b,c)=0 /\
+     IUPBES(A,b)=0 then L:=RED(L);  L:=INV(L) };  return||
+                    L:=IPRIMS(A,A',I)
+[Integral polynomial real root isolation, modified Uspensky method,
+standard interval.  A is a univariate integral polynomial without
+multiple roots.  A' is the derivative of A.  I is a standard interval.
+L is a list (I_1,...,I_r ) of isolating intervals for the real roots
+of A in I.  Each interval I_j is a left open right closed interval
+(a_j,b_j) with binary rational endpoints and I_1 < I_2 < ...
+< I_r.]
+     safe a,a1,b,b1,h*,k,k',L.
+(1)  [Degree zero.]  if PDEG(A)=0 then { L:=();  return }.
+(2)  [Transform A.]  FIRST2(I;a,b);  c:=RNDIF(b,a);
+     RNFCL2(c;k,k');  if b=0 then h':=0 else { h*:=RNQ(b,c);
+     h':=FIRST(h*) };  A1:=IUPBHT(A,k);  A1:=IUPTR(A1,h');
+     A1:=IUPNT(A1).
+(3)  [Compute roots.]  L1:=IPRIMU(A1).
+(4)  [Transform isolation intervals.]  L':=();  while L1 # ()
+     do { ADV(L1;I1,L1);  FIRST2(I1;a1,b1);  a'1:=RNPROD(a1,c);
+     a'1:=RNDIF(b,a'1);  b'1:=RNPROD(b1,c);  b'1:=RNDIF(b,b'1);
+     I'1:=LIST2(b'1,a'1);  L':=COMP(I'1,L') }.
+(5)  [Convert isolating intervals.]  L:=IIC(A,A',I,L');  return||
+                    L:=IPRIMU(A)
+[Integral polynomial real root isolation, modified Uspensky method,
+unit interval.  A is a squarefree univariate integral polynomial.  L is
+a list (I_1,...,I_r) of isolating intervals for all the roots of A in
+the left closed right open interval (0,1).  Each I_j is a pair (a_j
+,b_j) of binary rational numbers, with 0 <= a_1 <= b_1 <= ... <=
+a_r <= b_r.  If a_j=b_j then (a_j,b_j) represents the
+one-point interval (a_j,b_j).  If a_j < b_j then the pair
+(a_j,b_j) represents the open interval (a_j,b_j).]
+     safe e,e1,v,v1.
+(1)  [Initialize.]  L:=();  S:=();  B:=A;  a:=0;  b:=LIST2(1,1);
+     e:=PORD(A);  v:=IPVCHT(B);  t:=LIST2(1,2).
+(2)  [One variation or less.]  if v <= 1 then {  if v=1 then
+     { I:=LIST2(a,b);  L:=COMP(I,L) };  if e > 0 then
+     { I:=LIST2(a,a);  L:=COMP(I,L) };  go to  5  }.
+(3)  [Bisect.]  B1:=IUPBHT(B,-1);  B:=IUPTR1(B1);  c:=RNSUM(a,b);
+     c:=RNPROD(c,t);  e1:=e;  v1:=IPVCHT(B1);  e:=PORD(B);
+     v:=IPVCHT(B).
+(4)  [Stack left half.]  if e1 > 0 \/ v1 > 0 then { S:=
+     COMP2(a,c,S);  S:=COMP3(v1,e1,B1,S) };  a:=c;  go to  2.
+(5)  [Finished.]  if S=() then return;  ADV3(S;v,e,B,S);
+     ADV2(S;a,b,S);  go to  2||
+                    L:=IPRIU(A)
+[Integral polynomial real root isolation, Uspensky method.  A is a non-
+zero squarefree univariate integral polynomial.  L is a list of pairs
+((a_1,b_1),...,(a_k,b_k)) representing isolating intervals for
+all of the real roots of A, with a_1 <= b_1 <= ... <= a_k <=
+b_k.  If a_i < b_i then the pair (a_i,b_i) represents
+the open interval (a_i,b_i), while if a_i=b_i then it
+represents the closed one-point interval (a_i,b_i).  The a_i
+and b_i are rational numbers except that one may have a_1 equal to
+negative infinity, represented by -1/0, that is the pair (-1,0), and one
+may have b_k equal to infinity, represented by 1/0.]
+     safe m,n.
+(1)  [Initialize.]  n:=FIRST(A);  A_:=PDBORD(A);  m:=FIRST(A_).
+(2)  [Compute positive roots.]  L:=IPRIUP(A_).
+(3)  [Adjoint zero.]  if m < n then { I:=LIST2(0,0);  L:=COMP(I,L) }.
+(4)  [Compute negative roots.]  A*:=IUPNT(A_);  L*:=IPRIUP(A*).
+(5)  [Adjoint negative roots.]  while L* # () do { ADV(L*;I,L*);
+     ADV2(I;r1,r2,I);  r'1:=RNNEG(r1);  r'2:=RNNEG(r2);
+     I:=LIST2(r'2,r'1);  L:=COMP(I,L) };  return||
+                    L:=IPRIUP(A)
+[Integral polynomial real root isolation, Uspensky method, positive
+roots.  A is a non-zero squarefree univariate integral polynomial.  L is
+a list of pairs ((a_1,b_1),...,(a_k,b_k)) representing iso-
+lating intervals for the positive real roots of A, with a_1 <= b_1
+<= ... <= a_k <= b_k.  If a_i < e_i then the pair (a_i,
+b_i) represents the open interval (a_i,b_i) while if a_i=b_i
+then (a_i,b_i) represents the closed one-point interval
+(a_i,b_i).  The a_i and b_i are rational numbers except that
+one may have b_k equal to infinity, represented by 1/0, that is, the
+pair (1,0).]
+     safe a,b,c,d,t,u,v,v1,v2.
+(1)  [Initialize.]  L:=();  S:=();  B:=A;  r:=LIST2(0,1);  s:=LIST2(1,0)
+;
+     t:=2;  v:=IUPVAR(B).
+(2)  [v=0.]  if v=0 then return.
+(3)  [v <= 1.]  if v <= 1 then { if FIRST(r)=0 then r:=0;
+     L:=COMP(LIST2(r,s),L);  go to  9 }.
+(4)  [Bisect.]  B1:=IUPTR1(B);  B2:=IUPTR1(PRT(B));  FIRST2(r;a,c);
+     FIRST2(s;b,d);  e:=ISUM(a,b);  f:=ISUM(c,d);
+     h:=LIST2(e,f);  if t=2 then { u:=B1;  B1:=B2;  B2:=u };
+     v1:=IUPVAR(B1);  v2:=IUPVAR(B2).
+(5)  [v1 # 0.]  if v1 # 0 then S:=COMP4(B1,r,h,v1,S).
+(6)  [h a root.]  if PORD(B2) > 0 then S:=COMP4(0,h,h,-1,S).
+(7)  [v2 > 1.]  if v2 > 1 then { B:=B2;  r:=h;  v:=v2;
+     t:=2;  go to  4 }.
+(8)  [v2=1.]  if v2=1 then L:=COMP(LIST2(h,s),L).
+(9)  [Finished.]  if S # () then { ADV4(S;B,r,s,v,S);
+     t:=1;  go to  3 };  return||
+                    IPRRLS(A1,A2,L1,L2;L*1,L*2)
+[Integral polynomial real root list separation.  A1 and A2 are
+univariate integral polynomials with no multiple real roots and with
+no common real roots.  L1 and L2 are lists of isolating intervals for
+some or all of the real roots of A1 and A2, respectively.  The
+intervals in L1 and L2 have binary rational endpoints, and are either
+left-open and right-closed or one-point intervals. Let
+L1 = (I_1_1,...,I_1_{r_1}), L2 = (I_2_1,...,I_2_{r_2}).
+Then I_1_1  <  I_1_2  <  ...  <  I_1_{r_1}
+and  I_2_1  <  I_2_2  <  ...  <  I_2_{r_2} .
+L_1 sup * = (I_1_1 sup *,...,I_1_{r_1} sup *)
+and L_2 sup * = (I_2_1 sup *,...,I_2_{r_2} sup *),
+where I_i_j sup * is a binary rational subinterval of
+I_i_j containing the root of a_i in I_i_j.
+Each I_1_j sup * is strongly disjoint from each
+I_2_j sup *.]
+     safe L'1,L'2,s.
+(1)  [Initialize.]  if L1=() \/ L2=() then { L*1:=L1;  L*2:=L2;
+     return };  ADV(L1;I1,L'1);  L*1:=();  ADV(L2;I2,L'2);  L*2:=().
+(2)  [Refine and merge.]  repeat {  IPRRS(A1,A2,I1,I2;I1,I2,s);
+     if s < 0 then { L*1:=COMP(I1,L*1);  if L'1 # () then
+     ADV(L'1;I1,L'1) else I1:=0 } else { L*2:=COMP(I2,L*2);
+     if L'2 # () then ADV(L'2;I2,L'2) else I2:=0 }  } until
+     I1=0 \/ I2=0.
+(3)  [Finish.]  if I1=0 then {  L*2:=COMP(I2,L*2);  while L'2 # ()
+     do { ADV(L'2;I2,L'2);  L*2:=COMP(I2,L*2) }  } else {  L*1:=
+     COMP(I1,L*1);  while L'1 # () do { ADV(L'1;I1,L'1);
+     L*1:=COMP(I1,L*1) }  };  L*1:=INV(L*1);  L*2:=INV(L*2);
+     return||
+                    IPRRS(A1,A2,I1,I2;I*1,I*2,s)
+[Integral polynomial real root separation.  A1 and A2 are squarefree
+univariate integral polynomials of positive degrees.  I1 and I2
+are intervals with binary rational number endpoints, each of
+which is either left-open and right-closed, or a one-point interval.
+I1 contains a unique root alpha_1 of A1, and I2 contains a
+unique root alpha_2 # alpha_1 of A2.  I_1 sup *
+and I_2 sup * are binary rational subintervals of I1 and I2
+containing alpha_1 and alpha_2 respectively, with
+I_1 sup * and I_2 sup * strongly disjoint.  If I1 is
+left-open and right-closed then so is I_1 sup *, and
+similarly for I2 and I_2 sup *.  S = -1
+if I_1 sup *  <  I_2 sup *, and s = 1
+if I_1 sup *  >  I_2 sup *.]
+     safe s,s1,s2,t,u,v.
+(1)  [I1 and I2 disjoint.]  FIRST2(I1;a1,b1);  FIRST2(I2;a2,b2);
+     if RNCOMP(b1,a2) < 0 then { I*1:=I1;  I*2:=I2;  s:=-1;
+     return };  if RNCOMP(b2,a1) < 0 then { I*1:=I1;  I*2:=I2;
+     s:=1;  return }.
+(2)  [Initialize.]  d1:=RNDIF(b1,a1);  d2:=RNDIF(b2,a2);
+     s1:=2;  s2:=2.
+(3)  [Bisect I1.]  t:=RNCOMP(d1,d2);  if t >= 0 then
+     {  if s1 > 1 then s1:=IUPBES(A1,b1);  c:=RIB(a1,b1);
+     u:=IUPBES(A1,c);  if s1=0 \/ s1 * u < 0 then { a1:=c;
+     v:=1 } else { b1:=c;  s1:=u;  v:=-1 };
+     d1:=RNDIF(b1,a1)  }.
+(4)  [Bisect I2.]  if t < 0 then {  if s2 > 1 then
+     s2:=IUPBES(A2,b2);  c:=RIB(a2,b2);  u:=IUPBES(A2,c);
+     if s2=0 \/ s2 * u < 0 then { a2:=c;  v:=-1 } else { b2:=c;
+     s2:=u;  v:=1 };  d2:=RNDIF(b2,a2)  }.
+(5)  [I1 and I2 disjoint.]  if v < 0 /\ RNCOMP(b1,a2) < 0
+     then s:=-1 else if v > 0 /\ RNCOMP(b2,a1) < 0 then
+     s:=1 else go to  3;  I*1:=LIST2(a1,b1);  I*2:=LIST2(a2,b2);
+     return||
+                    L:=IPSFSD(r,A)
+[Integral squarefree factorization, second derivative.  A is a positive
+integral polynomial in r variables of positive degree.  L is a list
+((e_1,A_1),...,(e_k,A_k)) where primitive part of A is equal to
+the sum of A_i**e_i for i=1,...,k.  The A_i are pairwise
+relatively prime squarefree positive polynomials of positive degrees,
+with deg(A_i)=1 or gcd(A_i,A''_i)=1 for all i where A''_i is
+the second derivative of A_i and the e_i are positive beta-integers
+e_1 <= e_2 <= ... <= e_k.]
+     safe e.
+(1)  [Compute primitive part.]  A_:=IPPP(r,A).
+(2)  [Squarefree factorization.]  L_:=IPSF(r,A_).
+(3)  [Apply IPFSD.]  L:=();  L_:=INV(L_);  repeat {  ADV(L_;P,L_);
+     FIRST2(P;e,A1);  L1:=IPFSD(r,A1);  while L1 # () do
+     { ADV(L1;A1,L1);  P:=LIST2(e,A1);  L:=COMP(P,L) }  } until L_=();
+     return||
+                    L:=IPSRM(A,I)
+[Integral polynomial strong real root isolation, modified Uspensky
+method.  A is a univariate integral polynomial with multiple roots and
+with no real roots in common with A''.  I is either the null list () or
+a standard interval or an interval whose positive and non-negative parts
+are standard.  L is a list (I_1,...,I_r) of isolating intervals for
+all the real roots of A if I=(), or for all the real roots of A in I if
+I # ().  The intervals I_j contain no roots of A' or A'', are left-
+open and right-closed, have binary rational endpoints, and satisfy
+I_1 < I_2 < ... < I_r.]
+     safe L,n.
+(1)  [Degree zero.]  n:=PDEG(A);  if n=0 then { L:=();  return }.
+(2)  [Compute intervals.]  if I=() then { b:=IUPRB(A);  a:=RNNEG(b);
+     I1:=LIST2(a,0);  I2:=LIST2(0,b) } else {  FIRST2(I;a,b);
+     if RNSIGN(a) >= 0 then { I1:=();  I2:=I } else if RNSIGN(b) <= 0
+     then { I1:=I;  I2:=() } else { I1:=LIST2(a,0);  I2:=LIST2(0,b) }  }
+.
+(3)  [Compute non-positive roots.]  if I1 # () then L1:=IPSRMS(A,I1)
+     else L1:=().
+(4)  [Compute positive roots.]  if I2 # () then L2:=IPSRMS(A,I2)
+     else L2:=().
+(5)  [Concatenate.]  L:=CONC(L1,L2);  return||
+                    L:=IPSRMS(A,I)
+[Integral polynomial strong real root isolation, modified Uspensky
+method, standard interval.  A is a univariate integral polynomial with
+no multiple real roots and with no real roots in common with A''.  I is
+a standard interval.  L is a list (I_1,...,I_r) of isolating
+intervals for the roots of A in I.  The intervals I_j contain no roots
+of A' or A'', are left-open and right-closed, have binary rational
+endpoints, are subintervals of I, and satisfy I_1 < I_2 < ... <
+I_r.]
+(1)  [A=0.]  if A=0 then { L:=();  return }.
+(2)  [Isolate roots of A.]  A':=IPDMV(1,A);  L:=IPRIMS(A,A',I).
+(3)  [Remove roots of A'.]  A'*:=IPPGSD(1,A');  A'*':=IPDMV(1,A'*);
+     L':=IPRIMS(A'*,A'*',I);  IPRRLS(A,A'*,L,L';L,L').
+(4)  [Remove roots of A''.]  A'':=IPDMV(1,A');  A''*:=IPPGSD(1,A'');
+     A''*':=IPDMV(1,A''*);
+     L'':=IPRIMS(A''*,A''*',I);  IPRRLS(A,A''*,L,L'';L,L'');  return||
+                    k:=IPVCHT(A)
+[Integral polynomial variations after circle to half-plane
+transformation.  A is a non-zero univariate integral polynomial.  Let
+n=deg(A), A'(x)=(x**n)*A(1/x), b(x)=A'(x+1).  k is the number of
+sign variations in the coefficients of b.]
+(1)  A':=PRT(A);  B:=IUPTR1(A');  k:=IUPVAR(B);  return||
+                    b:=IUPRB(A)
+[Integral univariate polynomial root bound.  A is an integral poly-
+nomial of positive degree.  b is a binary rational number which is a
+root bound for A.  If A(x) = sum_{i=0}^{n} a_i*x_i**i, a_n # 0, then
+b is the smallest power of 2 such that
+2*ABS(a_n-k/a_n)**(1/k) <= b for 1 <= k <= n.  If a_n-k=0
+for 1 <= k <= n then b=1.]
+     safe a,a1,A',b,d,h,h1,k,m,m1,n,n1,q,r,s,t.
+(1)  [Initialize.]  ADV2(A;n,a,A');  if A'=() then
+     { h:=-1;  go to  3 };  a_:=IABSF(a);  m:=ILOG2(a_);  t:=0.
+(2)  [Process terms.]  repeat {  ADV2(A';n1,a1,A');  k:=n-n1;
+     m1:=ILOG2(a1);  d:=m1-m-1;  QREM(d,k;q,r);  if r < 0
+     then { r:=r+k;  q:=q-1 };  h1:=q+1;  if r=k-1 then
+     { a_1:=IABSF(a1);  a_':=ITRUNC(a_,-h1 * k);  s:=ICOMP(a_1,a_');
+     if s > 0 then h1:=h1+1 };  if t=0 \/ h1 > h then h:=h1;
+     t:=1  } until A'=().
+(3)  [Compute b.]  b:=RNP2(h+1);  return||
+                    IUPRIN(A,a,b;a',b')
+[Integral univariate polynomial root isolation.  A is a squarefree
+univariate integral polynomial of positive degree. a and b are binary
+rational numbers such that a < b and A has a unique root alpha in the
+open interval (a,b). a <= a' <= b' <= b. Either a' = b' = alpha or
+a' < alpha < b' with A(a') # 0 and A(b') # 0.]
+(1) [Compute signs.] s:=IUPBES(A,a); t:=IUPBES(A,b).
+(2) [Initialize.] a':=a;b':=b.
+(3) [No problem.] if s#0 /\ t#0 then return.
+(4) [s # 0.] if s#0 then { repeat { c:=RIB(a',b'); u:=IUPBES(A,c);
+    if u=s then a':=c else if u=-s then b':=c else { a':=c; b':=c } }
+    until u#s; return }.
+(5) [t # 0.] if t#0 then { repeat { c:=RIB(a',b'); u:=IUPBES(A,c);
+    if u=t then b':=c else if u=-t then a':=c else { a':=c; b':=c } }
+    until u#t; return }.
+(6) [s = t = 0.] A':=IPDMV(1,A); v:=IUPBES(A',a); a*:=0; b*:=0; repeat {
+    c:=RIB(a',b'); u:=IUPBES(A,c); if u=v then {a':=c; a*:=1 } else
+    if u=-v then { b':=c; b*:=1 } else {a':=c; b':=c; a*:=1; b*:=1 } }
+    until a*=1 /\ b*=1 ||
+                    r:=IUPRLP(A)
+[Integral univariate polynomial, root of a linear polynomial.
+A is an integral univariate polynomial of degree one.  r is
+the unique rational number such that A(r) = 0.]
+(1)  if PRED(A) = 0 then r:=0 else { L:=PCL(A);  FIRST2(L;a,b);
+     r:=RNRED(INEG(b),a);  return}||
+                    n:=IUPVAR(A)
+[Integral univariate polynomial variations.  A is a non-zero uni-
+variate integral polynomial.  n is the number of sign variations in the
+coefficients of A.]
+     safe IUPVAR.
+(1)  n:=0;  A':=A;  ADV2(A';e,a,A');  s:=ISIGNF(a);
+     while A' # () do {  ADV2(A';e,a,A');  t:=ISIGNF(a);
+     if s # t then { n:=n+1;  s:=t }  };  return||
+                    v:=IUPVSI(A,I)
+[Integral univariate polynomial, variations for standard interval.
+A is a non-zero integral univariate polynomial.  I is a standard open
+interval.  Let t(z) be the transformation mapping the
+right half-plane onto the circle having diameter I.
+Let b(x) = A(t(x)).  Then v is the number of sign variations in the
+coefficients of b.]
+     safe a,b,k,k'.
+(1)  [Compute h and k such that I = (a,b), a = h*2**k and
+     b = (h+1)*2**k.]  FIRST2(I;a,b);  d:=RNDIF(b,a);
+     RNFCL2(d;k,k');  if a # 0 then { h:=RNQ(a,d);
+     h:=FIRST(h) } else h:=0.
+(2)  [Transform and count variations.]  if k # 0 then
+     B:=IUPBHT(A,k) else B:=A;  if h # 0 then C:=IUPTR(B,h) else
+     C:=B;  v:=IPVCHT(C);  return||
+                    t:=RIB(r,s)
+[Rational interval bisection.  r and s are binary rational numbers,
+r < s.  t is a binary rational number with r < t < s, defined
+as follows.  Let h=floor(log2(s-r)) and let c be the least integer
+such that c*2**h > r.  Then t=c*2**h if c*2**h < s and
+t=(2*c-1)*2**(h-1) otherwise.]
+     safe e,h,n.
+(1)  [Compute h'=2**h.]  d:=RNDIF(r,s);  RNFCL2(d;h,n);
+     h':=RNP2(h).
+(2)  [Compute t.]  q:=RNQ(r,h');  c:=RNCEIL(q);  c:=RNINT(c);
+     t:=RNPROD(c,h');  e:=RNCOMP(t,r);  if e=0 then
+     t:=RNSUM(t,h');  e:=RNCOMP(t,s);  if e >= 0 then
+     { H:=LIST2(1,2);  h':=RNPROD(h',H);  t:=RNDIF(t,h') };  return||
+                    t:=RILC(I,k)
+[Rational interval length comparison.  I is an interval (a,b) with
+rational endpoints, a <= b.  k is a gamma-integer.  t=1 if b-a <=
+2**k and t=0 otherwise.]
+     safe a,b,m,n,t.
+(1)  FIRST2(I;a,b);  d:=RNDIF(b,a);  t:=1;  if d # 0 then
+     { RNFCL2(d;m,n);  if n > k then t:=0 };  return||
+                    I*:=RINT(I)
+[Rational interval normalizing transformation.  I is a list (r,s)
+with rational endpoints and r < s.  I* is the list (r*,s*)=
+psi(r,s).]
+     safe h,k,k',r,s.
+(1)  [Compute h=floor(log2(s-r))-1 and t=2**h.]
+     FIRST2(I;r,s);  d:=RNDIF(s,r);  RNFCL2(d;k,k');
+     h:=k-1;  t:=RNP2(h).
+(2)  [Compute r*.]  r*:=RNFLOR(RNQ(r,t));  if r* # 0 then
+     { r*:=LIST2(r*,1);  r*:=RNPROD(r*,t) }.
+(3)  [Compute s*.]  s*:=RNCEIL(RNQ(s,t));  if s* # 0 then
+     { s*:=LIST2(s*,1);  s*:=RNPROD(s*,t) }.
+(4)  [Finish.]  I*:=LIST2(r*,s*);  return||

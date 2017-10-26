@@ -1,0 +1,76 @@
+[#include evmenu.h ]
+
+
+                    O := ACMENU(o)
+[Main menu.  o was the last menu result.]
+     safe O.
+(1)  [Initialize.] if o > 0 /\ o < 7 \/ o = 12 
+     then OLD:=TRUE else OLD:=FALSE.
+(2)  WRITE; 
+    STOUTL("You have the following choices: "); 
+    WRITE;
+    STOUTL("Syntactic relations among terms");
+    STOUTL("---------------------------------------------------------");
+    STOUTL("  e/m/u - test equality of / match / unify two terms ");
+    if OLD then 
+    STOUTL("  E/M/U - test equality of / match / unify last two terms");
+    STOUTL("Term orderings and termination");
+    STOUTL("---------------------------------------------------------");
+    STOUTL("  i - install (deinstall) term orderings");
+    STOUTL("  s - select term ordering");
+    STOUTL("  o/O - order axioms / of current data type"); 
+    STOUTL("Proof w.r.t. current TRS (assumed to be complete)");
+    STOUTL("---------------------------------------------------------");
+    STOUTL("  N - select normalization procedure");
+    STOUTL("  n - normalize a term");
+    STOUTL("  p - prove equational theorem");
+    STOUTL("Deduction / completion");
+    STOUTL("---------------------------------------------------------");
+    STOUTL("  c - compute critical pairs"); 
+    STOUTL("  C - complete current set of axioms");
+    STOUTL("Output/Options/Statistics");
+    STOUTL("---------------------------------------------------------");
+    STOUTL("  w/W - write current data type / to a file");
+    STOUTL("  r - reset times and counters");
+    STOUTL("  d - display times and counters"); 
+    STOUTL("  t - set/unset trace options"); 
+    STOUTL("Control menu");
+    STOUTL("---------------------------------------------------------");
+    STOUTL("  h/? - help, print this menu");
+    STOUTL("  q - quit"); WRITE.
+(3)  [Read answer.] O:=SMENU(o) ||
+
+
+
+                    O := SMENU(o)
+[Main menu, short.  o was the last menu result.]
+     safe c, C, O.
+(1)  [Ininialize.] if o > choicee /\ o < choiceU \/ o = choicep
+     then OLD:=TRUE else OLD:=FALSE.
+(2)  if OLD then STROUT("Go on [e|E|m|M|u|U|") 
+            else STROUT("Go on [e|m|u|");
+     STOUTL("i|s|o|O|N|n|p|c|C|w|W|r|d|t|h|q]? * ").
+(3)  READ; c := CREAD(); C:=UCASE(c).
+(4)  if OLD /\ c = 'E'        then O := choiceE else
+     if C = 'E'               then O := choicee else
+     if OLD /\ c = 'M'        then O := choiceM else
+     if C = 'M'               then O := choicem else
+     if OLD /\ c = 'U'        then O := choiceU else
+     if C = 'U'               then O := choiceu else
+     if C = 'I'               then O := choicei else
+     if C = 'S'               then O := choices else
+     if c = 'o'               then O := choiceo else
+     if c = 'O'               then O := choiceO else
+     if c = 'N'               then O := choiceN else
+     if c = 'n'               then O := choicen else
+     if C = 'P'               then O := choicep else
+     if c = 'c'               then O := choicec else
+     if c = 'C'               then O := choiceC else
+     if c = 'w'               then O := choicew else
+     if c = 'W'               then O := choiceW else
+     if C = 'R'               then O := choicer else
+     if C = 'D'               then O := choiced else
+     if C = 'T'               then O := choicet else
+     if C = 'H'               then O := choiceh else
+     if C = 'Q'               then O := choiceq else
+     O := choice0 ||

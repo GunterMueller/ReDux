@@ -1,0 +1,11 @@
+                    L:=WORDRD()
+[Word read.
+A word (i.e. a list of characters containing no white-spaces) is read 
+from the input stream. L is the character list of this word.
+Any preceding blanks are skipped. Note that a newline terminates a 
+word.]
+     safe C.
+(1)  [Skip leading blanks.]  C:=CREADB(); BKSP.
+(2)  [Read non-white-space  characters, at most up to an eoln.]  L:=();
+     while ~ SWSP() do { C:=CREAD(); L:=COMP(C,L) }; L:=INV(L) ||
+

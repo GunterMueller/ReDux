@@ -1,0 +1,21 @@
+DATATYPE R1;
+SORT
+	R1;
+CONST
+	a, b: R1;
+VAR
+	x, y, z: R1;
+OPERATOR
+	f: R1, R1 -> R1;
+	+: R1, R1 -> R1;
+NOTATION
+	f, +: FUNCTION;
+AXIOM
+[1] +(b,a)==+(a,b);
+[2] +(+(x,y),z)==+(x,+(y,z));
+[3] +(b,+(a,z))==+(a,+(b,z));
+[4] f(a,x)==a;
+[5] f(b,x)==b;
+[6] f(+(x,y),z)==+(f(x,z),f(y,z));
+END
+;This file is knz88.typ

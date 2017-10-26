@@ -1,0 +1,18 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/intmem
+   modulespecification: membership in list of gamma integers
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+]                                                                      
+
+                    b:=INTMEM(a,L)                                     
+[Integer set membership. 
+a is a gamma integer and L is a list.            
+Then b = TRUE if a is in L, otherwise b=FALSE.]                          
+     safe INTMEM.
+(1)  b:=0; L':=L; while L' # () do { ADV(L'; a1,L'); if a=a1 then    
+     {b:=1; return} }||                                                

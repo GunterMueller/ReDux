@@ -1,0 +1,49 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICICI -- IC Interactive
+   modulespecification: interactive procedures for inductive completion.
+   programmer         : Wolfgang Kuechlin/Reinhard Buendgen             
+   language           : aldes                                           
+   last change        : 03/05/88
+                        $Date: 1993/08/13 10:30:37 $
+                        by $Author: buendgen $
+   version            : extension of tckbi. Version to support iclab 
+                        (rev 1.1): MEXIT deleted
+                        $Revision: 1.2.1.4 $
+   bugs               : none known                         
+   modules needed     : sac2/bs, sac2/sy, sac2/lp,                      
+                        ic/icd                                          
+]                                                                      
+
+[ #include globs.h ]
+ 
+[--------------------------------------------------------------------- 
+     section 3.                                                         
+     Interactive queries.                                               
+----------------------------------------------------------------------]
+ 
+                    QCT()                                              
+[Query concerning trace.                                               
+The trace options are set interactively.]                              
+(1)  BLINES(1); STOUTL(" You have 9 trace options -").
+(2)  STOUTL("- tree extension    trace  [1/0] *");
+     READ; EXTRC:=AREADR().
+(3)  STOUTL("- node deletion     trace  [1/0] *");
+     READ; DLTRC:=AREADR().
+(4)  STOUTL("- theorem derivation trace [1/0] *");
+     READ; TRC2:=AREADR().
+(5)  STOUTL("- proved  theorems  trace  [1/0] *");
+     READ; TRC3:=AREADR().
+(6)  STOUTL("- formula reduction trace  [1/0] *");
+     READ; TRC1:=AREADR().
+(7)  STOUTL("- iness. crit. pair trace  [1/0] *");
+     READ; IETRC:=AREADR().
+(8)  STOUTL("- procedure name    trace  [1/0] *");
+     READ; PNTRC:=AREADR().
+(9)  STOUTL("- counter example   trace  [1/0] *");
+     READ; CETRC:=AREADR().
+(10) STOUTL("- substitution      trace  [1/0] *");
+     READ; STRC:=AREADR().
+(11) STOUTL("- term ordering     trace  [1/0] *");
+     READ; TOTRC:=AREADR().
+(12) STOUTL("- path ordering trace      [1/0] *");
+     READ; POTRC:=AREADR();  BLINES(1)    ||                                  

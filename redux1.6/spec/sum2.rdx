@@ -1,0 +1,30 @@
+%%  comment
+DATATYPE PEANOL;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS complete
+%%  DESCRIPTION Summation function
+SORT
+	PEANOL;
+CONST
+	0: PEANOL;
+VAR
+	A, B, C, D, E: PEANOL;
+OPERATOR
+	*: PEANOL, PEANOL -> PEANOL;
+	SUM: PEANOL -> PEANOL;
+	+: PEANOL, PEANOL -> PEANOL;
+	S: PEANOL -> PEANOL;
+NOTATION
+	SUM, S: FUNCTION;
+	*, +: INFIX;
+AXIOM
+  [1] (A + 0)==A;
+  [2] (A + S(B))==S((B + A));
+  [3] (A * 0)==0;
+  [4] (A * S(B))==((A * B) + A);
+  [5] SUM(0)==0;
+  [6] SUM(S(A))==S((A + SUM(A)));
+  [7] (A * (B + C)) == ((A * B) + (A * C));
+   %% 8) (S(A) * B) == ((A * B) + B)
+END
+;This file is sum2.typ

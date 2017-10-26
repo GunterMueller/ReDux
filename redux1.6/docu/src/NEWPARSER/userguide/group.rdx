@@ -1,0 +1,19 @@
+\begin{verbatim}
+DATATYPE group;
+SORT
+    G;
+VAR
+    x,y,z: G;
+CONST
+    0: G;           %% identity
+OPERATOR
+    +: G, G -> G;   %% group operator
+    ~: G -> G;      %% inverse
+ASSOC
+    +: LEFT;
+AXIOM
+[1] x + 0 == x;
+[2] x + ~x == 0;
+[3] x + y + z == x + (y + z);
+END
+\end{verbatim}

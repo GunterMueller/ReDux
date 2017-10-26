@@ -1,0 +1,85 @@
+\section{Demo Program: {\tt parser}}
+
+There is a demo program ({\tt parser}) to test all the parsing and
+output functions. When the program is started, the user has the following
+choice:
+
+\input{prun.tex}
+
+All but the last three selections start the corresponding parsers.
+When the user types ``w'' he or she is able to change the term output mode:
+\begin{verbatim}
+Current write mode:
+term output: parentheses...
+   1) around subterms with higher precedence = off
+   2) around subterms with same precedence   = on
+   3) to indicate associativity              = on
+   4) around lisp-operator's infix arguments = on
+   5) around prefix operator's argument      = off
+   6) around postfix operator's argument     = off
+   7) around infix operator and arguments    = off
+term output:
+   8) debugging          = off
+data type output:
+   9) rescanable output = off
+global output:
+  10) full debugging     = off
+Toggle which flag?    [1-10, 0 for none] *
+\end{verbatim}
+
+The first seven switches determine when parentheses are printed. With
+all options set to ``{\tt off}'', all superfluous brackets are omitted.
+Toggles eight to ten control other, different aspects of term and data type
+output.
+
+The different output modes are explained in the following in full detail:
+\begin{description}
+\item[Parentheses around subterms with same precedence:]
+  In the case of equal precedence of a term's top operator and one
+  of its operators at a direct subposition, it is not always necessary
+  to write parentheses around the subterm. According to the rule given in
+  section \ref{precrule} this happens e.g. if an infix operator occurs at top
+  position and a postfix operator at subterm-position.
+  With this option switched on, parentheses are always printed when
+  the precedence of both aforementioned operators is the same.
+  Turning off this option results in omitting brackets whenever it is possible
+  due to equal precedence.
+\item[Parentheses around subterms with higher precedence:]
+  Normally, no parentheses are necessary around a subterm whose operator
+  has a higher precedence than the term's top operator. Switching on this
+  option produces parentheses in this case, though.
+\item[Parentheses to indicate associativity:] When associativity is specified
+  for an infix operator, brackets can be left away in sequences of such
+  operators. With this switch set to ``{\bf on}'' parentheses are written, however.
+\item[Parentheses around lisp-operator's infix arguments:] Writing a lisp
+  operator's infix arguments without parentheses may look a bit confusing, though
+  it is correct. To avoid this, set this option to write parentheses for a more
+  user-friendly output.
+\item[Parentheses around prefix operator's argument:] Prefix operators (they
+  are always unary) are normally written without parentheses around the argument.
+  This can be avoided either using function notation or setting this option.
+  Note, however, that these brackets do not change precedence, as was shown in
+  section \ref{strangeprec}.
+\item[Parentheses around postfix operator's argument:] As in the case of prefix
+  operators, this switch set to ``{\bf on}'' forces brackets around postfix operator's
+  arguments. In contrast to prefix operators, this is the only possibility to
+  achieve this.
+\item[Parentheses around infix operator and arguments:] This option produces
+  brackets around an infix operator and its arguments as a whole. This switch
+  was implemented mainly for compatibility reasons (old parser).
+\item[Debugging for term output:] This option not merely writes the terms, but also
+  the address of each term position in the \ALDES\ {\tt SPACE}-array. This can be
+  useful to examine the correct handling of variables.
+\item[Rescanable input for data types:] In some cases data type output cannot
+  be reused as input for the parser. 
+  The reason for this is that escape characters
+  are omitted in the signature part of the data type. 
+  To force these escape characters
+  to be written on data type output and thus allowing rescanning of
+  printed data types  this switch can be used.
+\item[Full debugging for global output:]
+  Switching on full debugging, makes \redux\  use not the normal output
+  routines, but the \ALDES-function {\tt UWRITE} instead.
+  So the internal structure of data types and other objects is made 
+  accessible to  the user (programmer).
+\end{description}

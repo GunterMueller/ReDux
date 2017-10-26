@@ -1,0 +1,42 @@
+Verzeichnis demo/Sun4
+=====================
+
+Dieses Verzeichnis enthaelt Demonstrationsprogramme aus dem
+ReDuX-System.
+
+Zu jedem Demonstrationsprogramm exitiert eine aufuehrbare Datei und
+ein Shellscript. Das Shellscript hat den Namen der dazu gehoerigen
+aufuehrbaren Datei in Grossbuchstaben.
+
+Die Shellscripts rufen das jeweilige Programm auf. Sie koennen mit 
+einer Option und einem optionalen Parameter aufgerufen weden:
+
+SYNOPSIS: XXX [ <Datentypname> | -D [<Verzeichnisname>] ]
+
+Falls die Option -D gegeben ist, wird vor Programmstart ein Datentyp
+aus einem Verzeichnis (= Pfadname) geladen (Alle Programme gehen davon aus,
+dass eine Datei XXX.in den zu bearbeitenden Datentyp enthaelt). Der 
+Defaultpfadname ist das Unterverzeichnis `typ'.
+
+Inhalt:
++++++++
+  Makefile:     Makefile zum erzuegen der ausfuehrbaren Dateien
+                      % make xxx
+                erzeugt ausfuehrbares Programm xxx, das mit 
+                      % XXX [Options]
+                gestartet werden kann. 
+  README:       diese Datei
+  AC,ac:        Rewrite laboratory for TRS with associative-commutative
+                operators.
+  IC,ic:        Inductive completion laboratory [Bue87]
+  TC,tc:        Knuth-Bendix completion with different critical pair criteria
+  TO,to:        Term orderings
+  TS,ts:        Tops sets, top set tree and gnf-grammar computation 
+  *.in:         Datentyp
+  *.log:        Protokolldatei (wird bei jedem Programmlauf erzeugt)
+  typ:          Verzeichnis mit Datentypen
+
+
+===============
+ac01 buggy version some top critcal pairs forgotten
+ac02 buggy version still some top critcal pairs forgotten

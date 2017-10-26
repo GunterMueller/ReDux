@@ -1,0 +1,8 @@
+#!AWK -f
+# ^^^                   Only to be modified by the ReDuX 
+#                       installation make file!
+BEGIN { prev=""; ORS=""; OFS="" }
+{ if (prev!="") print prev, ", "
+  prev=$1
+}
+END { print prev, ";" }

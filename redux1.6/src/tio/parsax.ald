@@ -1,0 +1,615 @@
+[----------------------------------------------------------------------]
+[- This file contains auxiliary routines for the LEX/YACC-parser. -----]
+[- They are used in parse.y                                       -----]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "parse.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+[----- terms -----]
+
+                  t':=MKPRFT(op, t)
+[Make prefix term. 
+op is an operator signature object, t is a term.
+ Then t' is a term with op's signature and OARGLST (t).]
+(1) t':=TCONS((t),op) ||
+
+                  t':=MKPOFT(op, t)
+[Make postfix term. 
+ op is an operator signature object, t is a term.
+ Then t' is a term with op's signature and  OARGLST (t).]
+(1) t':=TCONS((t),op) ||
+
+                  t':=MKBRAT(t)
+[Make term with braces.  t is a term. t' is a term with OARGLST
+ t and TSIGN DBS. DBS is the global bracket signature object.]
+(1) t':=t; if TSIGN(t)#TSIGN(DBS) then t':=TCONS(t, DBS);
+    return ||
+
+                  t':=MKINFT(op, t1, t2)
+[Make infix term. 
+ op is an operator signature object, t1 and t2
+ are terms. (The top operator of t2 is no infix term.)
+ Then t' is a term with op's signature and OARGLST (t1,t2).]
+(1) t':=TCONS((t1,t2),op) ||
+
+                  t':=MKFUNT(op, tlst)
+[Make function term.  op is an operator signature object, tlst is a 
+ term list. Then t' is a term with op's signature and tlst's OARGLST.]
+(1) t':=TCONS(tlst,op) ||
+
+                  t':=MKLSPT(op, tlst)
+[Make lispfix term.  op is an operator signature object, tlst is a 
+ term list. Then t' is a term with op's singature and tlst's OARGLST.]
+(1) t':=TCONS(tlst,op) ||
+
+                  t':=MKROFT(op, tlst)
+[Make roundfix term.  op is an operator signature object, tlst is a 
+ term list. Then t' is a term with op's signature and tlst's OARGLST.]
+(1) t':=TCONS(tlst,op) ||
+
+                  t':=MKXT(op, obj)
+[Make external term.  op is an external operator signature object,
+ obj is any SAC2 object. t' is a term with op's signature and XOBJECT
+ obj.]
+(1) t':=TCONS(obj,op) ||
+
+                  t':=MKTLST(tlst, t)
+[Make term list. 
+tlst is a term list and t is a term, that is appended
+ at the end of tlst resulting in t'.]
+(1) t':=SUFFIX(tlst,t) ||
+
+                  t':=MKTLS0()
+[Make empty term list.]
+(1) t':=() ||
+
+                  t':=MKTLS1(t)
+[Make term list from term.]
+(1) t':=(t) ||
+
+
+[----- axioms -----]
+
+                  ax:=MKAX(t1,t2,VD,n)
+[Make axiom from terms.  t1 and t2 are terms, n is a BETA-
+ integer, the axiom-number. VD is the parse variable dictionary
+ of the axiom's left hand side variables. ax is an axiom.]
+(1) [get variable set from dictionary]
+    D:=VD; V:=(); while D # () do 
+    { nam:=PDVARNAME(D); vl:=PDVARLIST(D); while vl # () do 
+      { v:=PDVLVAR(vl); V:=COMP(v,V); vl:=PDVLNEXT(vl) }; 
+      D:=PDVARNEXT(D) 
+    }.
+(2) [construct axiom]
+    ax:=ACONS(n,t1,INV(V),t2) ||
+
+		  AL:=MKALST(al,ax)
+[Make axiom list.  al and AL are axiom lists, ax is an axiom.]
+(1) AL:=COMP(ax,al) ||
+
+                  AL:=MKALS1(ax)
+[Make axiom list from axiom.  ax is an axiom.]
+(1) AL:=(ax) ||
+
+                  AL:=MKOALS(al)
+[Make ordered axiom list.]
+(1) AL:=INV(al) ||
+
+                  L:=GTPRSV()
+[Get PDXVRS.  The global parse variable dictionary PDXVRS is
+ returned.]
+(1) L:=PDXVRS ||
+
+                  RSTVAR()
+[Reset variables.  The global parse variable dictionary PDXVRS
+ contains all known variables. This dictionary is reset.]
+(1) PDXVRS:=() ||
+
+
+[----- variables -----]
+
+                  VL:=MKVLS2(vl1, vl2)
+[Make variable list from two variable lists.
+ vl1 and vl2 are variable lists. The new variable list VL is
+ the concatenation of the two lists vl1 and vl2.]
+(1) [concatenate] VL:=CONC(vl1,vl2) ||
+ 
+                  VL:=MKVLST(vnl, typ)
+[Make variable list from variable name list.  vnl is a variable
+ name (symbol) list, typ is a symbol denoting the type of all
+ variables in vnl. For all variables in vnl a VAR-object with
+ type typ is created, and put into the list VL.]
+(1) [make variables from symbols and type]
+    v':=vnl; VL:=(); while v'#() do
+    { ADV(v'; vn, v'); VL:=COMP(VCONS(vn,typ),VL) } ||
+
+
+[----- constants -----]
+
+                  CL:=MKCLS2(cl1, cl2)
+[Make constant list from two constant lists.
+ cl1 and cl2 are constant lists. The new constant list CL is
+ the concatenation of the two lists cl1 and cl2.]
+(1) [concatenate] CL:=CONC(cl1,cl2) ||
+
+                  CL:=MKCLST(cnl, typ)
+[Make constant list from constant name list.  cnl is a constant
+ name (symbol) list, typ is a symbol denoting the type of all
+ constants in cnl. For all constants in cnl a CONST-object
+ with type typ is created, and put into the list CL.]
+(1) [make constants from symbols and type]
+    c':=cnl; CL:=(); while c'#() do
+    { ADV(c'; cn, c'); CL:=COMP(CCONS(cn,typ),CL) } ||
+
+[----- operators -----]
+
+                 OL:=MKOLS2(ol1, ol2)
+[Make operator list from two operator lists.
+ ol1 and ol2 are operator lists. The new operaror list OL is
+ the concatenation of the two lists ol1 and ol2.]
+(1) [concatenate] OL:=CONC(ol1,ol2) ||
+
+                  OL:=MKOLST(onl, doml, ran)
+[Make operator list from operator name list.  onl is an
+ operator name (symbol) list, doml is a symbol list
+ denoting domain types (in reverse!), ran is a symbol denoting
+ the operators' range. For all operators in onl an OPERATOR
+ signature object with domain doml and range ran is created,
+ and put into the list OL.]
+(1) [make operators from symbols, domain list and range]
+    o':=onl; OL:=(); d':=INV(doml); while o'#() do
+    { ADV(o'; on, o'); OL:=COMP(OCONS(on,d',ran),OL) } ||
+
+                  op:=MKOP(on, doml, ran)
+[Make operator.]
+(1) op:=FIRST(MKOLST((on),doml,ran)) ||
+
+
+[----- coercion operators -----]
+
+                  CEL:=MKCEL2(cel1, cel2)
+[Make coercion operator list from two coercion operator lists.
+ cel1 and cel2 are coercion operator lists. The new coercion
+ operator list CEL is the concatenation of the two lists
+ cel1 and cel2.]
+(1) [concatenate] CEL:=CONC(cel1,cel2) ||
+
+                  CEL:=MKCELS(con, dom, ran)
+[Make coercion operator list from coercion operator name.
+ con is a coercion operator name (symbol), dom and ran
+ are symbols denoting the operator's domain and range resp.
+ For the operator con an EXT signature object is ceated.]
+(1) [make coercion operator from symbol, domain and range]
+    co:=XOCONS(con,(dom),ran); CEL:=(co); 
+    if GET(ran,DXCO)=() then PUT(ran,DXCO,co) ||
+
+                  COEPP(dt)
+[Coercion operators, post processing.
+ dt is a data type. The coercion functions for all operators
+ of data type dt are updated.]
+(1) [update] cop:=DTOPERS(dt); OSUCF(cop) ||
+
+
+[----- identifiers -----]
+
+                  sym:=MKIDNT(nam, l)
+[Make identifier.  nam[l] is an array of characters, sym is 
+ a symbol. The identifier with name nam[1..l] is inserted
+ into the global symbol table SYMTB under kind IDENT.
+ Under property FLAT the name of the identifier is stored.
+ sym is the symbol table entry.]
+    safe nam[l].
+(1) [init] name:=().
+(2) [build name] for i=l,l-1,...,1 do name:=COMP(nam[i],name).
+(3) [remove escape character]
+    n':=name; while n'#() do { c:=FIRST(n'); if c='`' then
+    { FIRST(n'):=SECOND(n'); RED(n'):=RED2(n') }; n':=RED(n') }.
+(4) [make symbol] p:=PACK(name); sym:=STINS(p).
+(5) [add FLAT property] PUT(sym, FLAT, name) ||
+
+                  IL:=MKILST(il, id)     
+[Make identifier list.  il and IL are lists of symbols,
+ id is a symbol, that has already been inserted into the
+ global symbol table. The list IL is the concatenation
+ of (id) and il.]
+(1) IL:=COMP(id,il) ||
+
+                  IL:=MKILS1(id)
+[Make identifier list from identifier. id is an identifier.]
+(1) IL:=(id) ||
+
+                  IL:=MKILS0()
+[Make empty identifier list.]
+(1) IL:=() ||
+
+
+[----- numbers -----]
+
+                  n:=MKNUM(dig,l)
+[Make number.  dig[l] is an array of decimal digits, n is a
+ beta integer. The array dig is interpreted as a number, which
+ is returned.]
+    safe dig[l].
+(1) [init] n:=0.
+(2) [calculate number] for i=1,...,l do n:=10*n+dig[i]-'0' ||
+
+
+[----- external -----]
+
+                  el:=MKEXTL(sorts, props)
+[Make external type list with one element.  sorts is a list of
+ external sort symbols, props is a property list containing
+ the interface of the external sorts in 'sorts' (i.e. XREAD,
+ XWRITE,...). el is a list with all symbols in 'sorts' having
+ property list 'props'.]
+(1) [init] s':=sorts.
+(2) [add properties] while s'#() do
+    { ADV(s'; sort,s'); p':=props; while p'#() do
+      { ADV2(p'; key, alg, p'); p:=GET(sort,key);
+        if p#() then SEMWRN(4, (sort,key));
+        PUT(sort,key,alg)
+    }; PUT(sort,DXT,1) }.
+(3) [finish up] el:=sorts ||
+
+                  xl:=MKXTL2(xl1,xl2)
+[Make external type list from two external type lists.
+ xl, xl1 and xl2 are lists of external types (symbols). The
+ new list xl is the concatenation of the lists xl1 and xl2.
+ xl1 is destroyed.]
+(1) [concatenate] xl:=CONC(xl1,xl2) ||
+
+                  pl:=MKEXPL(opl1, opl2)
+[Make external property list. 
+ opl1 and opl2 are external property lists.
+ The old external property list opl1 is extended by the new extenal
+ property list opl2. opl1 is destroied.]
+(1) pl:=CONC(opl1,opl2) ||
+
+                  pl:=MKEXTP(prop, alg)
+[Make external property.  pl is an external property list, prop
+ is a property symbol, alg is a symbol denoting an algorithm.
+ pl is a list of length two, in which under property prop
+ algorithm key alg is stored.]
+(1) pl:=(prop, alg) ||
+
+
+[----- fixity -----]
+
+                  pl:=MKFXPL(fs, crs)
+[Make fixity property list.  fs is a fixity property symbol,
+ crs is the closing roundfix symbol for roundfix operators.
+ crs is only used, if fs=DRF. pl is a fixity property list.]
+(1) [no roundfix]
+    if fs=DRF then goto 2; pl:=(DFS, fs); return.
+(2) [roundfix]
+    pl:=(DFS,fs, DCR,crs) ||
+
+
+                  ok:=FXFIX(dt, onl, fix)
+[Fix fixity.  dt is the datatype currently under construction,
+ onl is an operator name (symbol) list, fix is a fixity
+ property list. All operators in dt with names occurring in
+ onl get fixity fix. ok=TRUE if no error occurred, otherwise
+ ok=FALSE.]
+
+(1) [init] ok:=TRUE; o':=onl; O:=DTOPERS(dt); rdf:=FALSE.
+(2) [roundfix?]
+    if FXPLCRP(fix) # () then
+    { [closing roundfix symbol already used?]
+      rdf:=TRUE; crs:=FXPLCRS(fix); so:=SYTGET(dt,crs);
+      if so # () then 
+      { if ~(MEMBER(TNAME(so),onl) \/ TGET(so,DFS) = DCR
+           \/ TGET(so,DFS) = DRF) then
+        { SEMERR(10,(crs)); ok:=FALSE; return }
+      } else STUDCR(dt,crs);
+      [roundfix, only one identifier per roundfix declaration]
+      if LENGTH(onl) # 1 then SEMWRN(2,()); 
+    }.
+(3) [get operator symbol] if o' = () then return; 
+    ADV(o'; on,o').
+(4) [search operator "on" in data type and add fixity property.]
+    O':=O; while O' # () do
+    { ADV(O'; op,O'); if TNAME(op)=on then
+      { [fixity already set (and no default setting) ?]
+        fx:=TGET(op,FXPLIND(fix)); def:=TGET(op,DDF);
+        if fx # () /\ def # 1 then
+        { SEMERR(3,(on)); ok:=FALSE; return };
+        [fix property] TPUT(op, FXPLIND(fix), FXPLFIX(fix));
+        [remove default fixing indicator] TPRRM(op,DDF);
+        [change prefix to function fixing for operators with arity#1]
+        if FXPLFIX(fix) = DEF /\ LENGTH(ODTYPE(op)) # 1 then
+          TPUT(op, FIRST(fix), DFF);
+        [roundfix?] if rdf then TPUT(op, FXPLCIN(fix), crs);
+        [specified fixing allowed?] ok:=CHKFIX(op);
+        if ~ok then return;
+        [next operator] goto 3
+    } }.
+(5) [undeclared operator, report semantic error]
+    SEMERR(2,(on)); ok:=FALSE ||
+
+
+[----- associativity -----]
+
+                  al:=MKASPL(assoc)
+[Make associativity property list.  assoc is an associativity
+ property symbol. al is the property list (DOA, assoc).]
+(1) [make property list] al:=(DOA, assoc) ||
+
+                  ok:=FXASC(dt, onl, al)
+[Fix associativity.  dt is the datatype currently under con-
+ struction, onl is an operator name (symbol) list, al is an
+ associativity property list. All operators in dt with
+ names occurring in onl get associativity al.
+ ok=TRUE if no error occurred, otherwise ok=FALSE.]
+(1) [init]
+    ok:=TRUE; o':=onl; O:=DTOPERS(dt).
+(2) [get operator symbol]
+    if o' = () then return; ADV(o'; on,o').
+(3) [search operator "on" in datatype and add assoc
+     property list]
+    O':=O; while O' # () do
+    { ADV(O'; op, O'); if TNAME(op)=on then
+      { [associativity already set?]
+        if TGET(op,FIRST(al)) # () then
+        { SEMERR(5,(on)); ok:=FALSE; return };
+        [infix operator?] if TGET(op, DFS) # DIF then
+          SEMWRN(3,(on)) else
+        [fix property] TPUT(op, FIRST(al), SECOND(al));
+        goto 2
+    } }.
+(4) [undeclared operator, report semantic error]
+    SEMERR(2,(on)); ok:=FALSE ||
+
+
+[----- unification status -----]
+
+                  ul:=MKUSPL(ustat)
+[Make unification status.  ustat is a unification property symbol.
+ ul is the property list (DUS, ustat).]
+(1) [make property list] ul:=(DUS, ustat) ||
+
+                  ok:=FXUST(dt, onl, ul)
+[Fix unification status.  dt is the datatype currently under 
+ construction, onl is an operator name (symbol) list, ul is a 
+ unification status property list. All operators in dt with
+ names occurring in onl get unification status ul.
+ ok=TRUE if no error occurred, otherwise ok=FALSE.]
+(1) [init] ok:=TRUE; o':=onl; O:=DTOPERS(dt); V:=DTVARS(dt).
+(2) [get operator symbol]
+    if o' = () then return; ADV(o'; on,o').
+(3) [search operator "on" in datatype and add ustat
+     property list]
+    O':=O; while O' # () do
+    { ADV(O'; op, O'); if TNAME(op) = on then
+      { [unification status already set?]
+        if TGET(op,FIRST(ul)) # () then
+        { SEMERR(7,(on)); ok:=FALSE; return };
+        [consistent unification status?]
+        us:=SECOND(ul); if us = DAC then ok:=OACC(op) else
+        if us = DCO then ok:=OCOMC(op); if ~ok then
+        { SEMERR(8,(on)); return };
+        [fix property] TPUT(op, FIRST(ul), SECOND(ul));
+        [fix ustat] TUSTAT(op):=SECOND(ul);
+        [add DAV variable] type:=FIRST(ODTYPE(op));
+        var:=VSFVY(V,type); if var = () then
+        { ERRSD(9,11,type); VGCONS(V,type; var,V);
+          DTVARS(dt):=V };
+        TPUT(op,DAV,var); goto 2
+    } }.
+(4) [undeclared operator, report semantic error]
+    SEMERR(2,(on)); ok:=FALSE ||
+
+
+[----- precedence -----]
+
+                  pl:=MKPREC(ops1, ops2, kind)
+[Make precedence.  ops1 and ops2 are operator name (symbol)
+ lists, kind is 1 if the operators in ops1 have a lower
+ precedence than the operators in op2, and kind is 0, if
+ the operators in ops1 and ops2 have the same precedence.
+ pl is a list of operators with ascending operators'
+ precedence.]
+(1) [same precedence?]
+    if kind = 0 then { pl:=LIST1(CONC(ops1,ops2)); return }.
+(2) [prec(ops1) < prec(ops2)]
+    pl:=(ops1,ops2) ||
+
+                  pln:=MKPRCL(pl, ops, kind)
+[Make precedence list.  pl is an operator precedence list, as
+ produced by MKPREC. ops is a list of operator names, and
+ kind has the same meaning as in MKPREC. pln is a new
+ precedence list, with operators ops inserted.]
+(1) [same precedence?]
+    if kind = 0 then
+    { l:=LAST(pl); FIRST(l):=CONC(FIRST(l), ops); pln:=pl;
+      return }.
+(2) [prec(pl) < prec(ops)]
+    pln:=SUFFIX(pl, ops) ||
+
+                  ok:=FXPREC(dt, pl)
+[Fix precedence.  pl is a precedence list (see MKPREC).
+ All operators are assigned a precedence according to the
+ order of the precedence list.]
+(1) [init] prec:=0; p':=pl; O:=DTOPERS(dt); ok:=TRUE.
+(2) [finished?] if p' = () then return.
+(3) [same precedence] ADV(p'; ops,p');
+    o':=ops; while o' # () do
+    { [search operator] ADV(o'; op,o'); O':=O; found:=FALSE;
+      while O' # () /\ ~found do
+      { ADV(O'; ope,O'); if TNAME(ope) = op then
+        { [precedence already set?] if TGET(ope,DOP) # () then
+          { SEMERR(6,(op)); ok:=FALSE; return };
+          [coercion function?] if TKIND(ope) = DXT then
+            SEMWRN(5,(op)) else
+          [prefix, infix or postfix operator?]
+          { f:=TGET(ope,DFS); 
+            if f # DIF /\ f # DEF /\ f # DPF then SEMWRN(9,(op)) 
+            else [assign precedence] TPUT(ope, DOP, prec) 
+          }; found:=TRUE
+      } };
+      [undeclared operator]
+      if ~found then { SEMERR(2,(op)); ok:=FALSE; return }
+    }.
+(4) [next higher precedence] prec:=prec+1; goto 2 ||
+
+
+[----- property -----]
+
+                  pl:=MKPRP1(p,val)
+[Make property list from property.
+ p is a property (symbol), val is a symbol denoting the value
+ to store under property p. p must be one of DXIA,KBOI,KBOW,DXCO,
+ XFG. Then pl is the property list ((p,interpretation(val))).]
+(1) [DXIA] if p=DXIA then { pl:=LIST1(LIST2(p,val)); return }.
+(2) [KBOI] if p=KBOI then { v:=SYM2I(val); pl:=LIST1(LIST2(p,v));
+      return }.
+(3) [KBOW] if p=KBOW then { v:=SYM2I(val); pl:=LIST1(LIST2(p,v));
+      return }.
+(4) [DXCO] if p=DXCO then { pl:=LIST1(LIST2(p,val)); return }.
+(5) [DXFG] if p=DXFG then { pl:=LIST1(LIST2(p,val)); return }.
+(6) [IDENT = IDENT] pl:=LIST1(LIST2(p,val)) ||
+[(6) [error!] STOUTL("Internal error in MKPRP1 !!!"); stop ||]
+
+                  PL:=MKPRPL(pl,prop,val)
+[Make property list.
+ PL and pl are property lists. prop and val are symbols.
+ The specification is similar to MKPRP1, but the new 
+ property list is added to pl, thus resulting in PL.]
+(1) [make new property list] p':=MKPRP1(prop,val).
+(2) [add new property list] PL:=CONC(p',pl) ||
+
+                  ok:=FXPROP(dt,sl,pl)
+[Fix property.
+ dt is a datatype, sl is a signature object list,
+ pl is a property list. The properties in pl are
+ set for all objects in sl. If no error occurs, ok is
+ TRUE else FALSE.]
+(1) [init] ok:=TRUE; s':=sl; X:=DTXSORTS(dt);
+    [properties allowed for constants, variables and operators]
+    S:=CONC(CONC(COPY(DTCONST(dt)),COPY(DTVARS(dt))),DTOPERS(dt)).
+(2) [get signature object symbol]
+    if s'=() then return; ADV(s'; sn,s').
+(3) [search object "so" in datatype and add property]
+    S':=S; while S'#() do
+    { ADV(S'; so, S'); if TNAME(so)=sn then
+      { [add properties] l':=pl; while l'#() do
+        { ADV(l'; prop,l'); ind:=FIRST(prop);
+          [property already set?] if TGET(so,ind)#()
+          then { SEMERR(19,(sn,ind)); ok:=FALSE; return };
+          [no consistency check (so far!)]
+          [fix property] TPUT(so, ind, SECOND(prop));
+          [check for external evaluation properties.] 
+          if INTMEM(ind,X) then TPUT(so,DXT,ind)
+        }; goto 2
+    } }.
+(4) [undeclared operator, report semantic error]
+    SEMERR(2,(sn)); ok:=FALSE ||
+
+
+[----- datatype -----]
+
+                  dt:=MKEDT()
+[Make empty datatype.  dt is the list
+ dt = ( (),(),(),(),(), (), (), () ).]
+(1) dt:=DTCONS((),(),(),(),(),(),(),()) ||
+
+                  MKDTNM(dt, name)
+[Make datatype name.  dt is the datatype under
+ construction, name is a symbol. DTNAME(dt) is set to name.]
+(1) DTNAME(dt):=name ||
+
+                  MKDTSO(dt, sorts)
+[Make datatype sorts.  dt is the datatype under construction,
+ sorts is a list of symbols. The list of sorts is added
+ to dt's sorts.]
+(1) DTSORTS(dt):=CONC(DTSORTS(dt),INV(sorts)) ||
+
+                  MKDTXS(dt, xsorts)
+[Make datatype external sorts.  dt is the datatype under construction,
+ xsorts is a list of symbols with properties XREAD, XWRITE,etc. added.
+ The list of external sorts is added to dt's external sorts.]
+(1) DTXSORTS(dt):=CONC(DTXSORTS(dt),INV(xsorts)) ||
+
+                  MKDTCO(dt, consts)
+[Make datatype constants.]
+(1) DTCONST(dt):=CONC(DTCONST(dt),consts) ||
+
+                  MKDTVR(dt, vars)
+[Make datatype variables.  dt is the datatype currently
+ under construction, vars is a list of variables. The
+ list of variables is added to dt's variables.]
+(1) DTVARS(dt):=CONC(DTVARS(dt),vars) ||
+
+                  MKDTOP(dt, ops)
+[Make datatype operators.  dt is the datatype under
+ construction, ops is a list of operators. The list
+ of operators is added to dt's operators.]
+
+(1) DTOPERS(dt):=CONC(DTOPERS(dt),ops) ||
+
+                  MKDTCE(dt, ceps)
+[Make datatype coercion operators.  dt is the datatype
+ currently under construction, ceps is a list of
+ coercion operators. The list of coercion operators
+ is added to dt's operators.]
+(1) DTOPERS(dt):=CONC(DTOPERS(dt),ceps) ||
+
+                  MKDTAX(dt, axioms)
+[Make datatype axioms.]
+(1) DTAX(dt):=CONC(DTAX(dt),axioms) ||
+
+                  dt:=MKEDT2(oldDT)
+[Make empty datatype form old data type.
+ oldDT is a data type. 
+ Then dt is an almost empty datatype that shares the sorts 
+ of oldDT and the extenal sorts of old DT.]
+(1) dt:=DTCONS((),(),(),(),(),DTSORTS(oldDT),DTXSORTS(oldDT),()) ||
+
+
+[----- defaults -----]
+
+                  ODFFIX(ops)
+[Add default operator fixity.  ops is a list of operators.
+ All operators in ops get a default. This is infix for
+ binary operators, constfix for 0-ary operators and
+ prefix for all others.]
+(1) [init] o':=ops.
+(2) [finished?] if o'=() then return.
+(3) [get operator] ADV(o'; op, o').
+(4) [add default indicator] TPUT(op,DDF,1).
+(5) [external] if TKIND(op)=DXT then { TPUT(op,DFS,DEF);
+      goto 2 }.
+(6) [infix] l:=LENGTH(ODTYPE(op)); if l=2 then
+    { TPUT(op,DFS,DIF); goto 2 }.
+(7) [const] if l=0 then { TPUT(op,DFS,DCS); goto 2 }.
+(8) [prefix] if l=1 then { TPUT(op,DFS,DEF); goto 2 }.
+(9) [funcfix] TPUT(op,DFS,DFF).
+(10) [next operator] goto 2 ||
+
+                  RMDFFX(DT)
+[Remove default operator fixing indicator.  DT is a data type.
+ For all of DT's operators the default fixity indicator DDF
+ is deleted.]
+(1) [remove property] o':=DTOPERS(DT); 
+    while o'#() do { ADV(o'; op,o'); TPRRM(op,DDF) } ||
+
+
+[----- operator relation operator list -----]
+
+                  L:=MKOROL(os,rel,osl)
+[Make operator relation operator list.]
+(1) [pack] L:=LIST3(os,rel,osl) ||
+
+
+                  rs:=MKREL(id)
+[Make relation string.  id is an integer between 0 and 5.
+ rs is a one- or two-character relation string.]
+(1) [build string] case id of
+    { 0 do rs:="<=";      1 do rs:=">=";
+      2 do rs:="~";       3 do rs:="#";
+      4 do rs:=">";       5 do rs:="<"
+    } ||

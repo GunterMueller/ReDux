@@ -1,0 +1,12 @@
+                    R:=PCALL3(p,m,a1,a2,a3)
+[Call procedure with 3 input arguments.
+p is a beta-integer denoting a procedure P. m is a non-negative
+beta-integer less or equal to MAXOUT. P has m output and 3 input 
+paramters.
+Then R = (r1, ..., rm) is a list of length m where the ri are computed
+by calling P(a1,a2,a3; r1, ..., rm).]
+
+     safe r. array r[ITMAXOUT].
+
+(1)  [Dispatch.] case p of
+     { [ <i> do <procedure i>(a1,a2,a3; r[1], ..., r[m]);]

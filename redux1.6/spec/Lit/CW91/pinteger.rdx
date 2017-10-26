@@ -1,0 +1,44 @@
+%%  comment symbol
+DATATYPE PInteger;
+%%  AUTHOR Dave Cohen & Phil Watson
+%%  ORIGIN Dave Cohen & Phil Watson. "An efficient representation of
+%%  ORIGIN  arithmetic  for term rewriting systems". RTA'91
+SORT
+	Int;
+CONST
+	0, 1, 2, 3, MIN: Int;
+VAR
+	x, y, z: Int;
+OPERATOR
+	|: Int, Int -> Int;	%%  place operator
+	+: Int, Int -> Int;	%%  addition
+	*: Int, Int -> Int;	%%  multiplication
+NOTATION
+	|, +, *: INFIX;
+THEORY
+	+, *: AC;
+AXIOM
+  [1] (0 * x) == 0;
+  [2] (1 * x) == x;
+  [3] (2 * 2) == (1 | 0);
+  [4] (3 * x) == (x | (MIN * x));
+  [5] (MIN * MIN) == 1;
+  [6] (2 * MIN) == (MIN | 2);
+  [7] ((x | y) * z) == ((x * z) | (y * z));
+  [8] ((y + z) * x) == ((x * y) + (x * z));
+  
+  [9] (0 + x) == x;
+ [10] (x + x) == (2 * x);
+ [11] (1 + 2) == 3;
+ [12] (1 + MIN) == 0;
+ [13] (2 + MIN) == 1;
+ [14] (3 + x) == (1 | (MIN + x));
+ [15] ((x | y) + z) == (x | (y + z));
+ [16] ((2 * x) + x) == (3 * x);
+ [17] ((MIN * x) + x) == 0;
+ [18] ((2 * x) + (MIN * x)) == x;
+
+ [19] (MIN | 3) == MIN;
+ [20] (x | MIN) == ((MIN + x) | 3);
+ [21] (0 | x) == x;
+ [22] (x | (y | z)) == ((x + y) | z);

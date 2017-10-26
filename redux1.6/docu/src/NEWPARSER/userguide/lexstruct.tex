@@ -1,0 +1,195 @@
+\section{Lexical Structure}
+
+The lexical structure of \redux\ data types describes the low-level input 
+and output on character level.
+Lexemes, the smallest entities with a definite meaning,
+are built up from letters (upper and lower case), digits
+and ``special'' characters. These special characters are:
+
+{\tt
+\begin{verbatim}
+! @ $ % * _ & + ^ | ~ ( ) [ ] { } ` ' " . \ / ? < = > , ; : # -
+\end{verbatim}}
+
+White spaces (blanks, newlines and tabulators) are treated as delimeters, 
+and for this reason they are not allowed within lexemes.
+
+The logically splitted structure of a data type (signature vs. equations) is
+reflected by a similar devision on the lexical level. Thus, the lexical
+structure for specifying signatures is different from that of equations.
+
+\subsection{Signature Definition}
+
+Within the signature part of a data type, which consists of all but the
+{\tt AXIOM}-section\footnote{Sections are described later, cf.\ 
+figure~\ref{dtgram1}},
+lexemes can be devided into several groups: Keywords, reserved lexemes,
+(normal) identifiers and extended identifiers.
+
+\begin{description}
+\item[Keywords:]
+Keywords consist of letters and have a predefined meaning
+in the signature part of a data type specification. Therefore, they can not
+be used otherwise, e.g. as identifiers. 
+The keywords of the data type definition language are:
+\begin{flushleft}
+{\tt AC, ASSOC, AXIOM, COERC, COERCION, COM, CONST,
+CONSTANT, DATATYPE, END, EXTERNAL, FUNCTION, INFIX,
+KBINDEX, KBWEIGHT, LEFT, LISP, NONE, NOTATION, OPERATOR,
+POSTFIX, PREC, PREFIX, PROPERTY, RIGHT, ROUNDFIX,
+SORT, THEORY, VAR, XEQ, XFG, XINT, XLT, XREAD, XTERM, XWRITE}
+\end{flushleft}
+
+\item[Reserved lexemes:]
+Reserved lexemes are of similar nature as keywords, in the way that they
+have a definite, unchangeable meaning. Reseved lexemes consist of special characters,
+as they are defined above. Like keywords, they are not allowed as identifiers.
+These reserved lexemes are:
+
+{\tt\verb|( ) , == ; %%|}
+
+The first four of them ({\tt\verb|( ) , ==|}) have a special meaning in the
+equational part of the data type definition.
+The semicolon indicates the end of a (definition) command, axiom or term.
+(It is not used as a command separator!)
+Two percent signs ({\tt\verb|%%|}) make up the line-comment symbol.
+All characters after the line-comment symbol upto a newline\footnote{Newlines
+are also inserted by the ALDES I/O-system after a specific number
+of characters. This property may be ignored, as there is another limitation
+on line-length in the I/O-system. See the ALDES manuals for details.}
+are skipped by the parser.
+
+Moreover, identifiers can not have any of the special characters
+{\tt\verb|( ) , ;|} as components. Because the lexemes {\tt =} and {\tt \%}
+are not reserved, they are valid identifiers. Identifiers starting with
+{\tt \%\%} or {\tt ==} are prohibited due to their special meaning as 
+line-comment
+symbol and equivalence indicator in the {\tt AXIOM}-section respectively, but
+they may be suffixes of valid identifiers.
+
+\begin{example}
+{\rm {\tt <==}, {\tt\verb|%|} and {\tt\verb|x%%|} are valid identifiers,
+{\tt ==>} and {\tt\verb|%%a|} are prohibited.}
+\end{example}
+
+\item[Identifiers:]
+Normal identifiers consist of sequences of letters (upper and lower case)
+and digits, with
+the first character being letter. In a more formal way, we can write:
+
+{\vs Ident} \gprod {\vs Letter} \gstar{{\vs Letter} \galt {\vs Digit}},
+
+where {\vs Letter} is any character of {\tt a,b,c,\dots,x,y,z,
+A,B,C,\dots,X,Y,Z} and
+{\vs Digit} is one of {\tt 0,1,2,3,4,5,6,7,8,9}.
+
+\item[Extended identifiers:]
+Extended identifiers (by contrast to normal identifiers) may use special characters and
+need not start with a letter.
+Formally written:
+
+{\vs XIdent} \gprod \gplus{{\vs Letter} \galt {\vs Digit} \galt {\vs SpecChar}},
+
+where {\vs Letter} and {\vs Digit} are defined as above, and {\vs SpecChar}
+indicates a special character.
+
+Which special characters are allowed and which not, is context-dependent and
+refers to the reserved characters in the corresponding section.
+
+Those special characters which are not allowed in a given context can be used, if
+they are preceded by an escape character. The escape character is the backtick
+({\tt `}). The backtick itself is made available by two subsequent backticks.
+
+The special characters which can be used in all sections (without escape
+character) are:
+
+{\tt\verb:! @ # $ * _ & + ^ | ~ [ ] { } ' " . \ / ? >:}
+
+The context-dependent special characters as shown in table~\ref{contdep}
+are not allowed without escape character in the respective sections.
+All other special characters can be used without escape character,
+as long as they are not reserved lexemes or one of the special characters
+{\tt\verb!% ` =!}.  Reserved lexemes can never be used
+as identifiers.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Context/Section & Reserved characters\\ \hline
+\hline
+Data type name & none \\ \hline
+External sort declaration & {\tt\verb!= :!} \\ \hline
+Constant declaration & {\tt\verb!:!} \\ \hline
+Variable declaration & {\tt\verb!:!} \\ \hline
+Operator declaration & {\tt\verb!:!} \\ \hline
+Coercion function declaration & {\tt\verb!:!} \\ \hline
+Precedence declaration & {\tt\verb!< =!} \\ \hline
+Associativity declaration & {\tt\verb!:!} \\ \hline
+Notation declaration & {\tt\verb!:!} \\ \hline
+Theory declaration & {\tt\verb!:!} \\ \hline
+Property declaration & {\tt\verb!= :!} \\ \hline
+\end{tabular}
+\end{center}
+\caption{Context-Dependent Reserved Special Characters}
+\label{contdep}
+\end{table}
+
+Though not recommended, it may be useful to be able to use keywords as identifiers.
+This can be achieved by appending an escape character in front of the keyword.
+\begin{example}
+{\rm {\tt`END} makes the identifier {\tt END} available in the equational part.}
+\end{example}
+
+Unnecessary escape characters are ignored.
+
+\end{description}
+
+\subsection{Equational Definition}
+The equational definition part of a data type consists of the {\tt AXIOM}-section.
+In contrast to the signature part there is no escape character
+in this section. Identifiers which needed an escape character on definition
+must be written without here. There are only five lexemes with a special
+meaning in this section:
+
+\begin{itemize}
+\item
+The opening and closing parentheses ({\tt (} and {\tt )}) are used around function
+arguments and to determine evaluation order.
+\item
+The semicolon ({\tt ;}) is used to indicate the end of an equation (axiom)
+or term.
+\item
+The comma ({\tt ,}) serves as argument separator.
+\item
+The equivalence sign ({\tt ==}) is used to express equality within
+axioms.
+\item
+The line-comment symbol ({\tt\verb|%%|}) has the same semantic as in the
+signature part.
+\end{itemize}
+
+Parsing of terms or axioms may be ambiguous due to the parser's ability to read
+sequences of identifiers which are not separated by white spaces.
+These ambiguities are
+resolved (as usual) by a principle of longest match (in conjunction with white
+spaces as delimiters).
+
+It should be mentioned, that writing a data type to an output stream normally
+uses a format simplifying the application of escape characters. Those users, who 
+are only
+interested in using the term and axiom parser, but do not want to write their own 
+data types, thus need not know anything about the rules for escape characters 
+given above: On printing the data type, all (extended) identifiers
+are written exactly the way they can be re-typed for term or axiom input. I.e. escape
+characters are omitted, though they would be necessary in a signature specification
+for parsing.\footnote{There is an output option, which disables this feature, thus
+permitting rescanning of printed data types.}
+
+\begin{note}
+The \ALDES\ I/O-system restricts the length of input lines to a fixed 
+number of characters.
+All additional characters occurring in an input line which is longer 
+than this fixed number are ignored. 
+See the \ALDES\ manuals for details.
+\end{note}

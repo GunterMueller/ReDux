@@ -1,0 +1,69 @@
+DATATYPE INTEGER;
+SORT
+	BOOL, INT, NAT, SIG;
+CONST
+	zero: NAT;
+	0: INT;
+	true, false: BOOL;
+	neg, null, pos: SIG;
+VAR
+	n, m, i, j: NAT;
+	x, y, z: INT;
+	p, q, r: BOOL;
+	s, t: SIG;
+OPERATOR
+	iftosig: BOOL, SIG, SIG -> SIG;
+	iftonat: BOOL, NAT, NAT -> NAT;
+	GT: NAT, NAT -> BOOL;
+	NS: NAT -> NAT;
+	NM: NAT, NAT -> NAT;
+	S: INT -> INT;
+	P: INT -> INT;
+	sign: INT -> SIG;
+	abs: INT -> NAT;
+	signcomp: INT, NAT, NAT -> SIG;
+	abscomp: INT, NAT, NAT -> NAT;
+	+: INT, INT -> INT;
+	<: INT, INT -> BOOL;
+	ifsig: SIG, BOOL, BOOL, BOOL -> BOOL;
+NOTATION
+	GT, NS, NM, S, P, sign, abs, +, <: FUNCTION;
+AXIOM
+[1]  iftosig(false,s,t) == t;
+[2]  iftosig(true,s,t) == s;
+[3]  iftonat(false,m,n) == n;
+[4]  iftonat(true,m,n) == m;
+
+[5]  GT(zero,n) == false;
+[6]  GT(NS(n),zero) == true;
+[7]  GT(NS(m),NS(n)) == GT(m,n);
+[8]  NM(n,zero) == n;
+[9]  NM(zero,NS(n)) == zero;
+[10] NM(NS(m),NS(n)) == NM(m,n);
+
+[11] sign(x) == signcomp(x,zero,zero);
+[12] signcomp(0,m,n) == iftosig(GT(m,n),pos,iftosig(GT(n,m),neg,null));
+[13] signcomp(S(x),m,n) == signcomp(x,NS(m),n);
+[14] signcomp(P(x),m,n) == signcomp(x,m,NS(n));
+
+[15] abs(x) == abscomp(x,zero,zero);
+[16] abscomp(0,m,n) == iftonat(GT(m,n),NM(m,n),NM(n,m));
+[17] abscomp(S(x),m,n) == abscomp(x,NS(m),n);
+[18] abscomp(P(x),m,n) == abscomp(x,m,NS(n));
+
+[19] S(P(x)) == x;
+[20] P(S(x)) == x;
+[21] +(0,x) == x;
+[22] +(P(x),y) == P(+(x,y));
+[23] +(S(x),y) == S(+(x,y));
+
+[24] ifsig(neg,p,q,r) == p;
+[25] ifsig(null,p,q,r) == q;
+[26] ifsig(pos,p,q,r) == r;
+[27] <(x,y) == ifsig(sign(x),
+                ifsig(sign(y),GT(abs(x),abs(y)),true,true),
+                ifsig(sign(y),false,false,true),
+                ifsig(sign(y),false,false,GT(abs(y),abs(x))));
+[28] signcomp(x,NS(m),NS(n)) == signcomp(x,m,n);
+[29] abscomp(x,NS(m),NS(n)) == abscomp(x,m,n);
+END

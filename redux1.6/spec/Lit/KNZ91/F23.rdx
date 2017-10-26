@@ -1,0 +1,23 @@
+DATATYPE SORT;
+SORT
+	SORT;
+CONST
+	0, 1: SORT;
+VAR
+	x, y, z: SORT;
+OPERATOR
+	+: SORT, SORT -> SORT;
+	*: SORT, SORT -> SORT;
+NOTATION
+	+, *: FUNCTION;
+AXIOM
+[1] +(x,0) == x;
+[2] +(0,x) == x;
+[3] +(+(1,y),z) == +(1,+(y,z));
+[4] +(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,+(1,
+   +(1,+(1,+(1,+(1,+(1,+(1,1)))))))))))))))))))))) == 0;
+[5] *(x,0) == 0;
+[6] *(x,1) == x;
+[7] *(x,+(y,z)) == +(*(x,y),*(x,z));
+END
+; This specification stems from Kapur & Narendran & Zhang, 1991, Ex 7.7: F(23)

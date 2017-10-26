@@ -1,0 +1,46 @@
+DATATYPE F4X;
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1, A: KOEF;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+NOTATION
+	+, *, ~, |, M, #, @: FUNCTION;
+THEORY
+	+, *, |, #, @: AC;
+AXIOM
+ [1] +(0,a) == a;
+ [2] *(0,a) == 0;
+ [3] *(1,a) == a;
+ [4] *(a,+(b,c)) == +(*(a,b),*(a,c));
+ [5] +(a,a) == 0;
+ [6] ~(a) == a;
+ [7] *(A,A) == +(1,A);
+ [8] |(x,I) == x;
+ [9] M(0,x) == O;
+[10] #(M(a,x),M(b,x)) == M(+(a,b),x);
+[11] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+[12] #(p,O) == p;
+[13] @(p,O) == O;
+[14] @(p,M(1,I)) == p;
+[15] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[16] #(@(p,M(a,x)),@(p,M(b,x))) == @(p,M(+(a,b),x));
+[17] @(p,M(+(1,b),I)) == #(p,@(p,M(b,I)));
+[18] #(p,p) == O;
+
+[19] M(A,X) == M(1,Y);
+[20] M(*(A,A),|(X,Y)) == M(A,|(Y,Y));
+END

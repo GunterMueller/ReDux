@@ -1,0 +1,71 @@
+# Makefile for conversion utility "dtcv" to convert old style
+# data types to the new style.
+
+# Backend Compiler
+ BE = BE
+#^^^^^^^          Only to be modified by the ReDuX
+#                 installation make file!
+OPTIMIZE = OPTIMIZE
+#^^^^^^^^^^^^^^^^^^   Only to be modified by the ReDuX
+#                     installation make file!
+LEX = LEX
+#^^^^^^^^             Only to be modified by the ReDuX
+#                     installation make file!
+LEXFLAGS  =
+LEXLIB = LEXLIB
+#^^^^^^^^^        Only to be modified by the ReDuX
+#                 installation make file!
+
+YACC = YACC
+#^^^^^^^^^^           Only to be modified by the ReDuX
+#                     installation make file!
+# using yacc requires minor changes in convs.l and convp.y
+
+YACCFLAGS = YACCFLAGS
+#^^^^^^^^^^^^^^^^^^^^ Only to be modified by the ReDuX
+#                     installation make file!
+
+# no changes should be necessary after this line
+
+SLEXSRC   = convs.l
+SYACCSRC  = convp.y
+
+ALEXSRC   = cvax.l
+
+SIGCPROG  = conv
+AXCPROG   = cvax
+
+SOBJFILES = convs.o convp.o
+
+# Avoids trouble on systems where the `SHELL' variable might be
+# inherited from the environment:
+SHELL = /bin/sh
+
+all: $(SIGCPROG) $(AXCPROG)
+
+clean:
+	rm -fr $(SIGCPROG) $(AXCPROG)
+	rm -fr $(SOBJFILES)
+	rm -fr convs.c y.tab.c y.tab.h cvax.c
+
+# conversion of signature part (conv)
+
+$(SIGCPROG): $(SOBJFILES)
+	$(BE) $(OPTIMIZE) -o $(SIGCPROG) $(SOBJFILES) $(LEXLIB)
+convs.o: convs.c
+	$(BE) $(OPTIMIZE) -o $@ -c convs.c
+convs.c: $(SLEXSRC) y.tab.h
+	$(LEX) -t $(LEXFLAGS) $(SLEXSRC) >$@
+convp.o: y.tab.c
+	$(BE) $(OPTIMIZE) -o $@ -c y.tab.c
+y.tab.c y.tab.h: $(SYACCSRC)
+	$(YACC) $(YACCFLAGS) $(SYACCSRC)
+
+# conversion of equational part (cvax)
+
+$(AXCPROG): cvax.c
+	$(BE) $(OPTIMIZE) -o $@ cvax.c $(LEXLIB)
+cvax.c: $(ALEXSRC)
+	$(LEX) -t $(LEXFLAGS) $(ALEXSRC) >$@
+
+

@@ -1,0 +1,26 @@
+iccov.ald:        { [Copy S_1{s<-t}.] TCONT(s):=t; TLRCVS(S_1; S_2,V_2); 
+iccov.ald:         TCONT(s):=(); S_:=COMP(LIST2(S_2,r1),S_)
+iccov.ald:      { ADV(V'; v',V'); if ~INTMEM(v',V) then TCONT(v'):=() else 
+iccov.ald:(3)  [Variable.] C:=TCONT(t'); if k = DVS then 
+iccov.ald:     { C:=TCONT(t'); if C # () then { t':=C; goto 3 }
+iccov.ald:     { C:=TCONT(t'); if C # () then { t':=C; goto 5 }
+iccpc.ald:                        Variables are uniquely defined by their TCONT.
+iccpc.ald:(2)  [Process subterms of l1.] L':=TCONT(l1); while L' # () do       
+icgnfa.ald:  4. let TCONT(t)=(t1, ..., t sub n) and D=(D1, ..., D sub n) than
+icgnfx.ald:          { ADV(V'; v',V'); if TCONT(v') # () then
+icgnfx.ald:(3)  [ Arguments. ] C := TCONT(T); while C # () do
+icgnfx.ald:(3)  [ Arguments. ] C := TCONT(T); while C # () do
+icgr.ald:     { ADV(V'; v',V'); A:=TCONT(v');
+icgr.ald:      representation.] P:=TCONS(I,p); TFCVS(P; P*,V*); A*:=TCONT(P*).
+icgr.ald:     { ADV(T'; t,T'); k:=TKIND(t); if k = DVS then if TCONT(t) = ()
+icgr.ald:       then { TCONT(t):=1; V*:=COMP(t,V*) } else TCONT(t):=2;
+icgr.ald:       if k = DOS then V*:=TLRMV(TCONT(t),V*)
+icgr.ald:       if TCONT(v) = 2 then {TCONT(v):=(); V*:=V; V:=RED(V); goto 4};
+icgr.ald:       TCONT(v):=(); V:=RED(V)
+icgr.ald:     { v:=FIRST(V); if TCONT(v) = 2 then { RED(V'):=V; V':=V };
+icgr.ald:       TCONT(v):=(); V:=RED(V)
+icic.ald:     A1 :=TCONT(LHS); A2 := TCONT(RHS); C := ().
+icic.ald:      { C:=TCONT(t'); if C=() then return else {t':=C; goto 2} }.
+icip.ald:     {  T':=TCONT(t'); if T'=() then return else { t':=T'; goto 2 }  };
+icip.ald:     if S # () then P*:=LIST1(LIST2(t',S)); T':=TCONT(t');
+icpc.ald:(3)  [Non-C-term.] k:=TKIND(t'); T:=TCONT(t');

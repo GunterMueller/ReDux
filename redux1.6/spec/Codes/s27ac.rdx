@@ -1,0 +1,108 @@
+%%  comment symbol
+DATATYPE S27;
+%%  AUTHOR  R. Buendgen
+%%  DESCRIPTION tranlation of s27.blif
+%%               .model s27.bench
+%%               .inputs G0 G1 G2 G3
+%%               .outputs G17
+%%               .wire_load_slope 0.00
+%%               .latch     G10 G5  0
+%%               .latch     G11 G6  0
+%%               .latch     G13 G7  0
+%%               .names G11 G17
+%%               0 1
+%%               .names G14 G11 G10
+%%               00 1
+%%               .names G5 G9 G11
+%%               00 1
+%%               .names G2 G12 G13
+%%               00 1
+%%               .names G0 G14
+%%               0 1
+%%               .names G14 G6 G8
+%%               11 1
+%%               .names G1 G7 G12
+%%               00 1
+%%               .names G12 G8 G15
+%%               1- 1
+%%               -1 1
+%%               .names G3 G8 G16
+%%               1- 1
+%%               -1 1
+%%               .names G16 G15 G9
+%%               0- 1
+%%               -0 1
+%%               .end
+%% 
+SORT
+	SIGNAL, TIME;
+CONST
+	L, H: SIGNAL;
+	0: TIME;
+VAR
+	t, u, v: TIME;
+	f, g, h, p, q, r: SIGNAL;
+OPERATOR
+	S: TIME -> TIME;
+	D2: TIME -> TIME;
+	#: SIGNAL, SIGNAL -> SIGNAL;	%%  exclusive or
+	/\: SIGNAL, SIGNAL -> SIGNAL;	%%  and
+	~: SIGNAL -> SIGNAL;	%%  not
+	>: SIGNAL, SIGNAL -> SIGNAL;	%%  implies
+	\/: SIGNAL, SIGNAL -> SIGNAL;	%%  or
+	=: SIGNAL, SIGNAL -> SIGNAL;	%%  equivalent
+%%  TOG(TIME,SIGNAL,SIGNAL) -SIGNAL.
+	G0: TIME -> SIGNAL;
+	G1: TIME -> SIGNAL;
+	G2: TIME -> SIGNAL;
+	G3: TIME -> SIGNAL;
+	G4: TIME -> SIGNAL;
+	G5: TIME -> SIGNAL;
+	G6: TIME -> SIGNAL;
+	G7: TIME -> SIGNAL;
+	G8: TIME -> SIGNAL;
+	G9: TIME -> SIGNAL;
+	G10: TIME -> SIGNAL;
+	G11: TIME -> SIGNAL;
+	G12: TIME -> SIGNAL;
+	G13: TIME -> SIGNAL;
+	G14: TIME -> SIGNAL;
+	G15: TIME -> SIGNAL;
+	G16: TIME -> SIGNAL;
+	G17: TIME -> SIGNAL;
+	G18: TIME -> SIGNAL;
+NOTATION
+	S, D2, #, /\, ~, >, \/, =, G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, G16, G17, G18: FUNCTION;
+THEORY
+	#, /\: AC;
+AXIOM
+  [1] \/(p,q) == #(/\(p,q),#(p,q));
+  [2] >(p,q) == #(/\(p,q),#(p,H));
+  [3] =(p,q) == #(p,#(q,H));
+  [4] ~(p) == #(p,H);
+  [5] #(p,L) == p;
+  [6] #(p,p) == L;
+  [7] /\(p,H) == p;
+  [8] /\(p,p) == p;
+  [9] /\(p,L) == L;
+ [10] /\(p,#(q,r)) == #(/\(p,q),/\(p,r));
+ [11] G5(0) == L;
+ [12] G5(S(t)) == G10(t);
+ [13] G6(0) == L;
+ [14] G6(S(t)) == G11(t);
+ [15] G7(S(t)) == G13(t);
+ [16] G17(t) == ~(G11(t));
+ [17] G10(t) == /\(~(G14(t)),~(G11(t)));
+ [18] G11(t) == /\(~(G5(t)),~(G9(t)));
+ [19] G13(t) == /\(~(G2(t)),~(G12(t)));
+ [20] G14(t) == ~(G0(t));
+ [21] G8(t) == /\(G14(t),G6(t));
+ [22] G12(t) == /\(G1(t),G7(t));
+ [23] G15(t) == \/(G12(t),G8(t));
+ [24] G16(t) == \/(G3(t),G8(t));
+ [25] G9(t) == \/(~(G16(t)),~(G15(t)));
+ [26] G0(t) == L;
+ [27] G1(t) == L;
+ [28] G2(t) == L;
+ [29] G3(t) == L;
+END

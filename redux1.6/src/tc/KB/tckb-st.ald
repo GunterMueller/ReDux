@@ -1,0 +1,115 @@
+[Project:  ReDuX Term Completion
+   module name        : TCKB-ST -- Knuth-Bendix completion with
+                                   Subconnectedness and Transformation 
+                                   criteria
+   modulespecification: Knuth-Bendix Completion with transformation
+                        and subconnectedness critical pair criteria 
+                        variables are uniquely defined by their TCONT.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen [RB]
+   language           : aldes
+   last change        : 7.7.90
+                        $Date: 1995/07/24 08:14:18 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.14 $
+   bugs               : none known
+   modules needed     : sac2/bs, sac2/sy, sac2/lp
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+     const
+     TNORM(T,A)=TIREDS(T,A).
+               [TNORM computes a normal form of term T under
+                 the set of axioms A.]
+  
+[--------------------------------------------------------------------- 
+     section 1.                                                         
+     The Knuth-bendix algorithm.                                        
+-----------------------------------------------------------------------]
+
+                    D*:=DTKBTC(D~,O)
+[Data type, Knuth-Bendix with transformation criterion and connectivity.
+D~  is  a data type. O is a string. It determines which orderings
+will be used during the completion process automatically.
+Empty string means no automatic ordering.
+Then, if the algorithm terminates, the term-rewrite system of D* is such 
+that all critical pairs are confluent. D~ is destroyed. The Knuth-Bendix 
+ordering, the recursive path ordering and a linear polynomial ordering 
+are accessible. If they are used for ordering of the axioms in D*, then, 
+upon termination, the rewrite system of D* is confluent.
+ local variables:
+ (1) queues: Q0: old axioms, Q1 oriented and normalized crit. pairs, 
+             Q2: unoriented crit. pairs, Q3 delayed crit. pairs
+ (2) statistics: s1 = |Q1|, s2 = |Q2|, s3 = |Q3|, 
+                 S0 statistic list of s1+s2+s3 for every loop.]
+   
+(1)  [Initialize.] DTDIS(D~; N,C,V,F,A); MINICT(N); 
+     [Init rules.] A*:=(); [Next rule number.] n:=1; 
+     [Init global timers.] UTI:=0; RTI:=0; MTI:=0; CTI:=0; STI:=0; 
+     OTI:=0; [Init global counters.] CC:=0; UC:=0; MC:=0; RC:=0;
+     [Init local counters.] TC:=0; 
+     [Init queues.] Q0:=A; Q1:=(); Q2:=(); Q3:=();
+     [Init message.] M:=" transformations could be applied.";
+     [Init statistics.] s1:=0; s2:=0; s3:=0; S0:=().
+(2)  [Set trace options and step mode.] AUTOM:=QCTS0(). 
+(3)  [Trivial case: successful termination.]
+     if Q0=() /\ Q1=() /\ Q2=() /\ Q3=() then
+      { MEXIT(N,LIST2(TC,M),S0); D*:=D~; DTAX(D*):=A*; return }.
+(4)  [Select next pair.] if Q0 # () then
+     { ADV(Q0; a,Q0); ADIS(a; n1,L,V,R,l_); c:=CPCONS(L,R,0,n1,());
+      goto 5
+     }; if Q1 # () /\ Q2 # () then
+     { if CPW8(FIRST(Q1)) <= CPW8(FIRST(Q2)) then
+       { ADV(Q1; c,Q1); CPDIS(c; L,R,n1,n2,E); TBVSLI(L; V*,l_);
+         s1:=s1-1; MCPP(n,c); goto 7 
+       } else  { ADV(Q2; c,Q2); M_:=CPLHS(c); N_:=CPRHS(c); s2:=s2-1;
+                 goto 6 
+     }         }; if Q1 # () then 
+     { ADV(Q1; c,Q1); CPDIS(c; L,R,n1,n2,E); TBVSLI(L; V*,l_); s1:=s1-1;
+       MCPP(n,c); goto 7
+     }; if Q2 # () then
+     { ADV(Q2; c,Q2); M_:=CPLHS(c); N_:=CPRHS(c); s2:=s2-1; goto 6 
+     } else { ADV(Q3; c,Q3); s3:=s3-1 }.
+(5)  [Normalize pair.] MCPC(c); M':=CPLHS(c); N':=CPRHS(c);
+     M_:=TNORM(M',A*); N_:=TNORM(N',A*);
+     if TEQU(M_,N_) then { MCPDEL(c); goto  3};
+     CPLHS(c):=M_; CPRHS(c):=N_.
+(6)  [Orient pair.] C^:=QCA(n,c,D~,A*,Q2,O);
+     if C^='S' then TRPCVS(M_,N_; L,R,V*);
+     if C^='R' then TRPCVS(N_,M_; L,R,V*);
+     if C^='B' then { Q3:=SUFFIX(Q3,c); go to  4};
+     if C^='Q' then { Q2:=SUFFIX(Q2,c); s2:=s2+1; goto 4};
+     if C^='F' then { MSSUIF; goto 6 };
+     if C^='E' then {D*:=D~; DTAX(D*):=A*; STAPRT(INV(S0)); return}.
+(7)  [Construct new rule.] a:=ACONS(n,L,V*,R).
+(8)  [Reduce old axioms and remove offspring.] ALPUR(A*,a; A*,Q*0); 
+     MASCLR(Q*0,n); Q*0:=INV(Q*0); CPLCCA(Q1,Q*0; Q1,s'1); 
+     CPLCCA(Q2,Q*0; Q2,s'2); Q0:=CONC(Q0,Q*0); s1:=s1-s'1; s2:=s2-s'2.
+(9)  [Reduce old pairs.] CPLOPR(Q1,a,A*; Q1,Q'1); CPLCLR(Q2,a; Q2,Q'2); 
+     A*:=COMP(a,A*); CPOLNF(Q'2,A*; Q*2,s'2,s*2); s2:=s2-s'2;
+     Q2:=LOISE(Q2,Q*2,s*2); s2:=s2+s*2; CPOLNF(Q'1,A*; Q*2,s'1,s*1); 
+     Q2:=LOISE(Q2,Q*2,s*1); s2:=s2+s*1; s1:=s1-s'1.
+(10) [Compute critical pairs with transformation criterion.]
+     A*:=RED(A*); ASCPTU(A*,a,O; Q*1,Q*2,X).
+(11) [Transformation.] if X # () then
+     { MAOTC(X,a); Q0:=COMP(a,Q0); n:=n+1; a:=X; ANUM(a):=n; TC:=TC+1; 
+       goto 8 
+     } else { A*:=ALINS(A*,a); s'1:=CPLW8(Q*1); s'2:=CPLW8(Q*2); 
+            MCPND(s'1,s'2) }.
+(12) [Add new pairs.] Q1:=LOISE(Q1,Q*1,s'1); Q2:=LOISE(Q2,Q*2,s'2);
+     n:=n+1; s1:=s1+s'1; s2:=s2+s'2; S0:=COMP(s1+s2+s3,S0); goto 3 ||
+
+[---------------------------------------------------------------------
+     section 3.
+     Message handling
+----------------------------------------------------------------------]
+
+                    MINICT(N)
+[Message on initialization.]
+(1)  BLINES(1);
+     STOUTL("Knuth-Bendix algorithm with connectivity and"); 
+     STOUTL("critical pair transformations."); 
+     STOUTL("[$Revision: 1.14 $]");
+     STROUT("Beginning completion of "); SWRT(N);
+     STOUTL("-data-type."); BLINES(1) ||

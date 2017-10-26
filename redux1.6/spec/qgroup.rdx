@@ -1,0 +1,21 @@
+DATATYPE QGRP;
+SORT
+	QGRP;
+CONST
+	0: QGRP;
+VAR
+	x, y, z: QGRP;
+OPERATOR
+	*: QGRP, QGRP -> QGRP;
+	/: QGRP, QGRP -> QGRP;
+	\: QGRP, QGRP -> QGRP;
+NOTATION
+	*, /, \: FUNCTION;
+AXIOM
+[1] *(x,\(x,y)) == y;
+[2] *(/(x,y),y) == x;
+[3] \(x,*(x,y)) == y;
+[4] /(*(x,y),y) == x;
+END
+; This file is  qgroup.tyP
+; forund in Hullot "Canonical Forms and Unification", p 328

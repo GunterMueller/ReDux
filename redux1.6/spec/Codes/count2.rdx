@@ -1,0 +1,38 @@
+%%  comment symbol
+DATATYPE COUNT2;
+%%  AUTHOR N. Nevin / R. Buendgen
+%%  DESCRIPTION 2-Bit counter
+%%              [Buchenrieder:88, page 172]
+SORT
+	SIGNAL, TIME;
+CONST
+	L, H: SIGNAL;
+	0: TIME;
+VAR
+	t, u, v: TIME;
+	f, g, h: SIGNAL;
+OPERATOR
+	S: TIME -> TIME;
+	XOR: SIGNAL, SIGNAL -> SIGNAL;
+	AND: SIGNAL, SIGNAL -> SIGNAL;
+%%  TOG(TIME,SIGNAL,SIGNAL) -SIGNAL.
+	A: TIME -> SIGNAL;
+	B: TIME -> SIGNAL;
+	T1: TIME -> SIGNAL;
+	CIN: TIME -> SIGNAL;
+NOTATION
+	S, XOR, AND, A, B, T1, CIN: FUNCTION;
+AXIOM
+  [0] XOR(H,H) == L;
+  [1] XOR(H,L) == H;
+  [2] XOR(L,L) == L;
+  [3] XOR(L,f) == f;
+  [4] AND(L,f) == L;
+  [5] AND(H,f) == f;
+  [6] T1(t)==AND(CIN(t),A(t));
+  [7] A(0) == L;
+  [8] A(S(t)) == XOR(CIN(t),A(t));
+  [9] B(0) == L;
+ [10] B(S(t)) == XOR(T1(t),B(t));
+ [11] CIN(t) == H;
+END

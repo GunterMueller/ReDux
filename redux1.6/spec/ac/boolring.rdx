@@ -1,0 +1,24 @@
+DATATYPE BOOLRING;
+SORT
+	FMLA, LIT;
+CONST
+	0, 1: FMLA;
+	a, b, c: LIT;
+VAR
+	x, y, z: FMLA;
+OPERATOR
+	+: FMLA, FMLA -> FMLA;
+	*: FMLA, FMLA -> FMLA;
+NOTATION
+	+, *: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+ [1] +(0,x)  ==  x;
+ [2] *(0,x)  ==  0;
+ [3] *(1,x)  ==  x;
+ [4] *(x,x)  ==  x;
+ [5] *(+(x,y),z)  ==  +(*(x,z),*(y,z));
+ [6] +(x,x)  ==  0;
+
+END

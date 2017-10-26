@@ -1,0 +1,357 @@
+
+[-----------------------------------------------------------------------
+
+   Subalgorithms for AC
+
+-----------------------------------------------------------------------]
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+     const PAGEL=20.  [Page length.]
+
+                    O := ACMENU(o)
+[Main menu.  o was the last menu result.]
+     safe O.
+(1)  [Initialize.] if o > 0 /\ o < 7 \/ o = 12 
+     then OLD:=TRUE else OLD:=FALSE.
+(2)  WRITE; STOUTL("You have the following choices: "); WRITE;
+     STOUTL("  u - unify two terms ");
+     if OLD then STOUTL("  U - unify the last two terms");
+     STOUTL("  m - match two terms ");
+     if OLD then STOUTL("  M - match the last two terms"); 
+     STOUTL("  e - test equality of two terms "); 
+     if OLD then STOUTL("  E - test equality of the last two terms");
+     STOUTL("  n - normalize a term");
+     STOUTL("  x - compute an external term");
+     STOUTL("  t - set/unset trace options"); 
+     STOUTL("  d - display data type"); 
+     STOUTL("  c - compute critical pairs"); 
+     STOUTL("  k - run (AC)-Knuth-Bendix completion procedure");
+     STOUTL("  p - prove equational theorem"); 
+     STOUTL("  i - de/install term ordering");
+     STOUTL("  s - select term ordering");
+     STOUTL("  o - order axioms of data type"); 
+     STOUTL("  O - order axioms"); 
+     STOUTL("  S - show times and counters"); 
+     STOUTL("  r - reset times and counters");
+     STOUTL("  h - help, print menu");
+     STOUTL("  q - quit"); WRITE.
+(3)  [Read answer.] O:=SMENU(o) ||
+
+                    D*:=COMPLT(DT,O*) 
+[Complete data type considering canonical rule sets.
+DT is the data type, O* is a string denoting a term ordering.]
+
+(1)  [Initialize.] DT0:=DTBKUP(DT).
+(2)  [Get completion control information.]  QCCSC(DT; R*,CSC,y,R**).
+(3)  [Complete.] t:=t-CLOCK(); 
+     [if y = 0 then]       D*:=DTKBAC(DT,R*,O*,CSC) 
+     [else D*:=DTCSAC(DT,R*,R**,O*,CSC)]; 
+     t:=t+CLOCK().
+(4)  [Issue statistics.] STROUT("net completion time = "); AWRITE(t);
+     STOUTL(" ms."); BLINES(1).
+(5)  [Write complete type.] STOUTL("continue *"); READ;
+     t:=t-CLOCK(); DTWRT(D*); t:=t+CLOCK(); BLINES(1);
+     STROUT("gross completion time = "); AWRITE(t); STOUTL(" ms.");
+     STOUTL("continue *"); READ.
+(6)  [Continue.] STROUT("Do you wish to continue with the old or ");
+     STOUTL("with the new data type [n/o]? *");
+     READ; c:=UCASE(CREAD()); if c = 'O' then { D*:=DT0; return }
+     else { A:=DTAX(D*); A*:=LAXBMS(A); DTAX(D*):=A*; return } ||
+
+
+                    COMPUT(DT)
+[Read term, compute and print result.
+DT is a data type. A term is read and mormalized.]
+(1)  [Read term.] STOUTL("Input term:  *"); t:=TEPRS(DT);
+     DTDIS(DT; N,C,V,F,A).
+(2)  [Copy t.] TGCVS(t; s,V*).
+(3)  [Normalize and then compute t.] WRITE; 
+     STROUT("First normalizing "); TDIWRT(t,(); N);
+     STOUTL(" and then computing leads to ");
+     t*:=TIRDSE(t,A); TDIWRT(t*,N; N); STROUT(" and ");
+     t**:=TXCMPT(t*); TDIWRT(t**,N; N); WRITE.
+(4)  [Compute and then normalize s.] 
+     STROUT("First computing "); TDIWRT(s,(); N);
+     STOUTL(" and then normalizing leads to ");
+     s*:=TXCMPT(s); TDIWRT(s*,N; N); STROUT(" and ");
+     s**:=TIRDSE(s*,A); TDIWRT(s**,N; N); WRITE.
+(5)  [Compare.] STROUT("The sequence of the operations does ");
+     if TTO(t**,s**) = 0 then STROUT("not "); STOUTL("matter.") || 
+
+                    CRITP(DT)
+[Input axioms, critcal pairs, print result.
+DT is a data type. Read two axiom numbers and  compute the critical 
+pairs of those axioms.]
+(1)  [Initialize.] a1:=(); a2:=().
+(2)  [Read two axiom numbers.] STROUT("Input number of first axiom ");
+     STOUTL("(0 to enter 1st axiom from terminal):");
+     READ; n1:=AREADR(); STROUT("Input number of second axiom ");
+     STOUTL("(0 to enter 2nd axiom from terminal):"); 
+     READ; n2:=AREADR(). 
+(3)  [Terminal input.] if n1 = 0 then
+     { STOUTL("Input first axiom: *"); a1:=AXPRS(DT) };
+     if n2 = 0 then
+     { STOUTL("Input second axiom: *"); a2:=AXPRS(DT) }.
+(4)  [Search axioms.] DTDIS(DT; N,C,V,F,A); 
+     A':=A; while A' # () /\ (a1 = () \/ a2 = ()) do
+      { ADV(A'; a,A'); n:=ANUM(a); if a1 = () /\ n = n1 then a1:=a;
+        if a2 = () /\ n = n2 then 
+                             if n1 = n2 then a2=ACOPY(a) else a2:=a
+      }; if a1 = () then 
+      { STROUT("*** unknown axiom "); GWRITE(n1); WRITE; return };
+      if a2 = () then
+      { STROUT("*** unknown axiom "); GWRITE(n2); WRITE; return }.
+(5)  [Ask for normalization.]
+     STOUTL("Normalize w.r.t. the rules of the data type [y/n] ?"); 
+     READ; C^:=UCASE(CREAD()); if C^ = 'N' then
+     { A:=LIST1(ACOPY(a2)); 
+       STOUTL("Critical pairs are normalized w.r.t input rules only.")
+     }.
+(6)  [Compute critical pairs.] C':=ACPAC(a1,LIST1(a2),A,FALSE);
+     STOUTL("Unresolved critical pairs:");
+     CPLWRT(C') ||
+
+                    CTRSET()
+[Reset counters and timers. ]
+
+(1)  [Reset all counters.]
+     STOUTL("Do you want to reset all counters [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then
+     { MC:=0; RC:=0; UC:=0; goto 3 }.
+(2)  [Reset single counters.]
+     STOUTL("Reset the match counter              [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then MC:=0;
+     STOUTL("Reset the reduction counter          [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then RC:=0;
+     STOUTL("Reset the unification counter        [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then UC:=0.
+(3)  [Reset all timers.]
+     STOUTL("Do you want to reset all timers [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then
+     { STPWT:=-CLOCK(); GTI:=0; MTI:=0; RTI:=0; UTI:=0; return }.
+(4)  [Reset single timers.]
+     STOUTL("Reset the stop-watch                 [y/n]? *"); 
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then STPWT:=-CLOCK();
+     STOUTL("Reset the match time                 [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then MTI:=0;
+     STOUTL("Reset the reduction time             [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then RTI:=0;
+     STOUTL("Reset the unification time           [y/n]? *");
+     READ; CH:=UCASE(CREAD()); if CH = 'Y' then UTI:=0 ||
+
+                    CTSHOW()
+[Show counters and timers. ]
+(1)  [Show all counters.]
+     STOUTL("The number of operations performed:");
+     STROUT("  matches:                     "); GWRITE(MC); WRITE;
+     STROUT("  reductions                   "); GWRITE(RC); WRITE;
+     STROUT("  unifications:                "); GWRITE(UC); WRITE.
+[ (2)  [Interupt output.] STOUTL("Ready? *"); WRITE; READ;
+     CH:=UCASE(CREAD()); if CH = 'Y' then UC:=0.
+]
+(3)  [Show all timers.]
+     BLINES(1); STROUT("Stop-watch:                    "); 
+     STPWT:=STPWT + CLOCK(); GWRITE(STPWT); STOUTL(" ms.");
+     STPWT:=STPWT - CLOCK();
+     STOUTL("Time spent during ... "); 
+     STROUT("  matching:                    ");
+     GWRITE(MTI); STOUTL(" ms,"); 
+     STROUT("  reduction:                   ");
+     GWRITE(RTI); STOUTL(" ms,");
+     STROUT("  unification:                 ");
+     GWRITE(UTI); STOUTL(" ms.") ||
+
+
+                    EQUALE(DT; t1,t2)
+[Read two terms, test for AC-equality and print result.
+Read two terms t1 and t2 and test whether t1 = t2 (mod AC).
+DT is the data type.]
+(1)  [Read two terms.] TREAD2(DT; t1,t2).
+(2)  [Match.] EQUAL1(t1,t2) ||
+
+                    EQUAL1(t1,t2)
+[Test two terms for AC-equality and print result.]
+(1)  TDIWRT(t1,(); N);
+     if TTO(t1,t2) = 0 then STROUT("  =  ") else STROUT("  #  "); 
+     TDIWRT(t2,N; N); WRITE ||
+                     
+                    MATCHE(DT; t1,t2)
+[Read two terms, AC-match and print result.
+Read two terms t1 and t2 and print a complete set of matching
+substitutions such that t1 matches t2. DT is the data type.]
+(1)  [Read two terms.] TREAD2(DT; t1,t2).
+(2)  [Match.] MATCH1(t1,t2) ||
+
+                    MATCH1(t1,t2)
+[Match two tems mod AC and print result.
+t1 and t2 are two terms. The complete complete set of matching
+substitutions such that t1 matches t2 is printed.] 
+(1)  [Match.] TBVSLI(t2; V2,l_); MTI:=MTI-CLOCK(); MC:=MC+1;
+     M*:=TLMSSE(LIST1(t1),LIST1(t2),V2); MTI:=MTI+CLOCK();
+     BLINES(1); l:=2.
+(2)  [No matcher.] if M* = () then
+      { TDIWRT(t1,(); N); STROUT(" does not match "); TDIWRT(t2,N; N);
+        WRITE; return
+      }.
+(3)  [Print mgu.] TDIWRT(t1,(); N); STROUT(" matches "); 
+     TDIWRT(t2,N; N); STROUT(" with matching substitutions: "); 
+     WRITEP(l; l); while M* # () do 
+      { ADV(M*; m,M*); SBDIW(m,N; N'); l:=l+1; if l > PAGEL then
+        { STOUTL("Hit <return>! *"); READ; c:=CREAD(); l:=2 }
+      } ||
+
+
+                    NORMAL(DT)
+[Read term, normalize and print result. 
+DT is a data type. A term is read and mormalized.] 
+(1)  [Read term.] STOUTL("Input term:  *"); READ; t:=TEPRS(DT); 
+     DTDIS(DT; n,C,V,F,A).
+(2)  [Normalize.] WRITE; STROUT("The normal form of "); TDIWRT(t,(); N);
+     t*:=TIRDSE(t,A); STROUT(" is "); TDIWRT(t*,(); N); WRITE ||
+
+                    PROVE(DT; t1,t2)
+[Prove equation and print result. 
+DT is a data type. Then t1 and t2 are two normalized terms.]
+(1)  [Read equation.] STOUTL("Input equation:  *");
+     A:=AXPRS(DT); ADIS(A; n2,l,v,r,n1); TDIWRT(l,(); D); 
+     STROUT(" and "); TDIWRT(r,D; D); WRITE. 
+(2)  [Normalize.] DTDIS(DT; N,C,V,F,R); t1:=TIRDSE(l,R); 
+     t2:=TIRDSE(r,R); b:=TTO(t1,t2).
+(3)  [Output.] if b = 0 then
+      { STROUT("have the same normal form: "); TDIWRT(t1,D; D); WRITE }
+     else
+      { STOUTL("are not equal. Their respective normal forms are:");
+       TDIWRT(t1,D; D); STROUT(" and "); TDIWRT(t2,D; D); WRITE
+      }||
+
+                    QCTOID(DT,O; O0,O*)
+[Query concerning term ordering installaion of deinstallation.
+O is a string denoting the selected orderings. Then O0 is a string
+denoting the installed orderings and O* is a string denoting the
+selected orderings. Deinstallation of orderings unselects all
+orderings.]
+
+(1)  [Are there orderings installed?] O0:=TORDGT(DT); O*:=O.
+(2)  [Install or deinstall?] STOUTL("Do you want to");
+     STOUTL("  i - install term orderings or");
+     STOUTL("  d - de-install term orderings or");
+     STOUTL("  c - cancel action         [i/d/c]? *"); 
+     READ; c:=UCASE(CREAD()).
+(3)  [Choice.] if c = 'I' then goto 5
+          else if c # 'D' then return.
+(4)  [Remove orderings.] O0:=TORDRM(DT); O*:=();
+     STOUTL("No orderings selected!"); return.
+(5)  [Install orderings.] O0:=TORDIN(DT) ||
+
+                    QCT0()
+[Query concerning trace.
+The trace options are set interactively.]
+(1)  BLINES(1); STOUTL(" You have 3 trace options (0 = no trace)"). 
+(2)  STOUTL("- formula reduction trace  [1/0] *");
+     READ; AATRC:=AREADR().
+(3)  STOUTL("- critical pair trace      [2/1/0] *"); 
+     READ; CPTRC:=AREADR().
+(4)  STOUTL("- procedure name    trace  [1/0] *");
+     READ; PNTRC:=AREADR().
+(5)  STOUTL("Change output mode? [y/n] *"); 
+     READ; c:=CREAD(); if UCASE(c) = 'Y' then QOPMOD ||
+
+                    O := SMENU(o)
+[Main menu, short.  o was the last menu result.]
+     safe CH,O.
+(1)  [Initialize.] if o > 0 /\ o < 7 \/ o = 12
+     then OLD:=TRUE else OLD:=FALSE.
+(2)  if OLD then STROUT("Go on [u/U/m/M/e/E/") 
+            else STROUT("Go on [u/m/e/");
+     STOUTL("n/x/t/d/c/k/p/i/s/o/O/S/r/h/q]?  * ").
+(3)  READ; CH := CREAD().
+(4)  if OLD /\ CH = 'U'          then O := 2 else
+     if (CH = 'U') \/ (CH = 'u') then O := 1 else
+     if OLD /\ CH = 'M'          then O := 4 else
+     if (CH = 'M') \/ (CH = 'm') then O := 3 else
+     if OLD /\ CH = 'E'          then O := 6 else
+     if (CH = 'E') \/ (CH = 'e') then O := 5 else
+     if (CH = 'N') \/ (CH = 'n') then O := 7 else
+     if (CH = 't')               then O := 8 else
+     if (CH = 'D') \/ (CH = 'd') then O := 9 else
+     if (CH = 'C') \/ (CH = 'c') then O := 10 else
+     if (CH = 'K') \/ (CH = 'k') then O := 11 else
+     if (CH = 'P') \/ (CH = 'p') then O := 12 else
+     if (CH = 'S')               then O := 14 else
+     if (CH = 's')               then O := 18 else
+     if (CH = 'R') \/ (CH = 'r') then O := 15 else
+     if (CH = 'I') \/ (CH = 'i') then O := 16 else
+     [ No. 17 is free ]
+     if (CH = 'Q') \/ (CH = 'q') then O := 13 else
+     if (CH = 'o')               then O := 19 else
+     if (CH = 'O')               then O := 20 else
+     if (CH = 'X') \/ (CH = 'x') then O := 21 else
+     O := 0 ||
+
+
+                    TREAD2(DT; t1,t2)
+[Read two related terms (dialog).
+Read two terms t1 and t2, such that variables with common name in both
+terms have the same representation. DT is the data type.] 
+(1)  [Read terms.] 
+     STOUTL("Input first term: *");  TPRSC(DT,(); t1,V1); 
+     STOUTL("Input second term: *"); TPRSC(DT,V1; t2,V2) ||
+ 
+                    UNIFYE(DT; t1,t2)
+[Read two terms, AC-unify and print result.
+Read two terms t1 and t2 and print both the mgu(t1,t2) modulo AC and
+the mgci(t1,t2). DT is the data type.]
+(1)  [Read two terms.] TREAD2(DT; t1,t2).
+(2)  [Unify.] UNIFY1(t1,t2) ||
+
+                    UNIFY1(t1,t2)
+[AC-unify two terms and print result.
+t1 and t2 are two terms. Both the mgu(t1,t2) modulo AC and 
+the mgci(t1,t2) is printed.] 
+(1)  [Unify.] TMGCIE(t1,t2; T,M*); BLINES(1); l:=2.
+(2)  [No unifyer.] if M* = () then 
+      { TDIWRT(t1,(); N); STROUT(" and "); TDIWRT(t2,N; N);
+        STOUTL(" do not unify. "); return
+      }.
+(3)  [Print mgu.] STROUT("mgu( ");TDIWRT(t1,(); N); STROUT(" , ");
+     TDIWRT(t2,N; N); STROUT(" )  mod AC :"); WRITEP(l; l); 
+     while M* # () do 
+      { ADV(M*; m,M*); SBDIW(m,N; N'); l:=l+1; if l > PAGEL then
+        { STOUTL("Hit <return>! *"); READ; c:=CREAD(); l:=2 }
+      }.
+(4)  [Print mgci.] BLINES(1); STROUT("mgci(");TDIWRT(t1,N; N); 
+     CWRITE(','); TDIWRT(t2,N; N); STROUT(") mod AC :"); WRITEP(l; l);  
+     while T # () do { ADV(T; t,T); TWRT(t); WRITEP(l; l) } ||
+
+                    WRITEP(l; l*)
+[Write end of line, but wait at page end.  
+l is a line number. l* is the new line number. A page has PAGEL lines.]
+
+(1)  WRITE; l*:=l+1; if l > PAGEL then 
+      { STOUTL("Hit <return>! *"); READ; c:=CREAD(); l*:=2 } ||
+
+                     OADT(O*,DT)
+[Order axioms of datatype.
+O* is a string denoting the selected orderings and DT is the datatype.]
+(1)  [Compare axioms in data type.]
+     DTDIS(DT; N,C,V,F,A); 
+     if O* # () then 
+     { while A # () do
+       { ADV(A; a,A); ADIS(a;n,t1,VHS,t2,l_); 
+         CP:=CPCONS(TNDFLT(t1),TNDFLT(t2),0,0,()); 
+         o:=TPPO(CP,O*); ORDWRT(t1,t2,o);
+       };
+     } else STOUTL("No ordering(s) selected.") ||
+
+                     ORDAX(O*,DT)
+[Order axioms.
+O* is a string denoting the selected orderings and DT is the datatype.]
+(1)  [Compare axiom.] 
+     if O* # () then
+     { STOUTL("Input axiom *"); a:=AXPRS(DT);
+       ADIS(a; n,t1,VHS,t2,l_); 
+       CP:=CPCONS(TNDFLT(t1),TNDFLT(t2),0,0,()); 
+       o:=TPPO(CP,O*); ORDWRT(t1,t2,o);
+     } else STOUTL("No ordering(s) selected.") ||

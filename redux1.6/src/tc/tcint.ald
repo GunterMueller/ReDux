@@ -1,0 +1,279 @@
+[Project:  ReDuX Term Completion
+   module name        : TCINT -- INTeractive
+   modulespecification: Interactive procedures used during the completion
+                        procedure
+   language           : aldes
+   last change        : 8.7.90
+                        $Date: 1993/10/08 09:37:43 $ 
+                        by $Author: buendgen $
+                        MEXIT removed from (v1.2)
+   version            : $Revision: 1.13 $
+   bugs               : none known
+   modules needed     : sac2/ba, sac2/sy, sac2/lp
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+
+[--------------------------------------------------------------------- 
+     section 1.                    
+     Interactive queries. 
+----------------------------------------------------------------------] 
+                     
+                   C^:=QCA(n,CP,T,A*,Q,O*)
+[Query concerning axiom.
+n is the number of the axiom to be constructed. CP is a critical pair
+with origination information stored. T is the data-type to be
+completed, A* is the set of axioms arrived at, and Q is the list of
+unprocessed critical pairs of A*.
+O* is a string. It determines which orderings will be used during
+the completion process automatically. Empty string means no automatic
+ordering.
+Then C^ is the automatic ordering result or the user input to the
+query concerning the insertion of (m,n) A* axiom no n, a character.]
+     safe C^,n_,C,V,O,A,P.
+(1)  [Query.] MCPP(n,CP).
+(2)  [Automatic ordering, if any selected.]
+     if O* # () /\ AUTOM > 0 then 
+     { C^:=TPPO(CP,O*); if C^ = 'S' \/ C^ = 'R' then 
+       { if TOTRC = 0 then { WRITE; ORDWRT(CPLHS(CP),CPRHS(CP),C^) };  
+         return
+       } else { STROUT(" The automatic ordering failed.");
+                if AUTOM = 2 then { C^:='Q'; return }
+      }       }.
+(3)  [Prompt input.]
+     STOUTL("  *"); READ(); C^:=UCASE(CREAD());
+     if C^='S' \/ C^='R' \/ C^='Q' \/ C^='E' \/ C^='B' \/ C^='F' 
+     then return;
+     if C^='I' then
+     { STOUTL("Feature not yet implemented."); goto 7 };
+     if C^='P' then go to  1.
+(4)  [Trace requested.] if C^='T' then {QCTKB; goto 2}.
+(5)  [Display requested.] if C^='D' then
+     {BLINES(1); STOUTL(" Your options for display are -");
+      BLKW(9);   STOUTL("(U)nproved theorems");
+      BLKW(6);   STOUTL("(C)onsts / (V)ars / (O)ps");
+      BLKW(5);   STOUTL("old (A)xioms / new a(X)ioms");
+      STOUTL("  *"); READ(); C^:=UCASE(CREAD());
+      if C^='U' then {CPLWRT(Q); go to  3};
+      DTDIS(T; n_,C,V,O,A);
+      if C^='C' then CSWRT(C); if C^='V' then VSWRT(V);
+      if C^='O' then OSWRT(O); if C^='A' then ASWRT(A);
+      if C^='X' then ASWRT(A*);
+      goto 3}.
+(6)  [Proposal requested.] if C^='M' then {
+     if O* = () then STROUT("Sorry, no ordering selected.")
+     else {P:=TOTRC; TOTRC:=1; C^:=TPPO(CP,O*); TOTRC:=P};
+     goto 3}.
+(7)  [Help requested.] 
+     BLINES(1); STOUTL(" Your input options are -");
+     BLKW(5); STOUTL("(S)traight / (R)everse");
+     BLKW(6); STOUTL("(T)race  / (D)isplay");
+     BLKW(2); STOUTL("auto(M)atic ordering proposal");
+     BLKW(2); STOUTL("(I)ntroduction of new operator");
+     BLKW(4); STOUTL("(P)rompt input / (F)ertilize");
+     BLKW(9); STOUTL("(Q)ueue / (E)nd"); go to  3 ||
+
+                   C^:=QCACP(CP,O*)
+[Query concerning axiom during critical pair completion.
+CP is a critical pair with origination information stored.
+O* is a string. It determines which orderings will be used during
+the completion process automatically. Empty string means no automatic
+ordering.
+Then C^ is the automatic ordering result or the user input to the
+query concerning the insertion of (m,n) A* axiom no n, a character.]
+     safe C^,P.
+(1)  [Query.] BLINES(1); 
+     MCPB(CP,0); STOUTL(" has been computed.").
+(2)  [Automatic ordering, if any selected.]
+     if O*#() /\ AUTOM > 0 then
+     { C^:=TPPO(CP,O*); if C^ = 'S' \/ C^ = 'R' then return
+       else { STROUT(" The automatic ordering failed."); return }
+     }.
+(3)  [Prompt input.]
+     STOUTL("Orient [S/R/N]  *"); READ(); C^:=UCASE(CREAD());
+     if C^='S' \/ C^='R' \/ C^='N' then return;
+     if C^='P' then go to  1.
+(4)  [Trace requested.] if C^='T' then {QCTKB; goto 2}.
+(5)  [Proposal requested.] if C^='M' then {
+     if O* = () then STROUT("Sorry, no ordering selected.")
+     else {P:=TOTRC; TOTRC:=1; C^:=TPPO(CP,O*); TOTRC:=P};
+     goto 3}.
+(6)  [Help requested.] BLINES(1);
+     STOUTL(" Your input options are -");
+     BLKW(5); STOUTL("(S)traight / (R)everse");
+     BLKW(4); STOUTL("(T)race  / Do (N)ot orient");
+     BLKW(2); STOUTL("auto(M)atic ordering proposal");
+     BLKW(9); STOUTL("(P)rompt input");
+     go to  3 ||
+
+                    QCTKB()
+[Query concerning trace - KB system.
+The trace options are set interactively.]
+(1)  BLINES(1); STOUTL(" You have 6 trace options -").
+(2)  STOUTL("- theorem derivation trace  [1/0] *");
+     READ; TRC2:=AREADR().
+(3)  STOUTL("- proved  theorems  trace   [1/0] *");
+     READ; TRC3:=AREADR().
+(4)  STOUTL("- formula reduction trace   [1/0] *");
+     READ; TRC1:=AREADR().
+(5)  STOUTL("- general ordering trace    [1/0] *");
+     READ; TOTRC:=AREADR().
+(6)  STOUTL("- polynomial ordering trace [1/0] *");
+     READ; PITRC:=AREADR().
+(7)  STOUTL("- path ordering trace       [1/0] *");
+     READ; POTRC:=AREADR(); BLINES(1) ||
+
+                    m:=QCTS0() 
+[Query concerning trace and step mode.
+m = 1 if the user wants to work in step mode. The global trace option
+flags TRC1, TRC2, TRC3 TOTRC, PITRC POTRC are set.]
+
+(1)  [Reset trace options etc.]  m:=0;
+     TRC1:=0; TRC2:=0; TRC3:=0; TOTRC:=0; PITRC:=0; POTRC:=0.
+(2)  [Set trace options.]
+     STOUTL("Do you want to set trace options? [Y/N] *"); READ;
+     C^:=CREAD(); if UCASE(C^)='Y' then QCTKB.
+(3)  [Set orientation mode. The answer "a" is default.] 
+     STOUTL("Do you want to work");
+     STOUTL("  s -  in step mode (manual orientation), "); 
+     STOUTL("  a -  in automatic mode ");
+     STOUTL("       (manual orientation on failure) or"); 
+     STOUTL("  A -  in strict automatic mode?");
+     STOUTL("Enter your choice [s/a/A]. *");
+     READ; C^:=CREAD(); if UCASE(C^) = 'S' then m:=0
+     else if C^ = 'A' then m:=2 else m:=1 ||
+
+[---------------------------------------------------------------------
+     section 2.
+     Message handling.
+----------------------------------------------------------------------]
+
+                    MAOTC(x,a)
+[Application of transformation criterium message.
+x and a are axioms such that "a is transformed into x".]
+(1)  BLINES(1);
+     STOUTL(" Application of the transformation criterion: ");
+     STROUT(" Continuing with "); RRWRT(ALHS(x),ARHS(x)); WRITE;
+     STROUT(" in favour of "); RRWRT(ALHS(a),ARHS(a)); WRITE ||
+
+                    MASCLR(L,n)
+[Set of axioms clearance message.
+L is a list of axioms. n is a rule number.
+"|L| axioms can be reduced by rule number n."]
+     safe l.
+(1)  l:=LENGTH(L); BLKW(1); if l=0 then
+     STROUT("No") else AWRITE(l).
+(2)  STROUT(" axiom"); if l > 1 then CWRITE('s');
+     STROUT(" can be reduced by new axiom no ");
+     AWRITE(n); CWRITE('.'); WRITE ||
+
+                    MCPB(C',p)
+[Critical pair basic message.
+C' is a critical pair, p is 0 if the message is a the beginning
+of a sentences and not equal to 0  otherwise]
+     safe L,R,n1,n2.
+(1)  CPDIS(C'; L,R,n1,n2,DUMMY).
+(2)  if n1 # 0 then if p = 0 then STROUT(" T") else STROUT(" t")
+               else if p = 0 then STROUT(" O") else STROUT(" o");
+     if n1 # 0 then STROUT("heorem") else
+     {STROUT("ld axiom no "); AWRITE(n2); CWRITE(',')}; WRITE.
+(3)  RRWRT(L,R); if n1=0 then {CWRITE(','); WRITE} else
+     {WRITE; CWRIT2(' ','('); STROUT("from "); AWRITE(n1);
+      STROUT(" and "); AWRITE(n2); CWRITE(')')} ||
+
+                    MCPC(C')
+[Critical pair consideration message.]
+     safe n1.
+(1)  n1:=CPLOI(C'); if n1 # 0 /\ TRC3=0 then return.
+(2)  BLINES(1); MCPB(C',0); STROUT(" considered") ||
+
+                    MCPDEL(C')
+[Critical pair deletion message.]
+     safe n1.
+(1)  if TRC3=FALSE then
+     {n1:=CPLOI(C'); if n1 # 0 then return}.
+(2)  [[Erase preceding period.] 
+     if OBUFF[OPOS] = '.'  then OPOS:=OPOS-1. ]
+     STOUTL(" and proved.")||
+
+                    MCPDER(C')
+[Critical pair derivation message.]
+(1)  BLINES(1); MCPB(C',0); STROUT(" derived") ||
+
+                    MCPND(s1,s2)
+[Number of derived critical pairs message.
+s1 and s2 are beta-integers.]
+
+(1)  BLINES(1);
+     AWRITE(s1); STROUT(" orientable critical pair"); if s1 # 1 then
+     CWRITE('s'); STROUT(" and "); AWRITE(s2); 
+     STROUT(" non-orientable critical pair"); 
+     if s2 # 1 then CWRITE('s'); STOUTL(" have been derived.")||
+
+                    MCPP(n,C')
+[Critical pair proposition message.
+n is a new rule number and C' is a critical pair.]
+(1)  if CPLOI(C') # 0 then BLINES(1).
+(2)  STROUT(" Proposing"); MCPB(C',1).
+(3)  STROUT(" as new axiom no "); AWRITE(n); CWRITE('.') ||
+
+                    MCPSC(s0,n)
+[Set of critical pairs construction message.
+"s0 is the number of crit. pairs constructed by rule number n"]
+(1)  BLKW(1); if s0=0 then STROUT("No") else AWRITE(s0).
+(2)  STROUT(" new theorem"); if s0 # 1 then CWRITE('s');
+     STROUT(" can be derived by new axiom no "); AWRITE(n);
+     CWRITE('.'); WRITE ||
+
+                    MCSCLR(n)
+[Set of critical pairs, clearance message.
+"n crit. pairs remain unproved"]
+(1)  BLKW(2); if n=0 then STROUT("All") else if TRC2=1 /\ n=1 then
+     STROUT("The") else AWRITE(n); if TRC2 then
+     {STROUT(" new theorem"); if n # 1 then CWRITE('s')} else
+     STROUT(" of them"); if n=0 then STROUT(" can be ") else
+     STROUT(" must be retained un"); STOUTL("proved.")||
+
+                    MSSUIF()
+[Message about unimplemented feature.]
+(1)  STOUTL("Feature not implemented!.")||
+
+                    MSTAT(s1,s2)
+[Message about statistics.
+s1 is cumulative number of theorems derived so far.
+s2 of them are still unproved.]
+(1)  [Derivation statistics.] BLINES(1); BLKW(1); if s1=0 then
+     STROUT("No") else AWRITE(s1); STROUT(" theorem"); if s1 # 1
+     then CWRITE('s'); STROUT(" derived"); if s1 < 2 then
+     {STROUT(" so far"); if s1=0 then {CWRITE('.'); WRITE; return}
+     else CWRITE(',')} else STOUTL(" in total,"); BLKW(2).
+(2)  if s1 > 1 then {if s2=0 then STROUT("all") else AWRITE(s2);
+     STROUT(" of them ")} else STROUT("which is ");
+     if s2 # 0 then STROUT("still un"); STOUTL("proved.")||
+
+                    STAPRT(S)
+[Print statistics.
+S=(s sub 1, ..., s sub n) is a list of BETA-integers with 0 <= s sub
+i  <=  9999,  representing a diagram of n bars. The bars are output in
+consecutive lines with their index as prefix and their  true  length  as
+tip.]
+     safe S', m, s, d, i, j, r, q.
+     const OCOL=80.
+(1)  [Initialize.] S':=S; m:=0; c:=0;
+     [Find maximum and cumulative sum.] while S' # () do
+     {ADV(S'; s,S'); c:=c+s; if s > m then m:=s}; S':=S;
+     [Determine scalarisation.] d:=1; while m/d > OCOL-4 do d:=d+1.
+(2)  [Print bars.] i:=0; while S' # () do
+     {ADV(S'; s,S'); i:=i+1;
+      [Prefix.] if i < 10 then CWRITE(' '); if i < 100 then
+      CWRITE(' '); AWRITE(i); CWRITE(' ');
+      [Scalarization.] QREM(s,d; q,r);
+      [Room for tip.] if s > 9 then q:=q-1;
+      if s > 99 then q:=q-1; if s > 999 then q:=q-1;
+      [Write bar.] for j=1,...,q do CWRITE('-'); AWRITE(s); WRITE}.
+(3)  [Print maximum.] WRITE; STROUT("The maximum is "); AWRITE(m);
+     CWRITE('.'); WRITE;
+     STROUT("The cumulative sum of critical pairs is "); AWRITE(c);
+     BLINES(2) ||

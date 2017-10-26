@@ -1,0 +1,106 @@
+\begin{figure}[htbp]
+\begin{center}
+\fbox{
+\begin{minipage}{5.9in} %necessary if there is a footnote within the figure
+\begin{tabbing}
+ConstantName\hspace{\tabbingsep}\=::=\hspace{\tabbingsep}\=\kill
+\>AlgebraSpec\'::=\>NameSpec ``{\tt.}'' ExtSpec ConstSpec VarSpec OperatorSpec
+      RuleSpec ``{\tt END}''\\
+\>NameSpec\'::=\>``{\tt TYPE}'' AlgebraName\\
+\>ExtSpec\'::=\>$\varepsilon$ $|$ ``{\tt EXTERNAL}'' Externals \{ ``{\tt.}''
+      Externals \}$^\ast$\\
+\>Externals\'::=\>TypeName ``{\tt XREAD:}'' AlgorithmName
+                               ``{\tt XWRITE:}'' AlgorithmName\\
+\>    \>      ``{\tt  XEQ:}'' AlgorithmName ``{\tt  XLT:}'' AlgorithmName \\
+\>ConstSpec\'::=\>$\varepsilon$ $|$ ``{\tt CONSTS}'' Constants \{ ``{\tt.}''
+      Constants \}$^\ast$\\
+\>Constants\'::=\>ConstantName \{ ``{\tt ,}'' ConstantName \}$^\ast$
+      ``{\tt -}'' Typename\\
+\>VarSpec\'::=\>$\varepsilon$ $|$ ``{\tt VARS}'' Variables \{ ``{\tt .}''
+      Variables \}$^\ast$\\
+\>Variables\'::=\>VariableName \{ ``{\tt,}'' VariableName \}$^\ast$
+      ``{\tt -}'' Typename\\
+\>OperatorSpec\'::=\>$\varepsilon$ $|$ ``{\tt OPS}'' Operator \{ ``{\tt .}''
+      Operator \}$^\ast$\\
+\>Operator\'::=\>OperatorName ``{\tt(}'' Domain ``{\tt )}'' ``{\tt -}''
+      Range PropertyList\\
+\>Domain\'::=\>$\varepsilon$ $|$ Typename \{ ``{\tt,}'' Typename \}$^\ast$\\
+\>Range\'::=\>Typename\\
+\>PropertyList\'::=\>\{ Indicator ``{\tt :}'' PropertyValue \}$^\ast$\\
+\>Indicator\'::=\>{\tt USTAT}
+%      \footnote{The unification state
+%      {\tt AC} indicates an associative and commutative (binary)
+%      operator, the unification state {\tt COM} indicates a commutative
+%      operator. In the future, this may 
+%      be extended to other unification states.}
+      $|$ {\tt FIX} $|$ {\tt ROUND} $|$ {\tt XINT}\\
+\>RuleSpec\'::=\>$\varepsilon$ $|$ ``{\tt AXIOMS}'' \{ Rule \}$^+$\\
+\>Rule\'::=\>Number ``{\tt )}'' Term ``{\tt ==}'' Term\\
+\>ArgumentList\'::=\>Term \{ ``{\tt ,}'' Term \}$^\ast$\\
+\>LispArgs\'::=\>$\varepsilon$ $|$ Term \{ ``$\null\;\;\null$''
+               Term \}$^\ast$ \\
+\>Term\'::=\>ConstantName $|$ VariableName $|$
+          PrefixTerm $|$ PostfixTerm $|$ \\
+\>        \>InfixTerm $|$ RoundfixTerm $|$ OperatorName $|$ LispTerm \\
+\>PrefixTerm\'::=\>OperatorName ``{\tt (}'' ArgumentList ``{\tt )}''\\
+\>PostfixTerm\'::=\>``{\tt (}'' ArgumentList ``{\tt )}'' OperatorName\\
+\>InfixTerm\'::=\>``{\tt (}'' Term OperatorName Term ``{\tt )}''\\
+\>RoundfixTerm\'::=\>OperatorName  ArgumentList OperatorName\\
+\>LispTerm\'::=\> ``{\tt (}'' OperatorName LispArgs ``{\tt )}''\\
+\>PropertyValue,\'\>\\
+\>OperatorName\'::=\>SpecialSymbol \{ Digit $|$ SpecialSymbol $|$
+          Letter \}$^\ast$ $|$ \\
+\>        \> Letter \{ Digit $|$ Letter \}$^\ast$ $|$ Digit$^+$ \\
+\>ConstantName\'::=\>\{ Digit \}$^+$ $|$ Letter \{ Letter $|$
+          Digit \}$^\ast$\\
+\>AlgebraName,\'\>\\
+\>TypeName,\'\>\\
+\>VariableName\'::=\>Letter \{ Letter $|$ Digit \}$^\ast$ \\
+\>Number\'::=\>\{ Digit \}$^+$ \\ 
+\>SpecialSymbol\'::=\>
+         ``\verb+=+'' $|$ ``\verb-+-'' $|$ ``\verb+*+'' $|$
+         ``\verb+/+'' $|$ ``\verb+\$+'' $|$ ``\verb+!+'' $|$
+         ``\verb+"+'' $|$ ``\verb+\#+'' $|$ ``\verb+\%+'' $|$
+         ``\verb+\&+'' $|$ ``\verb+'+'' $|$ ``\verb+;+'' $|$
+         ``\verb+<+'' $|$ \\
+\> \>    ``\verb+>+'' $|$ ``\verb+?+'' $|$
+         ``\verb+@+'' $|$ ``\verb+[+'' $|$ ``\verb+]+'' $|$
+         ``\verb+$\wedge$+'' $|$  ``\verb+\_+'' $|$ ``\verb+`+'' $|$
+         ``\verb+\{+'' $|$ ``\verb+|+'' $|$ ``\verb+\}+'' $|$
+         ``\verb+$\sim$+'' \\
+\>Digit\'::=\>
+         ``{\tt 0}'' $|$ $\ldots$ $|$ ``{\tt 9}'' \\
+%         ``{\tt 0}'' $|$ ``{\tt 1}'' $|$ ``{\tt 2}'' $|$ 
+%         ``{\tt 3}'' $|$ ``{\tt 4}'' $|$ ``{\tt 5}'' $|$ 
+%         ``{\tt 6}'' $|$ ``{\tt 7}'' $|$ ``{\tt 8}'' $|$
+%         ``{\tt 9}'' \\
+\>Letter\'::=\>
+         ``{\tt a}'' $|$ $\ldots$ $|$ ``{\tt z}'' $|$  
+         ``{\tt A}'' $|$ $\ldots$ $|$ ``{\tt Z}'' \\
+%         ``{\tt a}'' $|$ ``{\tt b}'' $|$ ``{\tt c}'' $|$
+%         ``{\tt d}'' $|$ ``{\tt e}'' $|$ ``{\tt f}'' $|$
+%         ``{\tt g}'' $|$ ``{\tt h}'' $|$ ``{\tt i}'' $|$
+%         ``{\tt j}'' $|$ ``{\tt k}'' $|$ ``{\tt l}'' $|$
+%         ``{\tt m}'' $|$\\
+%\> \>    ``{\tt n}'' $|$ ``{\tt o}'' $|$
+%         ``{\tt p}'' $|$ ``{\tt q}'' $|$ ``{\tt r}'' $|$
+%         ``{\tt s}'' $|$ ``{\tt t}'' $|$ ``{\tt u}'' $|$
+%         ``{\tt v}'' $|$ ``{\tt w}'' $|$ ``{\tt x}'' $|$
+%         ``{\tt y}'' $|$ ``{\tt z}'' $|$ \\
+%\> \>    ``{\tt A}'' $|$ ``{\tt B}'' $|$ ``{\tt C}'' $|$
+%         ``{\tt D}'' $|$ ``{\tt E}'' $|$ ``{\tt F}'' $|$
+%         ``{\tt G}'' $|$ ``{\tt H}'' $|$ ``{\tt I}'' $|$
+%         ``{\tt J}'' $|$ ``{\tt K}'' $|$ ``{\tt L}'' $|$
+%         ``{\tt M}'' $|$ \\
+%\> \>    ``{\tt N}'' $|$ ``{\tt O}'' $|$
+%         ``{\tt P}'' $|$ ``{\tt Q}'' $|$ ``{\tt R}'' $|$
+%         ``{\tt S}'' $|$ ``{\tt T}'' $|$ ``{\tt U}'' $|$
+%         ``{\tt V}'' $|$ ``{\tt W}'' $|$ ``{\tt X}'' $|$
+%         ``{\tt Y}'' $|$ ``{\tt Z}'' \\
+\end{tabbing}
+\end{minipage} 
+}
+\end{center}
+\caption{The Syntax of the input format of \redux\ data types for the old
+specification parser} \label{fi:syn.old}
+\end{figure}

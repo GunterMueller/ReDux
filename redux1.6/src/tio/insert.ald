@@ -1,0 +1,85 @@
+[----------------------------------------------------------------------]
+[- This file contains routines to insert operators, constants, --------]
+[- variables etc. into a data type.                            --------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+               INSVRS(DT,vars; ins, err)
+[Insert variables.
+ DT is a data type, vars, ins and err are lists of variables.
+ The variables of list vars are to be inserted into the data types
+ variable list. ins conatains all variables that could be inserted,
+ whereas err contains the variables that would cause name conflicts.]
+(1) [init] ins:=(); err:=(); v:=CINV(vars).
+(2) [finished?] if v=() then { MKDTVR(DT,ins); CHKAMB(DT); return };
+    ADV(v; va,v).
+(3) [try to insert var] vn:=TNAME(va); if SYTGET(DT,vn)#() then
+    err:=COMP(va,err) else { ins:=COMP(va,ins); STUPDT(DT,(va)) }.
+(4) [next variable] goto 2 ||
+
+               INSCNS(DT,cons; ins,err)
+[Insert constants.
+ DT is a data type, cons, ins and err are lists of constants.
+ The constants of list cons are to be inserted into the data types
+ constant list. ins conatains all constants that could be inserted,
+ whereas err contains the constants that would cause name conflicts.]
+(1) [init] ins:=(); err:=(); c:=CINV(cons).
+(2) [finished?] if c=() then { MKDTCO(DT,ins); CHKAMB(DT); return };
+    ADV(c; co,c).
+(3) [try to insert const] cn:=TNAME(co); if SYTGET(DT,cn)#() then
+    err:=COMP(co,err) else { ins:=COMP(co,ins); STUPDT(DT,(co)) }.
+(4) [next constant] goto 2 ||
+
+               INSOPS(DT,ops; ins,err)
+[Insert operators.
+ DT is a data type, ops, ins and err are lists of constants.
+ The operators of list ops are to be inserted into the data types
+ operator list. ins conatains all operators that could be inserted,
+ whereas err contains the constants that would cause name conflicts.]
+(1) [init] ins:=(); err:=(); o:=CINV(ops).
+(2) [finished?] if o = () then { MKDTOP(DT,ins); CHKAMB(DT); return };
+    ADV(o; op,o).
+(3) [roundfix operator?] if TGET(op,DFS) = DRF then
+    { [check closing roundfix symbol]
+      crs:=TGET(op,DCR); so:=SYTGET(DT,crs);
+      if so # () then 
+      { if TGET(so,DFS) # DRF /\  TKIND(so) # DCR then
+        { err:=COMP(op,err); goto 2 }
+    } }.
+(4) [try to insert op] on:=TNAME(op); if SYTGET(DT,on) # () 
+    then err:=COMP(op,err) 
+    else { ins:=COMP(op,ins); STUPDT(DT,(op)) }.
+(5) [insert closing roundfix symbol, if necessary]
+    if TGET(op,DFS) = DRF then STUDCR(DT,TGET(op,DCR)).
+(6) [next operator] goto 2 ||
+
+               INSAXS(DT,axs)
+[Insert axioms.
+ DT is a data type, axs is a list of axioms.
+ The axioms of list axs are inserted into the data types axiom list.]
+(1) [insert] MKDTAX(DT,axs) ||
+
+               ok:=INSOBJ(DT,objs)
+[Insert objects.
+ DT is a data type, objs is a list of objects (i.e. of operators,
+ coercion operators, constants or variables).
+ The operator op is inserted into data type DT's symbol list.
+ It is checked whether the object's name is already used.
+ If this is the case, then ok=FALSE and an error message is
+ printed, otherwise ok=TRUE.]
+(1) [init] ol:=objs; ok:=TRUE.
+(2) [finished?] if ol=() then return; ADV(ol; obj,ol).
+(3) [check object name] on:=TNAME(obj);
+    if SYTGET(DT,on)#() then { SEMERR(10,(on)); ok:=FALSE; return }.
+(4) [insert object into symbol list] STUPDT(DT,(obj)).
+(5) [next object] goto 2 ||
+
+               ok:=INSOB(DT,obj)
+[Insert object.
+ Specification is similar to INSOBJ, but obj is an object, not
+ a list of objects.]
+(1) ok:=INSOBJ(DT,LIST1(obj)) ||

@@ -1,0 +1,775 @@
+	################################################################
+#                                                              #
+#          Makefile for the ALDES-C-Compiler  V3.7,            #
+#            the SAC-2-system and the ALDES tools              #
+#                      (quick & dirty)                         #
+#        Jochen Walter / Reinhard Buendgen 14.6.1995           #
+################################################################
+#
+# Please note: 
+# ``make'' replaces macros by the right hand side of the macro
+# definition up to the end of line or a comment.
+# If a comment is placed in the same line as a macro definition,
+# the comment sign (#) should follow the definition without any
+# separating blanks! 
+#
+# Pathes 
+# ######
+#
+# Path of the ALDES directory (must be an absolute path!):
+APATH =  /usr/local/caldes3.7# Change this to your ALDES directory
+# Logical path (for symbolic links to the binaries) for ALDES executables,
+# Only needed for logical installation:
+LBINPATH = $(APATH)/lbin
+#
+# Operating system switches
+# #########################
+#
+# The variable `SOLARIS = -' must be set for operating systems that 
+# Do not know the ranlib command otherwise the variable should be empty
+SOLARIS =# setting whem not using a SOLARIS 2 operating system
+#SOLARIS = - # to prevent make  file form failing on ranlib commands
+#              when using a SOLARIS 2 operating system
+#
+# Pathes cont'd
+# #############
+#
+#The following pathes need not to be changed:
+#Directory for the makefile
+MAKEPATH = $(APATH)
+# Directory containing the ALDES distribution tape:
+TAPE = $(APATH)/TAPE
+# Path for C primitives
+PRIMPATH = $(TAPE)/io
+# Directory for ALDES executables:
+PHBINPATH = $(APATH)/bin
+# Directory for the SAC-2 libraries:
+LIBPATH = $(APATH)/lib
+# Directory for the source code modified by the Makefile:
+SRCPATH = $(APATH)/src
+# Directory for the low system:
+LOWPATH = $(SRCPATH)/low
+# Directory for the SAC-2 system:
+SAC2PATH = $(SRCPATH)/sac2
+# Temporary file:
+TMPFILE = /tmp/MakingALDES
+# Directory of sources of ALDES tools
+TOOLPATH = $(APATH)/tools
+# Directory where the sources of asplit are located
+ASPLITPATH = $(TOOLPATH)/Asplit
+# Directory where the sources of ccsplit are located
+CCSPLITPATH = $(TOOLPATH)/ccsplit
+
+# Systemdependant definitions
+# ###########################
+
+# Options for the C compiler:
+  CFLAGS = -O2# For Sun 3/4
+# CFLAGS = -O2 -m486# For Linux with 80486 processor
+
+# Use GNU C compiler 
+CC = gcc
+
+# Use standard lex:
+LEX = lex
+LEXLIB = -ll
+
+# Use GNU flex
+#LEX = flex
+#LEXLIB = -L/usr/local/gnu/lib -lfl
+
+# Base of number representation in SAC-2:
+BETA = EXPF(2,29)#For 32 bit systems
+
+# Input units:
+IUNIT = 5# Usually: Console input (Default value: 5)
+CUNIT = 3# File with character table (Default value: 3)
+
+# Output units:
+MUNIT = 0# Diagnostics output (Default value: 0)
+OUNIT = 6# Usually: Console output (Default value: 6)
+PRNTR = 7# Printer output (Default value: 7)
+
+# Scaling factor for clock.c:
+# CLOCKSCALING = 0# Don't use clock.c, use dummy function instead
+  CLOCKSCALING = 17# For Sun 3/4
+# CLOCKSCALING = 10# For IBM RS/6000 and PC/Linux
+
+# Values for compiler's heap- and stack size
+TNU = 64000#Heap size (default: 25000 = 12500 cells)
+TMU = 5000#Stack size (default: 1000 entries)
+
+# Maximal possible value for the length of identifiers in ALDES programs:
+# (Must be >= 6)
+AIDLEN = 8#
+#AIDLEN = 6# standard ALDES
+
+# Default library for dpr and dqr.
+# This is needed for the ald-shellscript.
+# If no assembler routines are available, use dpqr-slow,
+# else the appropriate assembler library.
+# (Cf. directory ass.)
+DPQRLIB = dpqr-slow
+
+# Auxiliary file prefix
+AFPREFIX = .# For UNIX
+#AFPREFIX =# For MS-DOS
+
+# Auxiliary file postfix
+AFPOSTFIX =# For UNIX
+#AFPOSTFIX =.$$$# For MS-DOS
+
+# Auxiliary macros
+DUMMIES = betadummy iunitdummy cunitdummy munitdummy ounitdummy \
+ prntrdummy clockscalingdummy tnudummy tmudummy
+
+ACA = -i$(PHBINPATH)/a2c.ini -l# ALDES compiler argument
+
+# Auxiliary files:
+CLCKSCALFILE = $(MAKEPATH)/$(AFPREFIX)CLCKSCAL$(AFPOSTFIX)
+BETAFILE = $(MAKEPATH)/$(AFPREFIX)BETA$(AFPOSTFIX)
+IUNITFILE = $(MAKEPATH)/$(AFPREFIX)IUNIT$(AFPOSTFIX)
+CUNITFILE = $(MAKEPATH)/$(AFPREFIX)CUNIT$(AFPOSTFIX)
+MUNITFILE = $(MAKEPATH)/$(AFPREFIX)MUNIT$(AFPOSTFIX)
+OUNITFILE = $(MAKEPATH)/$(AFPREFIX)OUNIT$(AFPOSTFIX)
+PRNTRFILE = $(MAKEPATH)/$(AFPREFIX)PRNTR$(AFPOSTFIX)
+TNUFILE = $(MAKEPATH)/$(AFPREFIX)TNU$(AFPOSTFIX)
+TMUFILE = $(MAKEPATH)/$(AFPREFIX)TMU$(AFPOSTFIX)
+
+BSFILE = $(MAKEPATH)/$(AFPREFIX)bs$(AFPOSTFIX)
+LPFILE = $(MAKEPATH)/$(AFPREFIX)lp$(AFPOSTFIX)
+SYFILE = $(MAKEPATH)/$(AFPREFIX)sy$(AFPOSTFIX)
+
+ANFILE = $(MAKEPATH)/$(AFPREFIX)an$(AFPOSTFIX)
+ARFILE = $(MAKEPATH)/$(AFPREFIX)ar$(AFPOSTFIX)
+COFILE = $(MAKEPATH)/$(AFPREFIX)co$(AFPOSTFIX)
+LAFILE = $(MAKEPATH)/$(AFPREFIX)la$(AFPOSTFIX)
+PFFILE = $(MAKEPATH)/$(AFPREFIX)pf$(AFPOSTFIX)
+PGFILE = $(MAKEPATH)/$(AFPREFIX)pg$(AFPOSTFIX)
+POFILE = $(MAKEPATH)/$(AFPREFIX)po$(AFPOSTFIX)
+RRFILE = $(MAKEPATH)/$(AFPREFIX)rr$(AFPOSTFIX)
+
+
+##########################################
+#                                        #
+# Targets to be used in the command line #
+#                                        #
+##########################################
+
+all: $(DUMMIES) atools $(PHBINPATH)/a2c $(LIBPATH)/liblow.a \
+     $(LIBPATH)/libsac2.a
+
+atr: $(DUMMIES) ccsplit $(PHBINPATH)/a2c
+
+liblow: $(DUMMIES) asplit $(LIBPATH)/liblow.a
+
+libsac2: $(DUMMIES) asplit $(LIBPATH)/libsac2.a
+
+libs: $(DUMMIES) asplit $(LIBPATH)/liblow.a $(LIBPATH)/libsac2.a
+
+atools: ald asplit backwalk ccsplit fald scat sgrep segrep
+
+ald: $(PHBINPATH)/ald
+
+asplit: $(PHBINPATH)/asplit
+
+backwalk: $(PHBINPATH)/backwalk
+
+ccsplit: $(PHBINPATH)/ccsplit
+
+fald: $(PHBINPATH)/fald
+
+scat: $(PHBINPATH)/scat
+
+sgrep: $(PHBINPATH)/sgrep
+
+segrep: $(PHBINPATH)/segrep
+
+linstall:
+	@if [ ! -d $(LBINPATH) ]; then \
+       echo Error: $(LBINPATH) does not exist!; \
+       exit 1; \
+    fi
+	@if [ -h $(LBINPATH)/a2c ]; then \
+       echo $(LBINPATH)/a2c already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/a2c $(LBINPATH)/a2c; \
+    fi
+	@if [ -h $(LBINPATH)/ald ]; then \
+       echo $(LBINPATH)/ald already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/ald $(LBINPATH)/ald; \
+    fi
+	@if [ -h $(LBINPATH)/asplit ]; then \
+       echo $(LBINPATH)/asplit already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/asplit $(LBINPATH)/asplit; \
+    fi
+	@if [ -h $(LBINPATH)/backwalk ]; then \
+       echo $(LBINPATH)/backwalk already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/backwalk $(LBINPATH)/backwalk; \
+    fi
+	@if [ -h $(LBINPATH)/backwalk1 ]; then \
+       echo $(LBINPATH)/backwalk1 already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/backwalk1 $(LBINPATH)/backwalk1; \
+    fi
+	@if [ -h $(LBINPATH)/backwalk2 ]; then \
+       echo $(LBINPATH)/backwalk2 already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/backwalk2 $(LBINPATH)/backwalk2; \
+    fi
+	@if [ -h $(LBINPATH)/ccsplit ]; then \
+       echo $(LBINPATH)/ccsplit already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/ccsplit $(LBINPATH)/ccsplit; \
+    fi
+	@if [ -h $(LBINPATH)/fald ]; then \
+       echo $(LBINPATH)/fald already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/fald $(LBINPATH)/fald; \
+    fi
+	@if [ -h $(LBINPATH)/scat ]; then \
+       echo $(LBINPATH)/scat already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/scat $(LBINPATH)/scat; \
+    fi
+	@if [ -h $(LBINPATH)/sgrep ]; then \
+       echo $(LBINPATH)/sgrep already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/sgrep $(LBINPATH)/sgrep; \
+    fi
+	@if [ -h $(LBINPATH)/segrep ]; then \
+       echo $(LBINPATH)/segrep already exists, no link created!; \
+    else \
+       ln -s $(PHBINPATH)/segrep $(LBINPATH)/segrep; \
+    fi
+
+cleanup:
+	rm -fr $(LOWPATH)
+	rm -fr $(SAC2PATH)
+	rm -f $(SRCPATH)/*
+	if [ -d $(SRCPATH) ]; then rmdir $(SRCPATH); fi
+	rm -f $(LIBPATH)/*
+	if [ -d $(LIBPATH) ]; then rmdir $(LIBPATH); fi
+	rm -f $(PHBINPATH)/*
+	if [ -d $(PHBINPATH) ]; then rmdir $(PHBINPATH); fi
+	rm -f $(MAKEPATH)/$(AFPREFIX)[A-Za-z]*$(AFPOSTFIX)
+	rm -f $(MAKEPATH)/*.c
+	rm -f $(MAKEPATH)/*.o
+
+lcleanup:
+	rm -f $(LBINPATH)/a2c
+	rm -f $(LBINPATH)/ald
+	rm -f $(LBINPATH)/asplit
+	rm -f $(LBINPATH)/backwalk
+	rm -f $(LBINPATH)/backwalk1
+	rm -f $(LBINPATH)/backwalk2
+	rm -f $(LBINPATH)/ccsplit
+	rm -f $(LBINPATH)/fald
+	rm -f $(LBINPATH)/scat
+	rm -f $(LBINPATH)/sgrep
+	rm -f $(LBINPATH)/segrep
+
+####################################
+#                                  #
+# Targets for the ALDES translator #
+#                                  #
+####################################
+
+$(PHBINPATH)/a2c: $(SRCPATH)/a2c.c $(LOWPATH)/io/io.c \
+ $(TNUFILE) $(TMUFILE) $(PHBINPATH)/a2c.ini
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	cd $(MAKEPATH); $(PHBINPATH)/ccsplit <$(SRCPATH)/a2c.c
+	sed -e '/SPACE\[25000/s/25000/$(TNU)/' \
+        -e '/STACK\[1000/s/1000/$(TMU)/' \
+        -e '/^NU=25000/s/25000/$(TNU)/' \
+        -e '/^MU=1000/s/1000/$(TMU)/' $(MAKEPATH)/aldes.c >$(TMPFILE)
+	cd $(MAKEPATH); rm -f $(MAKEPATH)/aldes.c; \
+        mv $(TMPFILE) $(MAKEPATH)/aldes.c
+	cd $(MAKEPATH); $(CC) -c $(CFLAGS) $(LOWPATH)/io/io.c; \
+        $(CC) $(CFLAGS) *.c *.o -o $@
+	cd $(MAKEPATH); rm -f *.c *.o
+	chmod 755 $@
+
+$(PHBINPATH)/a2c.ini: $(TAPE)/a2c.ini
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	cp $(TAPE)/a2c.ini $(PHBINPATH)/a2c.ini
+	chmod 644 $(PHBINPATH)/a2c.ini
+
+$(SRCPATH)/a2c.c: $(TAPE)/a2c.c $(BETAFILE) \
+ $(IUNITFILE) $(CUNITFILE) $(MUNITFILE) \
+ $(OUNITFILE) $(PRNTRFILE)
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+   fi
+	sed -e '/^BETA=/s/BETA=.*/BETA=$(BETA);/' \
+	    -e '/##### CSWRIT #####/,/^}/s/^N=8;$$/N=$(AIDLEN);/' \
+       $(TAPE)/a2c.c >$(SRCPATH)/a2c.c
+
+
+###########################
+#                         #
+# Target for C primitives #
+#                         #
+###########################
+
+$(LOWPATH)/io/io.c: $(PRIMPATH)/io.c $(CLCKSCALFILE)
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(LOWPATH) ]; then \
+       mkdir $(LOWPATH); chmod 755 $(LOWPATH); \
+    fi
+	if [ ! -d $(LOWPATH)/io ]; then \
+       mkdir $(LOWPATH)/io; chmod 755 $(LOWPATH)/io; \
+    fi
+	if [ $(CLOCKSCALING) -ne 0 ]; then \
+       sed -e '/^     return/s/20/$(CLOCKSCALING)/' \
+       $(PRIMPATH)/io.c > $@; \
+    else \
+       sed -e '/^int CLOCK()/,/^} \/\* clock \*\//d' $(PRIMPATH)/io.c \
+          > $@; \
+       echo 'int CLOCK() { return(0); }' >> $@; \
+    fi
+	chmod 644 $@
+
+
+###############################
+#                             #
+# Targets for the low library #
+#                             #
+###############################
+
+$(LIBPATH)/liblow.a:: $(BSFILE) $(LPFILE) $(SYFILE)
+	cd $(MAKEPATH); \
+    for i in bs lp sy; do \
+       for j in $(LOWPATH)/$$i/*.ald; do \
+          cat $$j | $(PHBINPATH)/a2c $(ACA) | \
+             $(PHBINPATH)/ccsplit; \
+       done; \
+    done
+	cd $(MAKEPATH); $(CC) $(CFLAGS) -c *.c
+	if [ ! -d $(LIBPATH) ]; then \
+       mkdir $(LIBPATH); chmod 755 $(LIBPATH); \
+    fi
+	ar rv $@ *.o
+	$(SOLARIS) ranlib $@  
+	chmod 644 $@
+	rm -f $(MAKEPATH)/*.c $(MAKEPATH)/*.o
+#### Anm.: statt durch ccsplit zu filtern, kann man auch mit basename
+# den namen der zu erzeugenden datei bestimmen
+
+$(LIBPATH)/liblow.a:: $(PRIMPATH)/io.c
+	cd $(MAKEPATH); $(CC) $(CFLAGS) -c $?
+	if [ ! -d $(LIBPATH) ]; then \
+       mkdir $(LIBPATH); chmod 755 $(LIBPATH); \
+    fi
+	ar rv $@ *.o
+	$(SOLARIS) ranlib $@
+	chmod 644 $@ 
+	rm -f $(MAKEPATH)/*.o
+
+$(BSFILE): $(TAPE)/bs \
+ $(IUNITFILE) $(CUNITFILE) $(MUNITFILE) \
+ $(OUNITFILE) $(PRNTRFILE)
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(LOWPATH) ]; then \
+       mkdir $(LOWPATH); chmod 755 $(LOWPATH); \
+    fi
+	if [ ! -d $(LOWPATH)/bs ]; then \
+       mkdir $(LOWPATH)/bs; chmod 755 $(LOWPATH)/bs; \
+    fi
+	cd $(LOWPATH)/bs; \
+    sed -e '/IUNIT:=5/s/\(IUNIT:=\)5/\1$(IUNIT)/' \
+        -e '/CUNIT:=3/s/\(CUNIT:=\)3/\1$(CUNIT)/' \
+        -e '/MUNIT:=0/s/\(MUNIT:=\)0/\1$(MUNIT)/' \
+        -e '/OUNIT:=6/s/\(OUNIT:=\)6/\1$(OUNIT)/' \
+        -e '/PRNTR:=6/s/\(PRNTR:=\)6/\1$(PRNTR)/' $(TAPE)/bs \
+    | $(PHBINPATH)/asplit
+	rm $(LOWPATH)/bs/globals
+	chmod 644 $(LOWPATH)/bs/*.ald
+	touch $@
+
+$(LPFILE): $(TAPE)/lp $(BETAFILE)
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(LOWPATH) ]; then \
+       mkdir $(LOWPATH); chmod 755 $(LOWPATH); \
+    fi
+	if [ ! -d $(LOWPATH)/lp ]; then \
+       mkdir $(LOWPATH)/lp; chmod 755 $(LOWPATH)/lp; \
+    fi
+	cd $(LOWPATH)/lp; \
+    sed -e '/BETA:=/s/\(BETA:=\)[^;]*\(;\)/\1$(BETA)\2/'\
+        $(TAPE)/lp | $(PHBINPATH)/asplit
+	rm $(LOWPATH)/lp/globals
+	chmod 644 $(LOWPATH)/lp/*.ald
+	touch $@
+
+$(SYFILE): $(TAPE)/sy
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(LOWPATH) ]; then \
+       mkdir $(LOWPATH); chmod 755 $(LOWPATH); \
+    fi
+	if [ ! -d $(LOWPATH)/sy ]; then \
+       mkdir $(LOWPATH)/sy; chmod 755 $(LOWPATH)/sy; \
+    fi
+	cd $(LOWPATH)/sy; \
+    cat $(TAPE)/sy | $(PHBINPATH)/asplit
+	rm $(LOWPATH)/sy/globals
+	chmod 644 $(LOWPATH)/sy/*.ald
+	touch $@
+
+
+################################
+#                              #
+# Targets for the sac2 library #
+#                              #
+################################
+
+$(LIBPATH)/libsac2.a: $(ANFILE) $(ARFILE) $(COFILE) $(LAFILE) \
+ $$(PFFILE) $(PGFILE) $(POFILE) $(RRFILE)
+	for i in an ar co la pf pg po rr; do \
+	   for j in $(SAC2PATH)/$$i/*.ald; do \
+          cat $$j | $(PHBINPATH)/a2c $(ACA) | \
+             $(PHBINPATH)/ccsplit; \
+       done; \
+    done
+	$(CC) $(CFLAGS) -c *.c
+	if [ ! -d $(LIBPATH) ]; then \
+       mkdir $(LIBPATH); chmod 755 $(LIBPATH); \
+    fi
+	ar rv $(LIBPATH)/libdpqr-slow.a dpr.o
+	$(SOLARIS) ranlib $(LIBPATH)/libdpqr-slow.a
+	chmod 644 $(LIBPATH)/libdpqr-slow.a
+	rm -f dpr.o
+	ar rv $@ *.o
+	$(SOLARIS) ranlib $@  
+	chmod 644 $@
+	rm -f *.c *.o
+
+$(ANFILE): $(TAPE)/an
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/an ]; then \
+       mkdir $(SAC2PATH)/an; chmod 755 $(SAC2PATH)/an; \
+    fi
+	cd $(SAC2PATH)/an; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/an/globals
+	chmod 644 $(SAC2PATH)/an/*.ald
+	touch $@
+
+$(ARFILE): $(TAPE)/ar
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/ar ]; then \
+       mkdir $(SAC2PATH)/ar; chmod 755 $(SAC2PATH)/ar; \
+    fi
+	cd $(SAC2PATH)/ar; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/ar/globals
+	chmod 644 $(SAC2PATH)/ar/*.ald
+	touch $@
+
+$(COFILE): $(TAPE)/co
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/co ]; then \
+       mkdir $(SAC2PATH)/co; chmod 755 $(SAC2PATH)/co; \
+    fi
+	cd $(SAC2PATH)/co; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/co/globals
+	chmod 644 $(SAC2PATH)/co/*.ald
+	touch $@
+
+$(LAFILE): $(TAPE)/la
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/la ]; then \
+       mkdir $(SAC2PATH)/la; chmod 755 $(SAC2PATH)/la; \
+    fi
+	cd $(SAC2PATH)/la; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/la/globals
+	chmod 644 $(SAC2PATH)/la/*.ald
+	touch $@
+
+$(PFFILE): $(TAPE)/pf
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/pf ]; then \
+       mkdir $(SAC2PATH)/pf; chmod 755 $(SAC2PATH)/pf; \
+    fi
+	cd $(SAC2PATH)/pf; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/pf/globals
+	chmod 644 $(SAC2PATH)/pf/*.ald
+	touch $@
+
+$(PGFILE): $(TAPE)/pg
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/pg ]; then \
+       mkdir $(SAC2PATH)/pg; chmod 755 $(SAC2PATH)/pg; \
+    fi
+	cd $(SAC2PATH)/pg; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/pg/globals
+	chmod 644 $(SAC2PATH)/pg/*.ald
+	touch $@
+
+$(POFILE): $(TAPE)/po
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/po ]; then \
+       mkdir $(SAC2PATH)/po; chmod 755 $(SAC2PATH)/po; \
+    fi
+	cd $(SAC2PATH)/po; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/po/globals
+	chmod 644 $(SAC2PATH)/po/*.ald
+	touch $@
+
+$(RRFILE): $(TAPE)/rr
+	if [ ! -d $(SRCPATH) ]; then \
+       mkdir $(SRCPATH); chmod 755 $(SRCPATH); \
+    fi
+	if [ ! -d $(SAC2PATH) ]; then \
+       mkdir $(SAC2PATH); chmod 755 $(SAC2PATH); \
+    fi
+	if [ ! -d $(SAC2PATH)/rr ]; then \
+       mkdir $(SAC2PATH)/rr; chmod 755 $(SAC2PATH)/rr; \
+    fi
+	cd $(SAC2PATH)/rr; \
+    cat $? | $(PHBINPATH)/asplit
+	rm $(SAC2PATH)/rr/globals
+	chmod 644 $(SAC2PATH)/rr/*.ald
+	touch $@
+
+##################
+#                #
+# Target for ald #
+#                #
+##################
+
+$(PHBINPATH)/ald: $(TOOLPATH)/ald
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	sed -e '/^set BE=/s!CC!$(CC)!' \
+        -e '/^set T=/s!PHBINPATH!$(PHBINPATH)!' \
+        -e '/^set optimize=/s!CFLAGS!$(CFLAGS)!' \
+        -e '/^set SL=/s!LIBPATH!$(LIBPATH)!' \
+        -e '/^set DPQR=/s/DPQRLIB/$(DPQRLIB)/' $? > $@
+	chmod 755 $@
+
+#####################
+#                   #
+# Target for asplit #
+#                   #
+#####################
+
+$(PHBINPATH)/asplit: $(ASPLITPATH)/asplit.lex
+	$(LEX) $?
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	$(CC) $(CFLAGS) -o $(PHBINPATH)/asplit lex.yy.c $(LEXLIB)
+	rm -f lex.yy.c
+	chmod 755 $@
+
+#######################
+#                     #
+# Target for backwalk #
+#                     #
+#######################
+
+$(PHBINPATH)/backwalk: $(TOOLPATH)/backwalk $(TOOLPATH)/backwalk1 \
+ $(TOOLPATH)/backwalk2
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	sed -e '/^PHBINPATH/s!PHBINPATH!$(PHBINPATH)!' $(TOOLPATH)/backwalk \
+       > $(PHBINPATH)/backwalk
+	chmod 755 $@
+	sed -e '/^\$$</s!PHBINPATH!$(PHBINPATH)!' $(TOOLPATH)/backwalk1 \
+       > $(PHBINPATH)/backwalk1
+	chmod 755 $(PHBINPATH)/backwalk1
+	cp $(TOOLPATH)/backwalk2 $(PHBINPATH)/backwalk2
+	chmod 755 $(PHBINPATH)/backwalk2
+
+######################
+#                    #
+# Target for ccsplit #
+#                    #
+######################
+
+$(PHBINPATH)/ccsplit: $(CCSPLITPATH)/ccsplit.l
+	$(LEX) $?
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	$(CC) $(CFLAGS) -o $(PHBINPATH)/ccsplit lex.yy.c $(LEXLIB)
+	rm -f lex.yy.c
+	chmod 755 $@
+
+###################
+#                 #
+# Target for fald #
+#                 #
+###################
+
+$(PHBINPATH)/fald: $(TOOLPATH)/fald
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	cp $? $@
+	chmod 755 $@
+
+###################
+#                 #
+# Target for scat #
+#                 #
+###################
+
+$(PHBINPATH)/scat: $(TOOLPATH)/scat
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	sed -e '/set ALDES =/s!APATH!$(APATH)!' $? > $@
+	chmod 755 $@
+
+####################
+#                  #
+# Target for sgrep #
+#                  #
+####################
+
+$(PHBINPATH)/sgrep: $(TOOLPATH)/sgrep
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	sed -e '/SACS=/s!SRCPATH!$(SRCPATH)!' \
+        -e '/SACB=/s!PHBINPATH!$(PHBINPATH)!' $? > $@
+	chmod 755 $@
+
+#####################
+#                   #
+# Target for segrep #
+#                   #
+#####################
+
+$(PHBINPATH)/segrep: $(TOOLPATH)/segrep
+	if [ ! -d $(PHBINPATH) ]; then \
+       mkdir $(PHBINPATH); chmod 755 $(PHBINPATH); \
+    fi
+	sed -e '/SACS=/s!SRCPATH!$(SRCPATH)!' \
+        -e '/SACB=/s!PHBINPATH!$(PHBINPATH)!' $? > $@
+	chmod 755 $@
+
+#################
+#               #
+# Dummy targets #
+#               #
+#################
+
+clockscalingdummy:
+	if [ ! -d $(MAKEPATH) ]; then \
+       mkdir $(MAKEPATH); chmod 755 $(MAKEPATH); \
+    fi
+	if [ ! -f $(CLCKSCALFILE) ]; then echo $(CLOCKSCALING) \
+       >$(CLCKSCALFILE); fi
+	if [ `cat $(CLCKSCALFILE)` != $(CLOCKSCALING) ]; \
+	   then echo $(CLOCKSCALING) >$(CLCKSCALFILE); fi
+       
+betadummy:
+	if [ ! -d $(MAKEPATH) ]; then \
+       mkdir $(MAKEPATH); chmod 755 $(MAKEPATH); \
+    fi
+	if [ ! -f $(BETAFILE) ]; then echo '$(BETA)' \
+       >$(BETAFILE); fi
+	if [ `cat $(BETAFILE)` != '$(BETA)' ]; \
+	   then echo '$(BETA)' >$(BETAFILE); fi
+
+iunitdummy:
+	if [ ! -f $(IUNITFILE) ]; then echo $(IUNIT) \
+       >$(IUNITFILE); fi
+	if [ `cat $(IUNITFILE)` != $(IUNIT) ]; \
+	   then echo $(IUNIT) >$(IUNITFILE); fi
+
+cunitdummy:
+	if [ ! -f $(CUNITFILE) ]; then echo $(CUNIT) \
+       >$(CUNITFILE); fi
+	if [ `cat $(CUNITFILE)` != $(CUNIT) ]; \
+	   then echo $(CUNIT) >$(CUNITFILE); fi
+
+munitdummy:
+	if [ ! -f $(MUNITFILE) ]; then echo $(MUNIT) \
+       >$(MUNITFILE); fi
+	if [ `cat $(MUNITFILE)` != $(MUNIT) ]; \
+	   then echo $(MUNIT) >$(MUNITFILE); fi
+
+ounitdummy:
+	if [ ! -f $(OUNITFILE) ]; then echo $(OUNIT) \
+       >$(OUNITFILE); fi
+	if [ `cat $(OUNITFILE)` != $(OUNIT) ]; \
+	   then echo $(OUNIT) >$(OUNITFILE); fi
+
+prntrdummy:
+	if [ ! -f $(PRNTRFILE) ]; then echo $(PRNTR) \
+       >$(PRNTRFILE); fi
+	if [ `cat $(PRNTRFILE)` != $(PRNTR) ]; \
+	   then echo $(PRNTR) >$(PRNTRFILE); fi
+
+tnudummy:
+	if [ ! -f $(TNUFILE) ]; then echo $(TNU) \
+       >$(TNUFILE); fi
+	if [ `cat $(TNUFILE)` != $(TNU) ]; \
+	   then echo $(TNU) >$(TNUFILE); fi
+
+tmudummy:
+	if [ ! -f $(TMUFILE) ]; then echo $(TMU) \
+       >$(TMUFILE); fi
+	if [ `cat $(TMUFILE)` != $(TMU) ]; \
+	   then echo $(TMU) >$(TMUFILE); fi

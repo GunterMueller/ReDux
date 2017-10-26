@@ -1,0 +1,21 @@
+ReDuX SOURCES
+=============
+
+Table of contents
++++++++++++++++++
+
+ac			AC completion
+acnew			AC completion supporting memorization and PEDs
+ax			auxilliary algorithms (not ReDuX specific)
+co			combinatoric algorithms (coroutine emulation)
+ev			partial evaluation domains (PEDs)
+ic			inductive completion and ground normal form analysis
+incl->include		header files
+ini			ReDuX system initialization
+io			basic io-routines (OS-interface)
+it			library interpreter (substitute for dynamic link loader)
+parser->tio		input/output module for new ReDuX parser
+to			term orderings
+tp			term primitives (including i/o-module for old parser)
+uc                      unfailing completion
+

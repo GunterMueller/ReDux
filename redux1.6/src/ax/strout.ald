@@ -1,0 +1,13 @@
+                    STROUT(L)
+[String output.  
+The input is a non-empty string constant which is output.
+L is destroied. !preventiv garbage collection is used!]
+     safe CLOUT.
+(1)  [Write string.] L':=L;  while L' # () do 
+     { L'':=L';  ADV(L';C,L'); CWRITE(C)}.
+(2)  [Preventive GC.] if RED(L) # () then
+      { SRED(L'',AVAIL); AVAIL:=RED(L); SRED(L,()) }  ||
+
+[ AVAIL cannot be set to L because there is no way to tell GC
+  that L (in the calling algorithm) will never be used again.
+]

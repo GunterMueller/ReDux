@@ -1,0 +1,43 @@
+#!/bin/sh
+# synopsis:   mhead module_name [path]
+#
+# mhead produces a file containing an entry for each algorithm in
+# a module. Each entry consisting of the algorithm name and its
+# first specification sentence.
+# The algorithms of the module are assumed to be in files matched by
+#                    $path/$module_name/*.ald
+# The default path name is set in the variable sources.
+# The output file is called $module_name.hd
+
+ ALDES=ALDES
+#^^^^^^^^^^^      Only to be modified by the ReDuX 
+#                 installation make file!
+ RDX=RDX
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+sources=$ALDES/src
+BIN=$RDX/bin
+
+if [ $# -eq 0 ]; then
+   echo "usage: mhead directory path"
+   exit
+fi
+
+module=$1
+
+if [ $# -eq 1 ]; then
+   path=$sources
+else
+   path=$2
+fi
+
+if [ ! -d $path ]; then
+   echo "unknown path " $path
+   exit
+fi
+
+echo "sources taken from " $path"/"$module
+echo "removing" $module".hd"
+rm -f $module.hd
+
+cat $path/$module/*.ald | $BIN/headers > $module.hd

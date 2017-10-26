@@ -1,0 +1,8 @@
+[Stacksize:]
+    pragma TMU=20000.
+[Heapsize:]
+    pragma TNU=256000.
+
+                    TC.
+[Main, term completion.]
+

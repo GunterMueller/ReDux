@@ -1,0 +1,36 @@
+%%  comment symbol
+DATATYPE LIST;
+%%  STATUS completed
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION List(N): cons, app, rev, length
+%%  ORIGIN  folkore
+SORT
+	LIST, NAT;
+CONST
+	0: NAT;
+	nil: LIST;
+VAR
+	A, B, C: NAT;
+	L, M, N: LIST;
+OPERATOR
+	s: NAT -> NAT;
+	+: NAT, NAT -> NAT;
+	@: LIST, LIST -> LIST;	%%  append 
+	[: NAT, LIST -> LIST;	%%  cons
+	rev: LIST -> LIST;	%%  reverse
+	|: LIST -> NAT;	%%  length
+NOTATION
+	s, rev: FUNCTION;
+	+, @: INFIX;
+	[: ROUNDFIX ];
+	|: ROUNDFIX |;
+AXIOM
+   [1] (nil @ L) == L;
+   [2] ([ A,L ] @ M) == [ A,(L @ M) ];
+   [3] rev(nil) == nil;
+   [4] rev([ A,L ]) == (rev(L) @ [ A,nil ]);
+   [5] (0 + A) == A;
+   [6] (s(A) + B) == s((A + B));
+   [7] | nil | == 0;
+   [8] | [ A,L ] | == s(| L |);
+END

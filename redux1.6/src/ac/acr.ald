@@ -1,0 +1,308 @@
+[Project:  ReDuX  AC-Completion 
+   module name        : ACR -- Reduction
+   modulespecification: rewriting algorithms
+                        adaptation of icr to the AC case. The marking
+                        for the reduction starategy had to be changed
+                        in TNRISE.
+                        optimized call of matching algorithms
+                        uses acu2 or higher version
+                        formerly acr2
+                        All reduced terms will be flattened
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 22.11.89 
+                        $Date: 1995/06/07 13:38:57 $
+                        by $Author: buendgen $
+                        Reduction apply noly at flattened operators.
+   version            : $Revision: 1.12 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    r*:=APUTXR(r,R)
+[Axiom, put extension rule (AC).
+r is a rule and R is a set of rules. 
+Then if the conditions in [Peterson&Stickel,1981,JACM 28(2) pp255] are
+met the extension rule r* of r is put under the property DXR of r.]
+
+(1)  [Initialize.] ADIS(r; n,s,v,t,b); r*:=().
+(2)  [AC-operator at top.] if TUSTAT(s) # DAC then return.
+(3)  [Compute extension rule.] r*:=XRCONS(s,t,n,COMP(r,R)). 
+(4)  [r* matches r.] ADIS(r*; n,s*,v*,t*,b); MC:=MC+1; MTI:=MTI-CLOCK();
+     M:=TLMSE(LIST2(s,t),LIST2(s*,t*),v*,FALSE); MTI:=MTI+CLOCK();
+     if M # () then { r*:=(); return }.
+(5)  [Put property.] APUT(r,DXR,r*) ||
+
+                    S*:=SBREDE(S,R)
+[Substitution, reduce modulo set of equations.
+S is a substitution, R is a set of rewrite rules. The unification
+status of the operators may contain information concering a built in 
+compatible equational theory. 
+Then S* is S where all terms in S are reduced by R. S is destroyed.]
+     
+(1)  [Initialize.] S*:=S; S':=S.
+(2)  [Trivial case.] if S = () then
+      STOUTL("*** unexpected case in SBREDE.2 !").
+(3)  [For all x in dom(S) reduce S(x).] A:=SUBASS(S*); A*:=A;
+         [TRC.] N:=();
+     while A # ASSIDTY do
+      { ASADV(A; x,t,A'); 
+         [TRC.] TDIWRT(x,N ;N); STROUT(" <- "); TDIWRT(t,N; N);
+          TCMPRS(t; t^,V^); t*:=TIRDSE(t^,R); 
+          [TRC.] STROUT(" -->(R) "); TDIWRT(t*,N; N); WRITE; 
+          if t* # x then
+        { ASSTRM(A):=t*; if A # A* then A^:=A } else
+        { if A = A* then A*:=A' else ASSNXT(A^):=A' }; A:=A';
+      }; SUBASS(S*):=A* ||
+
+                    t*:=TIRDSE(t,R)
+[Term, innermost reduction, stickel-version, modulo set of equations.
+t is a term, R a set of axioms. The unification status of the operators
+may contain information concering a built in compatible equational 
+theory.
+Then t*=t if no axiom in R is applicable to t, otherwise t* is a normal
+form of t with respect to R. t is destroyed.]
+     safe k.                                                           
+(1)  [Initialize.] if PNTRC then STOUTL("TIRDSE");
+     if AATRC then { STROUT("normalizing "); TWRT(t); STOUTL(" ...") };
+     t*:=t; if R=() then return.
+(2)  [Constant or variable.] k:=TKIND(t); 
+     if k = DCS \/ k = DVS  then return.
+(3)  [External term.] if k = DXT then
+     { t*:=TXAPLY(t,R); if TKIND(t*) # DOS then return }.
+(4)  [Non-atomic term.]  TBVSLI(t*; V,l_); t':=TNDFLT(t*); 
+     RTI:=RTI-CLOCK(); t*:=TNRISE(t',R,V); RTI:=RTI+CLOCK() ||
+
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+----------------------------------------------------------------------]
+
+
+                    T*:=TAPPLE(T,A,V~)                                    
+[Term, application of axioms modulo set of equations.
+T is a non-atomic term, A is a set of axioms. The unification status of
+the operators may contain information concering a built in equational 
+theory. V~ is a set of variables of a superterm of T.
+Then T*=T if no axiom in A is applicable to T on outermost position, 
+otherwise T* is the result of the first such application of an axiom.
+-- uses fact that top operator of rule-LHS = top operator of extension 
+rule-LHS.]
+     safe L,K,k,a,LHS,RHS,l_.                                        
+(1)  [Initialize.] if PNTRC then STOUTL("TAPPLE"); 
+     T*:=T; L:=A; K:=TSIGN(T); E:=TUSTAT(T).
+(2)  [Recursion basis. Trivial case.] if L=() then return.
+(3)  [Recursion step. Apply single axiom.] a:=FIRST(L); LHS:=ALHS(a); 
+     k:=TSIGN(LHS); V':=ALHSV(a);
+     [Trivial case.] if K # k then {L:=RED(L); go to  2};
+     [Try match.]  l_:=ALLB(a); MTI:=MTI-CLOCK(); 
+     if E = DAC then M:=TMSAC(LHS,T,V~,l_) 
+     else { M:=TLMSE(OARGLST(LHS),OARGLST(T),V~,l_); 
+            if E = DCO /\ M = () then 
+            M:=TLMSE(OARGLST(LHS),CINV(OARGLST(T)),V~,l_)
+           }; MTI:=MTI+CLOCK(); 
+     MC:=MC+1; [a not applicable.] if M=() then [check extension rule]
+     { X:=AGET(a,DXR); if X = () then { L:=RED(L); go to  2 } else a:=X;
+      LHS:=ALHS(a);  V':=ALHSV(a); MTI:=MTI-CLOCK(); 
+      if E = DAC then M:=TMSAC(LHS,T,V~,l_) 
+      else { M:=TLMSE(OARGLST(LHS),OARGLST(T),V~,l_); 
+             if E = DCO /\ M = () then 
+             M:=TLMSE(OARGLST(LHS),CINV(OARGLST(T)),V~,l_)
+           }; MTI:=MTI+CLOCK(); MC:=MC+1; 
+      if M = () then { L:=RED(L); go to 2 }
+     }; if AATRC then 
+         { [TRC.] STOUTL("Matching subst.:  "); SBWRT(M); WRITE;
+          N:=TRCAA0(T);
+         };
+     [Perform matching substitution.] SBAPPL(M); V*:=VSRFV(V');
+if V* # () then STOUTL("---------> illegal reduction ! "); 
+     [Apply a.] RHS:=ARHS(a); T*:=TBCMAC(RHS); SBDAPP(M); UNDO(V*); 
+     RC:=RC+1; [Trace.] if AATRC then TRCAA1(a,T*,N) ||   
+
+                    t*:=TBCMAC(t)
+[Semi-Bound term, partial copy leaving marks below AC-operators.
+t is a semi-bound term without chain-substitutions. 
+Then t* is a flattened partial duplicate of t, a bound term, where 
+variables are are still bound by their values, but not by copies 
+thereof. However if a variable in t is bound to a term with AC-top 
+operator then this operator is copied too and each flat argument of 
+t is marked by a new variable which is bound to the original argument.
+Thus the variables may serve as marks, separating the duplicated from 
+the unduplicated part of the term. Unbound variables which are not
+below a bound variables are repaced by new duplicates.]
+     safe k.
+(1)  [Initialize.] if t=() then {ERRORD(10,"TBCMAC"); t*:=(); return}.
+(2)  [Constant.]  k:=TKIND(t); if k=DCS \/ k=DXT then {t*:=t; return}.
+(3)  [Variable.]               if k=DVS then 
+      { t':=VARBIND(t);  if TUSTAT(t') = DAC then
+        t*:= TCONS(TFCNTM(t',t),t') else  t*:=TCONS(t',t); 
+        return
+      }.
+(4)  [Non-atomic term.] CTI:=CTI-CLOCK(); t*:=TNCMAC(t); 
+     CTI:=CTI+CLOCK() ||
+
+                    t*:=TNCMAC(t)
+[Non-atomic bound term, partial copy leaving marks below AC-operators.
+t is a flat non-atomic bound term without chain-substitutions. 
+Then t* is a flattened partial duplicate of t, where variables in t are 
+still bound to their original values in t rather than to copies thereof, 
+and are not replaced. However if a variable in t is bound to a term with 
+AC-top operator then this operator is copied too and each flat argument 
+of t is marked by new variable which is bound to the original argument.]
+     
+(1)  [Initialize.]  A*:=(); A:=OARGLST(t);
+     if TUSTAT(t) = DAC then s:=TSIGN(t) else s := ().
+(2)   [Copy operands.] while A # () do
+      { ADV(A; a,A); 
+        if TSIGN(a) = s then { A:=CCONC(OARGLST(a),A); goto 2 };
+        k:=TKIND(a); [Constant.]  if k=DCS \/ k=DXT then A*:=COMP(a,A*) 
+        else         [Operator.]  if k=DOS then A*:=COMP(TNCMAC(a),A*) 
+        else { [bound Variable.]  a':=VARBIND(a); if TUSTAT(a') = DAC 
+               then { A':= TFCNTM(a',a); 
+                      if TSIGN(a') = s then A*:=CONC(A',A*) 
+                                        else A*:=COMP(TCONS(A',a'),A*)
+                    } else  A*:=COMP(TCONS(a',a),A*)
+      } }.
+(3)  [Copy operator.] A*:=INV(A*); t*:=TCONS(A*,t) ||
+ 
+                    A:=TFCNTM(t,v)
+[Term, flattened contents with marks.
+t is a semi bound term with an associative top operator o and v is a
+variable of the argument sort of o. Let T' be the flattened argument 
+list of o. I.e. o is considered to have a variable arity. 
+Then A is a list of new variables such that the i-th variable in A is 
+bound to the i-th term in T'. The order of the argument is the order of 
+the arguments encountered during a left-to-right depth first traversel 
+of the term.]
+
+(1)  [Initialize - trace.] if PNTRC then STOUTL("TFCONT").
+(2)  [Flatten.] A:=TFCTM1(t,(),v); A:=INV(A) || 
+
+                    A*:=TFCTM1(t,A,v)
+[Term, flattened contents with marks, subalgorithm.
+t is a semi-bound term with AC-top operator o. A is a list of variable 
+bound to terms none of which have top operator o and v is a variable of 
+the argument sort of o. 
+Let T' be the list of all arguments of t where recursively all arguments 
+t' of t with top operator o are replaced by the arguments of t' and 
+A' is a list of new variables such that the i-th variable in A is bound 
+to the i-th term in T'. 
+Then A* is created by appending A to the inverse of A'.]
+
+(1)  [Initialize.] A*:=A; T':=OARGLST(t); s:=TSIGN(t).
+(2)  [Replace all args of t with same top operator.] while T' # () do
+      { ADV(T'; t',T'); t'':=TSFS(t');
+        if TSIGN(t'') = s then A*:=TFCTM1(t'',A*,v) 
+        else A*:=COMP(TCONS(t'',v),A*)
+      } ||
+
+                    t*:=TNDFLT(t)
+[Non-atomic term, flatten destructive.
+t is a non-atomic free term possibly containig AC-operators.
+Then t* is t where all argument lists are flattened. t is modified.]
+
+(1)  [Initialize.] t*:=t; A:=OARGLST(t).
+(2)  [AC-top.] if TUSTAT(t)=DAC then { s:=TSIGN(t); goto 4 }.
+(3)  [Flatten arguments of non-AC-operatior.] while A # () do
+     { ADV(A; a,A); if TKIND(a) = DOS then a:=TNDFLT(a) }; return.
+(4)  [First argument of AC-operator.] ADV(A; a,A'); 
+     while TSIGN(a) = s do { A:=CONC(OARGLST(a),A'); ADV(A; a,A') };
+     A'':=A; if TKIND(a) = DOS then a:=TNDFLT(a).
+(5)  [Remaining arguments of AC-operator.] while A' # () do
+     { ADV(A'; a,A'); if TSIGN(a) = s then
+       { A':=CONC(OARGLST(a),A'); RED(A''):=A' }
+       else { if TKIND(a) = DOS then a:=TNDFLT(a); A'':=RED(A'') }
+     }; OARGLST(t*):=A ||
+
+                    t*:=TNRISE(t,L,V)                                     
+[Non-atomic term, innermost reduction, stickel version, modulo E.
+t is a flat  non-atomic term, L is a non-empty set of axioms. The 
+unification status of the operators may contain information concering a 
+built in compatible equational theory. V is the list of variables of a 
+superterm of t.
+Then t*=t if no axiom in L is applicable to any subterm of t, otherwise 
+t is reduced to a descendant whose subterms are all irreducible under L. 
+Innermost reduction on flattened terms is used.]                     
+     safe L,a,k,t.
+(1)  [Initialize.]  t*:=t; t^:=t.
+(2)  [AC-top.]  if TUSTAT(t^) = DAC then s:=TSIGN(t^) else s:=(); 
+     A:=OARGLST(t^).
+(3)  [Reduce operands.] while A # () do               
+     { a:=FIRST(A); k:=TKIND(a); [Mark.] if k=DVS then 
+      { a:=VARBIND(a); if a # () then if TSIGN(a) # s  then FIRST(A):=a
+         else STOUTL(" *** unexpected case in TNRISE (3.1)!")
+      } else
+      { [External term.] if k = DXT then
+          { a:=TXAPLY(a,L); FIRST(A):=a; k:=TKIND(a) };
+        [Non-atomic term.] if k=DOS then
+          { a*:=TNRISE(a,L,V); if TSIGN(a*) = s  then
+            { ADV(OARGLST(a*); a1, A1); FIRST(A):=a1; if A1 # () then
+               { A'':=LAST(A1); RED(A''):=RED(A); RED(A):=A1; A:=A'' }
+              else STOUTL(" *** unexpected case in TNRISE (3.2)!");
+              [A':=CONC(A1,RED(A)); RED(A):=A']
+            } else FIRST(A):=a*;
+      }   }; A:=RED(A) }.
+(4)  [Reduce operator.] t*:=TAPPLE(t^,L,V); if t*=t^ then return;
+     k:=TKIND(t*); [Replaced by constant.] if k=DCS then return;
+     [Replaced by variable.] if k=DVS then                            
+      { t^:=VARBIND(t*); if t^ # () then t*:=t^; return }; 
+     [Replaced by external term.] if k = DXT then
+      { t*:=TXAPLY(t*,L); if TKIND(t*) # DOS then return };
+     [Replaced by non-atomic term.] t^:=t*; go to  2 ||                
+
+                    V*:=VSRFV(V)
+[Variable set rename free variables.
+V is a set of possibly bound variables.
+Then V* is the set of free variables in V each of which is bound to
+a new variable. The bindings of free variables in V are modified.]
+
+(1)  [Initialize.] V':=V; V*:=().
+(2)  [Loop through V.] while V' # () do
+     { ADV(V'; v,V'); if VARBIND(v) = () then 
+       { VARBIND(v):=TCONS((),v); V*:=COMP(v,V*) }
+     } ||
+                    r*:=XRCONS(s,t,n,R)
+[Put possible extension rule.
+s and t are terms s.th. s -> r is a rule where the top operator f of s
+is an AC-operator. n is an integer. R is a non-empty set of rules.
+Then r* = (s* -> t*) is the extension rule of r i.e. s* = f(x,s) and
+t* is f(x,t) normalized by R where x is a new variable.]
+
+(1)  [Initialize.] x:=TCONS((),TGET(s,DAV)).
+(2)  [Copy rewrite rule.] TFCVS1(s,(),(); s_,V0,V_); k:=TKIND(t);
+     if k = DCS \/ k = DXT then t_:=t else if k = DVS 
+         then t_:=ILPASS(t,V0,V_) else TFCVS1(t,V0,V_; t_,V1,V2).
+(3)  [Build extension.] V*:=COMP(x,V_); A*:=OARGLST(s_); 
+     OARGLST(s_):=COMP(x,A*); if TSIGN(s_) = TSIGN(t_) then 
+     { A~:=OARGLST(t_); OARGLST(t_):=COMP(x,A~); t^:=t_ }
+     else  t^:=TCONS(LIST2(x,t_),s); t^:=TNDFLT(t^); 
+     RTI:=RTI-CLOCK(); t*:=TNRISE(t^,R,V*); RTI:=RTI+CLOCK().
+(4)  [Finish up.] r*:=ACONS(n,s_,V*,t*) ||
+
+ 
+[----------------------------------------------------------------------
+       Section 3  Output routines & trace routines
+----------------------------------------------------------------------]
+
+                    N:=TRCAA0(t)
+[Trace application of axiom first part.
+t a term. Then N is the variable dictionary of t and a trace-message is
+output if the global variable AATRC=TRUE.]
+     
+(1)  if AATRC=FALSE then return; WRITE.
+(2)  TDIWRT(t,(); N); CWRIT6(' ',' ','r','e','d','u');  
+     CWRIT6('e','s',' ','t','o',' '); CWRITE(' ') ||
+
+                    TRCAA1(a,t,N)                                        
+[Trace application of axiom.                                           
+a is an axiom, t a term and N a variable dictionary. 
+Then a trace-message is output.]
+
+(1)  TDIWRT(t,N; N'); CWRIT5(' ',' ','b','y',' '); 
+     CWRIT6('a','x','i','o','m',' '); AWRITE(ANUM(a)); WRITE ||                                                 

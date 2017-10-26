@@ -1,0 +1,30 @@
+%% 
+DATATYPE GRP1;
+%%  used for paper
+SORT
+	GRP1;
+CONST
+	1, a, b: GRP1;
+VAR
+	x, y, z: GRP1;
+OPERATOR
+	*: GRP1, GRP1 -> GRP1;
+	~: GRP1 -> GRP1;
+NOTATION
+	~: FUNCTION;
+	*: INFIX;
+AXIOM
+ [1] (1 * x)==x;
+ [2] (~(x) * x)==1;
+ [3] ((x * y) * z)==(x * (y * z));
+ [4] (~(x) * (x * z))==z;
+ [5] (x * 1)==x;
+ [6] (x * ~(x))==1;
+ [7] ~(1)==1;
+ [8] ~(~(x))==x;
+ [9] (x * (~(x) * z))==z;
+[10] ~((x * y))==(~(y) * ~(x));
+[11] ~(a) == a;
+[12] (a * a) == 1;
+[13] (a * (a * x)) == x;
+END

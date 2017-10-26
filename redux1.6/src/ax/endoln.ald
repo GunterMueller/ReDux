@@ -1,0 +1,8 @@
+const TRUE=1, FALSE=0.
+
+                    b:=ENDOLN()
+[End of line.
+b is true if the character currently read is the last character
+of the current line.]
+
+(1)  if IPOS < ISIZE then b:=FALSE else b:=TRUE ||

@@ -1,0 +1,15 @@
+        Userguide
+        =-=-=-=-=
+
+Das Programm pa4 bietet alle Features von TC, stellt aber darueber-
+hinaus eine "Unfailing Completion"-Prozedur zur Verfuegung. Die
+Bedienung ist an die von TC angelehnt.
+Um die Unfailing Completion zu starten, muss der Menuepunkt "w" im
+Hauptmenue gewaehlt werden. Falls noch keine Termordnung initialisiert
+wurde, wird der Benutzer automatisch dazu aufgefordert. Anschliessend
+ist die zu beweisende Gleichung einzugeben. Dann wird dem Benutzer
+die Moeglichkeit gegeben, die maximale Anzahl der Bweisschritte zu
+aendern. Danach koennen die Trace- und Step-Optionen gewaehlt werden.
+Der Trace-Mode zeigt nach jedem Schritt die aktuellen Regel- und
+Gleichungsmengen an. Im Step-Mode kann das als naechstes zu betrach-
+tende kritische Paar gewaehlt werden.

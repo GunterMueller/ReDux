@@ -1,0 +1,23 @@
+[Project: ReDuX Inductive Completion
+   module name        : TS -- Top Set computation
+   modulespecification: main algorithm of top set tree, top set
+                        and ground normal form grammar computation
+                        (formerly tst, pts and itst)
+   programmer         : Reinhard Buendgen           
+   language           : aldes                                           
+   last change        : $Date: 1993/10/08 10:43:13 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   bugs               : non known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        redux/ax, redux/co, redux/tp, redux/to
+                        redux/tc
+]                                                                      
+                                                                       
+ pragma TMU=2000.                                                      
+ pragma TNU=1024000.                                                     
+
+
+                    TS.
+     [Main, Tops set computation / ground normal form analysis.]
+

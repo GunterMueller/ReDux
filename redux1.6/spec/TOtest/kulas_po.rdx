@@ -1,0 +1,22 @@
+%% 
+DATATYPE term1;
+%%  AUTHOR Marija Kulas
+%%  ORIGIN bug report for RPO
+%%         RPO: f > a
+SORT
+	term1;
+CONST
+	0, a: term1;
+VAR
+	x, y, z: term1;
+OPERATOR
+	s: term1, term1, term1 -> term1;
+	f: term1 -> term1;
+	g: term1, term1 -> term1;
+NOTATION
+	f, g: FUNCTION;
+AXIOM
+[1] s(x,y,f(y)) == s(y,x,y);
+[2] s(f(y),y,z) == s(z,y,a);
+END
+

@@ -1,0 +1,36 @@
+Verzeichnis ax
+==============
+
+Quellen der Hilfsalgorithmen (auxilliaries).
+
+Inhalt:
+   TOC:               Algothmenverzeichnis (table of contents)
+   axsl1.ald          Sortier Modul fuer Listen mit Gewichtsinformation
+                      in erster Listenzelle
+   areadr.ald:        Lies Atom (robust fuer interaktiven Gebrauch)
+   halt.ald:          Programmstop durch Laufzeitfehler
+   ilpass.ald:        associate gamma-integer in list pair
+   intdif.ald:        difference of sets of gamma-integers
+   intins.ald:        insert gamma-integer into set of gamma-integers
+   intint.ald:        gamma-integer-Mengen Schnitt
+   intmem.ald:        gamma-integer in Liste?
+   intsbs.ald:        sets of gamma-integers subset test
+   intuni.ald:        gamma-integer-Mengen Vereinigung
+   lp2eve.ald:        extract elements at even positions of list
+   lp2odd.ald:        extract elements at odd positions of list
+   ltlcpy.ald:        copy elements of list into another list
+
+Format von TOC
+    <Funktions-/Procedurkopf> : <Herkunftsmodul>
+
+Die Quellen werden mit dem Versionskontrollsystem RCS verwalted.
+   *.ald:    read only Datei der neusteten version [% co *.ald]
+   *.ald,v:  Datei, die alle Versionen enthaelt.
+
+Aendern einer Version von xxx.ald:
+  % co -l xxx.ald         [ generieren der neustern Version in aenderbarer ]
+                          [ Form. `locken' von xxx.ald,v.                  ]
+  % vi xxx.ald            [ aendere xxx.ald.]
+    ...
+  % ci xxx.ald            [ einloggen der neuen Version ]
+  % co xx.ald             [ generieren read only Datei der neusteten version ]

@@ -1,0 +1,305 @@
+\section{The Inductive Completion Program}
+\subsection{Introduction}
+The {\tt ic} demo program allows the user to experiment with the
+inductive completion algorithm given in \cite{Buendgen:87}.
+For the {\tt ic} program the same restrictions as for {\tt ts}
+apply. That is,
+\begin{enumerate}
+\item
+for each sort at least one variable must be declared and
+\item
+non-left-linear term rewriting systems must be well-behaved
+\cite{BuendgenEckhardt:92}.
+\end{enumerate}
+As all of the \redux\  demo programs, it reads an algebra specification.
+After the data type is read, the user is asked to install and select
+one or more term orderings.
+(See Section~\ref{InitializationOfOrderings} for more information on the
+initialization of term orderings.)
+
+Then the program tries to determine if the axioms (oriented from 
+left to right) are terminating and convergent. There are three cases:
+
+\begin{itemize}
+\item The axioms can be proved to be terminating. In this case,
+the program tests the convergence of the axioms interpreted as term 
+rewriting system.
+
+\begin{itemize}
+\item 
+If the data type is convergent, the program prints this explicitly and
+continues. 
+
+\item If it is not convergent, the program 
+prints a list of the divergent critical pairs.
+Then the user is given the choice to run the Knuth-Bendix algorithm with
+connectivity criterion (see Section~\ref{KBCompletion}).
+Otherwise it is assumed that the data type is ground confluent.
+\end{itemize}
+
+\item The axioms cannot be proven to be terminating or not terminating. 
+Then the  program assumes that they are terminating which is indicated
+by a warning message. The program continues as in the above case.
+
+\item The axioms can be proven to be non-terminating.
+In this case the program prints a message and runs the Knuth-Bendix 
+algorithm with connectivity criterion.
+\end{itemize}
+
+Then the user can decide if he wants to trace the program. If tracing has been
+chosen,
+the user can select among eleven traces, namely the tree extension trace, the
+node deletion trace, the
+theorem derivation trace, the proved theorems trace, the formula reduction 
+trace, the inessential critical pair trace, the procedure name trace, 
+the counter example trace, the substitution trace, the term ordering
+trace and the path ordering trace.
+
+Now the program decomposes the data type into constructors 
+and defined function symbols and computes a ground reduction test set 
+as is performed in the {\tt ts} program
+(as described in Section~\ref{InterleavedTopSetTrees}).
+
+\subsection{The Main Menu}
+After these prerequisites the main menu is displayed:
+\begin{quote}
+\begin{verbatim}
+You have the following choices: 
+  i - description of irreducible ground terms,
+  n - normalize a term,
+  g - check ground reducibility,
+  p - prove a theorem,
+  b - display the basic axioms,
+  c - display the current data type,
+  s - show times and counters,
+  r - reset times and counters,
+  t - set/unset trace options
+  O - de/install term orderings,
+  o - select a term ordering/termination test,
+  h - help, print the menu
+  q - quit.
+[i/n/g/p/b/c/r/s/t/o/O/h/q] *
+\end{verbatim}
+\end{quote}
+The user must enter one of the menu items by selecting the corresponding
+letter.
+
+\begin{itemize}
+\item {\bf Description of Irreducible Ground Terms (i)}\\
+First, the decomposition into free constructors and defined function
+symbols, the ground reduction test set and the size of the top
+set is displayed. Then, the top set tree and the GNF grammar is
+shown.
+
+\item {\bf Normalize a Term (n)}\\
+This menu item allows the user to enter a term consisting of
+constants, variables and functions of the used data type.
+The program tries to reduce the term by the axioms (interpreted as
+rewrite rules) in the current data type. The normalized term
+(which can be the same as the entered term) is printed.
+
+\item {\bf Check Ground Reducibility (g)}\\
+The program checks if the entered term is ground reducible.
+If it is ground reducible, the program shows a list of all positions
+at which the term is inductively complete and the corresponding
+axioms. For each of those positions, some lines are displayed as in the 
+following example:
+\begin{quote}
+\begin{verbatim}
++(A,0) is  ground reducible.
+1. The set of positions: 
++(A,0) at pos. /\
+is inductively complete with rules: 
+ [4] +(S(B),A) == S(+(B,A));
+ [3] +(0,A) == A;
+ [5] +(P(B),A) == P(+(B,A));
+\end{verbatim}
+\end{quote}
+%### Im Beispiel wurde integer.rdx verwendet
+
+\item {\bf Prove Theorem (p)}\\
+The user must enter an axiom (consisting of two terms over the used data
+type that are separated by {\tt ==}). Then the program checks if
+the axiom is an equational theorem or can be proved by inductive
+completion. See Section~\ref{InductiveCompletion}.
+
+\item {\bf Display the Basic Axioms (b)}\\
+The basic axioms, i.\,e.\  the axioms without any {\em inductively} proven
+theorems are displayed. If the Knuth-Bendix algorithm was used
+to complete a non-terminating or divergent algebraic specification
+during the program initialization, the completed data type is shown.
+
+\item {\bf Display the Current Data Type (c)}\\
+This item displays the current data type, i.\,e.\  the (possibly
+completed) data type that has been extended with all 
+inductively proven theorems.
+
+\item {\bf Show Times and Counters (s)}\\
+The counters (number of matches, created top set nodes, reductions
+and unifications) and
+the timers (cpu-time used so far, cpu-time spent for ground reduction
+tests, matching, reduction and unification) are displayed.
+
+\item {\bf Reset Times and Counters (r)}\\
+The counters and timers are reset, either altogether or selectively.
+
+\item {\bf Set/Unset Trace Options (t)}\\
+Eleven traces can be selected, namely the tree extension trace, the
+node deletion trace, the
+theorem derivation trace, the proved theorems trace, the formula reduction 
+trace, the inessential critical pair trace, the procedure name trace, 
+the counter example trace, the substitution trace, the term ordering
+trace and the path ordering trace.
+A description of these traces is given in Appendix~\ref{Traces}.
+
+\item {\bf De/Install Term Orderings (O)}\\
+This item allows the user to install or de-install a term ordering. See
+Section~\ref{InitializationOfOrderings} for more information
+on term orderings.
+
+\item {\bf Select a Term Ordering/Termination Test (o)}\\
+The user can select a lexicographical combination of the initialized 
+term orderings and the straight and reverse pseudo orderings.
+To initialize a term ordering use the previous menu item.
+
+Then the program performs the termination test for the new 
+term ordering. The Knuth-Bendix procedure cannot be run in this
+item, i.\,e.\  if the rules are not terminating with the selected
+ordering, a new ordering has to be selected.
+
+\item {\bf Help, Print the Menu (h)}\\
+This item prints the main menu. It can be useful if the program
+displays the short form  of the main menu.
+
+\item {\bf Quit (q)}\\
+This item allows the user to quit the program.
+\end{itemize}
+
+\subsection{Inductive Completion}
+\label{InductiveCompletion}
+If the menu item ``prove a theorem'' has been selected,
+the user must enter an axiom (consisting of two terms over the used data
+type that are separated by {\tt ==}).
+
+The program checks first if the entered theorem is an equational 
+consequence of the algebra specification (i.\,e.\  the terms on both sides of
+the entered theorem can be reduced to the same term by application of the 
+axioms in the algebra). In this case, a message like
+\begin{quote}
+\begin{verbatim}
+The theorem +(0,A) == A
+is valid in all models of the data type INT.
+Both terms can be reduced to A.
+\end{verbatim}
+\end{quote}
+is displayed.
+
+If the theorem cannot be proved by application of the axioms in the data type,
+the program prints a message like:
+\begin{quote}
+\begin{verbatim}
+The theorem  0) +(A,0) == A
+is not an equational consequence, 
+it may however be an inductive consequence of
+the INT data type.
+\end{verbatim}
+\end{quote}
+Then the program tries to prove the theorem by applying the extended 
+Knuth-Bendix algorithm for inductive completion given in \cite{Kuechlin:89}.
+The entered 
+theorem is oriented and added to the set of axioms. If the new set of
+axioms  can 
+be completed by the algorithm, the entered theorem is a inductive consequence
+of the initial set of axioms, otherwise it cannot be proved by inductive
+completion.
+
+To start the completion, the user must decide if trace information shall
+be displayed.
+There are six traces which can be selected.
+Then the program asks if the inductive completion shall be done in step 
+mode or in automatic mode. If step mode has been chosen, the user must 
+orient the computed critical pairs manually.
+
+In the completion process terms may be proved to be inductively 
+reducible. In general, a term can be inductively reducible at several
+positions. 
+These inductively reducible terms are displayed, together with the
+positions at which they are reducible and the axioms for which they
+are inductively complete.
+Positions are printed as a sequence of positive numbers
+that are separated by points. The empty position $\lambda$ is displayed 
+as \verb+/\+. The user must choose one of the given positions.
+In the following example the term is reducible only
+at one position, therefore the user has no real choice:
+
+\begin{quote}
+\begin{verbatim} 
++(+(A,B),C) is inductively reducible.
+1. The set of positions: 
++(A,B) at pos. 1
+is inductively complete with rules: 
+ 4) +(S(B),A) == S(+(B,A))
+ 3) +(0,A) == A
+ 5) +(P(B),A) == P(+(B,A))
+ Choose position set [1 - 1]. *
+\end{verbatim}
+\end{quote}
+
+Then the number of critical pairs computed with the new axioms are 
+printed. The programs distinguishes between essential and inessential
+critical pairs. The inessential critical pairs are not 
+necessary for correctness reasons, but may be helpful to ensure the 
+termination of the completion process.
+If an essential critical pair can be reduced by an inessential critical
+pair, the program asks if the inessential critical pair shall be treated next:
+
+\begin{quote}
+\begin{verbatim}
+The essential critical pair
+( 5 and 13) ( 5)  P(+(B,S(M(0,B)))) == 0
+can be reduced by the inessential critical pair
+( 8 and 13) ( 5)  P(+(B,S(M(0,B)))) == 0
+using a straight ordering.
+Do you want to treat the inessential critical pair next [y/n]? *
+\end{verbatim}
+\end{quote}
+If the user enters {\tt Y}, the
+inessential critical is the next critical pair that is oriented,
+otherwise the essential critical pair is oriented next.
+
+If the completion succeeds, the program prints the proven theorem
+together with a message that it is an inductive theorem of the data 
+type. Then the program displays the basic axiom set and a list of
+the new theorem and the lemmas that have
+been proved while the completion procedure. Now the program prints 
+some statistics and a menu that allows the user to choose the data 
+type for the following computations:
+
+\begin{quote}
+\begin{verbatim}
+You have the following choices: 
+ B - continue using the basic axiom set,
+ L - continue using the last axiom set,
+ N - continue using the new axiom set,
+ E - exit program.
+Enter your choice [B/L/N/E]! *
+\end{verbatim}
+\end{quote}
+
+\begin{itemize}
+\item Continue using basic axiom set (B)\\
+The basic axiom set (the possibly completed algebra specification fed
+in at the program start) is used for further computations.
+\item Continue using last axiom set (L)\\
+The current data type before the last inductive completion process is used.
+\item Continue using new axiom set (N)\\
+The new data type (including the new theorem and lemmas) is used. Therefore the 
+program must compute a new ground reduction test set.
+\item Exit program (E)\\
+This menu item allows to leave the program after some statistical 
+information concerning the garbage collector has been displayed.
+\end{itemize}
+ 
+If the completion does not succeed, this is told to the user.
+Then he has the choice to use the basic axioms or the last axioms for the
+next computation or to leave the program.

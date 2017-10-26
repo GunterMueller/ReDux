@@ -1,0 +1,660 @@
+[--------------------------------------------------]
+[ Unfailing Completion procedure and subalgorithms ]
+[--------------------------------------------------]
+
+[ #include "globs.h" ]
+[ #include "tp.h" ]
+
+[special macros for unfailing completion]
+[ #include "uc.h" ]
+
+[----------------]
+[ EXPORT section ]
+[----------------]
+
+
+
+                    UFCMPT(T,C,O,MS; P,E,R,p,C')
+[Unfailing completion procedure.
+ T is a set of equations, C = a <-> b is an equation and O is 
+ terminating term ordering. 
+ Then R is a terminating term rewriting system TRS, P and E
+ are sets of equations s.th. the equations in E cannot be 
+ oriented w.r.t. O. Then equality in T is equivalent to
+ equality in P u E u R and all extended critical pairs of
+ E and R have been computed. If p=TRUE then a=b follows from
+ T, there is a rewrite proof for a=b in R u E sub > and C'=().
+ Otherwise if p=FALSE then a=b could not be proven after
+ MS completion rounds and C' is a <-> b in (R u E)-normal
+ form.]
+
+[Strategy for selection of critical pairs]
+const STRATV(CP)=CPMSIZ(CP).
+
+(1) [Init]
+    E:=(); R:=(); p:=FALSE; C':=();
+    [Init completion rounds counter] rounds:=0;
+    [Init axiom and equation counters] CtrAx:=0; CtrEq:=0;
+    [Query for step and trace modes] QUFSM(;smode,trace);
+    [Init critical pair queue, remove symmetric ones and
+     redundant instances.]
+    P':=CPRMSY(T); n:=CPLSW8(P'); P:=();
+    while P'#() do
+    { ADV(P'; cp,P'); P:=CPADD(cp,P) }.
+(2) [Proof!]
+    a:=CPLHS(C); b:=CPRHS(C);
+    if TEQU(a,b) then { p:=TRUE; return };
+    E':=E;
+    while E'#() do
+    { ADV(E'; e,E'); s:=CPLHS(e); t:=CPRHS(e);
+      TBVSLI(s; Vs,llb); TBVSLI(t; Vt,llb);
+      m:=TRPMCH(s,t,a,b); UNDO(Vs); UNDO(Vt);
+      if m then { p:=TRUE; return };
+      m:=TRPMCH(t,s,a,b); UNDO(Vs); UNDO(Vt);
+      if m then { p:=TRUE; return }
+    }.
+(3) [Stop?]
+    rounds:=rounds+1;
+    WRTI01(rounds,P,E,R,trace,smode);
+    if P=() \/ rounds>MS then { C':=C; return }.
+(4) [Orient/Unfail]
+    if trace then STOUTL("Orient/Unfail");
+    [enter weights according to STRATV, then select next CP] 
+    n:=CPLW8(P); CPLCPS(smode,P; cp,P);
+    [extract LHS and RHS of cp]
+    cpl:=CPLHS(cp); cpr:=CPRHS(cp);
+    TBVSLI(cpl; Vcpl,llb); TBVSLI(cpr; Vcpr,llb);
+    [try to orient cp]
+    o:=TPPO(cp,O); newrul:=TRUE;
+    if o='S' then
+    { CtrAx:=CtrAx+1; lTOr:=ACONS(CtrAx,cpl,Vcpl,cpr) }
+    else if o='R' then
+    { CtrAx:=CtrAx+1; lTOr:=ACONS(CtrAx,cpr,Vcpr,cpl) }
+    else
+    { [cp is an equation] newrul:=FALSE;
+      [clear CP origin information] CPLOI(cp):=0; CPROI(cp):=0; 
+      [enter number and 'special' weight]
+      sEQt:=cp; CtrEq:=CtrEq-1; ENUM(sEQt):=CtrEq;
+      E1:=LIST1(sEQt); n:=CPLSW8(E1);
+      [remove all instances of sEQt from E]
+      E:=CPRME(E,E1)
+    }.
+(5) [Collapse2]
+    if trace then STOUTL("Collapse2");
+    if newrul then RECLPS(lTOr,E; E,EColps)
+    else EECLPS(sEQt,E,O; E,EColps);
+    [enter origin information to EColps;
+     EColps will be added to P after Simplify]
+    E^:=EColps;
+    while E^#() do { ADV(E^; e,E^); CPLOI(e):=ENUM(e); CPROI(e):=0 }.
+(6) [Collapse1]
+    if trace then STOUTL("Collapse1");
+    if newrul then RRCLPS(lTOr,R; R,R^)
+    else ERCLPS(sEQt,R,O; R,R^);
+    [build CPs from R^ and enter origin information to RColps;
+     RColps will be added to P after Simplify]
+    RColps:=();
+    while R^#() do
+    { ADV(R^; r,R^);
+      RColps:=COMP(CPCONS(ALHS(r),ARHS(r),ANUM(r),0,0),RColps)
+    }.
+(7) [Compose]
+    if trace then STOUTL("Compose");
+    [add new rule or equation]
+    if newrul then { RX:=COMP(lTOr,R); EX:=E }
+    else { EX:=COMP(sEQt,E); RX:=R };
+    if RX#() then
+    { [first normalize leading axiom's RHS]
+      ADV(RX; a,R^); r:=ARHS(a);
+      [reducibility test and normalization; note: E1=LIST1(sEQt)]
+      if newrul then red:=TRRDT(r,lTOr) else red:=TESRDT(r,E1,O);
+      if red then ARHS(a):=TONORM(r,R^,EX,O);
+      [then normalize the rest]
+      PredR:=RX;
+      while R^#() do
+      { a:=FIRST(R^); r:=ARHS(a);
+        [remove a from RX] RED(PredR):=RED(R^);
+        [reducibility test and normalization]
+        if newrul then red:=TRRDT(r,lTOr) else red:=TESRDT(r,E1,O);
+        if red then ARHS(a):=TONORM(r,RX,EX,O);
+        [put a back in its former place] RED(PredR):=R^;
+        [next axiom] PredR:=R^; R^:=RED(R^)
+      }
+    }.
+(8) [Deduce]
+    if trace then STOUTL("Deduce");
+    if newrul then
+    { P':=RESEPS(lTOr,R,E,O);
+      [insert new rule lTOr into R at correct position]
+      R:=ALINS(R,lTOr)
+    }
+    else
+    { P':=EESEPS(sEQt,R,E,O);
+      [insert new equation sEQt into E at correct position;
+       note: E1=LIST1(sEQt) and sEQt is already weighted]
+      E:=LOISE(E,E1,1)
+    };
+    [remove symmetric CPs and redundant instances;
+     yet there is no removal of instances of equations and there
+     may be instances of CPs from P contained in P' or vice versa.]
+    if trace then STOUTL("remove some new CPs"); len1:=LENGTH(P');
+    P'':=CPRMSY(P'); n:=CPLSW8(P''); P':=();
+    while P''#() do
+    { ADV(P''; cp,P''); P':=CPADD(cp,P') };
+    len2:=LENGTH(P'); WRTI02(len1,len1-len2,trace).
+(9) [Simplify]
+    if trace then STOUTL("Simplify");
+    [extract all reducible CPs from P]
+    if newrul then CPRMRD(P,O,newrul,lTOr,(); P,P'')
+    else CPRMRD(P,O,newrul,(),sEQt; P,P'');
+    [normalize P* = P' u P'' u EColps u RColps]
+    P*:=CONC(P',CONC(P'',CONC(EColps,RColps))); P^:=P*;
+    while P^#() do
+    { ADV(P^; cp,P^);
+      CPLHS(cp):=TONORM(CPLHS(cp),R,E,O);
+      CPRHS(cp):=TONORM(CPRHS(cp),R,E,O)
+    }.
+(10) [Delete & remove redundant critical pairs]
+     if trace then STOUTL("Delete");
+     len1:=LENGTH(P)+LENGTH(P*);
+     [simple Delete]
+     P*:=CPRMSY(P*);
+     [enter 'special' weights]
+     n:=CPLSW8(P); n:=CPLSW8(P*);
+     [remove all instances of equations]
+     P*:=CPRME(P*,E);
+     [add P* to P, removing redundant instances]
+     while P*#() do
+     { ADV(P*; cp,P*); P:=CPADD(cp,P) };
+     len2:=LENGTH(P);
+     WRTI02(len1,len1-len2,trace).
+(11) [Simplify goal]
+     if trace then STOUTL("Simplify goal");
+     CPLHS(C):=TONORM(CPLHS(C),R,E,O);
+     CPRHS(C):=TONORM(CPRHS(C),R,E,O);
+     goto 2 ||
+
+[---------------------]
+[ INTERNAL algorithms ]
+[---------------------]
+
+
+
+                    CPLCPS(sm,P; cp,P*)
+[Critical pair list, critical pair select.
+ sm is the step mode flag,
+ P is a non-empty list of weighted critical pairs.
+ if sm=TRUE then cp is a manually selected CP out of P,
+ else cp is the first CP out of P with minimal weight.
+ P* = P \ {cp} and P* respects the order of P.]
+
+(1) [user selection]
+    if sm then
+    { QCPLCP(P; cp,P*);
+      if cp#() then return
+    }.
+(2) [automatic selection]
+    P':=P; cp:=FIRST(P); minw8:=CPW8(cp);
+    while P'#() do
+    { ADV(P'; cp1,P');
+      if CPW8(cp1)<minw8 then { cp:=cp1; minw8:=CPW8(cp) }
+    };
+    P*:=DELETE(cp,P) ||
+
+
+
+                    RRCLPS(a,R; R*,C*)
+[Rule, rules collapse.
+ a = l -> r is a new rule,
+ R is a set of rules that are already collapsed
+ according to R u E.
+ Then R* is the set of all rules from R that cannot be
+ collapsed by l -> r,
+ C* is R \ R*.
+ R* is collapsed according to (R u {l -> r}) u E
+ and respects the order of R.
+ R is destroyed.]
+
+(1) [Init]
+    C*:=(); R*:=R;
+    l:=ALHS(a); V:=ALHSV(a).
+(2) [Does leading rule collapse?]
+    if R*=() then return;
+    ADV(R*; a',R^); l':=ALHS(a');
+    if TRRDT(l',a) then
+    { [a' = l' -> r' might collapse]
+      V':=ALHSV(a');
+      [Are l and l' equal modulo variable renaming?]
+      if ~TEQUV(l,l',V,V') then
+      { [a' = l' -> r' WILL collapse]
+        C*:=COMP(a',C*); R*:=R^; goto 2
+      }
+    }.
+(3) [Do the other rules collapse?]
+    PredR:=R*;
+    while R^#() do
+    { a':=FIRST(R^); l':=ALHS(a');
+      if TRRDT(l',a) then
+      { [a' = l' -> r' might collapse]
+        V':=ALHSV(a');
+        [Are l and l' equal modulo variable renaming?]
+        if ~TEQUV(l,l',V,V') then
+        { [a' = l' -> r' WILL collapse]
+          C*:=COMP(a',C*);
+          R^:=RED(R^); RED(PredR):=R^
+        }
+        else
+        { [l and l' ARE equal mod variable renaming]
+          PredR:=R^; R^:=RED(R^)
+        }
+      }
+      else
+      { [a' = l' -> r' cannot collapse]
+        PredR:=R^; R^:=RED(R^)
+      }
+    } ||
+
+
+
+                    ERCLPS(e,R,O; R*,C*)
+[Equation, rules collapse.
+ e = s <-> t is a new equation,
+ R is a set of rules that are already collapsed
+ according to R u E,
+ O is a string denoting a term ordering.
+ Then R* is the set of all rules from R that cannot be
+ collapsed by s <-> t,
+ C* is R \ R*.
+ R* is collapsed according to R u (E u {s <-> t})
+ and respects the order of R.
+ R is destroyed.]
+
+(1) [Init]
+    C*:=(); R*:=R;
+    E1:=LIST1(e);
+    s:=CPLHS(e); t:=CPRHS(e);
+    TBVSLI(s; Vs,llb); TBVSLI(t; Vt,llb).
+(2) [Does leading rule collapse?]
+    if R*=() then return;
+    ADV(R*; a',R^); l':=ALHS(a');
+    if TESRDT(l',E1,O) then
+    { [a' = l' -> r' might collapse]
+      V':=ALHSV(a');
+      [Are (s and l') or (t and l') equal?]
+      if ~TEQUV(s,l',Vs,V') /\ ~TEQUV(t,l',Vt,V') then
+      { [a' = l' -> r' WILL collapse]
+        C*:=COMP(a',C*); R*:=R^; goto 2
+      }
+    }.
+(3) [Do the other rules collapse?]
+    PredR:=R*;
+    while R^#() do
+    { a':=FIRST(R^); l':=ALHS(a');
+      if TESRDT(l',E1,O) then
+      { [a' = l' -> r' might collapse]
+        V':=ALHSV(a');
+        [Are (s and l') or (t and l') equal?]
+        if ~TEQUV(s,l',Vs,V') /\ ~TEQUV(t,l',Vt,V') then
+        { [a' = l' -> r' WILL collapse]
+          C*:=COMP(a',C*);
+          R^:=RED(R^); RED(PredR):=R^
+        }
+        else
+        { [(s and l') or (t and l') ARE equal]
+          PredR:=R^; R^:=RED(R^)
+        }
+      }
+      else
+      { [a' = l' -> r' cannot collapse]
+        PredR:=R^; R^:=RED(R^)
+      }
+    } ||
+
+
+
+                    RECLPS(a,E; E*,C*)
+[Rule, equations collapse.
+ a = l -> r is a new rule,
+ E is a set of equations that are already collapsed
+ according to R u E.
+ Then E* is the set of all equations from E that cannot be
+ collapsed by l -> r,
+ C* is E \ E*.
+ E* is collapsed according to (R u {l -> r}) u E
+ and respects the order of E.
+ E is destroyed.]
+
+(1) [Init]
+    C*:=(); E*:=E;
+    l:=ALHS(a); V:=ALHSV(a).
+(2) [Does leading equation collapse?]
+    if E*=() then return;
+    ADV(E*; e',E^); s':=CPLHS(e'); t':=CPRHS(e');
+    if TRRDT(s',a) then
+    { [e' = s' <-> t' might collapse]
+      TBVSLI(s'; Vs1,llb);
+      [Are l and s' equal modulo variable renaming?]
+      if ~TEQUV(l,s',V,Vs1) then
+      { [e' = s' <-> t' WILL collapse]
+        C*:=COMP(e',C*); E*:=E^; goto 2
+      }
+    };
+    if TRRDT(t',a) then
+    { [e' = s' <-> t' might collapse]
+      TBVSLI(t'; Vt1,llb);
+      [Are l and t' equal modulo variable renaming?]
+      if ~TEQUV(l,t',V,Vt1) then
+      { [e' = s' <-> t' WILL collapse]
+        C*:=COMP(e',C*); E*:=E^; goto 2
+      }
+    }.
+(3) [Do the other equations collapse?]
+    PredE:=E*;
+    while E^#() do
+    { collps:=FALSE;
+      e':=FIRST(E^); s':=CPLHS(e'); t':=CPRHS(e');
+      if TRRDT(s',a) then
+      { [e' = s' <-> t' might collapse]
+        TBVSLI(s'; Vs1,llb);
+        [Are l and s' equal modulo variable renaming?]
+        if ~TEQUV(l,s',V,Vs1) then
+        { [e' = s' <-> t' WILL collapse]
+          collps:=TRUE
+        }
+      };
+      if TRRDT(t',a) then
+      { [e' = s' <-> t' might collapse]
+        TBVSLI(t'; Vt1,llb);
+        [Are l and t' equal modulo variable renaming?]
+        if ~TEQUV(l,t',V,Vt1) then
+        { [e' = s' <-> t' WILL collapse]
+          collps:=TRUE
+        }
+      };
+      if collps then
+      { C*:=COMP(e',C*);
+        E^:=RED(E^); RED(PredE):=E^
+      }
+      else
+      { [don't collpse, get next equation]
+        PredE:=E^; E^:=RED(E^)
+      }
+    } ||
+
+
+
+                    EECLPS(e,E,O; E*,C*)
+[Equation, equations collapse.
+ e = s <-> t is a new equation,
+ E is a set of equations that are already collapsed
+ according to R u E,
+ O is a string denoting a term ordering.
+ Then E* is the set of all equations from E that cannot be
+ collapsed by s <-> t,
+ C* is E \ E*.
+ E* is collapsed according to R u (E u {s <-> t})
+ and respects the order of E.
+ E is destroyed.]
+
+(1) [Init]
+    C*:=(); E*:=E;
+    E1:=LIST1(e);
+    s:=CPLHS(e); t:=CPRHS(e);
+    TBVSLI(s; Vs,llb); TBVSLI(t; Vt,llb).
+(2) [Does leading equation collapse?]
+    if E*=() then return;
+    ADV(E*; e',E^); s':=CPLHS(e'); t':=CPRHS(e');
+    if TESRDT(s',E1,O) then
+    { [e' = s' <-> t' might collapse]
+      TBVSLI(s'; Vs1,llb);
+      [Are (s and s') or (t and s') equal?]
+      if ~TEQUV(s,s',Vs,Vs1) /\ ~TEQUV(t,s',Vt,Vs1) then
+      { [e' = s' <-> t' WILL collapse]
+        C*:=COMP(e',C*); E*:=E^; goto 2
+      }
+    };
+    if TESRDT(t',E1,O) then
+    { [e' = s' <-> t' might collapse]
+      TBVSLI(t'; Vt1,llb);
+      [Are (s and t') or (t and t') equal?]
+      if ~TEQUV(s,t',Vs,Vt1) /\ ~TEQUV(t,t',Vt,Vt1) then
+      { [e' = s' <-> t' WILL collapse]
+        C*:=COMP(e',C*); E*:=E^; goto 2
+      }
+    }.
+(3) [Do the other equations collapse?]
+    PredE:=E*;
+    while E^#() do
+    { collps:=FALSE;
+      e':=FIRST(E^); s':=CPLHS(e'); t':=CPRHS(e');
+      if TESRDT(s',E1,O) then
+      { [e' = s' <-> t' might collapse]
+        TBVSLI(s'; Vs1,llb);
+        [Are (s and s') or (t and s') equal?]
+        if ~TEQUV(s,s',Vs,Vs1) /\ ~TEQUV(t,s',Vt,Vs1) then
+        { [e' = s' <-> t' WILL collapse]
+          collps:=TRUE
+        }
+      };
+      if TESRDT(t',E1,O) then
+      { [e' = s' <-> t' might collapse]
+        TBVSLI(t'; Vt1,llb);
+        [Are (s and t') or (t and t') equal?]
+        if ~TEQUV(s,t',Vs,Vt1) /\ ~TEQUV(t,t',Vt,Vt1) then
+        { [e' = s' <-> t' WILL collapse]
+          collps:=TRUE
+        }
+      };
+      if collps then
+      { C*:=COMP(e',C*);
+        E^:=RED(E^); RED(PredE):=E^
+      }
+      else
+      { [don't collpse, get next equation]
+        PredE:=E^; E^:=RED(E^)
+      }
+    } ||
+
+
+                    C*:=CPRMSY(C)
+[Critical pairs, remove symmetric ones.
+ C is a set of critical pairs.
+ Then C* is the greatest subset of C, s. th. there is no
+ critical pair p = s <-> s in C*.
+ C* respects the order of C.
+ C is destroyed.]
+
+(1) [Init]
+    C*:=C.
+(2) [Is leading CP symmetric?]
+    if C*=() then return;
+    ADV(C*; p,C^);
+    if TEQU(CPLHS(p),CPRHS(p)) then
+    { [remove redundant CP p]
+      C*:=C^; goto 2
+    }.
+(3) [Are the other CPs symmetric?]
+    PredC:=C*;
+    while C^#() do
+    { p:=FIRST(C^);
+      if TEQU(CPLHS(p),CPRHS(p)) then
+      { [remove redundant CP p]
+        C^:=RED(C^); RED(PredC):=C^
+      }
+      else
+      { [next critical pair]
+        PredC:=C^; C^:=RED(C^)
+      }
+    } ||
+
+
+
+                    C*:=CPRME(C,E)
+[Critical pairs, remove instances of equations.
+ C is a set of weighted critical pairs,
+ E is a set of weighted equations.
+ Then C* is the greatest subset of C, s. th. no critical
+ pair from C* is an instance of an equation from E.
+ C* respects the order of C.
+ C is destroyed.]
+
+(1) [Init]
+    C*:=C; E':=E.
+(2) [next equation]
+    if E'=() then return;
+    ADV(E'; e,E'); s:=CPLHS(e); t:=CPRHS(e); w8:=CPW8(e);
+    TBVSLI(s; Vs,llb); TBVSLI(t; Vt,llb).
+(3) [Is leading CP an instance of an equation?]
+    if C*=() then return;
+    ADV(C*; p,C^);
+    if w8<=CPW8(p) then
+    { [match is possible]
+      pl:=CPLHS(p); pr:=CPRHS(p);
+      m:=TRPMCH(s,t,pl,pr); UNDO(Vs); UNDO(Vt);
+      if m then
+      { [remove redundant CP p]
+        C*:=C^; goto 3
+      };
+      m:=TRPMCH(t,s,pl,pr); UNDO(Vs); UNDO(Vt);
+      if m then
+      { [remove redundant CP p]
+        C*:=C^; goto 3
+      }
+    }.
+(4) [Are the other CPs instances of equations?]
+    PredC:=C*;
+    while C^#() do
+    { p:=FIRST(C^);
+      if w8<=CPW8(p) then
+      { [match is possible]
+        pl:=CPLHS(p); pr:=CPRHS(p);
+        m:=TRPMCH(s,t,pl,pr); UNDO(Vs); UNDO(Vt);
+        if ~m then { m:=TRPMCH(t,s,pl,pr); UNDO(Vs); UNDO(Vt) }
+      }
+      else [no match possible due to the weights] m:=FALSE;
+      if m then
+      { [remove redundant CP p]
+        C^:=RED(C^); RED(PredC):=C^
+      }
+      else
+      { [next critical pair]
+        PredC:=C^; C^:=RED(C^)
+      }
+    }.
+(5) [repeat] goto 2 ||
+
+
+
+                    CPRMRD(C,O,rflag,lTOr,sEQt; C*,C')
+[Critical pairs, remove reducible ones.
+ C is a set of critical pairs,
+ O is a string denoting a term ordering,
+ if rflag=TRUE then lTOr is a rule else sEQt is an equation.
+ Then C' is the set of all critical pairs from C which are
+ reducible by lTOr or sEQt.
+ C* = C \ C' and C* respects the order of C.
+ C is destroyed.]
+
+(1) [Init]
+    C*:=C; C':=(); if ~rflag then E1:=LIST1(sEQt).
+(2) [Is leading CP reducible?]
+    if C*=() then return;
+    ADV(C*; cp,C^); cpl:=CPLHS(cp); cpr:=CPRHS(cp);
+    if rflag then
+    { [try to reduce with lTOr]
+      if TRRDT(cpl,lTOr) \/ TRRDT(cpr,lTOr) then
+      { [remove cp from C and add it to C']
+        C*:=C^; C':=COMP(cp,C'); goto 2
+      }
+    }
+    else
+    { [try to reduce with sEQt]
+      if TESRDT(cpl,E1,O) \/ TESRDT(cpr,E1,O) then
+      { [remove cp from C and add it to C']
+        C*:=C^; C':=COMP(cp,C'); goto 2
+      }
+    }.
+(3) [Are the other CPs reducible?]
+    PredC:=C*;
+    while C^#() do
+    { cp:=FIRST(C^); cpl:=CPLHS(cp); cpr:=CPRHS(cp); rem:=FALSE;
+      if rflag then
+      { [try to reduce with lTOr]
+        if TRRDT(cpl,lTOr) \/ TRRDT(cpr,lTOr) then rem:=TRUE
+      }
+      else
+      { [try to reduce with sEQt]
+        if TESRDT(cpl,E1,O) \/ TESRDT(cpr,E1,O) then rem:=TRUE
+      };
+      if rem then
+      { [remove cp from C and add it to C']
+        C^:=RED(C^); RED(PredC):=C^; C':=COMP(cp,C')
+      }
+      else
+      { [not reducible; next critical pair]
+        PredC:=C^; C^:=RED(C^)
+      }
+    } ||
+
+
+
+                    C*:=CPADD(cp,C)
+[Critical pairs, add one critical pair.
+ cp = s <-> t is a weighted critical pair,
+ C is set of weighted critical pairs.
+ Then C* is the greatest subset of C u {cp}, s. th. no pair
+ from C* is an instance of another pair from C*.
+ C* respects the order of C and if cp in C* then FIRST(C*)=cp.
+ C is destroyed.]
+
+(1) [Init]
+    C*:=C; cpw8:=CPW8(cp); s:=CPLHS(cp); t:=CPRHS(cp);
+    TBVSLI(s; Vs,llb); TBVSLI(t; Vt,llb).
+(2) [Is leading CP an instance of cp or vice versa?]
+    if C*=() then goto 4;
+    ADV(C*; p,C^); pw8:=CPW8(p); pl:=CPLHS(p); pr:=CPRHS(p);
+    if cpw8<=pw8 then
+    { [p might be an instance of cp]
+      m:=TRPMCH(s,t,pl,pr); UNDO(Vs); UNDO(Vt);
+      if m then { [remove redundant CP p] C*:=C^; goto 2 };
+      m:=TRPMCH(t,s,pl,pr); UNDO(Vs); UNDO(Vt);
+      if m then { [remove redundant CP p] C*:=C^; goto 2 }
+    };
+    if pw8<=cpw8 then
+    { [cp might be an instance of p]
+      TBVSLI(pl; Vpl,llb); TBVSLI(pr; Vpr, llb);
+      m:=TRPMCH(pl,pr,s,t); UNDO(Vpl); UNDO(Vpr);
+      if m then [cp is redundant] return;
+      m:=TRPMCH(pr,pl,s,t); UNDO(Vpl); UNDO(Vpr);
+      if m then [cp is redundant] return
+    }.
+(3) [Are the other CPs instances of cp or vice versa?]
+    PredC:=C*;
+    while C^#() do
+    { p:=FIRST(C^); pw8:=CPW8(p); pl:=CPLHS(p); pr:=CPRHS(p);
+      if cpw8<=pw8 then
+      { [p might be an instance of cp]
+        remove:=TRPMCH(s,t,pl,pr); UNDO(Vs); UNDO(Vt);
+        if ~remove then
+        { remove:=TRPMCH(t,s,pl,pr); UNDO(Vs); UNDO(Vt)
+        }
+      }
+      else [p cannot be an instance of cp] remove:=FALSE;
+      if ~remove /\ (pw8<=cpw8) then
+      { [cp might be an instance of p]
+        TBVSLI(pl; Vpl,llb); TBVSLI(pr; Vpr, llb);
+        m:=TRPMCH(pl,pr,s,t); UNDO(Vpl); UNDO(Vpr);
+        if m then [cp is redundant] return;
+        m:=TRPMCH(pr,pl,s,t); UNDO(Vpl); UNDO(Vpr);
+        if m then [cp is redundant] return
+      };
+      if remove then
+      { [remove redundant CP p]
+        C^:=RED(C^); RED(PredC):=C^
+      }
+      else
+      { [next critical pair]
+        PredC:=C^; C^:=RED(C^)
+      }
+    }.
+(4) [Add cp] C*:=COMP(cp,C*) ||

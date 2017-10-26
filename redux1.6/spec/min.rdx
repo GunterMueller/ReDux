@@ -1,0 +1,23 @@
+DATATYPE INSERT;
+SORT
+	NAT, SET;
+CONST
+	0: NAT;
+	EMPTY: SET;
+VAR
+	x, y, e, e1: NAT;
+	t: SET;
+OPERATOR
+	S: NAT -> NAT;
+	MIN: NAT, NAT -> NAT;
+	LEAST: SET -> NAT;
+	INSERT: SET, NAT -> SET;
+NOTATION
+	S, MIN, LEAST, INSERT: FUNCTION;
+AXIOM
+ [1] MIN(0,x) == 0;
+ [2] MIN(x,0) == 0;
+ [3] MIN(S(x),S(y)) == MIN(x,y);
+ [4] LEAST(INSERT(EMPTY,e)) == e;
+ [5] LEAST(INSERT(INSERT(t,e),e1)) == MIN(LEAST(INSERT(t,e)),e1);
+END

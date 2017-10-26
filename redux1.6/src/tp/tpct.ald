@@ -1,0 +1,93 @@
+[Constrained terms.]
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+[----------------------------------------------------------------------]
+[  A MARKED INVERTED POSITION LIST is a data structure of the form     ]
+[                                                                      ]
+[               P = ( (m1, t1), ... (mk, tk) )                         ]
+[                                                                      ]
+[ where the (mi, ti) are pairs of an integer (mark) and a term         ]
+[ (position) which are called MARKED POSITIONs. The ti are such that   ]
+[ t(i-1) is a principal subterm of ti. We say P corresponds to the     ]
+[ occurrence of t1 in tk.                                              ]
+[----------------------------------------------------------------------]
+
+     const
+     MPSMARK(P) = FIRST(P),
+                  [Mark of marked position.]
+     MPSTERM(P) = SECOND(P).
+                  [Term of marked position.]
+
+
+                    P:=MPSCNS(m,t)
+[Marked position construct.
+m is an integer and t is a term. the P is the marked poition (m,t).]
+
+(1)  [Construct.] P:=COMP(m,COMP(t,())) ||
+ 
+                    V*:=TMVPOS(t,P,V) 
+[Term mark variable positions.
+t is a free term whose variables are possibly marked by lists of
+marked inverted position lists. P is () or a marked inverted position 
+list and t is a principal subterm of the first term in P. V is a list 
+of marked variables  of the last term in P containing all marked 
+variables of t.
+Then V* is updated such that each variable in t if v in V then 
+P' is added to the mark of v otherwise v is added to V* and
+v is marked by P' where P' is the marked inverted position list 
+correspondingto the positions above v. All marks are set to 0.
+t is modified!]
+
+(1)  [Initialize.] V*:=V; k:=TKIND(t).
+(2)  [Ground case.] if k = DCS \/ k = DXT then return.
+(3)  [Variable.] if k = DVS then
+     { M:=VARBIND(t); VARBIND(t):=COMP(P,M); 
+       if M = () then V*:=COMP(t,V*); return
+     }.
+(4)  [Recursion.] P*:=COMP(MPSCNS(0,t),P); A:=OARGLST(t); 
+     while A # () do { ADV(A; a,A); V* :=TMVPOS(a,P*,V*) } ||
+
+                    T*:=LMIPUO(P)
+[List of marked inverted position lists, unique occurrence.
+P is a non-empty list of marked inverted position lists. Each position 
+list in P has a variable as first term.
+Then T* is the list of non-variable terms which occur exactly once in 
+P. The marks in P are modified.]
+
+(1)  [Initialize.] T*:=(); P':=P.
+(2)  [Mark.] while P' # () do
+     { ADV(P'; p,P'); b:=TRUE; while b /\ p # () do
+       { ADV(p; p1,p); m:=MPSMARK(p1); MPSMARK(p1):=m+1; 
+         if m > 0 then b:=FALSE
+     } }.
+(3)  [Double mark last node.] P1:=FIRST(P); while P1 # () do
+     { ADV(P1; p1,P1); if MPSMARK(p1) > 1 then p*:=p1 };
+     m:=MPSMARK(p*); MPSMARK(p*):=m+1.
+(4)  [Collect and unmark.] P':=P; while P' # () do
+     { ADV(P'; p,P'); m:=0; while m = 0 /\ p # () do
+       { ADV(p; p1,p); m:=MPSMARK(p1)-1; MPSMARK(p1):=m;
+         if m = 0 then T*:=COMP(MPSTERM(p1),T*)
+     } }.
+(5)  [Unmark rest.]  while p # () do
+     { ADV(p; p1,p); MPSMARK(p1):=0; } ||
+        
+                    T*:=TLLCST(t)
+[Term, list of linearly constrained subterms. 
+t is a free term. Then T* is the list of all those non-variable subterms
+t' of t which contain a variable v which occurs also outside of t' 
+in t. t is temporarily modified.]
+
+(1)  [Mark variables.] V:=TMVPOS(t,(),()).
+(2)  [Collect subterms.] T*:=(); while V # () do
+     { ADV(V; v,V); P:=VARBIND(v); 
+       if RED(P) # () then { T:=LMIPUO(VARBIND(v)); T*:=INTUNI(T,T*) };
+       VARBIND(v):=() 
+     } ||
+[
+(1)  [Mark variables.] V:=TMVPOS(t,(),()).
+(2)  [Collect variable marks.] P:=(); while V # () do
+     { ADV(V; v,V); P:=CONC(VARBIND(v),P); VARBIND(v):=() }.
+(3)  [Collect subterms.] T*:=LMIPUO(P) ||
+]

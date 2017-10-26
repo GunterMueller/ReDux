@@ -1,0 +1,52 @@
+
+[ *** end of global safe variables *** ]
+
+     safe DUNIT,CRT.    [i/o units.]
+     safe C^, c, c'.    [user input.]
+
+(1)  [Initialize ReDuX system.] BGNRWD(5).
+(2)  [Output breadth: 80 characters.] RMARG:=79.
+(3)  [Garbage collector messages on.] GCM:=1;
+     [Reset timers.] CTI:=0; MTI:=0; OTI:=0; PTI:=0; RTI:=0; UTI:=0; 
+     STPWT:=0.
+(4)  [Use fort.4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.] 
+     STOUTL("-><--><--><--><--><--><--><--><--><--><--><--><-");
+     STOUTL("|                                              |");
+     STOUTL("|        ReDuX - Knuth-Bendix laboratory       |");
+     STOUTL("V                                              V");
+     STOUTL("->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-");
+     BLINES(1); STOUTL("           [$Revision: 1.1 $]  ");
+     BLINES(1).
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=-CLOCK(); DT:=DTPRS(); t:=t+CLOCK();
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.").
+(8)  [Set input unit back to keybord.] IUCHNG(CRT); ISIZE:=80.
+(9)  [Write data type.] BLINES(1); t:=-CLOCK(); DTWRT(DT); t:=t+CLOCK();
+     STROUT("Display time: "); GWRITE(t); STOUTL(" ms."); BLINES(1);
+     STOUTL("Ready? *"); READ; C^:=CREAD().
+(10) [Initialize menu variables.] c:=0; c':=0;
+     [Initialize automatic orderings.] O0:=(); O*:=();
+     [Test for mixed axioms.] DTDIS(DT; N,C,V,F,A); X:=ASMIXD(A).
+(11) [Main menue.] BLINES(1); case c of
+       { 0 do { BLINES(1); c:=TCMENU(c',X); BLINES(1); goto 11 };
+         1 do UNIFYX(DT; t1,t2);
+         2 do UNIFY1(t1,t2);
+         3 do MATCHX(DT; t1,t2);
+         4 do MATCH1(t1,t2);
+         5 do EQUALX(DT; t1,t2);
+         6 do EQUAL1(t1,t2);
+         7 do DTWRT(DT);
+         8 do [Quit.] goto 99;
+         9 do CTSHOW();
+        10 do CTRSET();
+        11 do NORMAL(DT);
+        12 do { D*:=COMPLT(DT,O*); DT:=D* };
+        13 do QCTOID(DT,O*; O0,O*);
+        14 do O*:=TORDSE(DT,O0);
+        15 do ORDAX(O*,DT);
+        16 do OADT(O*,DT);
+        17 do PROVE(DT; t1,t2);
+        }; c':=c; c:=TCSMEN(c',X); goto 11.
+(99) [Finish up.] ENDS ||

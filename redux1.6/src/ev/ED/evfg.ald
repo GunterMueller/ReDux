@@ -1,0 +1,155 @@
+[Project: External Evaluation.
+   module name        : EVFG -- EValuate in a Free Group.
+   modulespecification: Algorithms to evaluate in a free group.
+   programmer         : Werner Lauterbach
+   language           : aldes
+   last change        : 28.10.94
+                        $Date: 1995/07/19 14:29:37 $
+                        by $Author: lauterba $
+   version            : $Revision: 1.4 $
+   bugs               : none known
+   modules needed     : tp/tpdd.ald
+]
+
+[ #include "ev.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+
+[----------------------------------------------------------------------
+     This algorithms are intended to evaluate in a free group :
+     Let (G, *, /, I, 1) the signature:
+         G   <--->  group elements
+         *   <--->  FGPROD               :  *: N x N --> N
+         /   <--->  FGQUOT               :  /: N x N --> N
+         I   <--->  FGINV                :  I: N --> N
+         1   <--->  FGIDNT               :  constant
+-----------------------------------------------------------------------
+     External Algorithms:
+     XFG    : FGFG
+     XREAD  : Not implemented.
+     XWRITE : FGWRTE
+     XTERM  : TFFGE
+     XLT    : Not implemented.
+     XEQ    : Not implemented.
+-----------------------------------------------------------------------]
+
+                    e:=FGIDNT(DUMMY)
+[Free Group IDeNTity.
+DUMMY is the not used dictionary. Then e is a list representing the 
+identity. [WL]]
+(1)  [Identity.] e:=() ||
+
+                    g:=FGPROD(DUMMY,g1,g2)
+[Free Group PRODuct.
+DUMMY is the not used dictionary. g1 and g2 are elements of the free 
+group. g:=g1*g2. [WL]]
+     safe i, j.
+(1)  [Init.] i:=1; j:=-1; g'1:=CINV(g1); g'2:=g2.
+(2)  [Product.] g''1:=g'1; g''2:=g'2;
+     while i = -j /\ g'1 # () /\ g'2 # () do
+     { g''1:=g'1; g''2:=g'2; ADV(g''1; i,g'1); ADV(g''2; j,g'2) };
+     if i = -j then { g''1:=g'1; g''2:=g'2 }.
+(3)  [Finish up.] g:=CONC(INV(g''1),g''2) ||
+
+                    g*:=FGINV(DUMMY,g)
+[Free Group INVerse.
+DUMMY is the not used dictionary. g is an element of the free group. 
+g*:=INV(g). [WL]]
+     safe i.
+(1)  [Init.] g*:=(); g':=g.
+(2)  [Invert.] while g' # () do { ADV(g'; i,g'); g*:=COMP(-i,g*) } ||
+
+                    g:=FGQUOT(d,g1,g2)
+[Free Group QUOTient.
+d is the dictionary. g1 and g2 are elements of the free group. 
+g:=g1*INV(g2). [WL]]
+(1)  [Quotient.] g:=FGPROD(d,g1,FGINV(d,g2)) ||
+
+[----------------------------------------------------------------------
+     External Algorithms:
+-----------------------------------------------------------------------]
+
+                    i:=FGFG(k,DUMMY)
+[Free Group Free Generator. 
+DUMMY is the not used dictionary. k <= LENGTH(DUMMY). Then i is the 
+list (r) which represents the the r-th entry in the dictionary. [WL]]
+     safe k.
+(1)  [Make generator.] i:=(k) ||
+
+                    FGWRTE(o)
+[Free Group WRiTe Element.
+o=(d,g) an external objecti. d is the dictionary and g an element of the 
+free group. g is written into the output stream. The operator is 
+understood as product. So the signature is (G,*,I) or (G,1,*,I). [WL]]
+     safe b, i, j, dc, g, g'.
+(1)  [Init.] dc:=XOBJDIC(o); g:=XOBJINT(o); g':=g; b:=0.
+(2)  [Print g.]
+     if LENGTH(g') >= 2 then { STROUT("("); b:=b+1 };
+     if g' # () then
+     {
+         i:=FIRST(g');
+         if i >= 0 then CLOUT(DCENAME(DCIE(i,dc)))
+         else
+         {
+             STROUT("I("); CLOUT(DCENAME(DCIE(ABS(i),dc))); STROUT(")")
+         };
+         g':=RED(g')
+     };
+     while g' # () do
+     {
+         ADV(g'; i,g'); STROUT(" * ");
+         if LENGTH(g') > 1 then { STROUT("("); b:=b+1 };
+         if i >= 0 then CLOUT(DCENAME(DCIE(i,dc)))
+         else
+         {
+             STROUT("I("); CLOUT(DCENAME(DCIE(ABS(i),dc))); STROUT(")")
+         }
+     };
+     for j:=1,...,b do STROUT(")") ||
+
+                    t:=TFFGE(O,d,g)
+[Term From Free Group Element.
+O = ((cid,...),(oprod,oinv,...)) is a pair containg the constants
+and the operators corresponding to the constructors of the free group,
+d the dictionary and g an element of the free group.
+Then t is a term representing g ("XTEVL(t)=g", the inverse of the 
+evaluation). ]
+     safe oinv, oprod, cid, j, r, l.
+(1)  [Extrakt constants and Operators] O1:=FIRST(O); O2:=SECOND(O);
+     if LENGTH(O1) + LENGTH(O2) >= 3 then
+     { cid:=FIRST(O1);  ADV2(O2; oprod,oinv,O') }
+     else
+     {
+         STROUT(" *** Warning, unexpected number ");
+         STOUTL("of operators in TFFGE! "); HALT
+     }.
+(2)  [Initialize.] g':=CINV(g).
+(3)  [Trivial cases: identity, variable.]
+     if g' = () then { t:=TCONS((),cid); return };
+     if LENGTH(g') = 1 then
+     {
+         ADV(g'; j,g');
+         if j > 0 then t:=DCETERM(DCIE(j,d))
+         else t:=TCONS((DCETERM(DCIE(ABS(j),d))),oinv);
+         return;
+     }.
+(4)  [Product.]
+     if LENGTH(g') >= 2 then
+     {   ADV(g'; r,g'); ADV(g'; l,g');
+         if r > 0 then r':=DCETERM(DCIE(r,d))
+         else r':=TCONS((DCETERM(DCIE(ABS(r),d))),oinv);
+         if l > 0 then l':=DCETERM(DCIE(l,d))
+         else l':=TCONS((DCETERM(DCIE(ABS(l),d))),oinv);
+         t:=TCONS((l',r'),oprod)
+     };
+     while g' # () do
+     {
+         ADV(g'; l,g');
+         if l > 0 then l':=DCETERM(DCIE(l,d))
+         else l':=TCONS((DCETERM(DCIE(ABS(l),d))),oinv);
+         t:=TCONS((l',t),oprod)
+     } ||

@@ -1,0 +1,78 @@
+%%  comment symbol
+DATATYPE PC2;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS not completed
+%%  DESCRIPTION 2-Bit program counter (AC)
+%%              the data type is divergent 
+%%              completion results in
+%%              21) load(T) == H
+%%              22) load(S(T)) == L
+%%              23) load((t + S(T))) == L
+%%              24) load(S((t + S(T)))) == L
+%%              25) load(S(S(T))) == L
+%%              26) load(S(S((t + S(T))))) == L
+%%              27) load(S(S(S(T)))) == L
+%%              28) load(S(S(S((t + S(T)))))) == L
+%%              29) load(S(S(S(S(T))))) == L
+%%              30) load(S(S(S(S((t + S(T))))))) == L
+%%              31) load(S(S(S(S(S(T)))))) == L
+%%              ...
+SORT
+	SIGNAL, TIME;
+CONST
+	L, H: SIGNAL;
+	0, T: TIME;
+VAR
+	t, u, v: TIME;
+	f, g, h, p, q, r: SIGNAL;
+OPERATOR
+	S: TIME -> TIME;	%%  successor (+1)
+	+: TIME, TIME -> TIME;	%%  addition
+	D2: TIME -> TIME;	%%  div 2
+	#: SIGNAL, SIGNAL -> SIGNAL;	%%  exclusive or
+	/\: SIGNAL, SIGNAL -> SIGNAL;	%%  and
+	~: SIGNAL -> SIGNAL;	%%  not
+	=>: SIGNAL, SIGNAL -> SIGNAL;	%%  implies
+	\/: SIGNAL, SIGNAL -> SIGNAL;	%%  or
+	=: SIGNAL, SIGNAL -> SIGNAL;	%%  equivalent
+	MUX: SIGNAL, SIGNAL, SIGNAL -> SIGNAL;	%%  multiplex
+%%  TOG(TIME,SIGNAL,SIGNAL) -SIGNAL.
+	b0: TIME -> SIGNAL;	%%  pc bit 0
+	b1: TIME -> SIGNAL;	%%  pc bit 1
+	i0: TIME -> SIGNAL;	%%  input to set pc bit 0
+	i1: TIME -> SIGNAL;	%%  input to set pc bit 1
+	load: TIME -> SIGNAL;	%%  switch count/load
+NOTATION
+	S, D2, ~, b0, b1, i0, i1, load: FUNCTION;
+	+, #, /\, =>, \/, =: INFIX;
+THEORY
+	#, /\: AC;
+AXIOM
+  [1] (p \/ q) == ((p /\ q) # (p # q));
+  [2] (p => q) == ((p /\ q) # (p # H));
+  [3] =(p,q) == (p # (q # H));
+  [4] ~(p) == (p # H);
+  [5] (p # L) == p;
+  [6] (p # p) == L;
+  [7] (p /\ H) == p;
+  [8] (p /\ p) == p;
+  [9] (p /\ L) == L;
+ [10] (p /\ (q # r)) == ((p /\ q) # (p /\ r));
+ [11] MUX(f,g,r) == ((f /\ g) \/ ((f /\ ~(r)) \/ (g /\ r)));
+ 
+ [12] b0(0) == L;
+ [13] b0(S(t)) == MUX(~(b0(t)),i0(t),load(t));
+ [14] b1(0) == L;
+ [15] b1(S(t)) == MUX((b0(t) # b1(t)),i1(t),load(t));
+ 
+ [16] (0 + t) == t;
+ [17] (S(t) + u) == S((t + u));
+ [18] D2(0) == 0;
+ [19] D2(S(0)) == 0;
+ [20] D2(S(S(t))) == S(D2(t));
+
+ [21] load(T) == H;
+ [22] load(S(T)) == L;
+ [23] load((t + S(T))) == L;
+END
+

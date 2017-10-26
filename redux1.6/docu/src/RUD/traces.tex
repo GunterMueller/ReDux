@@ -1,0 +1,502 @@
+\section{Traces}
+\label{Traces}
+\subsection{The Counter Example Trace}
+The counter example trace traces the cover algorithm, the core of the
+ground reducibility test.
+If the considered term can not be unified with a left-hand side of an
+axiom, this trace prints just the considered term.
+Otherwise, it shows a subterm together with the sets of
+rmgus (restricted most general unifiers, i.\,e.\  the substitutions are
+restricted to the principal subterms) and the ground term sequence
+which cannot be matched by these rmgus.
+
+\noindent
+Example:
+\begin{quote}   
+\begin{verbatim}
++(A,A)
+None of the following term lists
+0   A   
+1   0   
+s-matches
+1   1   
+\end{verbatim}
+\end{quote}
+Here $(0,A)$ and $(1,0)$ are the terms of two rmgus and $(1,1)$ is the
+term list which cannot be covered by the rmgus.
+
+\subsection{The Critical Pair Trace}
+The critical pair trace can be activated in the {\tt ac} program.
+It can be selected in two versions:
+If it is selected by typing {\tt 2}, it prints a line like 
+\begin{quote}
+\begin{verbatim}
+Computing critical pairs between axioms no. 2 and 1 ...
+\end{verbatim}
+\end{quote}
+if the program starts to compute the critical pairs between two axioms.
+While the program is creating the critical pairs, it prints messages like 
+\begin{quote}
+\begin{verbatim}
+Proposing new critical pair ...
+  using unifying substitution:
+{ X <- +(I(0),x),  x_1 <- 0,  x_2 <- x,  X_1 <- 0,  x_3 <- I(0) }
+  Pair:       x    +(I(0),x)
+  from axioms +(x,+(I(X),X)) == x
+  and         +(0,X) == X
+  at position +(x,+(I(X),X)).
+Unresolved critical pair: 
+( 2 and  1) ( 3)  x == +(I(0),x)
+\end{verbatim}
+\end{quote}
+if a critical pair has been computed. 
+The variables \verb/x/, \verb/x_1/, \verb/x_2/ and \verb/x_3/ are
+auxiliary variables. 
+If the considered critical pair
+can be resolved, the last two lines are omitted.
+
+If the critical pair trace is called with {\tt 1}, the trace output is
+restricted to unresolved critical pairs. They are printed together with
+their origins and weights.
+
+\subsection{The Formula Reduction Trace}
+This trace can be used in the completion procedures.
+If a new axiom is put into the set of new axioms, the theorems in the
+theorem queue and the axioms in the set of new axioms are reduced if
+possible. For each reduction of an axiom, the formula reduction trace 
+prints information lines like the following:
+\begin{quote}
+\begin{verbatim}
+ Old axiom no 5,            
++(I(0),A) == A,
+ considered.
+AXIOM 9 YIELDS
+0
+AXIOM 1 YIELDS
+A
+and proved.
+\end{verbatim}
+\end{quote}
+(Only the lines {\tt AXIOM \ldots\ YIELDS} and the lines that follow the
+{\tt YIELDS} are printed by the formula reduction trace. The other
+lines are normal program output.)
+
+The trace output in this example means that two rules (9 and 1) could be
+applied to terms or subterms in the given axiom and the results of the
+applications are {\tt 0} and {\tt A}.
+
+However, it is not specified which subterm of the considered axiom is
+reduced. In step mode, it is possible to look at the set of new axioms to
+see the axioms whose numbers are given by the formula reduction trace.
+With that information it should be possible to conclude what subterm has
+been reduced. Different instances of a variable have no different
+representations in the output of the formula reduction trace.
+
+If {\em theorems} are reduced, they are not printed
+by the formula reduction trace. (Only information like ``{\tt AXIOM 9
+YIELDS \ldots}'' is printed.) 
+Therefore it is recommended to use this 
+trace together with the theorem derivation trace and the proved
+theorems trace.
+
+If the formula reduction trace and the theorem derivation trace are
+combined, the theorem derivation trace prints all derived theorems, 
+not only the theorems that cannot be proved as it does when it is used
+without the formula reduction trace:
+\begin{quote}
+\begin{verbatim}
+ Deriving the set of new theorems  -
+
+ Theorem
++(0,+(0,C)) == C
+ (from 9 and 4) derived
+AXIOM 1 YIELDS
+C
+AXIOM 1 YIELDS
+C
+ and proved.
+\end{verbatim}
+\end{quote}
+
+\subsection{The General Ordering Trace}
+The general ordering trace can be used in the completion procedure.
+It prints for each critical pair (theorem) which
+must be ordered a message as in the next example:
+\begin{quote}
+\begin{verbatim}
+TPPO: 'P' ordered reverse.
+\end{verbatim}
+\end{quote}
+The string after {\tt TPPO:} (here: {\tt 'P'} for path ordering) is the 
+lexicographical combination of orderings chosen in the initialization step.
+
+If the automatic ordering fails, the general ordering trace displays:
+\begin{quote}
+\begin{verbatim}
+TPPO: 'Y' failed.
+\end{verbatim}
+\end{quote}
+(Here the polynomial ordering has been initialized.)
+
+\subsection{The Inessential Critical Pair Trace}
+The inessential critical pair trace can be used in the inductive completion
+procedures.
+It prints lists of the inessential critical pairs, together with
+the axioms they are derived from and their weights.
+
+\noindent
+Example:
+\begin{quote}
+\begin{verbatim}
+Inessential critical pairs:
+
+  origin   weight Inessetial critical pairs: 
+ 
+  origin   weight    theorem
+ 
+ 
+(12 and 26) ( 0)  +(0,*(0,y)) == *(0,+(*(y,y_1),y))
+(12 and 26) ( 0)  +(*(x,0),*(x,0)) == *(x,+(*(0,x_1),0))
+\end{verbatim}
+\end{quote}
+
+\subsection{The Node Deletion Trace}
+This trace can be used during the top set tree computations.
+It prints lines like the following:
+\begin{quote}
+\begin{verbatim}
+red. OPP(OPP(A))
+\end{verbatim}
+\end{quote}
+This means that a term could be reduced by the axioms and need not
+to be entered into the top set tree. The remaining output of the node
+deletion trace is of the following form:
+\begin{quote}   
+\begin{verbatim}
+deleted: Label: SUCC(OPP(A))
+is not ground. It's level is 1
+Father's label: SUCC(A)
+d-level list (labels): 
+OPP(A)  
+labels of successors: 
+Unifying rules: AXIOMS
+ 3) SUCC(OPP(SUCC(A))) == OPP(A)
+\end{verbatim}
+\end{quote}
+First the label of the deleted node is printed. The next lines give
+information about that node. First it is printed if the node is ground 
+(contains no variables) and its level (the root has level $-1$). Then
+the label of the father's node is printed. The next lines show the
+d-level-list (i.\,e.\  the list of principal subterms of the node's label).
+In the following line the labels of the successors of the
+considered node are printed. (Here this list is empty). 
+The last lines show the rules whose left-hand sides unify with the node
+label.
+
+\subsection{The Path Ordering Trace}
+When the recursive path ordering is involved, trace information of the
+form
+\begin{quote}
+\begin{verbatim}
+TERMS: I(+(A,B)) +(I(B),I(A))
+PSETS: ((B.+(A,B).I(+(A,B))), (A.+(A,B).I(+(A,B))))
+       ((A.I(A).+(I(B),I(A))), (B.I(B).+(I(B),I(A))))
+PATHS: (+(A,B).I(+(A,B))) (I(A).+(I(B),I(A)))
+\end{verbatim} 
+\end{quote}
+is displayed. The line starting with {\tt TERMS:} indicates the
+comparison of two terms, the line starting with {\tt PSETS:} the
+comparison of two path-sets and the last line the comparison of two
+paths. (The terms in a path are separated by dots, the paths must be
+read from right to left.)
+
+\subsection{The Polynomial Ordering Trace}
+This trace prints messages like
+
+\begin{quote}
+\begin{verbatim}
+CPPI Polynomial interpretation LHS:
+x3^2x1^2+2x3^2x2x1+x3^2x2^2
+CPPI Polynomial interpretation RHS:
+x3^2x1^2+x3^2x2^2
+CPPI LHS-RHS:
+2x3^2x2x1
+\end{verbatim}
+\end{quote}
+
+if the polynomial ordering is involved and two terms are
+compared.
+
+The polynomial interpretations of the left-hand side and right-hand side of an
+axiom is printed together with the difference of left-hand side minus
+right-hand side.
+
+\subsection{The Procedure Name Trace}
+The procedure name trace prints the names of some procedures in the
+program. Therefore it is only useful together with the source code.
+
+\subsection{The Proved Theorems Trace}
+If a new axiom is put into the set of new axioms, possibly some of the
+theorems in the theorem queue can be proved by the new axiom. In this
+case, the proved theorems trace displays all of the theorems in the
+theorem queue that can be proved and are therefore deleted from the
+theorem queue. 
+\begin{quote}
+\begin{verbatim}
+ Reducing the set of old theorems -
+
+ Theorem
+I(0) == 0
+ (from 1 and 8) reduced and proved.
+\end{verbatim}
+\end{quote}
+Theorems that have not been entered into the theorem queue (because they 
+could be proved by the new axioms that were in the set of new axioms
+while the theorems are derived) are not printed by the proved theorem
+trace.
+
+\subsection{The Substitution Trace}
+The substitution trace can be used in ground reducibility tests.
+It traces the rmgus computed during the test.
+It displays a subterm of a term to be tested for inductive
+reducibility. If this subterm unifies with the left-hand side of a axiom
+then this axiom, the rmgu (the most general unifier restricted to the
+variables of the subterm) of the 
+subterm and this rule are displayed.
+
+\noindent
+{\bf Example:}
+\begin{quote}   
+\begin{verbatim}
+rmgus at +(A,A_1)
+A_1-->B
+A-->SUCC(A_2)
+ 5) +(SUCC(A),B) == SUCC(+(A,B))
+A_1-->A_3
+A-->0
+ 4) +(0,A) == A
+\end{verbatim}
+\end{quote}   
+This means that $rmgu(+(A,A_1),+(succ(A_2),B))=\{A_1 \mapsto B, A \mapsto
+succ(A_2)\}$ and $rmgu(+(A,A_1),\\+(0,A_3))=\{A_1 \mapsto A_3, A \mapsto
+0\}$. Note that the variables of the rules are renamed before the
+unification.
+
+%\subsection{The Term Ordering Trace}
+
+\subsection{The Theorem Derivation Trace}
+After adding an axiom to the set of new axioms, a set of new theorems
+(critical pairs)
+is derived. Some theorems can be proved by the axioms in the set of new
+axioms. The other theorems are added to the queue of theorems. If such
+theorems are derived by the new axiom, the theorem derivation trace will
+print a message like in the following example:
+\begin{quote}
+\begin{verbatim}
+ Deriving the set of new theorems which cannot be proved -
+    
+ 
+ Theorem
++(I(I(0)),A) == A
+ (from 5 and 4) derived and retained.
+\end{verbatim}
+\end{quote}
+Each unproved theorem is printed together with the number of the new 
+axioms it was derived from.
+
+\subsection{The Tree Extension Trace}
+The tree extension trace prints messages like the following:
+\begin{quote}
+\begin{verbatim}
+Label: +(A,A_1)
+is not ground. It's level is 0
+Father's label: A
+d-level list (labels): 
+A  A  
+labels of successors: +(+(A,A_1),0)  +(+(A,A_1),OPP(A_2))  
+  +(+(A,A_1),SUCC(A_2))  +(+(A,A_1),+(A_2,A_3))  
+Unifying rules: AXIOMS
+ 4) +(0,A) == A
+ 5) +(SUCC(A),B) == SUCC(+(A,B))
+ 6) +(OPP(A),B) == OPP(+(A,OPP(B)))
+\end{verbatim}
+\end{quote}
+The meaning of this output is the same as in the node deletion trace.
+Some nodes may be deleted in the
+further process, therefore it is possible that the list of successors
+contains some nodes that are not in the resulting tree.
+The last lines show the rules whose left-hand sides unify with the node
+label.
+
+\subsection{The Evaluation Trace}
+
+For each pass of the evaluation and de-evaluation of a term the evaluation 
+traces shows how the dictionary relating non-evaluable terms to generators
+of the evaluation domain is built up.
+
+A typical trace is the following
+\begin{verbatim}
+Input term:  *
+1+(h(i) + b + h(i));
+The normal form of 1 + h(i) + b + h(i) is 
+TNMEVI (1): [(1 + h(i) + b + h(i)/0/SAC2IP)]
+EVCLGD (2): 1 + h(i) + b + h(i)  [1:<b||() >,2:<h(i)||() >]
+EVCLGD (3): --- start sorted dictionary list ---
+SAC2IP:  [1:<b||() >,2:<h(i)||() >]
+---- end sorted dictionary list ----
+TNMEVI (3): --- start sorted dictionary list ---
+SAC2IP:  [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+---- end sorted dictionary list ----
+EVCLEV (2) evaluating 1 + h(i) + b + h(i)
+TEVDIC (1):         1 + h(i) + b + h(i)
+    dictionary:     [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+    external sort:  SAC2IP
+    interpretation: IPRSUM 
+TEVDIC (1):         1
+    dictionary:     [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+    external sort:  SAC2IP
+    interpretation: IPRONE 
+TEVDIC (1):         h(i)
+    dictionary:     [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+    external sort:  SAC2IP
+    interpretation: () 
+TEVDIC (1):         b
+    dictionary:     [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+    external sort:  SAC2IP
+    interpretation: () 
+TEVDIC (1):         h(i)
+    dictionary:     [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+    external sort:  SAC2IP
+    interpretation: () 
+                      (1 (0 2) 0 (1 1 0 1)) 
+dict after eval:      [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+             yielding 1 + b + h(i) + h(i)
+dict after de-eval:   [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+1 + b + h(i) + h(i)
+Go on [e|m|u|i|s|o|O|N|n|p|c|C|w|W|r|d|t|h|q]? * 
+\end{verbatim}
+The labels \texttt{TNMEVI (1):}, \texttt{EVCLGD (2):}, \texttt{EVCLGD (3):},
+\texttt{TNMEVI (3):}, \texttt{EVCLEV (2)}, \texttt{TEVDIC (1):} denote
+the place in the source code (procedure name and step number)
+from where the trace output was written.
+
+The information following \texttt{TNMEVI (1):} describes a list
+of evaluation candidates (see \RUD).
+
+A dictionary is a list in square brackets (\texttt{[}, \texttt{]})
+of the form $n$\texttt{:<}$t$\texttt{||}$x$\texttt{>}
+where $n$ is a natural number, $t$ is a term and $x$ is the  
+representation of the $n$-th generator of the evaluation domain.
+This means that the unevaluable term $t$ is to be mapped to the generator $x$.
+If there is more than one evaluation domain one dictionary for each of the
+evaluation domains may be computed.
+
+The information following \texttt{TNMEVI (1):} displays the data
+available when interpreting the term just behind the colon:
+the dictionary, the external sort representing the evaluation domain
+\wrt\ which the term is to be evaluated and the interpretation of the
+top symbol of the term for that evaluation domain
+
+The lines
+\begin{verbatim}
+                       (1 (0 2) 0 (1 1 0 1)) 
+dict after eval:      [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+             yielding 1 + b + h(i) + h(i)
+dict after de-eval:   [1:<b||(0 (1 1)) >,2:<h(i)||(1 (0 1)) >]
+1 + b + h(i) + h(i)
+\end{verbatim}
+describe the  result of  evaluating the term which is printed after
+the previous occurrence of \texttt{EVCLEV (2):}
+\texttt{(1 (0 2) 0 (1 1 0 1))} and the result of its de-evaluation
+\texttt{1 + b + h(i) + h(i)} \wrt\ the dictionaries shown.
+
+\input{trdtrc}
+
+\section{Changing the Output Mode}
+\label{ap:output}
+
+In some programs the ouput mode may be changed within the section to 
+change the trace options.
+\begin{verbatim}
+Change output mode? [y|n] *
+\end{verbatim}
+if this question is answered positively the following menue appears
+\begin{verbatim}
+Current write mode:
+term output: parentheses...
+   1) around subterms with higher precedence = off
+   2) around subterms with same precedence   = off
+   3) to indicate associativity              = on
+   4) around lisp-operator's infix arguments = on
+   5) around prefix operator's argument      = off
+   6) around postfix operator's argument     = off
+   7) around infix operator and arguments    = off
+term output:
+   8) debugging          = off
+data type output:
+   9) rescannable output = off
+global output:
+  10) full debugging     = off
+Toggle which flag?    [1-10, 0 for none] *
+\end{verbatim}
+This describes the current settings which may be modified  (toggled) until a 
+\texttt{0} is entered.
+
+The different output modes are explained in the following in full detail:
+\begin{description}
+\item[Parentheses around subterms with same precedence:]
+  In the case of equal precedence of a term's top operator and one
+  of its operators at a direct subposition, it is not always necessary
+  to write parentheses around the subterm. 
+  %According to the rule given in  section \ref{precrule} 
+  This may happen e.g. if an infix operator occurs at top
+  position and a postfix operator at subterm-position.
+  With this option switched on, parentheses are always printed when
+  the precedence of both aforementioned operators is the same.
+  Turning off this option results in omitting brackets whenever it is possible
+  due to equal precedence.
+\item[Parentheses around subterms with higher precedence:]
+  Normally, no parentheses are necessary around a subterm whose operator
+  has a higher precedence than the term's top operator. Switching on this
+  option produces parentheses in this case, though.
+\item[Parentheses to indicate associativity:] When associativity is specified
+  for an infix operator, brackets can be left away in sequences of such
+  operators. 
+  With this switch set to ``{\bf on}'' parentheses are written, however.
+\item[Parentheses around lisp-operator's infix arguments:] Writing a lisp
+  operator's infix arguments without parentheses may look a bit confusing, 
+  though  it is correct. 
+  To avoid this, set this option to write parentheses for a more
+  user-friendly output.
+\item[Parentheses around prefix operator's argument:] Prefix operators (they
+  are always unary) are normally written without parentheses around the 
+  argument.
+  This can be avoided either using function notation or setting this option.
+  Note, however, that these brackets do not change precedence.
+  %, as was shown in Section \ref{strangeprec}.
+\item[Parentheses around postfix operator's argument:] As in the case of prefix
+  operators, this switch set to ``{\bf on}'' forces brackets around postfix 
+  operator's
+  arguments. In contrast to prefix operators, this is the only possibility to
+  achieve this.
+\item[Parentheses around infix operator and arguments:] This option produces
+  brackets around an infix operator and its arguments as a whole. This switch
+  was implemented mainly for compatibility reasons (old parser).
+\item[Debugging for term output:] This option not merely writes the terms, 
+  but also
+  the address of each term position in the \ALDES\ {\tt SPACE}-array. 
+  This can be
+  useful to examine the correct handling of variables.
+\item[Rescanable input for data types:] In some cases data type output cannot
+  be reused as input for the parser. 
+  The reason for this is that escape characters
+  are omitted in the signature part of the data type. 
+  To force these escape characters
+  to be written on data type output and thus allowing rescanning of
+  printed data types  this switch can be used.
+\item[Full debugging for global output:]
+  Switching on full debugging, makes \redux\  use not the normal output
+  routines, but the \ALDES-function {\tt UWRITE} instead.
+  So the internal structure of data types and other objects is made 
+  accessible to  the user (programmer).
+\end{description}

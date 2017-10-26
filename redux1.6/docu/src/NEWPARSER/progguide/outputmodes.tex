@@ -1,0 +1,115 @@
+\section{Output Modes}
+
+The write routines of the new \redux\ parser allow different modes
+of term and data type output. 
+Switching between different modes is possible at run-time.
+
+All output modes are registered in one global variable ({\tt OTMODE};
+the lowest ten bits of this integer-valued variable control ten
+different output mode flags, which will be explained later).
+
+The different output modes can be subdivided into alternatives for
+term output and selection of global output appearance.
+
+\subsection{Term Output Modes}
+Term output modes provide a detailed control on usage of parentheses
+and a simple debugging facility. The purpose of the different term
+mode flags is explained in Table~\ref{tomodes}.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|p{0.8in}|l|p{2.5in}|}
+\hline
+Bit Position in {\tt OTMODE} & Output Mode Flag & Meaning \\
+\hline \hline
+0 & TOPLOWPREC &  parentheses around subterms when main term has lower
+     precedence \\ \hline
+1 & TOPEQPREC & parentheses around subterms with same precedence
+     as main term \\ \hline
+2 & TOPASSOC & parentheses to indicate associativity \\ \hline
+3 & TOPLISPARG & parentheses around lisp operator's infix arguments \\ \hline
+4 & TOPPREARG & parentheses around prefix operator's argument \\ \hline
+5 & TOPPOSTARG & parentheses around postfix operator's argument \\ \hline
+6 & TOPINFIX & parentheses around infix operator and arguments \\ \hline
+7 & TODEBUG & debugging of term output \\ \hline
+\end{tabular}
+\end{center}
+\caption{Term Output Mode Flags}
+\label{tomodes}
+\end{table}
+
+\subsection{Global Output Modes}
+By means of the global output mode flags rescannable data type output
+and another debugging mode can be selected. 
+These flags are explained in Figure~\ref{gomodes}.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|p{0.8in}|l|p{2.5in}|}
+\hline
+Bit Position in {\tt OTMODE} & Output Mode Flag & Meaning \\
+\hline \hline
+8 & DTORSCAN & rescannable output of data types \\ \hline
+9 & OFULLDEBUG & full debugging of global output \\ \hline
+\end{tabular}
+\end{center}
+\caption{Global Output Mode Flags}
+\label{gomodes}
+\end{table}
+
+For a more detailed description of the different flags see \NPUG.
+All combinations of these flags result in valid term output modes.
+
+Note, that turning on full debugging mode results in the output module
+ignoring the state of all other output mode flags.
+
+\subsection{Standard output modes}
+
+To simplify output mode handling there are three default modes
+which implement suitable settings for most purposes. Which flags
+are set when using one of these standard modes can be seen from
+Table~\ref{standardom}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|p{1.5in}|p{1.5in}|p{2in}|}
+\hline
+Standard Output Mode Name & Description & Flags Set \\
+\hline \hline
+OMSPARSE & sparse use of parentheses & none \\ \hline
+OMNORMAL & normal use of parentheses & TOPEQPREC, TOPASSOC, TOPLISPARG \\
+   \hline
+OMCOMPLETE & maximal sensible number of parentheses &
+   TOPLOWPREC, \newline TOPEQPREC, TOPASSOC, TOPLISPARG, TOPPREARG, TOPPOSTARG,
+   TOPINFIX \\ \hline
+\end{tabular}
+\end{center}
+\caption{Standard Output Modes}
+\label{standardom}
+\end{table}
+
+Setting one of these standard output modes can be done by explicitly
+setting the global variable {\tt OTMODE} to one of the three aforementioned
+standard output mode names.
+
+Toggling of individual flags is performed by functions explained
+in the next section.
+
+\subsection{Controlling Output Modes}
+
+The parser allows setting of the output mode by three functions provided
+by file {\tt write.ald}.
+
+\begin{description}
+\item[t $\leftarrow$ OMODGT(F):] This functions can be used to get the
+state of an individual output mode flag {\tt F}. The returned value
+{\tt t} is either {\tt TRUE} or {\tt FALSE} depending on whether flag
+{\tt F} is set or reset. The output mode is not modified by this function.
+\item[OMODST(F,t):] To make changes of the output mode, this function can
+be used. {\tt F} is any output mode flag and {\tt t} is either {\tt TRUE}
+or {\tt FALSE}. 
+Then flag {\tt F} is set or reset, depending on {\tt t}.
+\item[QOPMOD():] This function (query output mode) allows interactive
+setting of a new output mode. All flags may be changed by this function,
+which has no return value, but modifies the global variable {\tt OTMODE}.
+\end{description}

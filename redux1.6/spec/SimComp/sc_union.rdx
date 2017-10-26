@@ -1,0 +1,45 @@
+%% 
+DATATYPE XSET;
+SORT
+	EL, ELEXTERN, EXTERN, SET;
+CONST
+	O: EXTERN;
+	0: ELEXTERN;
+VAR
+	v, x, y, z: SET;
+	a, b, c: EL;
+	V, X, Y, Z: EXTERN;
+	A, B, C: ELEXTERN;
+OPERATOR
+	o:  -> EL;
+	s: EL -> EL;
+	{}:  -> SET;
+	{: EL -> SET;
+	u: SET, SET -> SET;
+	': ELEXTERN -> EL;
+	": EXTERN -> SET;
+	S: ELEXTERN -> ELEXTERN;
+	[: ELEXTERN -> EXTERN;
+	U: EXTERN, EXTERN -> EXTERN;
+NOTATION
+	s, S: FUNCTION;
+	u, U: INFIX;
+	{: ROUNDFIX };
+	': ROUNDFIX ';
+	": ROUNDFIX ";
+	[: ROUNDFIX ];
+THEORY
+	u, U: AC;
+AXIOM
+   [1] ({} u x) == x;
+   [2] (x u x) == x;
+
+   [3] (O U X) == X;
+   [4] (X U X) == X;
+
+   [5] o == ' 0 ';
+   [6] s(' A ') == ' S(A) ';
+   [7] {} == " O ";
+   [8] (" X " u " Y ") == " (X U Y) ";
+   [9] { ' A ' } == " [ A ] ";
+END

@@ -1,0 +1,17 @@
+Verzeichnis Asplit
+==================
+
+
+Inhalt:
+
+   asplit.sun3:
+   asplit.sun4:    ALDES-split
+                   input (stdin): ALDES-source file
+                   output: one file for each algorithm in input named by
+                           <algorithm name>.ald and
+                           a file globals for all global external
+                           comments and declarations
+                   bugs: assumes that at least 17 blanks preceede each
+                         algorithm name in the input file
+                   The suffix determines the architecture the program runs on.
+   asplit.lex:     LEX-source for asplit

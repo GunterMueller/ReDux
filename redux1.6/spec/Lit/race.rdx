@@ -1,0 +1,19 @@
+%%  comment symbol
+DATATYPE T;
+%% AUTHOR Buerkert et al
+%% ORIGIN Opening the AC-Unification Race
+%% DESCRIPTION Unification benchmarks
+SORT
+	T;
+CONST
+	a, b, c, d, e: T;
+VAR
+	X, t, u, v, w, x, y, z: T;
+OPERATOR
+	*: T, T -> T;
+NOTATION
+	*: INFIX;
+THEORY
+	*: AC;
+END
+

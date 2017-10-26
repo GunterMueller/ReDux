@@ -1,0 +1,37 @@
+%%  comment symbol
+DATATYPE D4;
+%% DESCRIPTION D_4 = <a,b; a^4, b^2, ba = a^-1b>
+%%             without inductively redundant rules
+SORT
+	D4;
+CONST
+	1, a, b: D4;
+VAR
+	x, y, z: D4;
+OPERATOR
+	*: D4, D4 -> D4;
+	~: D4 -> D4;
+NOTATION
+	~: FUNCTION;
+	*: INFIX;
+AXIOM
+ [1] *(1,x)==x;
+ [2] *(*(x,y),z)==*(x,*(y,z));
+ [3] *(a,*(a,*(a,a)))==1;
+ [4] *(b,b)==1;
+ [5] *(x,1)==x;
+ [6] ~(b)==b;
+ [7] ~(1)==1;
+ [8] *(b,*(b,z))==z;
+ [9] ~(*(x,y))==*(~(y),~(x));
+[10] *(a,*(b,a))==b;
+[11] ~(a)==*(a,*(a,a));
+[12] *(a,*(a,*(a,b)))==*(b,a);
+[13] *(a,*(a,*(a,*(b,z))))==*(b,*(a,z));
+[14] *(b,*(a,b))==*(a,*(a,a));
+[15] *(b,*(a,a))==*(a,*(a,b));
+[16] *(a,*(b,*(a,z)))==*(b,z);
+[17] *(b,*(a,*(b,z)))==*(a,*(a,*(a,z)));
+[18] *(b,*(a,*(a,z)))==*(a,*(a,*(b,z)));
+[19] *(a,*(a,*(a,*(a,z))))==z;
+END

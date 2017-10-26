@@ -1,0 +1,43 @@
+[ VERSION CONFLICT!!
+ The global variable EOF of ALDES V2-V3.4 has been replaced by the
+ global variable ENDF. 
+ The procedure OPEN has to be replaced by FOPENR.
+]
+    safe DAK.
+
+[--------------------------------------------------------------------
+ The interpreter symbol table contains one symbol for each algorithm
+ known to the interpreter. Each symbol has the name of the algorithm
+ it denotes and a list of properties 
+    (algoid, algotype, algoin, algoout)
+ under indicator DAK, where algoid, algotype, algoin, algoout are
+ non-negative beta integers. algotype = 0 if the algorithm is a 
+ procedure and 1 if it is a function. The numbers of input parameters
+ and output parameters of the algorithm are stored in algoin and 
+ algoout respectively. algoid is such that (algoid,algoin) is a
+ unique key for the algorithm.
+
+The initialization file for the interpreter symbol table consists
+of lines of the form
+   algoname algotype algoin algoout
+where algoname is a string.
+--------------------------------------------------------------------]
+
+                    ISTINI(U,F) 
+[Interpreter symbol table, initialize.
+U is a beta digit denoting an input unit from which the initialization
+data for the interpreter symbol table is read, F is a character list
+denoting the corresponding file name. The input unit is connected to a
+file whose name is passed in F. The symbol table is updated by
+according to the input file. The file is closed after the data has been
+read.]
+
+(1)  [Define algorithm key symbol.] DAK:=ENTER("ALGORITHM KEY").
+(2)  [Change input unit.] U':=IUNIT; IUCHNG(U); FOPENR(U,F).
+[(2)  [Change input unit.] U':=IUNIT; IUCHNG(U); OPEN(U,"algos").]
+(3)  [Read initialization file.] READ; while ~ENDF do
+[(3)  [Read initialization file.] READ; while ~EOF do]
+     { A:=SREAD(); K:=(); for i=1,...,4 do K:=COMP(AREAD(),K);
+       K:=INV(K); PUT(A,DAK,K); READ
+     }.
+(4)  [Restore input unit.] IUCHNG(U'); CLOSE(U); IPOS:=ISIZE ||

@@ -1,0 +1,560 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPPRS -- PaRSe data type
+   modulespecification: Parsing algorithms for
+                           data type, axiom, term, operator, constant,
+                           variables and external types
+                        derived from tpdd, Revision: 1.12
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : $Date: 1996/05/31 13:47:17 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.11 $
+   bugs               : none known
+   modules needed     : SAC-2: low/bs, low/sy, low/lp
+
+]
+
+[ #include "tp.h" ]
+[ #include "it.h" ]
+[ #include "globs.h" ]
+
+[---------------------------------------------------------------------
+     Section 1.  Algorithms for Export
+----------------------------------------------------------------------]
+
+                    A:=ASPRS(C,V,F)                                    
+[Parse set of axioms.  - Algorithm No. 5.
+C,  V, F are sets of constants, variables and operators, respectively. A
+number nl, nl < 1,  of axioms over C, V and F are  read  and  translated
+into the data-structure A, a list.]                                    
+     safe n,c,V^*'.                                                   
+(1)  [Initialize.] A:=().
+(2)  [Number] c:=CREADB(); BKSP; if DIGIT(c)=FALSE then               
+     {if ~FCMMNT() then ERRORD(15,5); go to  2}; n:=AREAD();
+     [Closing bracket] SCB(5).
+(3)  [Left-hand side.] TPRS(C,V,F,(); LHS,V^*).
+(4)  [Production-symbol] SPS(5).
+(5)  [Right-hand side.] TPRS(C,V,F,V^*; RHS,V^*');
+     if V^*' # V^* then {ERRSD(2,5,n); go to  1};
+     if ~YCMPTB(TTYPE(LHS),TTYPE(RHS)) then 
+      { ERRSD(7,5,n); goto 1};
+     A:=COMP(ACONS(n,LHS,V^*,RHS),A).
+(6)  [(number) - recursive call.] c:=CREADB(); BKSP;
+     if DIGIT(c)=TRUE then goto  2 
+     else if FCMMNT() then goto 6
+          else {if SYM = () then GETSYM; A:=INV(A)} ||        
+                                                                       
+                    A:=AXPRS(DT)                                       
+[Axiom parse.  - Algorithm No. 9.  
+Axiom number is 0]
+(1)  [Init] DTDIS(DT; N,C,V,F,A*).
+(2)  [Left-hand-side] TPRS(C,V,F,(); LHS,V^*).
+(3)  [Production-symbol] SPS(5).
+(4)  [Right-hand-side] TPRS(C,V,F,V^*; RHS,V^*');
+     if V^*' # V^* then {ERRSD(2,5,0); goto 2};
+     if ~YCMPTB(TTYPE(LHS),TTYPE(RHS)) then 
+      { ERRSD(6,9,()); goto 4};
+     A:=ACONS(0,LHS,V^*,RHS)||                                         
+                                                                       
+                    L:=CSPRS()                                         
+[Parse set of constants.  - Algorithm No. 2.
+The  definition  of  a  number  of  constants  is  read  from  input and
+translated into the list L, their internal representation.]
+     safe L',L''.                                                      
+(1)  [Initialize.] L:=(); if SYM # DCS then return.
+(2)  [Identifier] SII(2); L':=L; L:=COMP(CCONS(SYM,()),L).
+(3)  GETSYM;
+     [(repeater identifier)*] while SYM=DRS do                         
+     {SII(2); L:=COMP(CCONS(SYM,()),L); GETSYM};
+     [(linksymbol identifier)] if SYM=DLS then { SID(2);
+      [Update type-definitions.] L'':=L; repeat                        
+      TTYPE(FIRST(L'')):=SYM; L'':=RED(L'') until L''=L'; GETSYM };
+     [(separator) - recursive call.] if SYM=DSS then go to  2.
+(4)  [Finish up.] L:=INV(L) ||                                         
+                                                                       
+                    L:=DTPRS()                                         
+[Parse data-type.  - Main algorithm level 1, constructor part
+The definition of a data type is read from input and translated into the
+internal representation L, a list.
+ADD STB 92: First Token (except DTS) defines the comment symbol.
+- Algorithm No. 1.]                                    
+     safe N.                                                           
+(1)  [Initialize.] L:=(); C:=(); V:=(); O:=(); A:=().
+(2)  [Comment Symbol]  GETSYM; if SYM # DTS then 
+     { READ; if GRSYM = GET (SYM, KIND) then 
+       { CLOUT("Cannot define grammar symbol as comment symbol");
+         CLOUT(" line skipped"); WRITE; goto 2
+       }; DCM := SYM; PUT (DCM, KIND, GRSYM); GETSYM
+     }.
+(3)  [Type-symbol] if SYM # DTS then {ERRORD(1,1); GETSYM; go to 3}.
+(4)  [Identifier] SID(1); N:=SYM.
+(5)  [Separator-symbol] SSS(1).
+(6)  GETSYM;
+     [(external-type-declaration)] if SYM=DXT then Y:=XYSPRS();
+     [(constant-declaration)] if SYM=DCS then C:=CSPRS();
+     [(variable-declaration)] if SYM=DVS then V:=VSPRS();
+     [(operator-declaration)] if SYM=DOS then OSPRS(V; O,V);
+     [(axiom-declaration)]    if SYM=DAS then A:=ASPRS(C,V,O).
+(7)  [End-symbol] if SYM # DES then {ERRORD(5,1); go to  6}.
+(8)  [Finish up.] dummy:=(); L:=DTCONS(N,C,V,O,A,dummy,dummy,dummy) ||                              
+
+
+                     O:=OPRS()                                          
+[Parse operator.  - Algorithm No. 4.
+The   definition  of  an  operator  or external operator
+is  read  and  translated  into  the corresponding data-structure O, 
+a list.]                               
+     safe s',X.                                                          
+(1)  [Identifier] SIIX(4); s':=SYM.
+(2)  [Opening bracket] SOB(4).
+(3)  GETSYM; T':=();
+     [(identifier)] if SYM # DCB then { T':=COMP(SYM,T'); 
+      [external symbol.] X:=GET(SYM,DXT); if X = 1 then 
+      { GETSYM; goto 4 };
+      [(repeater identifier)*] GETSYM; while SYM=DRS do                
+      { SID(4); while GET(SYM,DXT) = 1 do
+        { ERRSD(14,4,SYM); SID(4) }; T':=COMP(SYM,T'); GETSYM} 
+      }.
+(4)  [Closing bracket] while SYM # DCB do {ERRORD(7,4); GETSYM};
+     T':=INV(T').
+(5)  [Link-symbol] SLS(4).
+(6)  [Identifier] SID(4); while GET(SYM,DXT) = 1 do
+     { ERRSD(14,4,SYM); SID(4) };
+     if X = 1 then 
+     { O:=XOCONS(s',T',SYM); if GET(SYM,DXCO) = () then PUT(SYM,DXCO,O)
+     } else  O:=OCONS(s',T',SYM) ||                       
+                                                                       
+                                                                      
+                    OSPRS(V; L,V*)
+[Parse set of operators.  - Algorithm No 11.
+V is a set of variables. A number of operators is read and translated 
+into the corresponding data structure L, a list. V* is V with generic
+variables added if no variable of the argument type of an AC-operator
+is in V.]
+(1)  [Initialize.] L:=(); V*:=V.
+(2)  [Operator]  o:=OPRS(); GETSYM.
+(3)  [Properties there] if ~ SYMIOP(SYM) then goto 6.
+(4)  [Properties.] 
+     OPPRS(; i,p); if p # () then 
+     { [each property only once] if TGET(o,i)=() then 
+       { [AC - consistency.] if i = DUS /\ p = DAC then
+           if ~OACC(o) then { L:=RED(L); ERRSD(8,11,()) }
+            else [Enter DAV property: a variable of argument type.]
+            { TUSTAT(o):=DAC; y:=FIRST(ODTYPE(o)); v:= VSFVY(V,y);
+              if v = () then [Create generic variable of type y.]
+              { [Print warning.] ERRSD(9,11,y); VGCONS(V*,y; v,V*); }; 
+              TPUT(o,DAV,v)
+            } else [COM - consistency.] if i = DUS /\ p = DCO then
+            if  ~OCOMC(o) then { L:=RED(L); ERRSD(8,11,()) }
+            else [Enter DAV property: a variable of argument type.]
+            { TUSTAT(o):=DCO; y:=FIRST(ODTYPE(o)); v:= VSFVY(V,y);
+              if v = () then [Create generic variable of type y.]
+              { [Print warning.] ERRSD(9,11,y); VGCONS(V*,y; v,V*); };
+              TPUT(o,DAV,v)
+            } else TPUT(o,i,p);
+       };
+     }; GETSYM.
+(5)  [property recursive call.] if SYMIOP(SYM) then goto 4.
+(6)  [No FIX Property, add CONSTS for 0-ary end PREFIX else.] 
+     if TGET(o,DFS)=() then 
+        if ODTYPE(o) = () then TPUT(o,DFS,DCS) else TPUT(o,DFS,DEF).
+(7)  [check Fix-Properties illegal DCR Property]
+     if TGET(o,DFS) = DRF /\ TGET(o,DCR) = () then
+     { ERRORD(20,10); [ignore operator] goto 9 };
+     [check Fix-Properies to many infix parameters]
+     if TGET(o,DFS) = DIF /\ LENGTH(ODTYPE(o)) # 2 then 
+     { ERRORD(19,10); [ignore operator] goto 9 }.
+(8)  [add operator to list] L:=COMP(o,L).
+(9)  [(separator) - recursive call.] if SYM=DSS then goto 2.
+(10) [Finish up.] L:=INV(L); OSUCF(L) ||
+
+                    OROLRD(;o,r,O,b)
+[Operator relation operator list.
+ o is a symbol, r is a string in (">=","<=","~","#","<",">"), O is a
+ list of symbols. b is TRUE if a non-empty relation list was read,
+ otherwise b=FALSE, o,r and O are undefined.]
+
+(1)  [Initialize.] O:=(); b:=TRUE.
+(2)  [Parse symbol left of relation.] READ; GETSYM; 
+     if SYM=DSS then { b:=FALSE; return };
+     k:=GET(SYM,KIND);
+     if k # IDENT /\ k # INT /\ k # XIDNT then
+        { ERRORD(11,"OROLRD 77"); goto 2 };
+     o:=SYM.
+(3)  [Read relation symbol.] c:=CREADB(); 
+     if c = '~' \/ c = '#' then r:=LIST1(c)
+     else if c = '<' \/ c = '>' then
+          { c':=CREAD(); if c' = '=' then r:=LIST2(c,c')
+                         else { BKSP; r:=LIST1(c) }
+          }
+     else { STROUT("A relation symbol is expected, please ");
+            STOUTL("repeat your input. *"); goto 2
+          }.
+(4)  [Read list of symbols.] SIIX("QUOLI");  O:=COMP(SYM,O);
+     GETSYM; while SYM=DRS do  
+     { SIIX("QUOLI"); O:=COMP(SYM,O); GETSYM }; O:=INV(O) ||
+
+                    T:=TEPRS(DT)                                       
+[Parse external term.                                                  
+DT is a data-type. Then a term is read from input with respect to DT    
+and translated into its internal representation T, a list.]            
+     safe n,C,V,O,A,D.                                                 
+(1)  DTDIS(DT; n,C,V,O,A).
+(2)  GETSYM; TPRS1(C,V,O,(); T,D) ||
+                                                                       
+                    TPRS(C,V,O,V^; F*,V^*)                             
+[Parse term, with type checking.  - Algorithm No. 6.
+C, V, O are sets of constants, variables and operators, respectively. V^
+is  A  set  of  variables. Then the term F* over C, V and O is read from
+input such that variables and operators in F*  occurring  in  V  and  O,
+respectively,  are  translated  into  new  occurrences of these entities
+whereas constants and variables in C  and  V^,  respectively,  are  rep-
+resented  by  these  very occurrences. V^* is the union of the variable-
+set of F* and V^.]                                                     
+(1)  GETSYM; TPRS1(C,V,O,V^; F*,V^*) ||
+
+                    TPRSC(DT,V^; F*,V^*)                             
+[Parse term in context, with type checking.  - Algorithm No. 6.
+DT is the data type. V^ is  A  set  of  variables. 
+Then the term F* over the signature of DT is read from the
+input such that variables and operators in F*  occurring  in DT,
+are  translated  into  new  occurrences of these entities whereas 
+constants and variables in   V^,  respectively,  are  represented  by  
+these  very occurrences. V^* is the union of the variable-set of F* 
+and V^.]  
+(1)  DTDIS(DT; n,C,V,O,A); TPRS(C,V,O,V^; F*,V^*) ||
+
+                    L:=VSPRS()                                         
+[Parse set of variables.  - Algorithm No. 3.
+The  definition  of  a number of variables is read from input and trans-
+lated into the list L of their internal representations.]              
+     safe L',L''.                                                      
+(1)  [Initialize.] L:=(); if SYM # DVS then return.
+(2)  [Identifier] SID(3); L':=L; L:=COMP(VCONS(SYM,()),L).
+(3)  GETSYM;
+     [(repeater identifier)*] while SYM=DRS do                         
+     {SID(3); L:=COMP(VCONS(SYM,()),L); GETSYM};
+     [(link-symbol identifier)] if SYM=DLS then { SID(3);
+      [Update types.] L'':=L; repeat                                   
+      TTYPE(FIRST(L'')):=SYM; L'':=RED(L'') until L''=L'; GETSYM };
+     [(separator) - recursive call.] if SYM=DSS then go to  2.
+(4)  [Finish up.] L:=INV(L) ||                                         
+
+                    T*:=SOTCPY(T)
+[Dummy function needed for compatibility with new parser.]
+
+(1)  T*:=COPY(T) ||
+
+
+[---------------------------------------------------------------------
+     Section 2.  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    b:=FCMMNT()
+[Find comment symbol.
+The  next  symbol  is  read, if it is the comment symbol the rest of
+the line is skipped and b = TRUE else b= FALSE if SYM # () the next
+identifier or grammar symbol has already been read ans assigned to
+SYM.]
+     safe b,C,P*.
+(1)  [Initialize.] b:=FALSE; C:=CREADB().
+(2)  [(identifier)] if LETTER(C)  then
+      { BKSP; SYM:=SSYM(); if SYM=DCM then { b:=TRUE; READ} ; return }.
+(3)  [(integer)] b:=DIGIT(C); if b then {BKSP; return}.
+(4)  [(extraordinary identifier)] C^*:=LIST1(C); P*:=PACK(C^*).
+(5)  [Grammar symbol.] SYM:=STSRCH(SYMTB,P*); if SYM # () then
+      { if SYM = DCM then { b:=TRUE; READ; }; return };
+     [Read next character.] C:=CREAD();
+     [End of symbol - blank, DOB, DCB or DRS read.]
+     [This condition to be changed along with DCB, DOB or DRS.]
+     if C=' ' \/ C='(' \/ C=')' \/ C=',' then 
+      { BKSP; SYM:=STINS(P*); return };
+     C^*:=SUFFIX(C^*,C); P*:=PACK(C^*); goto 5 ||
+
+                    OPPRS(; i,p)
+[Parse operator property.  - Algorithm No. 10.
+i is an indicator of a property and p is a property.]
+(1)  [Initialize.] i := SYM.
+(2)  [Enumeration symbol.] SNS(10).
+(3)  [Get Property] GETSYM; p:=SYM.
+(4)  [Unification status] if  i = DUS  then 
+      { if (SYM # DAC /\ SYM # DCO) then goto 8 else return }.
+(5)  [FIXing Notation] if i = DFS then
+     if SYM = DIF \/ SYM = DEF \/ SYM = DLF \/ SYM = DPF \/ SYM = DRF
+        \/ SYM = DCS then return.
+(6)  [second Roundfix symbol] if i = DCR then
+       if GET(SYM,KIND) = GRSYM then goto 8
+       else return.
+(7)  [Properties for external objects.]
+     if i = DXCO \/ i = DXIA \/ i = DXDA then return.
+(8)  [illegal Property] ERRORD(16,10); p:=() ||
+
+
+                    b:=SYMIOP(S)
+[Symbol in operator property.
+S is a symbol. Then b is true if S is a grammar symbol denoting an
+operator property. So far only the operator properties
+DUS & DFS & DCR are recognized.]
+(1)  [Initialize.] b:=TRUE.
+(2)  [Unification status] if S=DUS then return.
+(3)  [Fixing] if S=DFS then return.
+(4)  [ROUNDFIX 2nd Symbol] if S=DCR then return.
+(5)  [External objects.]
+     if S = DXCO \/ S = DXIA \/ S = DXDA then return.
+(6)  [Negative result.] b:= FALSE ||
+
+                    TPRS1(C,V,O,V^; F*,V^*)
+[Parse term with type checking, subalgorithm.
+C,  V,  O  are sets of constants, variables and operators, respectively.
+Then a term F*, subterm of some F is read from input. V^ is the  set  of
+all  variables  V  with  an  occurrence  in  F  less than F*. V^* is V^,
+augmented by the variables occurring in F* only. The  unique  represent-
+vation property for variables in F* is preserved. The first identifier of
+F* has already been read.]
+     safe C,V,O,k.
+(1)  [Initialize.] F*:=(); V^*:=V^.
+(2)  [(constant)]  e:=STOCC(SYM,C);
+       if e # () then {F*:=e; return};
+     [(variable)]
+     [Repeated occurrence.] e:=STOCC(SYM,V^);
+       if e # () then {F*:=e; return};
+     [First occurrence.] e:=STOCC(SYM,V); if e # () then
+       { t*:=TCONS((),e); V^*:=COMP(t*,V^*); F*:=t*; return }.
+(3)  [(operator)]
+     [infix \/ postfix \/ Lisp notation.]
+       if SYM = DOB then { TPRSIP(C,V,O,V^; F*,V^*); goto 4 };
+     [prefix \/ roundfix.]
+       e:=STOCC(SYM,O); if e # () then
+       { [External type.] if TKIND(e) = DXT then
+         { V^*:=V^; F*:=TXOPRS(e); return };
+         k := TGET(e,DFS);
+         [constant] if k = DCS then { F*:=TCONS((),e); return }
+         [roundfix] else if k = DRF then TPRSRO(C,V,O,V^; F*,V^*)
+         [prefix / default] else TPRSPR(C,V,O,V^; F*,V^*);
+       }.
+(4)  [error] if F*=() then { ERRSD(1,6,SYM); GETSYM; goto 1 } ||
+
+                     TPRSPR(C,V,O,V^; F*,V^*)
+[Parse term with type checking, in Prefix order subsubalgorithm.
+- Algorithm No. 12.
+C,  V,  O  are sets of constants, variables and operators, respectively.
+Then a term F*, subterm of some F is read from input. V^ is the  set  of
+all  variables  V  with  an  occurrence  in  F  less than F*. V^* is V^,
+augmented by the variables occurring in F* only. The  unique  represent-
+vation property for variables in F* is preserved. The first identifier of
+F* has already been read i.e. the operator symbol]
+
+(1)  [Init] e:=STOCC(SYM,O); F*:=(); V^*:=V^;
+     Y:=ODTYPE(e); U:=TUSTAT(e).
+(2)  [Opening bracket] SOB(6); GETSYM; k:=GET(SYM,KIND).
+(3)  [(identifier)] if (k=IDENT \/ k=XIDNT \/ k=INT \/ SYM = DOB)
+                        /\ Y # () then
+     { TPRS1(C,V,O,V^*; t*,V^*);
+       F*:=COMP(t*,F*); ADV(Y; y,Y);
+       if ~YCMPTB(y,TTYPE(t*)) then
+       { ERRSD(4,12,SYM); SYM:=TNAME(e); goto 1};
+     [(repeater,identifier)*] GETSYM; b2:=FALSE;
+       while SYM=DRS  /\ Y # () do
+       { GETSYM;
+         TPRS1(C,V,O,V^*; t*,V^*); F*:=COMP(t*,F*);
+         if U = DAC then b2:=TRUE else ADV(Y; y,Y);
+         if ~ YCMPTB(y,TTYPE(t*)) then
+         { ERRSD(4,12,SYM); SYM:=TNAME(e); goto 1};
+         GETSYM;
+       };
+     [unmatching domain type lists] if Y # () /\ ~b2 then
+       { ERRSD(5,12,SYM); SYM:=TNAME(e); goto 1 }
+     }.
+(4)  [Closing bracket] if SYM # DCB then
+       { ERRORD(7,12); SYM:=TNAME(e); goto 4 }.
+(5)  [Construct term.] if F*=() then F*:=e else
+       { F*:=INV(F*); F*:=TCONS(F*,e) } ||
+
+                     TPRSRO(C,V,O,V^; F*,V^*)
+[Parse term with type checking, in Roundfix order subsubalgorithm.
+- Algorithm No. 13.
+C,  V,  O  are sets of constants, variables and operators, respectively.
+Then a term F*, subterm of some F is read from input. V^ is the  set  of
+all  variables  V  with  an  occurrence  in  F  less than F*. V^* is V^,
+augmented by the variables occurring in F* only. The  unique  represent-
+vation property for variables in F* is preserved. The first identifier of
+F* has already been read.]
+
+
+(1)  [Init] e:=STOCC(SYM,O); V^*:=V^; Y:=ODTYPE(e); U:=TUSTAT(e);
+     GETSYM; F*:=(); if TGET(e,DCR) = SYM then goto 5.
+(2)  [Parse Argument List] TPRS1(C,V,O,V^*; t*,V^*);
+     F*:=COMP(t*,F*); ADV(Y; y,Y);
+     if ~ YCMPTB(y,TTYPE(t*)) then
+     { ERRSD(4,13,SYM); SYM:=TNAME(e); goto 1}.
+(3)  [(repeater,identifier)*] GETSYM; b2:=FALSE;
+     while SYM=DRS  /\ Y # () do
+     { GETSYM; TPRS1(C,V,O,V^*; t*,V^*);
+       F*:=COMP(t*,F*); if U = DAC then b2:=TRUE else ADV(Y; y,Y);
+       if ~ YCMPTB(y,TTYPE(t*)) then
+       { ERRSD(4,13,SYM); SYM:=TNAME(e); goto 1};
+       GETSYM
+     }.
+(4)  [unmatching domain type lists] if Y # () /\ ~b2 then
+       { ERRSD(5,13,SYM); SYM:=TNAME(e); goto 1}.
+(5)  [get closing operator symbol] if SYM # TGET(e,DCR) then
+       { ERRSD(13,13,TGET(e,DCR)); GETSYM; goto 5}.
+(6)  [all done] if F*=() then F*:=e else
+       { F*:=INV(F*); F*:=TCONS(F*,e)} ||
+
+
+                     TPRSIP(C,V,O,V^; F*,V^*)
+
+[Parse term with type checking, in Infix or Postfix order subsubalgorithm.
+C,  V,  O  are sets of constants, variables and operators, respectively.
+Then a term F*, subterm of some F is read from input. V^ is the  set  of
+all  variables  V  with  an  occurrence  in  F  less than F*. V^* is V^,
+augmented by the variables occurring in F* only. The  unique  represent-
+vation property for variables in F* is preserved.
+The Opening bracket has already been read.]
+
+(1)  [init] F*:=(); V^*:=V^.
+(2)  [Empty argument list.] GETSYM; if SYM = DCB then {t*:=(); goto 5}.
+(3)  [Lisp notation.] e:=STOCC(SYM,O); if e # () then
+     if TGET(e,DFS) = DLF then { TPRSLS(C,V,O,V^*; F*,V^*); return }.
+(4)  [Scan first argument.] TPRS1(C,V,O,V^*; t*,V^*); GETSYM.
+(5)  [operator symbol ?] e := STOCC(SYM,O);
+       [infix]           if e # () then TPRSIN(C,V,O,V^*,t*; F*,V^*)
+       [postfix]         else  TPRSPO(C,V,O,V^*,t*; F*,V^*) ||
+
+                     TPRSLS(C,V,O,V^; F*,V^*)
+[Parse term with type checking, in Lisp notation subsubalgorithm.
+- Algorithm No. 16.
+C,  V,  O  are sets of constants, variables and operators, respectively.
+Then a term F*, subterm of some F is read from input. V^ is the  set  of
+all  variables  V  with  an  occurrence  in  F  less than F*. V^* is V^,
+augmented by the variables occurring in F* only. The  unique  represent-
+vation property for variables in F* is preserved. The first identifier of
+F* has already been read i.e. the operator symbol]
+
+(1)  [Init] e:=STOCC(SYM,O); F*:=(); V^*:=V^; b2:=FALSE;
+     [External operator.] if TKIND(e) = DXT then 
+     { F*:=TXOPRS(e); return};
+     Y:=ODTYPE(e); U:=TUSTAT(e).
+(2)  [0-ary operator.] if Y = () then goto 5;
+     [Scan white-space.] b:=SWSP(); if ~b then goto 4.
+(3)  [1st argument.] GETSYM; TPRS1(C,V,O,V^*; t*,V^*); F*:=COMP(t*,F*);
+     ADV(Y; y,Y); if ~YCMPTB(y,TTYPE(t*)) then
+     { ERRSD(4,16,SYM); SYM:=TNAME(e); goto 1};
+     [(white-space,term)*] b:=SWSP(); while b /\ Y # () do
+      { GETSYM; if GET(SYM,KIND) = GRSYM then
+        if SYM = DCB /\ b2 then goto 6
+        else if SYM # DOB then { ERRORD(21,16); SYM:=TNAME(e); goto 1};
+        TPRS1(C,V,O,V^*; t*,V^*); F*:=COMP(t*,F*);
+        if U = DAC then b2:=TRUE else ADV(Y; y,Y);
+        if ~ YCMPTB(y,TTYPE(t*)) then
+        { ERRSD(4,16,SYM); SYM:=TNAME(e); goto 1};
+        b:=SWSP()
+      }.
+(4)  [Unmatching domain type lists] if Y # () /\ ~b2 then
+       { ERRSD(5,16,SYM); SYM:=TNAME(e); goto 1 }.
+(5)  [Closing bracket & construct term.] SCB(16).
+(6)  [Construct term.] if F* = () then F*:=e else
+     { F*:=INV(F*); F*:=TCONS(F*,e) } ||
+
+                    TPRSPO(C,V,O,V^,t'; F*,V^*)
+[Parse term with type checking, in Postfix order subsubsubalgorithm.
+- Algorithm No. 14.
+C,  V,  O  are sets of constants, variables and operators, respectively.
+Then a term F*, subterm of some F is read from input. V^ is the  set  of
+all  variables  V  with  an  occurrence  in  F  less than F*. V^* is V^,
+augmented by the variables occurring in F* only. The  unique  represent-
+vation property for variables in F* is preserved.
+t* is the 1st parameter of the posfix operator, still to be read.
+The opening bracket, the first Parameter and the repeat symbol have
+already been read. ]
+
+(1)  [init] V^*:=V^; F*:=(); Y':=();
+     if t' # () then {Y':= COMP(TTYPE(t'),Y'); F*:=COMP(t', F*)};
+     if SYM = DCB then goto 4.
+(2)  [(repeat symbol, next parameter)*] while SYM = DRS do
+       { GETSYM; TPRS1(C,V,O,V^*; t*,V^*);
+         F* := COMP(t*,F*);Y' := COMP(TTYPE(t*),Y');
+         GETSYM
+       }.
+(3)  [Get Closing Bracket] if SYM # DCB then
+       { ERRORD(7,16); GETSYM; goto 3 }.
+(4)  [Get operator] GETSYM; e:=STOCC(SYM,O);
+       if e = () then
+       { ERRSD(12,14,SYM); F*:=(); V^*:=V^; GETSYM; return }.
+(5)  [Check Fixing] if TGET(e,DFS) # DPF then
+       { ERRSD(11,14,SYM); F*:=(); V^*:=V^; GETSYM; return}.
+(6)  [Check Parameter Type List] if Y' # () then
+     { Y := ODTYPE(e);  y:=FIRST(Y); U:=TUSTAT(e); b2:=FALSE;
+       while (Y # () /\ Y' # ()) do
+       { if U = DAC then b2:=TRUE else ADV(Y; y,Y);
+         ADV(Y'; y',Y'); if ~YCMPTB(y,y') then
+         { ERRSD(4,14,SYM); F*:=(); V^*:=V^; GETSYM; return};
+       };
+       if ( Y # () /\ ~b2 ) \/ Y' # () then
+       { ERRSD(4,14,SYM); F*:=(); V^*:=V^; GETSYM; return}
+     }.
+(7)  [all done] if F*=() then F*:=e else
+     { F*:=INV(F*); F*:=TCONS(F*,e)} ||
+
+
+                     TPRSIN(C,V,O,V^,t'; F*,V^*)
+[Parse term with type checking, in Infix order subsubsubalgorithm.
+- Algorithm No. 15.
+C,  V,  O  are sets of constants, variables and operators, respectively.
+Then a term F*, subterm of some F is read from input. V^ is the  set  of
+all  variables  V  with  an  occurrence  in  F  less than F*. V^* is V^,
+augmented by the variables occurring in F* only. The  unique  represent-
+vation property for variables in F* is preserved.
+t* is the first Parameter of the Infix Operator.
+The opening bracket, the first Parameter and the operator have
+already been read.]
+
+(1)  [Test operator Fixing status]
+       e := STOCC(SYM,O);
+       if TGET(e,DFS) # DIF then
+       { ERRSD(10,15,e); F*:=(); V^*:=V^; GETSYM; return}.
+(2)  [Check 1st param type and append it]
+       Y := ODTYPE(e); U:=TUSTAT(e);
+       ADV(Y; y,Y); if ~YCMPTB(y,TTYPE(t')) then
+       { ERRSD(4,15,SYM); F*:=(); V^*:=V^; GETSYM; return};
+       V^*:=V^; F*:=(); F*:=COMP(t', F*).
+(3)  [Parse 2nd param]
+       GETSYM; TPRS1(C,V,O,V^*; t*,V^*); F*:=COMP(t*,F*).
+(4)  [Check 2nd param type]
+       ADV(Y; y,Y); if ~YCMPTB(y,TTYPE(t*)) then
+       { ERRSD(4,15,SYM); F*:=(); V^*:=V^; GETSYM; return}.
+(5)  [Closing bracket] if U # DAC then SCB(15) else
+     { GETSYM; while STOCC(SYM,O) = e do
+       { GETSYM; TPRS1(C,V,O,V^*; t*,V^*); F*:=COMP(t*,F*);
+         if ~YCMPTB(y,TTYPE(t*)) then
+         { ERRSD(4,15,SYM); F*:=(); V^*:=V^; GETSYM; return };
+         GETSYM
+       }; if SYM # DCB then { ERRORD(7,15); GETSYM; goto 5 }
+     }.
+(6)  [all done] F*:=INV(F*); F*:=TCONS(F*,e)||
+
+                    t*:=TXOPRS(f) 
+[Term with external top operator, parse.  -- Algorithm No. 18
+f is the name of an external operator which has already been scanned.
+Then the remaining term with top f is parsed and assigned to t^*.]
+
+(1)  [Opening bracket.] p:=TGET(f,DFS); if p=() \/ p=DEF then SOB(18).
+(2)  [Get extenral parse function.] y:=XOBTYPE(f); A:=GET(y,DXRA).
+(3)  [Read external object.] if A = () then [default] x:=UREAD() 
+     else x:=FCALL0(ALGIDNT(GET(A,DAK))).
+(4)  [Closing bracket.] if p=DRF then
+     { C:=TGET(f,DCR); 
+       repeat GETSYM(); if SYM # C then ERRSD(13,18,C) until SYM = C
+     } else  SCB(18).
+(5)  [Compose term.] t*:=TCONS(x,f) ||
+
+ 
+                    b:=YCMPTB(y1,y2)
+[Types, compatibility.
+y1 and y2 are types then b = TRUE if y1 and y2 are compatible. Otherwise
+b = FALSE. - In this implementation compatible means equal.]
+     safe YCMPTB.
+(1)  [Test.] if y1 = y2 then b:=TRUE else b:=FALSE||
+
+

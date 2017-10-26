@@ -1,0 +1,44 @@
+%%  comment symbol
+DATATYPE LIST;
+SORT
+        LIST, NAT;
+CONST
+        0: NAT;
+        []: LIST;
+VAR
+        A, B, C: NAT;
+        L, M, N: LIST;
+OPERATOR
+        cons: LIST, LIST -> LIST;
+        ': NAT -> LIST;
+        s: NAT -> NAT;
+        +: NAT, NAT -> NAT;
+        <: NAT, NAT -> LIST;  %%  pair
+        |: LIST -> NAT;       %%  length
+NOTATION
+        cons: LISP;
+        s: FUNCTION;
+        <: ROUNDFIX >;
+        |: ROUNDFIX |;
+        %% default +: INFIX, ': PREFIX
+ASSOC
+        +: RIGHT;
+PREC
+        ' < +;
+EXTERNAL
+   SAC2INT:  XREAD=IREAD,  XWRITE=IWRITE,  XEQ=EQUAL, XLT=ICOMP;
+COERCION
+   ": SAC2INT -> NAT;
+NOTATION
+   ": ROUNDFIX ";
+PROPERTY
+   0: XINT=ALDESZERO;
+   +: XINT=ISUM;
+AXIOM
+   [1] |[]| == 0;
+   [2] |'A| == s(0);
+   [3] |(cons L M)| ==  s(|M|);
+   [4] <A,B> == (cons 'A 'B);
+   [5] |(cons 'A+B+C L)| == s(|L|);
+END
+

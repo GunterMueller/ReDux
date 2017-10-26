@@ -1,0 +1,125 @@
+[----------------------------------------------------------------------]
+[- This file contains routines to fix precedence and associativity in -]
+[- terms.                                                             -]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                   t':=FXPRAS(t)
+[Fix associativity and precedence.  t and t' are terms.
+ According to the grammer infix operators are always left
+ associative and have a lower precedence than postfix
+ and prefix operators, and postfix operators dominate over 
+ prefix operators. t' fixes the term, so that precedence
+ and associativity of all pre-, post- and infix operators
+ is considered. t is destroyed.
+ External terms always have highest precedence.]
+(1) [init] t':=t.
+(2) [term in brackets] if TSIGN(t')=TSIGN(DBS) then
+    { OARGLST(t'):=FXPRAS(OARGLST(t')); return };
+    [trivial case] if TKIND(t')#DOS then return.
+(3) [fix subterms]
+    SL:=OARGLST(t'); while SL#() do
+    { st:=FIRST(SL); FIRST(SL):=FXPRAS(st); SL:=RED(SL) }.
+(4) [consider only pre-, post- and infix operators]
+    f:=TGET(t',DFS); if f#DEF /\ f#DIF /\ f#DPF then return.
+(5) [top operator is prefix or postfix]
+    if f#DEF /\ f#DPF then goto 7;
+    st:=FIRST(OARGLST(t')); k':=TKIND(st);
+    if k'#DOS then return; f':=TGET(st,DFS);      [no operator]
+    if f'#DEF /\ f'#DIF /\ f'#DPF then return;   [wrong fixity]
+    if f=f' then return;                          [same fixity]
+    p:=TGET(t',DOP); sp:=TGET(st,DOP);
+    if p=() \/ sp=() then return;          [no prec. specified]
+    if sp >= p then return.                          [prec ok.]
+(6) [fix and recursion]
+    t'':=t'; t':=st; FIRST(OARGLST(t'')):=FIRST(OARGLST(st));
+    FIRST(OARGLST(st))=t''; goto 3.
+(7) [top operator is infix]
+    lst:=FIRST(OARGLST(t')); rst:=SECOND(OARGLST(t')).
+(8) [left operand]
+    k':=TKIND(lst); if k'#DOS then goto 10; f':=TGET(lst,DFS);
+    if f'#DEF /\ f'#DIF then goto 10;
+    p:=TGET(t',DOP); lp:=TGET(lst,DOP);
+    if p=() \/ lp=() then { p:=0; lp:=0 }; [no prec. specified]
+    if lp > p then goto 10;                          [prec. ok]
+    if lp = p then
+    { [same precedence]
+      [left operand is prefix]
+      if f'=DEF then goto 10;           [prefix binds stronger]
+      [left operand is infix]
+      a:=TGET(t',DOA); la:=TGET(lst,DOA);
+      [same AC infix operators]
+      if TUSTAT(t')=DAC /\ TSIGN(t')=TSIGN(lst) then goto 10;
+      [no assoc. specified?]
+      if a=() then a:=DNA; if la=() then la:=DNA;
+      [normal operator]
+      if a=DLA /\ la=DRA \/ a=DRA /\ la=DLA then 
+      { SEMWRN(0, (t',lst)); goto 10; };
+      if a=DNA /\ la=DNA then { SEMWRN(1, (t')); goto 10; };
+      if la=DLA \/ a=DLA then goto 10;              [assoc. ok]
+    }.
+(9) [fix and recursion]
+    t'':=t'; t':=lst;
+    if f'=DEF then { FIRST(OARGLST(t'')):=FIRST(OARGLST(lst));
+      FIRST(OARGLST(lst)):=t'' }
+    else { FIRST(OARGLST(t'')):=SECOND(OARGLST(lst));
+      SECOND(OARGLST(lst)):=t'' };
+    goto 3.
+(10) [right operand] 
+     if TKIND(rst)#DOS then return; f':=TGET(rst,DFS);
+     if f'#DIF /\ f'#DPF then return;
+     p:=TGET(t',DOP); rp:=TGET(rst,DOP);
+     if p=() \/ rp=() then { p:=0; lp:=0 };[no prec. specified]
+     if rp > p then return;                          [prec. ok]
+     if rp = p then
+     { [same precedence]
+       [right operand is postfix]
+       if f'=DPF then return;           [postfix binds stronger]
+       [right operand is infix]
+       a:=TGET(t',DOA); ra:=TGET(rst,DOA);
+       [same AC infix operators]
+       if TUSTAT(t')=DAC /\ TSIGN(t')=TSIGN(rst) then return;
+       [no assoc. specified?]
+       if a=() then a:=DNA; if la=() then la:=DNA;       
+       if a=DLA /\ ra=DRA \/ a=DRA /\ ra=DLA then
+       { SEMWRN(0, (t',rst)); return };
+       if a=DNA /\ ra=DNA then { SEMWRN(1, (t')); return };
+       if a=DRA \/ ra=DRA then return;              [assoc. ok]
+     }.
+(11) [fix and recursion]
+     t'':=t'; t':=rst;
+     SECOND(OARGLST(t'')):=FIRST(OARGLST(rst));
+     FIRST(OARGLST(rst)):=t'';
+     goto 3 ||
+
+
+              t':=TRMBSO(t)
+[Term, remove bracket signature objects.  t and t' are terms.
+ t' is constructed from t by removing all bracket signature
+ objects.]
+(1) [top operator] t':=t;
+    if TSIGN(t')=TSIGN(DBS) then t':=OARGLST(t');
+    if TKIND(t')#DOS then return.
+(2) [subterms] stl:=OARGLST(t'); while stl#() do
+    { st:=FIRST(stl); s':=TRMBSO(st); FIRST(stl):=s';
+      stl:=RED(stl) } ||
+
+
+              FLATAC(t)
+[Flatten AC infix operators in term.
+ t is a term. If there are adjacent subterms which have the
+ same AC infix operator, they are merged.]
+(1) [trivial case] if TKIND(t)#DOS then return.
+(2) [subterms] stl:=OARGLST(t); while stl#() do { st:=FIRST(stl);
+      FLATAC(st); FIRST(stl):=st; stl:=RED(stl) }.
+(3) [top operator] if TGET(t,DFS)#DIF \/ TUSTAT(t)#DAC then
+      return.
+(4) [try to merge] 
+    sg:=TSIGN(t); stl:=OARGLST(t); l':=(); while stl#() do
+    { ADV(stl; st,stl); if TSIGN(st)=sg then 
+      [merge] l':=CONC(l',OARGLST(st)) else l':=SUFFIX(l',st) };
+    OARGLST(t):=l' ||

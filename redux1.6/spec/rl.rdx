@@ -1,0 +1,18 @@
+DATATYPE RL;
+SORT
+	RL;
+CONST
+	0: RL;
+VAR
+	A, B, C: RL;
+OPERATOR
+	+: RL, RL -> RL;
+	I: RL -> RL;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+[1] +(A,0)==A;
+[2] +(I(A),A)==0;
+[3] +(+(A,B),C)==+(A,+(B,C));
+END
+; This file is   RL.TYP

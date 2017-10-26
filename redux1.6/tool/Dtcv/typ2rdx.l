@@ -1,0 +1,1 @@
+../../man/manl/typ2rdx.l

@@ -1,0 +1,416 @@
+\section{The AC-Rewrite Laboratory}
+\subsection{Program Start}
+The AC-rewrite laboratory allows the user to experiment with
+a data type that may contain commutative and/or 
+associative and commutative operators.
+As all \redux\  demo programs, {\tt ac} reads an algebra specification
+and shows it to the user.
+
+After the initial data type has been printed, the program
+may extend the data type with {\em AC-extension rules} to
+ensure its AC-compatibility \cite{PetersonStickel:81}.  
+When a data type is displayed later during the program, each of the additional
+AC-extension rules is printed under the corresponding main axiom:
+\begin{quote}
+\begin{verbatim}
+ [2] +(I(X),X) == 0;
+  AC-ext: +(x,I(X),X) == x;
+\end{verbatim}
+\end{quote}
+(Note that the left-hand side of the AC-extension rule is printed
+in flattened form.)
+%### Die Beispiele wurden mit spec/ac/acring1.rdx gemacht.
+
+\subsection{The Main Menu}
+Then the program displays the main menu: 
+
+\begin{quote}
+\begin{verbatim}
+You have the following choices: 
+  u - unify two terms 
+  m - match two terms 
+  e - test equality of two terms 
+  n - normalize a term
+  x - compute an external term
+  t - set/unset trace options
+  d - display data type
+  c - compute critical pairs
+  k - run (AC)-Knuth-Bendix completion procedure
+  p - prove equational theorem
+  i - de/install term ordering
+  s - select term ordering
+  o - order axioms of data type
+  O - order axioms
+  S - show times and counters
+  r - reset times and counters
+  h - help, print menu
+  q - quit
+Go on [u/m/e/n/x/t/d/c/k/p/i/s/o/O/S/r/h/q]?  *
+\end{verbatim}
+\end{quote}
+
+If one of the menu items ``unify'', ``match'', ``test equality of two terms''
+or ``prove equational theorem''
+have been chosen previously, for each of the former three items an additional
+item indicated by an upper case letter is displayed. These
+items perform the same task as the original menu items, but they 
+do not read two terms from the keyboard but use the previously
+entered terms. Hitting $\langle$return$\rangle$ without any preceding
+letters will do the same as menu item {\tt h}.
+
+\begin{itemize}
+\item {\bf Unify Two Terms (u)}\\
+The user is prompted to enter two terms.
+If the terms are unifiable modulo the unification states specified
+in the algebraic specification, 
+the program prints the most general
+unifier (mgu) and the most general common instance (mgci) of the two 
+terms. The mgu is printed as one or more substitutions. (If 
+AC-operators or commutative operators are involved, there may be more
+than one possible
+substitution.) Each substitution is printed as a set of domain variables
+and the corresponding terms that replace that variables:
+\begin{quote}
+\begin{verbatim}
+mgu( +(0,1) , +(X,Y) )  mod AC :
+{ X <- 1, Y <- 0, x <- 1, x_1 <- 0 }
+{ X <- 0, Y <- 1, x_2 <- 1, x_3 <- 0 }
+ 
+mgci(+(0,1),+(X,Y)) mod AC :
++(0,1)
+\end{verbatim}
+\end{quote}
+The variables \verb/x/, \verb/x_1/, \verb/x_2/ and \verb/x_3/ are
+auxiliary variables. In this example they can be ignored by the user,
+but it is possible that a variable is substituted by a term containing 
+an auxiliary variable.
+
+If the terms are not unifiable, this is printed explicitly.
+
+\item {\bf Match Two Terms (m)}\\
+This item allows the user to match two terms modulo the unification
+states, i.\,e.\  the
+program attempts to find an instance of the first term which equals the
+second term modulo the unification states.
+If the first term matches the second one, the matching substitutions
+are displayed.  They are printed like the mgu, namely as one or more sets of
+domain variables and corresponding terms.
+
+If the first term does not match the second one, this is printed
+explicitly.
+
+\item {\bf Test Equality of Two Terms (e)}\\
+The user is prompted to enter two terms $t_1$ and $t_2$. Then the program 
+prints a message like $t_1$ \verb/=/ $t_2$ if the terms are equal modulo
+the unification states or $t_1$ \verb/#/ $t_2$ if the terms are not equal.
+
+\item {\bf Normalize a term (n)}\\
+The user must enter a term. Then the program 
+computes the corresponding normal form according to the current data 
+type.
+Normal forms of terms with unification states are equivalence classes
+of terms modulo the unification states.
+The normalization procedure computes a representative of this
+equivalence class.
+
+This representative can be equal to the entered term if no axiom in
+the data type can be applied to the term.
+
+\item {\bf Compute an External Term (x)}\\
+The user is asked to enter a (mixed) term. A copy of that term is
+first normalized and then computed (see Section~\ref{ExternalObjects}).
+Another copy is first computed and then normalized.
+
+\item {\bf Set/Unset Trace Options (t)}\\
+This item allows the user to select the traces in the {\tt ac} program,
+namely the formula reduction trace, the critical pair trace and the 
+procedure name trace. A description of these traces can be found in 
+Appendix~\ref{Traces}.
+
+After the traces have been selected, the program allows the user to
+change the term write mode. The term write mode is described by 10
+flags. 
+They are explained in 
+Appendix~\ref{ap:output} and in
+{\em A New Parser for \redux\  --- User Guide}
+in the section about the parser demo program. 
+
+\item {\bf Display Data Type (d)}\\
+The program displays the current data type. If the Knuth-Bendix
+completion procedure has been applied or AC-extension rules have been
+computed, the current data type may be different from the initial data
+type that was fed in at the program start.
+
+\item {\bf Compute Critical Pairs (c)}\\
+The user is prompted to enter the numbers of two axioms in the data
+type. If an axiom (two terms separated by {\tt ==}) shall be read from
+the terminal instead of taken from the data type, zero must be entered
+instead of an axiom number.  The the user must decide if the computed
+critical pairs are to be normalized w.\,r.\t.\ the current data type
+before they are displayed.
+
+Then the program computes all critical pairs between the two given
+axioms.
+The computed critical pairs are printed, together with their origins and their
+weights. 
+
+\item {\bf Run (AC)-Knuth-Bendix Completion Procedure (k)}\\
+See Section~\ref{AC-KBCompletion} for a description of the
+AC-Knuth-Bendix completion. A term ordering must be installed and selected
+if the Knuth-Bendix algorithm shall be used in automatic mode.        
+
+\item {\bf Prove Equational Theorem (p)}\\
+This item allows to check if an axiom is an equational consequence of
+the current data type. The user is asked to enter an axiom (two terms
+separated by {\tt ==}). Then the program computes representatives of
+the normal forms for the two terms of the axiom and investigates if the
+resulting terms are equal modulo the unification states.  The result of
+this comparison is printed.  If the terms are equal, the program
+displays a representative of the normal form, otherwise both normal
+forms are displayed.
+
+To yield a reasonable result, the current data type must be canonical
+before this menu item is called.
+
+\item {\bf (De-)Install Term Ordering (i)}\\
+This item allows the user to install or de-install term orderings. See 
+Section~\ref{InitializationOfOrderings} for more information on the
+term orderings.
+
+\item {\bf Select Term Ordering (s)}\\
+The user can select a lexicographical combination of the installed
+term orderings and the straight and reverse pseudo orderings.
+To install term orderings, use the previous menu item.
+
+\item {\bf Order Axioms of Data Type (o)}\\
+This item allows the user to order the axioms of the data type 
+according to the selected ordering.
+
+\item {\bf Order Axioms (O)}\\
+This item allows to order an arbitrary axiom that is entered by the user.
+The axiom must be entered in the form $l${\tt ==}$r$, where $l$ and $r$
+are the left-hand side and the right-hand side of the axiom. $l$ and $r$
+are two arbitrary terms built of the constants, variables and operators
+that have been defined in the data type.
+
+\item {\bf Show Times and Counters (S)}\\
+The counters (number of matches, reductions and unifications) and the 
+the timers (cpu-time used so far, cpu-time spent for matching,
+reduction and unification) are displayed.
+The reduction time includes the matching time, so the sum
+of the three latter times is greater than the cpu-time spent so far.)
+
+\item {\bf Reset Times and Counters (r)}\\
+The counters and timers are reset, either altogether or selectively.
+
+\item {\bf Help, Print Menu (h)}\\
+This item prints the main menu. It can be useful if the program
+displays the short form (see Section~\ref{ShortMainMenu}) of the main menu.
+The same action is performed if only $\langle$return$\rangle$ is struck.
+
+\item {\bf Quit (q)}\\
+The program can be stopped by selecting this menu item.
+\end{itemize}
+
+\subsection{Running the Peterson-Stickel Procedure}
+\label{AC-KBCompletion}
+By choosing the menu item ``run (AC)-Knuth-Bendix completion procedure'',
+the user can run the Peterson-Stickel 
+AC-completion procedure given in \cite{PetersonStickel:81}.
+First the user is asked if a subset of the data type is known to be
+canonical. 
+In this case, the first phase of the completion procedure can be omitted.
+If the user answers with {\tt y}, he must enter a list
+consisting of the axiom numbers of the axioms known to be canonical.
+The list is entered as a comma-separated sequence of numbers
+and ranges (two numbers separated by a minus sign) within
+a pair of parentheses, i.\,e., {\tt (1-4,7)} is a correct list
+specification if the data type contains at least 7 axioms. 
+When the list has been entered, the program asks if the rule priority
+should be preserved.
+If the rule priority is preserved, the axioms known to be canonical are
+put in the list of rewrite rules in the order of their occurrence in
+the data type, otherwise they are sorted according to their left-hand
+side's size.\footnote{The order of the axioms determines their priority
+in the normalization process.}
+
+Then the user must specify the completion strategy control parameters.
+To describe the completion strategy control parameters we give a sketch
+of the AC-completion procedure in Figure~\ref{fi:accmpl}.
+\input{accomplete}
+\begin{quote}
+\begin{verbatim}
+Select completion strategy control parameters.
+Do you wish to use
+  d - default settings, 
+      (or previous settings for symmetrization resp.)
+  q - a quick query or
+  v - a verbose query? 
+Enter your choice [d/q/v]. *
+\end{verbatim}
+\end{quote}
+\begin{itemize}
+\item
+If the {\bf verbose query} is selected, the program prints a question
+for each of the parameters.
+\begin{itemize}
+ \item The user may determine whether he wants to orient rules manually
+        or using the term ordering.
+       In the second case he can chose whether he wants to orient
+       non-orientable rules manual (and take advantage of the
+       display, trace and exit options) or automatically in step~5.
+       In step mode, each critical pair must be oriented manually. 
+       In automatic mode, the programs tries to orient critical pairs
+       and only if the ordering algorithms fail, the user is asked to
+       choose how to proceed. 
+       In strict automatic mode, non-orientable
+       critical pairs are put to the end of the critical pair queue.
+       The last option risks non-termination.
+ \item The user may determine whether the input equations shall be
+       selected first in step~5  or not.
+ \item The user may determine whether only the selected equation or
+        all equations in $\cal E$ shall be  kept normalized in step 2.
+ \item The user may determine whether collapsed rules are to be
+       considered for orientation with priority or whether they are 
+       to be inserted  into $\cal E$ using the standard strategy.
+ \item The user may choose to apply the subconnectedness criterion in
+       step~8 or not.
+ \item The user may choose to compute standard critical pairs or
+       generalized critical pairs \cite{Buendgen:94}.
+ \item The user may choose to delete subsumed critical pairs in step~11
+       or not.
+       Note that this is not compatible with the subconnectedness
+       criterion of step~8. So steps 8 and 11 may not be used
+       simultaneously.
+
+\end{itemize}
+
+\item
+In the {\bf quick query}, the same information as in the verbose query
+must be entered, but in a more compact format: The input consists of a
+list of 7 numbers.  The first number is 0 if the the completion shall
+run in step mode, 1 if it shall run in automatic mode, and 2 if it
+shall run in strict automatic mode. The other numbers are 1 if the
+corresponding question was answered by ``yes'', 0 otherwise.
+(The control parameters are printed in the compact format at the
+beginning of the completion.)
+
+\item
+By choosing the {\bf default settings}, the completion control parameters
+are set to (1,1,1,0,1,0,0).
+\end{itemize}
+
+After those parameters have been entered, the completion begins.  The
+interactive input of the completion algorithm is similar to that of the
+conventional Knuth-Bendix algorithm. Therefore
+Section~\ref{KBCompletion} may be referred to for more detailed
+information on the completion process.
+
+In contrast to the other completion algorithms in the \redux\  system, the
+fertilization procedure is implemented in this algorithm.  It can be
+selected by typing {\tt f} when the program asks how to orient an axiom
+or theorem.
+
+If the fertilization was selected, the user must first orient the
+considered critical pair:
+\begin{quote}
+\begin{verbatim}
+ How do you want to orient the following critical pair
+( 0 and  2) ( 0)  +(I(X),X) == 0
+      A - automatic ordering
+      S - straight
+      R - reverse
+      Q - quit fertilization
+ Input character [A/S/R/Q]:  *
+\end{verbatim}
+\end{quote}
+He can choose to orient the critical pair straight or reverse.  If a
+term ordering has been selected, this ordering can be applied by typing
+{\tt A} or {\tt a}.  {\tt Q}/{\tt q} stops the fertilization process.
+
+If the critical pair was extended with an AC-extension rule to ensure
+AC-compatibility, the user can choose if he wants to use the unextended
+rule, the extension rule or both rules to compute critical pairs.  He
+can also leave the fertilization procedure by typing {\tt 0}:
+
+\begin{quote}
+\begin{verbatim}
+ The critical pair is turned into a rule with extension rule:
+ [0] +(I(X),X) == 0;
+  AC-ext: +(x,I(X),X) == x; Which of the following shall be used for
+critical p
+air computation?
+      1 - only unextended rule
+      2 - only extension rule
+      3 - both
+      0 - quit fertilization
+ Input number [0-3]:  *
+\end{verbatim}
+\end{quote}
+
+Then the user must choose the number of the (new) axiom with which critical 
+pairs shall be created.
+A list of all axioms can be obtained by typing {\tt -1}.
+If {\tt -2} is entered, the program computes the intrinsic critical
+pairs, i,\,e.~the critical pairs that can be obtained by matching
+the left-hand side of the considered rule with itself.
+The fertilization can be quit by typing {\tt 0}.
+\begin{quote}
+\begin{verbatim}
+ Which axiom do you want to create critical pairs with?
+       n -  Axiom number n
+      -1 -  List axioms
+      -2 -  Intrinsic pair
+       0 - quit fertilization
+ Input integer:  *
+\end{verbatim}
+\end{quote}
+
+Now the program tries to create critical pairs between the given
+rules.  If no unresolvable critical pair can be created, the user must
+choose another axiom to create critical pairs with, otherwise he must
+select one of the created critical pairs:
+
+\begin{quote}
+\begin{verbatim}
+ 2 critical pairs were created.
+ Choose a critical pair in order to continue the
+ completion with! You have the following choices: 
+       T - Take the presented critical pair
+       N - go on to Next critical pair
+       S - Skip 5 critical pairs
+       H - Help, this menu
+       Q - Quit fertilization
+ Beginning presentation.
+ Presenting  ( 0 and  0) ( 0)
+                  x == I(I(x))
+ Input choice [T)ake, N)ext, S)kip, H)elp, Q)uit]  *
+\end{verbatim}
+\end{quote}
+
+\begin{itemize}
+\item Take the presented critical pair (T/t)\\
+The considered critical pair is added to the list of theorems.  The
+program continues with the completion procedure. The next theorem that
+has to be oriented by the user is the chosen critical pair in the
+fertilization procedure.
+
+\item Go on to the next critical pair (N/n)\\
+The next of the created critical pairs is displayed, together with a
+short version of the menu above. If the last critical pair has been
+reached, the program continues with the first one.
+
+\item Skip 5 critical pairs (S/s)\\
+The next 5 critical pairs are displayed, together with the short
+version of the menu above. The user can select the fifth of the printed
+critical pairs.
+
+\item Help (H/h)\\
+The full menu is printed. This can be useful if the short version of
+the menu is displayed.
+
+\item Quit fertilization (Q/q)\\
+The fertilization procedure stops, the program continues with the
+completion procedure. The current theorem is the same as before the
+fertilization procedure.
+\end{itemize}

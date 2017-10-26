@@ -1,0 +1,95 @@
+[Project:  ReDuX Term Completion
+   module name        : TCKB0 -- Knuth-Bendix completion
+   modulespecification: Knuth-Bendix Completion without critical pair
+                        Variables are uniquely defined by their TCONT.
+                        Formerly tckb0u.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen [RB]
+   language           : aldes
+   last change        : 2.7.90
+                        $Date: 1995/07/24 08:13:31 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.15 $
+   bugs               : none known
+   modules needed     : sac2/ba, sac2/sy, sac2/lp
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+     const
+     TNORM(T,A)=TIREDS(T,A).
+               [TNORM computes a normal form of term T under
+                 the set of axioms A.]
+  
+[--------------------------------------------------------------------- 
+     section 1.                                                         
+     The Knuth-bendix algorithm.                                        
+-----------------------------------------------------------------------]
+                                                                       
+                    D*:=DTKB(D~,O)                                     
+[Data type, Knuth-Bendix completion procedure.       
+D~  is  a data type. O is a string. It determines which orderings
+will be used during the completion process automatically.
+Empty string means no automatic ordering.
+Then, if the algorithm terminates, the term rewriting system of D* is 
+such that all critical pairs are confluent. D~ is destroyed.  The Knuth-
+Bendix ordering is accessible. If it is used for ordering  of the axioms  
+in D*, then, upon termination, the rewrite system of D* is confluent.
+ local variables:
+ (1) queues: Q1: old axioms, Q2: unoriented crit. pairs, 
+             Q3 delayed crit. pairs
+ (2) statistics: s1 = |Q1|, s2 = |Q2|, s3 = |Q3|,
+                 S0 statistic list of s1+s2+s3 for every loop.]                                                            
+     safe N~*,C~*,V~*,F~*,M,V,N,n,n1,n2,C^.
+     safe s0,s'0,s1,s2,s3.
+(1)  [Initialize.] DTDIS(D~; N~*,C~*,V~*,F~*,A); MINIT0(N~*);
+     [Init rules.] A*:=(); [Next rule number.] n:=1;
+     [Init global timers.] UTI:=0; RTI:=0; MTI:=0; CTI:=0; STI:=0; 
+     OTI:=0; [Init global counters.] CC:=0; UC:=0; MC:=0; RC:=0;
+     [Init queues.] Q1:=A; Q2:=(); Q3:=();
+     [Init statistics.] s1:=0; s2:=0; s3:=0; S0:=().
+(2)  [Set trace options and step mode.] AUTOM:=QCTS0().
+(3)  [Terminate successfully.] if Q1=() /\ Q2=() /\ Q3=() then
+     { MEXIT(N~*,(),S0); D*:=D~; DTAX(D*):=A*; return }.
+(4)  [Select m=n.] if Q1 # () then
+     {ADV(Q1;a,Q1); ADIS(a;n2,M,V,N,n1); a:=CPCONS(M,N,0,n2,())} else
+     if Q2 # () then
+      {ADV(Q2; a,Q2); M_:=CPLHS(a); N_:=CPRHS(a); s2:=s2-1; go to  6}
+     else {ADV(Q3; a,Q3); s3:=s3-1}.
+(5)  [Normal forms.] MCPC(a); M:=CPLHS(a); N:=CPRHS(a);
+     M_:=TNORM(M,A*); N_:=TNORM(N,A*);
+     if TEQU(M_,N_) then {MCPDEL(a); go to  3};
+     CPLHS(a):=M_; CPRHS(a):=N_.
+(6)  C^:=QCA(n,a,D~,A*,Q2,O);
+     if C^='S' then TRPCVS(M_,N_; L,R,V*);
+     if C^='R' then TRPCVS(N_,M_; L,R,V*);
+     if C^='B' then {s3:=s3+1; Q3:=SUFFIX(Q3,a); go to  4};
+     if C^='Q' then {s2:=s2+1; Q2:=SUFFIX(Q2,a); go to  4};
+     if C^='F' then { MSSUIF; goto 6 };
+     if C^='E' then { D*:=D~; DTAX(D*):=A*; STAPRT(INV(S0)); return };
+     a:=ACONS(n,L,V*,R).
+(7)  [Reduce old axioms and remove offspring.] ALPUR(A*,a; A*,CP);
+      MASCLR(CP,n); CP:=INV(CP); CPLCCA(Q2,CP; Q2,s'0);
+      s2:=s2-s'0; Q1:=CONC(Q1,CP);
+     [Reduce old pairs.] CPLCLR(Q2,a; Q2,CP); A*:=COMP(a,A*); C^:=CP;
+     CPOLNF(C^,A*; CP,s0,s'0); Q2:=LOISE(Q2,CP,s'0);s2:=s2-s0+s'0;
+     [New unconnected pairs.] A*:=RED(A*); CP:=ASCPS(A*,a);
+     A*:=ALINS(A*,a);
+     [Immediate reduction.] C^:=CP; CP:=(); CPNLNF(C^,A*; CP,s0,s'0);
+     [Statistics.] if s0 > 0 then {MCPSC(s0,n); s1:=s1+s0;
+      MCSCLR(s'0); s2:=s2+s'0}; s0:=s2+s3; S0:=COMP(s0,S0);
+      MSTAT(s1,s0);
+     [Add new pairs.] Q2:=LOISE(Q2,CP,s'0);
+     CP:=(); n:=n+1; go to  3 ||
+
+[---------------------------------------------------------------------
+     section 3.
+     Message handling.
+----------------------------------------------------------------------]
+
+                    MINIT0(N)
+[Message on initialization.]
+(1)  BLINES(1); STOUTL("Knuth-Bendix algorithm.");
+     STOUTL("[$Revision: 1.15 $]"); 
+     CLOUT("Beginning completion of "); SWRT(N);
+     STOUTL("-data-type."); BLINES(1) ||

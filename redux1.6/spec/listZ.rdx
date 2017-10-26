@@ -1,0 +1,37 @@
+%%  comment symbol
+DATATYPE LIST;
+%%  STATUS completed
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION List(Z): cons, app, length
+%%  ORIGIN  folkore
+SORT
+	INT, LIST;
+CONST
+	0: INT;
+	nil: LIST;
+VAR
+	A, B, C: INT;
+	L, M, N: LIST;
+OPERATOR
+	s: INT -> INT;
+	p: INT -> INT;
+	+: INT, INT -> INT;
+	@: LIST, LIST -> LIST;	%%  append 
+	[: INT, LIST -> LIST;	%%  cons
+	|: LIST -> INT;	%%  length
+NOTATION
+	s, p: FUNCTION;
+	+, @: INFIX;
+	[: ROUNDFIX ];
+	|: ROUNDFIX |;
+AXIOM
+   [1] (nil @ L) == L;
+   [2] ([ A,L ] @ M) == [ A,(L @ M) ];
+   [3] s(p(A)) == A;
+   [4] p(s(A)) == A;
+   [5] (0 + A) == A;
+   [6] (s(A) + B) == s((A + B));
+   [7] (p(A) + B) == p((A + B));
+   [8] | nil | == 0;
+   [9] | [ A,L ] | == s(| L |);
+END

@@ -1,0 +1,7 @@
+1i\
+define(`exists', `syscmd(test -r $1)sysval')\
+define(`first_component',`ifelse(index($1,:),-1,$1,substr($1,0,index($1,:)))')\
+define(`rest_component',`ifelse(index($1,:),-1,,substr($1,eval(1+index($1,:)),len($1)))')\
+define(`fullname',`ifelse(first_component($1),,,ifelse(exists(first_component($1)/$2),0,first_component($1)/$2,`fullname(rest_component($1),$2)'))')\
+define(`path_include',`include(fullname($1))')
+s/^\[\ *\#include\ *\"*\([A-Za-z][A-Za-z0-9]*\.h\).*\]/path_include(INCLUDE_PATH,\1)/

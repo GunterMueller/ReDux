@@ -1,0 +1,157 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICIP -- inductively complete sets of positions
+   modulespecification: algorithms to gather  the inductively comlete   
+                        sets of a term. Uses TAPUWR instead of APUWR
+                        from Module icgr1.
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last changes       : 04.06.87  22.07.88
+                        19.9.92 uses UCTWR based on [BK89]
+                        $Date: 1994/12/22 09:13:21 $
+                        by $Author: buendgen $
+   version            : formerly icip1
+                        $Revision: 1.2.1.4 $
+   bugs               : non known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        redux/ax, redux/co, redux/tp, redux/tc
+]                                                                      
+                                                                       
+[ #include tp.h ]
+[ #include globs.h ]
+
+[In this module the following complex data structures are used:        
+An S-LIST is a list (x1, sx1, x2, sx2, ..., x sub n, sx sub n) where   
+         the x sub i are variables and the sx sub i are terms not     
+         containing x sub i. An S-LIST is used to describe a            
+         substitution.                                                  
+An SR-LIST is a list ((S1, r1), ...,(S sub n, r sub n)) where the S  
+         sub i are S-LISTs and the r sub i are rules.                
+A PS-LIST is a list ((p1, SR1), ..., (p sub n, SR sub n)) where the 
+         p sub i are terms and the SR sub i are SR-LISTs. The p sub   
+         i are refered to as the positions of the PS-LIST. PS-LISTs are
+         used to list a set of position of a term associated with all   
+         unifyers found by unifying the positions with rules.           
+An IC-LIST is a list ((p1, ...,p sub n), (r1, ...,r sub m)) where  
+         the p sub i are terms, they are refered to as the positions  
+         of the IC-LIST and the r sub i are rules, the rules of the   
+         IC-LIST. An IC-LIST is used to denote an inductively complete  
+         set of positions together with the rules applicable at these   
+         positions.                                                     
+]                                                                      
+ 
+ 
+[--------------------------------------------------------------------  
+ 
+   Section 2   algorithms for export                                    
+ 
+--------------------------------------------------------------------]
+ 
+ 
+                    I:=ICPR(t,R,C,G)                           
+[Inducively complete sets of positions for rules.                      
+t is a term. R is a set of rules. C is a set of constructors. 
+G is a (pruned) top set tree.
+Then I = ((p sub 1, R sub 1),...,(p sub l, R sub l)) is a list of 
+IC-LISTs s.th. p sub i is a set of non-variable occurences of t, R sub i
+is a subset of R and t is ground reducible by R using p sub i with 
+R sub i. Furthermore, let (pp, rp) be such that t is ground reducible by
+R using pp with rp then there is an i s.th. P sub i is a subset of pp.]
+     safe l*.
+(1)  [Initialize.] I:=(); if PNTRC=1 then STOUTL("ICPR").
+(2)  [Find all substitutions to all positions.]                          
+     P*:=APUAP(t,R,C); if P*=() then return.
+(3)  [Find inductively complete singelton sets.] P*':=P*; P**:=();
+     while P*' # () do                                                 
+     {ADV(P*'; p*,P*'); if CETRC=1 then { TWRT(FIRST(p*)); WRITE };
+      R*:=UCTWR(SECOND(p*),G);
+      if R*=() then P**:=COMP(p*,P**)                                  
+      else I:=COMP(LIST2(LIST1(FIRST(p*)),R*),I)                   
+     }.
+(4)  [Find all other inductively complete sets of positions with rules.]    
+     L:=LIST1(()); l*:=LENGTH(P**); for l=2,...,l* do
+     { [Create list of length l]  L:=COMP((),L);
+      I:=APCUCT(L,L,P**,I,G);
+     }||                                                               
+ 
+[----------------------------------------------------------------------
+                                                                        
+   section 3     auxilliary algorithms for internal use                 
+                                                                        
+-----------------------------------------------------------------------]
+ 
+                    I*:=APCUCT(L,L*,M,I,G)                 
+[All possible combinations - unifyer completeness test.                
+L, M and L* are PS-LISTs s.th. each element of L is an element of M or 
+nil and L* is a k-th reductum of L where k < |L|. I is a  
+list of IC-LISTs.  G is a (pruned) top set tree.
+Then I* is a list of IC-LISTs 
+which contains I as a sublist plus the IC-LISTs which describe all the
+inductively complete sets s of positions at certain rules. With s is a  
+subset of the positions of M and the cardinality of s is equal to the   
+length  of L. The list L will be changed.]                             
+(1)  [Triv. Case.] if PNTRC=1 then STOUTL("APCUCT");
+     if L*=() then                                                     
+     {if IINCP(I,L)=FALSE then                                       
+      {i:=PSUCT(L,G); [i is IC-list.]
+       if i # () then I*:=CCONC(LIST1(i),I) else I*:=I       
+      }                                                                
+      else I*:=I;  return                                          
+     }.
+(2)  [Initialize.] L':=RED(L*); M':=M; I':=I.
+(3)  [Recursion.]  if LENGTH(M') < LENGTH(L*) then                     
+     { I*:=I'; return };
+     SFIRST(L*,FIRST(M')); M':=RED(M');
+     I':=APCUCT(L,L',M',I',G); goto 3||                    
+ 
+
+                    P*:=APUAP(t,R,C)                                   
+[All possible unifers at all positions.                                 
+t is a term and R is TRS. C is a list of constructors (operators and   
+constants). 
+Then P* is a PS-LIST s.th. each element is a position in t and an
+SR-LIST. Each SR-LIST in P* consists of lists (s sub i, r sub i) with s 
+is substitution sigma stored as S-LIST s.th. sigma is the restriction of 
+the mgu of the position p and the rule r sub i on var(position).]                                                        
+(1)  [Initialize.] t':=t; P*:=();
+     if PNTRC=1 then STOUTL("APUAP").
+(2)  [Triv.Cases.] k:=TKIND(t'); if k=DVS then
+     {  T':=VARBIND(t'); if T'=() then return else {t':=T'; goto 2}  };
+     if k # DOS then return.
+(3)  [Recursion.]  S:=TAPUWR(t',R,C); [S is an SR-list.]
+     if S # () then P*:=LIST1(LIST2(t',S)); T':=OARGLST(t');
+     while T' # () do 
+     { ADV(T'; t'', T'); P*':=APUAP(t'',R,C); P*:=CONC(P*,P*') } ||
+ 
+ 
+                    b:=IINCP(I,P*)                                    
+[List of IC-LISTs included in PS-LIST.                                 
+P* is a PS-LIST and I is a list (ic1, ..., ic sub n) of IC-LISTs ic   
+sub i then b = TRUE if there exists an ic sub i in I s.th. the set  
+of the positions of ic sub i is a subset of the set of the positions  
+of P*, otherwise b=FALSE.]                                              
+(1)  [Initialize.] I':=I; b:=FALSE; if PNTRC=1 then STOUTL("IINCP").
+(2)  while I' # () do                                                
+     {ADV(I'; i,I'); b:=TRUE; P:=FIRST(i); while P # () /\ b=TRUE do 
+      {ADV(P; p,P); b:=FALSE; P':=P*; while P' # () /\ b=FALSE do
+       { ADV(P'; p',P'); if p=FIRST(p') then b:=TRUE }                 
+      }; if b=TRUE then return                                         
+     } ||                                                               
+ 
+ 
+                    i:=PSUCT(P*,G)                             
+[PS-LIST unifyer completeness test.                                    
+P* is a PS-LIST. G is a top set tree.
+Then i is an IC-LIST s.th.  the positions of P* are the positions of i 
+and the rules of i are rules of P* s.th. the images of the substitutions 
+in P* associated with these rules match the set of all irreducible 
+ground instances described by the top set tree G if the set of the 
+substitutions of P* is 'inductively complete'  otherwise i is nil.]                                                  
+(1)  [Initialize.] P':=P*; S:=(); P:=();
+     if PNTRC=1 then STOUTL("PSUCT").
+(2)  [Collect SR-LISTs and positions of P*.]                             
+     while P' # () do                                                  
+     {ADV(P'; p',P'); p1:=FIRST(p');  P:=COMP(p1,P);
+      S:=CCONC(S,SECOND(p'));
+     }; if CETRC=1 then TLWRT(P).
+(3)  [Rules.] R*:=UCTWR(S,G);
+     if R* # () then i:=LIST2(P,R*) else i:=()||                     

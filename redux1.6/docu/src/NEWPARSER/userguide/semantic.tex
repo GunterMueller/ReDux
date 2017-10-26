@@ -1,0 +1,439 @@
+\section{Semantical Aspects}
+
+\subsection{The Semantics of Data Types}
+
+The semantics of the language defined above shall be described in the next
+paragraphs.
+This is done section by section, according to figure~\ref{dtgram1}.
+
+\begin{description}
+\item[Sort declarations:]
+By means of sort declaration, types are made available for the
+variable, constant, operator, etc. sections. It is necessary to declare
+all sorts, which are to appear later, before their first use.
+All sort names must be distinct, but sort names are not inserted into the
+data type's symbol list, so they are allowed as variable, constant, operator,
+etc. names as well.
+
+\item[External declarations:]
+This kind of declaration adds new external sorts to the data type, which are
+necessary to parse external objects. These objects comprise any \ALDES\ or 
+SAC-2 objects, such as lists, $\beta$-integers, long integers, polynomials, etc.
+Each external sort can be associated with a set of properties describing
+the interface to the external data type. The values these properties can be set to
+are algorithm names. What sort of algorithm has to follow a specific indicator
+and what it is used for is shown in the following:
+\begin{itemize}
+\item{{\bf XREAD:}} Name of a nullary function (or nullary procedure with
+three output parameters in case
+of polynomial input) to read an external object.
+\item{{\bf XWRITE:}} Name of a unary (or 3-ary in case of polynomials)
+procedure to write an external object.
+\item{{\bf XEQ:}} Name of a binary boolean function to test the equality
+of two external objects.
+\item{{\bf XLT:}} Name of a binary boolean function to test if the first
+of two external objects is less than the second one.
+\item{{\bf XFG:}} Name of a generator function -- for future use with
+                  built-in evaluation domains.
+\item{{\bf XTERM:}} Name of a decomposition function for external objects.
+                 -- for future use with built-in evaluation domains.
+\end{itemize}
+
+It is not checked whether or not the specified algorithm names are valid,
+i.e. whether the algorithms really exist. 
+It is within the responsibility of the user to ensure this.
+Wrongly used names may crash the demo programs!
+
+Each property should be specified at most once. Multiple definition of a property
+results in a warning and sets the indicated property to the value specified last.
+
+\begin{example}
+{\rm The following specifications allow the importation of SAC-2 lists,
+integers and integral polynomials, respectively.
+\begin{verbatim}
+EXTERNAL
+   SacList: XREAD=LREAD,  XWRITE=LWRITE, XEQ=EQUAL;
+   SacInt:  XREAD=IREAD,  XWRITE=IWRITE, XEQ=EQUAL;
+   SacPoly: XREAD=IPREAD, XWRITE=IPWRIT, XEQ=EQUAL;
+\end{verbatim}
+} % end roman
+\end{example}
+
+For external sort names the same restrictions as for normal sort names
+apply, namely that they must be distinct, but are allowed as e.g. 
+operator names. Though not recommended, external sort names may be
+chosen the same as sort names.
+
+\item[Constant declarations:]
+Constants are declared within the constant section of a data type
+specification by associating a sort (type) to each constant name.
+All constant names must be distinct and different from variable,
+operator and coercion operator names. The constants' sorts must not
+be external sorts.
+
+\item[Variable declarations:]
+Variable declarations are similar to constant declarations in the way
+that the same restrictions on variable names and sorts apply as for constant names.
+It should be avoided, though, to use underscores within variable names,
+because the underscore is used in the {\tt AXIOM}-section
+to indicate variable indices.\footnote{Variable indices are explained
+later in the paragraph about term semantic.}
+
+\item[Operator declarations:]
+Operator declarations consist of operator names together with the definition
+of arity, domain types and range type. The arity is specified implicitly
+by the number of domain types given. Domain types, as well as the range
+type, must not be external sorts. For operator names the same restrictions
+are valid as for constant or variable names. This includes that any
+operator name is not allowed as constant, variable or coercion operator
+name as well.
+
+\item[Coercion operator declarations:]
+Coercion operators allow the introduction of external objects into terms.
+A coercion operator is a unary operator whose argument (domain) type (external sort)
+has been specified in the {\tt EXTERNAL}-section and whose result (range) type
+is a normal type. The argument of a coercion operator is read and
+written using the procedures or functions specified via {\tt XREAD}
+and {\tt XWRITE} in the external sort declaration section.
+
+\item[Precedence declarations:]
+Precedence declarations offer a natural way to avoid parentheses in complex
+terms. This is achieved by assigning operators with higher precedence
+a greater binding power, thus resulting in unambiguous terms, even
+if parentheses are omitted.
+Precedence can be assigned to every infix, prefix or postfix operator
+with the exception of external prefix operators, i.e. prefix coercion operators.
+Coercion operators always obtain a higher precedence than all other
+infix, prefix or postfix operators.
+When no precedence is specified for an operator in a situation where
+term evaluation without precedence information is ambiguous, the following
+rule applies:
+\begin{quote}
+{\em Postfix operators bind stronger than prefix operators and
+prefix operators bind stronger than infix operators.}
+\label{precrule}
+\end{quote}
+
+Comma-separated operators within the precedence declaration section,
+as well as operators separated by {\tt =} are assigned the same precedence,
+whereas the left operator gets lower precedence than the right operator
+when the operators are combined using {\tt <}.
+Each precedence declaration list must contain at least one {\tt <}
+sign.
+It is not allowed to use an operator more than once for a precedence
+declaration.
+
+\begin{example}
+{\rm
+The operators {\tt f} and {\tt g} get lower precedence than {\tt h};
+{\tt +} and {\tt -}, which share the same precedence, get a lower
+precedence than {\tt *} and {\tt /} by using the following declaration:
+\begin{verbatim}
+PREC
+   f,g < h;
+   + = - < * = /;
+\end{verbatim}
+} % end roman
+\end{example}
+
+Internally, a precedence declaration assigns each operator in the specified 
+list a non-negative integer value. 
+Higher precedence values indicate higher binding power. 
+So a given precedence declaration can induce further unspecified precedence
+relations. 
+One way to avoid this, is to use only one list, thus constructing a total 
+order.
+
+
+\item[Associativity declarations:]
+Associativity rules are applied when a series of infix
+operators with same precedence is written without parentheses.
+In the associativity declaration section it is possible to assign to
+an infix operator left or right associativity or no associativity status.
+This is done by the commands {\tt LEFT}, {\tt RIGHT} and {\tt NONE},
+respectively. Left (right) associativity results in a leftmost (rightmost) 
+setting of parentheses, whereas no associativity status leads to a warning
+when parentheses are omitted in an ambiguous term.
+
+\def\op{\mathop{\rm op}\nolimits}
+
+Table~\ref{assoc} shows how a term $t$ of the form 
+$$ t = x \op_1 y \op_2 z $$
+is interpreted, when $\op_1$ and $\op_2$ are infix operators with the same
+precedence.
+$A(\op)$ denotes the associativity status of operator $\op$.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+$A(\op_1)$ & $A(\op_2)$ & $t$ is interpreted as \\
+\hline \hline
+left  & left  & $(x \op_1 y) \op_2 z$ \\ \hline
+left  & right & warning, resolved by $(x \op_1 y) \op_2 z$ \\ \hline
+left  & none  & $(x \op_1 y) \op_2 z$ \\ \hline
+right & left  & warning, resolved by $(x \op_1 y) \op_2 z$ \\ \hline
+right & right & $x \op_1 (y \op_2 z)$ \\ \hline
+right & none  & $x \op_1 (y \op_2 z)$ \\ \hline
+none  & left  & $(x \op_1 y) \op_2 z$ \\ \hline
+none  & right & $x \op_1 (y \op_2 z)$ \\ \hline
+none  & none  & warning, resolved by $(x \op_1 y) \op_2 z$ \\ \hline
+\end{tabular}
+\end{center}
+\caption{Associativity Rules}
+\label{assoc}
+\end{table} 
+
+\item[Notation declarations:]
+In the notation declaration section the syntactic notation (``fixity'')
+of an operator can be set.
+Possible notations are prefix, postfix, infix, roundfix as well as function, 
+lisp and constant notation. 
+Every operator can be assigned at most one fixity.
+
+Coercion operators may only be used in prefix, roundfix, function or lisp notation.
+
+\begin{itemize}
+\item{{\bf Prefix:}} Prefix notation is allowed for any operator, no matter
+which arity it possesses.\footnote{Prefix operators which are not unary are called
+{\em FunctionOps} in the grammar of figure~\ref{dtgram2}.}
+Unary prefix operators can be written without parentheses
+in the {\tt AXIOM}-section, all other prefix operators are automatically converted
+to function notation and therefore must be written with
+parentheses around the (comma-separated) list of arguments. This includes
+nullary prefix operators, which have to be written with a following empty
+argument list: \verb|()|.
+
+\item{{\bf Postfix:}} Postfix notation can be assigned merely to unary operators.
+Parentheses around the argument are optional.
+
+\item{{\bf Infix:}} The infix notation requires an operator with a domain list of length
+two. Parentheses are optional.
+
+\item{{\bf Roundfix:}} Roundfix can be used for any operator with
+arity greater than zero. A roundfix notation for nullary operators
+is to be replaced by a constant notation. The symbol specified in the
+{\tt OPERATOR}-section is used as opening roundfix symbol, the
+symbol used for closing a roundfix term must be specified after the {\tt ROUNDFIX}
+keyword. Reference to roundfix operators in other sections uses
+only the first, opening roundfix symbol.
+
+\item{{\bf Function notation:}} Function notation is a valid specification for
+operators of all arities. It is similar to prefix notation, but requires
+parentheses around the argument list. Nullary operators in function notation
+must be succeeded by a pair of (opening and closing) brackets: \verb|()|.
+
+\item{{\bf Lisp notation:}} Lisp notation is characterized by the operator
+written within the argument list's parentheses, and the arguments,
+as well as the operator, separated by blanks. Lispfix notation is valid
+for all operators.
+
+\item{{\bf Constant notation:}} Constant notation can only be applied to nullary
+operators and allows writing the operator without parentheses, i.e.
+the same way as constants are written.
+\end{itemize}
+
+\begin{example} $ $
+\begin{verbatim}
+VAR
+   x,y: N;
+OPERATOR
+   !,|,f: N -> N;
+   +,<  : N, N -> N;
+   add  : N, N -> N;
+   c    : -> N;
+NOTATION
+   f: PREFIX;
+   !: POSTFIX;
+   +: INFIX;
+   |: ROUNDFIX |;
+   <: ROUNDFIX >;
+   add: LISP;
+   c: CONSTANT;
+\end{verbatim}
+{\rm After the declarations above the terms in the following list
+are all correct:}
+\begin{verbatim}
+fx      f(x)    x!      (x)!    x+y
+|x|     <x,y>   c       fx+y!   (add x y)
+\end{verbatim}
+\end{example}
+
+\item[Theory declaration:]
+A theory (unification status) declaration allows specification of additional operator properties.
+It can be set for binary operators either to the value {\tt AC} or {\tt COM}.
+The value {\tt AC} indicates that the operator is associative and commutative.
+Therefore it can only be used with operators whose domain and range types are
+the same. The value {\tt COM} is used for commutative operators. It can
+only be used with an operator whose domain types are the same.
+
+\item[Property declaration:]
+In this section different properties can be set. In the current version
+there are five different ones:
+\begin{itemize}
+\item{{\bf XINT:}} Under property {\tt XINT} an operator may be assigned 
+an algorithm name which describes the interpretation of the operator as function
+over external objects.
+
+If $f$ has been assigned an $n$-ary interpretation algorithm ${\cal A}$ under property
+{\tt XINT}, then the term\footnote{Terms containing external objects
+are called {\em external terms} or {\em mixed terms}.}
+$$ t = f(c_1(X_1),\dots,c_n(X_n)), $$
+where the $c_i$ are coercion operators and the $X_i$ are appropriate
+external objects,
+can be computed in one step.\footnote{Application of these one-step computations
+as often as possible to all subterms is called {\em computing} that term.}
+The computation of $t$ evaluates to the result
+$$ c({\cal A}(X_1,\dots,X_n)), $$
+where $c$ is a coercion operator. The operator $c$ is chosen automatically if it
+is not specified explicitly using the {\tt COERC}-property explained later.
+If $f$ is a function of type
+$$S_1 \times \dots \times S_n \rightarrow S_r$$
+then $c$ is the
+first coercion operator of type $S_x \rightarrow S_r$ for some $S_x$ which was declared
+before in the coercion operator section.
+
+It is neither checked, whether the specified interpretation algorithm really exists,
+nor if it has the appropriate arity (as well as argument and return types).
+
+\item{{\bf KBINDEX, KBWEIGHT:}} These two properties are used in conjunction
+with the Knuth-Bendix ordering to set the weights and indices of operators and
+constants.
+See the ReDuX User Guide for more information.
+
+\item{{\bf COERC:}} This property is closely related to the {\tt XINT} property.
+It allows to override the default selection of the coercion operator $c$ in
+the computation of an external term, as explained before in the {\tt XINT}-section.
+The specification of a {\tt COERC}-property makes sense only in conjunction
+with an {\tt XINT}-property for an operator $f$ of type $S_1 \times \dots \times S_n
+\rightarrow S_r$ and if the value of the {\tt COERC}-property is the name of a coercion
+operator $c$ with type $S_x \rightarrow S_r$ for some type $S_x$.
+This operator is then used during computation of external terms, whenever operator $f$
+has to be evaluated, to convert the result of the computation back to type $S_x$.
+\end{itemize}
+
+Note, that there is no consistency check implemented so far, i.e. it is not checked
+whether a specified property is sensible for a given object.
+
+\item[Axiom declaration:]
+The {\tt AXIOM}-section consists of equations that make up the theory that
+is to be examined. There are two constraints which apply for axioms: no
+left-hand side of an equation may consist only of a constant or a variable
+and the sorts of the terms on both sides must be the same.
+
+\end{description}
+
+
+\subsection{The Semantics of Terms}
+Terms are built up from constants, variables and operators, which all have to be
+declared in the respective sections before they are used. A correct term
+must fulfill the following restrictions:
+\begin{itemize}
+\item
+The argument list of all operators must be as long as the type list of its
+domains.
+\item
+The arguments must be of the appropriate type.
+\end{itemize}
+Thus, if $t_i$ are terms of sort $S_i$ and $f$ is an $n$-ary function
+$(1 \leq i \leq n, \; n \geq 0)$
+with domain types $S_i$ and range type $S_r$, i.e. $f: S_1 \times \dots \times
+S_n \rightarrow S_r$, then $f(t_1,\dots,t_n)$
+is a correct term of sort $S_r$. Variables and constants of any type are correct
+terms.
+
+If a variable with name $n$ is declared in the {\tt VAR}-section,
+indexed variables $n_i$ where $i$ is a {\vs Number} are declared
+implicitly. These indexed variables, which are accessible via
+{\tt n\_i}, can be used like normal variables
+in a term, but they are all distinct.
+
+External objects can be integrated into mixed terms via coercion functions.
+Coercion functions with range type $S_r$ convert suitable external objects
+into terms of type $S_r$. To read and write external objects the algorithms
+as declared in the {\tt EXTERNAL}-section are used.
+\begin{quote}
+{\em
+{\bf WARNING:} It is within the responsibility of the user to check that
+the external parsing functions specified under property {\tt XREAD} are
+compatible with the term parser. The parser can easily be confused
+by malformed external parsers!
+} % end emph.
+\end{quote}
+
+\subsection{Default Settings}
+There are several default settings for operator notation, precedence and associativity
+if these properties are not explicitly specified in the corresponding
+sections. These default settings are:
+
+\begin{description}
+\item[Notation:]
+Constant notation for nullary operators, prefix for unary operators,
+infix for binary operators and function notation for all other operators.
+Coercion operators get prefix notation as default.
+\item[Precedence:]
+If no precedence is assigned to an operator the rule of the last section
+is applied, i.e prefix operators without explicitly declared precedence
+bind stronger than all infix operators, whether they are assigned a
+precedence or not. Postfix operators without a specified precedence have
+higher priority than all prefix and infix operators. Coercion operators
+get the highest binding power, no matter if specified or not.
+\item[Associativity:]
+The default selection is {\tt NONE}. It is merely set for infix operators.
+\end{description}
+
+\subsection{Strange Precedence Declarations with Prefix and Postfix Operators}
+\label{strangeprec}
+Prefix and postfix operators can be written without parentheses around
+the argument. If parentheses are used though, it may seem that this implies
+a binding of the argument to that operator. This is not the case, however.
+
+\begin{example} $ $
+\begin{verbatim}
+VAR      x,y: N;
+OPERATOR s: N -> N;
+         +: N, N -> N;
+PREC     s < +;
+\end{verbatim}
+{\rm After these declarations the term {\tt s(x)+y} is interpreted as
+{\tt s(x+y)}.}
+\end{example}
+
+This different interpretation with respect to the old parser occurs only
+if pre- or postfix operators are assigned lower precedence than
+infix operators. It can be avoided by using function notation instead of prefix
+in case of prefix operators.
+
+\subsection{Constants vs. Nullary Operators}
+The main difference between constants and nullary operators is the built-in
+assumption that constants are irreducible. Therefore the left-hand side
+of an equation may not be a constant. This restriction does not apply to
+nullary operators. Thus in \redux\ constants can be handled more efficiently
+than operators.
+Moreover, not all properties which can be used for nullary operators can also
+be applied to constants.
+
+\subsection{AC-Terms}
+AC-operators have an additional feature when they are used in terms:
+they can be parsed in flattened form, that is more than two arguments
+are allowed in the argument list.
+
+\begin{example}$ $
+\begin{verbatim}
+VAR
+   w,x,y,z: N;
+OPERATOR
+   f,[: N, N -> N;
+NOTATION
+   f: PREFIX;
+   [: ROUNDFIX ];
+THEORY
+   f,[: AC;
+\end{verbatim}
+{\rm
+When using these declarations, the term {\tt [f(x,x),y,f(z,z,z,z),w]}
+is correct and corresponds to the term {\tt [[[f(x,x),y],f(f(f(z,z),z),z)],w]}.
+}
+\end{example}
+
+Infix AC-operators are automatically converted to flat representation.

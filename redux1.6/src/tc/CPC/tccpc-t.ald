@@ -1,0 +1,149 @@
+[Project:  ReDuX Term Completion
+   module name        : TCCPC-T -- Critical Pair Computation with 
+                                   Transformation confluence criterion
+   modulespecification: Critical pair computation algorithms with 
+                        transformation confluence criterion, 
+                        variables are uniquely defined by their TCONT.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen [RB]
+   language           : aldes
+   last change        : 14.7.90
+                        $Date: 1994/12/21 20:14:39 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.10 $
+   bugs               : none known
+   modules needed     : sac2/bs, sac2/sy, sac2/lp
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+     const
+     TNORM(T,A)=TIREDS(T,A).
+               [TNORM computes a normal form of term T under
+                 the set of axioms A.]
+
+
+[---------------------------------------------------------------------
+     Section 1.  Algorithms for Export
+----------------------------------------------------------------------]
+
+                    ASCPST(A,a,O; R*,C*,X)
+[Set of axioms, set of critical pairs with transformation criterion.
+a  is  an axiom. A=(a sub 1, ..., a sub n) is A set of axioms s.th.
+for any two axioms in A all critical pairs are connected. O is a string
+denoting a term ordering.
+Then if there is a normalized (wrt. A union {a}) critical pair between
+A and a which can be oriented by O giving a rule r s. th. LHS(a) is
+reducible by r then X = r and R* and C* are meaningless.  Otherwise
+X = () and R* is the set of orientable {a}-union-A-normalized critical
+pairs between a and A s.th. for all p in R*: LHS(p) <(O) RHS(p). C* is
+the set of non-orientable {a}-union-A-normalized critical pairs between
+a and A.]
+     safe A',a'.
+(1)  [Initialize.] C*:=(); R*:=(); X:=(); A':=A; A1:=COMP(a,A).
+(2)  [Loop thru A.] while A' # () do
+     { ADV(A'; a',A'); ACPST(A1,a,a',O; R',C',X); if X # () then return;
+       C*:=CONC(C',C*); R*:=CONC(R',R*)
+     }.
+(3)  [Intrinsic critical pairs.] AICPST(A1,a,O; R',C',X); if X = ()
+     then { C*:=CONC(C',C*); R*:=CONC(R',R*) } ||
+
+[---------------------------------------------------------------------
+     Section 2.  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    ACPST(A,a1,a2,O; R*,C*,X)                                
+[Axioms, set of critical pairs with transformation criterion.
+A is a set of Axioms s.th. for any two axioms in RED(A) all critical 
+pairs are connected. Both  a1 and a2 are axioms, a1 # a2, a1 = FIRST(A),
+a2 is contained in RED(A). O is a string denoting a term ordering.
+Then, if there is a normalized (wrt. A) critical pair between
+a1 and a2 which can be oriented by O giving a rule r s. th. LHS(a) is
+reducible by r then X = r and R* and C* are meaningless.  Otherwise
+X = () and R* is the set of orientable A-normalized critical pairs 
+between a1 and a2 s.th. for each pair p in R*: LHS(p) <(O) RHS(p). C* 
+is the set of non-orientable A-normalized critical pairs between a1 and 
+a2.]
+     safe n1,L1,V1,R1,n2,L2,V2,R2,U,b1,b2,b,i,n'1,n'2.                
+(1)  [Initialize.] R*:=(); C*:=(); X:=();
+     ADIS(a1; n1,L1,V1,R1,b1); ADIS(a2; n2,L2,V2,R2,b2); 
+     if b1=1 then b:=1 else b:=b2.
+(2)  [Critical pair at top position.] U:=TNMGCI(L1,L2,b);
+     if U = () then { UNDO(V1); UNDO(V2); goto 4 };
+     [U = L1m =L2m, copy R2m and R1m.] TRPCVS(R1,R2; c1,c2,V_0);
+     UNDO(V1); UNDO(V2); c'1:=TNORM(c1,A); c'2:=TNORM(c2,A);
+     if TEQU(c'1,c'2) then goto 4; c':=CPCONS(c'1,c'2,n1,n2,ESS); 
+     C^:=QCACP(c',O); TRPCVS(c'1,c'2; c1,c2,V*); 
+     if C^='S' then { L^:=c1; R^:=c2 ; n'1:=n1; n'2:=n2 } else 
+     if C^='R' then { L^:=c2; R^:=c1; n'2:=n1; n'1:=n2 } 
+     else { C*:=COMP(c',C*); goto 4 }.
+(3)  [Transformation criterion.] if TKIND(L^) = DOS then
+     b^:=TNSMTH(L^,V*,L1) else b^:=FALSE;
+     if ~ b^ then R*:=COMP(CPCONS(L^,R^,n'1,n'2,ESS),R*) 
+     else { X:=ACONS(0,L^,V*,R^); return }.
+(4)  [Critical pairs at proper subterms of L2.]                        
+     ACPST1(A,L1,b,n2,L2,V2,R2,L2,n1,L1,V1,R1,O; R',C',X);
+     if X = () then {R*:=CONC(R*,R'); C*:=CONC(C*,C')} else return.
+(5)  [Critical pairs at proper subterms of L1.]                        
+     ACPST1(A,L1,b,n1,L1,V1,R1,L1,n2,L2,V2,R2,O; R',C',X);
+     if X = () then {R*:=CONC(R*,R'); C*:=CONC(C*,C')} ||           
+
+                    ACPST1(A,L,b,N1,L1,V1,R1,l1,n2,l2,v2,r2,O; R*,C*,X)    
+[Axioms, set of critical pairs with transformation criterion, subalgo.
+Both a1=(N1,L1,V1,R1) and a2=(n2,l2,v2,r2) are axioms. A is a set of 
+Axioms s.th. for any two axioms in RED(A) all critical pairs are 
+connected. Both  a1 and a2 are axioms, a1 # a2, one of which is 
+FIRST(A), and the other is contained in RED(A). l1 is a non-atomic 
+subterm  of L1. b=0 if none of the axioms is left-linear, b=1 otherwise. 
+L is the left-hand side of FIRST(A).  O is a string denoting a term 
+ordering.  
+Then, if there is a normalized (wrt. A) critical pair between
+a1 and a2 which are obtained by superposing l2 on every proper subterm 
+of l1, and which can be oriented by O giving a rule r s. th. LHS(a) is
+reducible by r then X = r and R* and C* are meaningless.  Otherwise
+X = () and R* is the set of orientable A-normalized critical pairs 
+between a1 and a2, obtained by superposing l2  on  every proper  subterm 
+of l1, s.th. for every p in R*: LHS(p) <(O) RHS(p). C* is the set of 
+non-orientable A-normalized critical pairs between a1 and a2, obtained 
+by superposing l2  on  every proper  subterm of l1.]
+     safe A,b,N1,n2,L1,V1,R1,l2,v2,r2,l',t,t',U,k,i,n'1,n'2.
+(1)  [Initialize.] C*:=(); R*:=(); X:=(); l':=TSIGN(l2).
+(2)  [Process subterms of l1.] L':=OARGLST(l1); while L' # () do       
+     {    t:=FIRST(L'); k:=TKIND(t); if k=DOS then                    
+      {   t':=TSIGN(t); if t'=l' then                                
+       {  [Unify.] UTI:=UTI-CLOCK(); U:=TNRMCI(t,l2); UTI:=UTI+CLOCK(); 
+          UC:=UC+1; if U # () then 
+         { [U = tm =l2m. Copy L1[L'<-r2]m and r1m.] t^:=t; 
+          FIRST(L'):=r2; TRPCVS(L1,R1; c2,c1,V_0); FIRST(L'):=t^; 
+          UNDO(V1); UNDO(v2); c'1:=TNORM(c1,A); c'2:=TNORM(c2,A); 
+          if ~ TEQU(c'1,c'2) then
+          { c':=CPCONS(c'2,c'1,n2,N1,ESS); C^:=QCACP(c',O);
+           if C^ # 'S' /\ C^ # 'R' then C*:=COMP(c',C*) else
+           { TRPCVS(c'1,c'2; c1,c2,V*); if C^='S' then 
+            { L^:=c2; R^:=c1; n'1:=N1; n'2:=n2 }
+            else { L^:=c1; R^:=c2; n'2:=N1; n'1:=n2 };
+            [Transformation criterion.] if TKIND(L^) = DOS then
+            b^:=TNSMTH(L^,V*,L) else b^:=FALSE; 
+            if ~ b^ then R*:=COMP(CPCONS(L^,R^,n'2,n'1,ESS),R*) 
+                  else { X:=ACONS(0,L^,V*,R^); return }
+        }}} else { UNDO(V1); UNDO(v2) };
+       }; ACPST1(A,L,b,N1,L1,V1,R1,t,n2,l2,v2,r2,O; R',C',X); 
+       if X = () then {R*:=CONC(R*,R'); C*:=CONC(C*,C')} else return
+      }; L':=RED(L')    } ||                                              
+
+                    AICPST(A,a,O; R*,C*,X)                                   
+[Axiom, set of intrinsic critical pairs with transformation.
+a  is  an axiom. A is a set of axioms the first element of which is a. 
+O is a string denoting a term ordering.
+Then if there is a normalized (wrt. A) critical pair between
+a and itself which can be oriented by O giving a rule r s.th. LHS(a) is
+reducible by r then X = r and R* and C* are meaningless.  Otherwise
+X = () and R* is the set of orientable A-normalized critical pairs
+between a and itself s.th. for each pair p in R*: LHS(p) <(O) RHS(p). C*
+is the set of non-orientable A-normalized critical pairs between a and
+itself.]
+     safe l,v',r,b,l_,v_,r_,n.                                  
+(1)  [Initialize.] a_:=ACOPY(a);
+     ADIS(a; n,l,v',r,b); ARDIS(a_; l_,v_,r_).
+(2)  [Critical pairs at subterms.]                                     
+     ACPST1(A,l,b,n,l,v',r,l,n,l_,v_,r_,O; R*,C*,X) ||                 

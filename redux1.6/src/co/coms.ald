@@ -1,0 +1,116 @@
+[Project: ReDuX Combinatorics 
+   module name        : COMS -- Multi Sets
+   modulespecification: Problem: given a multiset MS containing pair
+                           wise distinct elements e1, ... el such that
+                           MS contains ei ni times (1<=i<=l), compute 
+                           one by one all subsets SS of MS which are 
+                           contained in MS c times. Smaller subsets
+                           should be computed before lager ones.
+                        Solution: start with M=(e1,n1,...,el,nl) and
+                           S=().
+                           repeat
+                            [ SS = {{ FIRST(s) | s is an odd element 
+                                                 of the list S }}      ]
+                              MSNSSC(M,S,c; S,b)
+                            [ b = 1 iff length of S has changed        ]
+                           until S = ()
+                        MSNSSC and MSCSUC taken form acm1 (rev 1.1)
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : $Date: 1994/05/02 10:07:14 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.5 $
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+]                                                                      
+
+[---------------------------------------------------------------------.
+     Section 0.
+     System initialization.
+-----------------------------------------------------------------------]
+     const TRUE=1, FALSE=0.
+     const
+     RED(L)   =SPACE[L-BETA],
+     RED2(L)  =RED(RED(L)),
+     FIRST(L) =SPACE[L-BETA1],
+     SECOND(L)=FIRST(RED(L)).
+
+[---------------------------------------------------------------------.
+     Global variables
+-----------------------------------------------------------------------]
+
+     safe PNTRC.   [ Procedure name trace.]
+
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    MSNSSC(M,S,c; S*,b)
+[Multiset, next subset, constrained.
+M = (e1, n1, ..., el, nl) is a non-empty list describing a multiset
+meaning element ei occurs ni times in M (1 <= i <= l).
+S = (S1, c1, ..., Sk, ck) is a list of period 2 where each Si is a tail
+sublist of M s.th. the first elements of all Si build a subset P  of M.
+The ci are beta-integers (1 <= i <= k). c is a beta-integer.
+Let Pi = { FIRST(Si), FIRST(S(i+1)), ...,FIRST(Sk) } be a multiset and 
+cPi is a multiset containing each element of Pi c-times then the 
+difference M - cPi contains ci times the element FIRST(Si) 
+for 1 <= i <= k.   Consider a total ordering < on the power set of M 
+where P1 < P2 if |P1| < |P2|.
+Then S*=(S*1, c*1,..., S*m, c*m) is a list of period 2 where each S*i
+is a tail sublists of M s.th. the set P* of the first elements of each
+S*i (1 <= i <= l) is the successor of P (wrt. <) unless P = M, further
+the set cP* containing each element of P* c times must be a subset of
+M.  If P = M or no such P* exists then S* = (). 
+Let P*i = { FIRST(S*i), FIRST(S*(i+1)), ...,FIRST(S*m) } be a multiset 
+and cP*i is a multiset containing each element of P*i c-times then the 
+difference M - cP*i contains c*i times the element FIRST(S*i) for 
+1 <= i <= m.  b = 1 if |S*| > |S| otherwise b=0.  S and S* are such that 
+for all i < j: S(*)j is a tail sublist of S(*)i. ]
+
+(1)  [Initialize.] if PNTRC then { CLOUT("MSNSSC"); WRITE };
+     S*:=S;  [result]
+     b:=0;   [flag for vector length extension]
+     S':=S;  [pointer to current position of change]
+     s':=(); [value which is the minimum of current position ]
+     c*:=0.  [multiplicity how often current minimum (s') is ]
+             [still available]
+(2)  [New first element.] if S' = () then
+      { S*:=INV(S*); if SECOND(M)-c < 0 then s*:=MSCSUC(M,c) 
+       else s*:=M; if s* = () then { S*:=(); return };
+       S^:=S*; c':=SECOND(s*)-c; S*:=COMP2(c',s*,S*); b:=1; goto 5
+      }.
+(3)  [Search position of element exchange.] s:=FIRST(S');
+     if s = s' then { S':=RED2(S'); c*:=c*-c; goto 2 };
+     s*:= MSCSUC(s,c); c*:=c*-c; if s* = s' /\ c* < 0  then
+      { [Next element.] S':=RED2(S'); s':=s; c*:=SECOND(s)-c; goto 2 }.
+(4)  [Let S'=Sh. Then for 1 <= i < h: Si=RED(2*(h-i))(S').]
+     FIRST(S'):=s*; c':=SECOND(s*)-c; SECOND(S'):=c';
+     S'':=RED2(S'); RED2(S'):=(); S*:=INV(S*); S^:=RED(S').
+(5)  [Reinitialize prefix of S*.] while S^ # () do
+      { if c' < c then
+        { s*:=MSCSUC(s*,c); if s* = () then  { S*:=(); return };
+          c':=SECOND(s*)-c
+        } else c':=c'-c; FIRST(S^):=c'; SECOND(S^):=s*; S^:=RED2(S^)
+      }; S*:=INV(S*); if S' # () then RED2(S'):=S'';
+     if FIRST(S*) = () then S*:=() ||
+
+[    if s = s' then ... in step (3)
+         can only be true if previous position was decremented to s' and
+         both s' and S' where updated.
+]
+
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    M*:=MSCSUC(M,c)
+[Multiset, constrained successor.
+M = (e1, n1, ..., el, nl) is a non-empty list describing a multiset
+meaning element ei occurs ni times in M (1 <= i <= l). c > 0 is beta-
+integer.
+Then M* = (ei, ni, ...,el, nl) for the smallest i > 1 such that
+ni >= c if such an i exists otherwise M* = ().]
+
+(1)  [Initialize.] M*:=RED2(M).
+(2)  [Search.] while M* # () /\ SECOND(M*) < c do M*:=RED2(M*) ||

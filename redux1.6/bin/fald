@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Find ALDes files
+#
+# usage: fald directory ...
+#
+# output: a list of all paths relative to the arguments of fald whose
+# last part matches *.ald files
+
+if [ $# -eq 0 ]
+then
+   echo "Usage: $0 directory ..." 1>&2
+   exit 1
+fi
+
+for i
+do
+   if [ ! -d $i ]; then
+      echo "$0: $i does not exist or is not a directory!" 1>&2
+      exit 1
+   fi
+done
+
+find $* -name "*.ald" -print | sort | tr '\012' ' ' 

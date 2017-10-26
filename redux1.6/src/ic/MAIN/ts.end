@@ -1,0 +1,52 @@
+
+[ *** End of Global Safe Variables ***]
+
+     safe DUNIT,CRT.    [i/o units.] 
+
+(1)  [Initialize.] BGNRWD(4).
+(2)  [Output breadth: 80 characters.] RMARG=79.
+(3)  [Garbage collector messages on.] GCM=1;
+     [ [ALDES trace settings.] TRMAX:=500; COUNT:=1 ]
+     [Reset timers.] RTI:=0; MTI:=0; CTI:=0; UTI:=0; OTI:=0;
+     PTI:=0; GTI:=0; STPWT:=-CLOCK();
+     [Reset counters.] UC:=0; MC:=0; RC:=0; NC:=0;
+     [ReDuX traces off.] IETRC:=0; PNTRC:=0; CETRC:=0; STRC:=0;
+     POTRC:=0; TOTRC:=0; TRC1:=0; TRC2:=0; TRC3:=0; DLTRC:=0; EXTRC:=0.
+(4)  [Use fort.4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.]
+     STOUTL("-><--><--><--><--><--><--><--><--><--><--><--><-");
+     STOUTL("|                                              |");
+     STOUTL("|       ReDuX ground normal form analysis      |");
+     STOUTL("V                                              V");
+     STOUTL("->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-");
+     BLINES(1); STOUTL("           [$Revision: 1.1 $]  "); 
+     BLINES(1).
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=CLOCK(); DT:=DTPRS(); t:=CLOCK()-t;
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.").
+(8)  [Set input unit back to keybord.] IUCHNG(CRT); ISIZE:=80.
+(9)  [Write data type.] BLINES(1); t:=CLOCK(); DTWRT(DT); t:=CLOCK()-t;
+     STROUT("Display time: "); GWRITE(t); STOUTL(" ms."); BLINES(1);
+     STOUTL("Ready? *"); READ; CH:=CREAD().
+(10) [Appropitness check.] DTDIS(DT; N,C,V,F,A);
+     if OSIEXT(F) then goto 99.
+(11) [Initialize top top sets.] T1:=(); T2:=(); T3:=(); T*:=(); C*:=().
+(12) [Main menue.] BLINES(1); c:=12; repeat
+         case c of 
+         { 1  do T1:=CTSTL(DT);
+           2  do T2:=CPTST(DT);
+           3  do T3:=CITST(DT);
+           4  do WRKTST(T1,T2,T3,DT; T*,C*);
+           5  do GRTEST(DT,A,C*,T*);
+           6  do DGNFAN(DT,C*,T*);
+           7  do DTWRT(DT);
+           8  do CTSHOW;
+           9  do CTRSET;
+           10 do { CLRMEM(T1,T2,T3,T*,C*; T1,T2,T3,T*,C*); GC };
+           11 do QCT();
+           12 do TSMENU(T*);
+         }; c:=TSSMEN(T*); 
+      until c = 0.
+(99)  [Finish up.] ENDS||                                               
+

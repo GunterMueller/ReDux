@@ -1,0 +1,30 @@
+%%  comment
+DATATYPE SUM;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS complete
+%%  DESCRIPTION Summation function
+SORT
+	NAT;
+CONST
+	0: NAT;
+VAR
+	a, b, c: NAT;
+OPERATOR
+	*: NAT, NAT -> NAT;
+	SUM: NAT -> NAT;
+	+: NAT, NAT -> NAT;
+	S: NAT -> NAT;
+NOTATION
+	SUM, S: FUNCTION;
+	*, +: INFIX;
+PREC
+        + < *;
+AXIOM
+  [1] a + 0      == a;
+  [2] a + S(b)   == S(b + a);
+  [3] 0 * a      == 0;
+  [4] S(b) * a   == b * a + a;
+  [5] SUM(0)     == 0;
+  [6] SUM(S(a))  == S(SUM(a) + a);
+END
+;This file is sum1.typ

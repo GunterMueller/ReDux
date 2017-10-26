@@ -1,0 +1,29 @@
+DATATYPE RHALF;
+SORT
+	RING;
+CONST
+	0, 2: RING;
+VAR
+	a, b, c, d, e: RING;
+OPERATOR
+	U:  -> RING;
+	+: RING, RING -> RING;
+	*: RING, RING -> RING;
+	~: RING -> RING;
+NOTATION
+	+, *, ~: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+[1] +(0,a) == a;
+[2] *(0,a) == 0;
+[3] *(U(),a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] +(a,~(a)) == 0;
+[7] ~(+(a,b)) == +(~(a),~(b));
+[8] *(a,~(b)) == ~(*(a,b));
+[9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+[10] *(+(U(),U()),2) == U();
+END
+; This file is Rhalf.typ 

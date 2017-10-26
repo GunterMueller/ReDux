@@ -1,0 +1,121 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICGNFX - Ground Normal Forms - eXtensibility 
+                                                        criterion
+   modulespecification: Algorithms to compute subtermlists of the TRS
+                        left-hand sides and check the nodes of a pruned
+                        top set tree for extensibility w.r.t. these 
+                        lists.
+   programmer         : Hasko Eckhardt 
+   language           : aldes                                           
+   last change        : 26.2.91
+                        $Date: 1994/12/22 09:11:43 $
+                        by $Author: buendgen $
+   bugs               : none known
+   modules needed     : SAC2/low: fp, bs, lp, sy (low: complete);
+                        ReDuX/tp: dd, cy, wx     (tp:  complete);
+                              tc: u
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+[--------------------------------------------------------------------  
+     section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+
+                    F' := LSTL(F,R,b)
+[ List of SubTerm Lists.
+  F is a list of function symbols F 1, ..., F n; R is a set of rules,
+  b is boolean: iff b is TRUE the subtermlists constructed will be as
+  short as possible (this needs more matching operations!).
+  Then F' will be a list (F' 1, ..., F' n), where the F' i are sets of
+  all subterms of left-hand sides of rules with top operator F i.      ]
+
+(1)  [ Get operators and rules. ] if PNTRC then STOUTL("LSTL");
+     O := F; A := R; F' := ().
+(2)  [ Get subterm lists. ] while O # () do
+     { ADV(O; o,O); F' := COMP(STLUR(o,A,b),F') }.
+(3)  [ Finish. ] F' := INV(F') ||
+
+                    b := NTSEXT(n,O,F)
+[ Node of Top Set tree, EXTensibility. 
+  O is a list of Function symbols; n is a node of the top set tree;
+  F is a list of one list for each function symbol
+  in the data type, where each list contains all subterms of left-hand
+  sides of rules with the same top operator.
+  Then b = TRUE iff t is extendable.                                  ]
+
+(1)  [ Begin. ] if PNTRC then STOUTL("NTSEXT"); t:=NTSLAB(n);
+     b := TRUE; O' := O; F' := F; TBVSLI(t; V1,l_); 
+     [ [TRC] TWRT(t); ]
+     repeat
+       if O' = () \/ F' = () then
+         {STOUTL("? unexpected error in NTSEXT.1"); HALT};
+       ADV(O'; o,O'); ADV(F'; f,F')
+     until TSIGN(o) = TSIGN(t); ST := f.
+(2)  [ t unifies with a term in ST? ]
+     while ST # () do
+     { ADV(ST; s~,ST); TBVSLI(s~; V2,l_); [ [TRC] CWRITE('.'); ]
+       UC := UC+1; UTI := UTI-CLOCK(); X := TNRMIL(s~,t);
+       UTI := UTI + CLOCK();
+       if X # () then 
+       { [Are variables of t bound?] V':=V1; while V' # () do
+          { ADV(V'; v',V'); if VARBIND(v') # () then
+            { UNDO(V1); UNDO(V2); [ [TRC] CWRITE('+'); WRITE; ]
+              return 
+        } } }; UNDO(V1); UNDO(V2) 
+     }.
+(3)  [ negative exit. ] b := FALSE ||
+
+[--------------------------------------------------------------------
+     section 2   algorithms for internal use
+---------------------------------------------------------------------]
+
+                    L := STLUR(F,A,b)
+[ SubTerm List for Unification with Rules.
+  F is a function symbol,  A is a set of rules, b is boolean: iff b is
+  TRUE short lists are produced which contain only different terms
+  modulo variables renaming.  Then  L is the set of
+  all subterms of left-hand sides of rules in A with top operator F.   ]
+
+(1)  [ Initialize. ] if PNTRC then STOUTL("STLUR");
+     A' := A; L := ().
+(2)  [ Get Rule. ] while A' # () do
+     { ADV(A'; a,A'); R := ALHS(a); if b then L' := STLINS(F,R,L)
+       else L' := STLINC(F,R,L); L := L' } ||
+     [ [TRC] SWRT(TNAME(F)); CWRITE(':'); TLWRT(L); WRITE || ]
+
+                    L* := STLINC(F,T,L)
+[ SubTerm List, INCrement.
+  F is a function symbol, T is a free non-atomic term. L is a list
+  of terms with top symbol F.
+  Then L* is L augmented by the (recursively constructed) list of all 
+  subterms of T with top operator F.          ]
+ 
+(1)  [ Initialize. ] if PNTRC then STOUTL("STLINC"); L* := L.
+(2)  [ Inspect position. ] if TSIGN(T)=TSIGN(F) then L* := COMP(T,L*).
+(3)  [ Atomic terms.] if TKIND(T) # DOS then return.
+(4)  [ Arguments. ] C := OARGLST(T); while C # () do
+       { ADV(C; c,C); L* := STLINC(F,c,L*) } ||
+
+                    L* := STLINS(F,T,L)
+[ SubTerm List,  INcrement (short lists).
+  F is a function symbol, T is a free non-atomic term. L is a list
+  of (modulo variable renaming) distinct terms with top symbol F.
+  Then L* is L augmented by the (modulo variable renaming) distinct 
+  terms of the (recursively constructed) list of all subterms of T 
+  with top operator F.          ]
+
+(1)  [ Initialize. ] if PNTRC then STOUTL("STLINS"); L* := L;
+     SKIP := TRUE.
+(2)  [ Inspect position. ] if TSIGN(T)=TSIGN(F) then
+     { L' := L; SKIP := FALSE; TBVSLI(T; V2,l_); 
+       while L' # () /\ ~SKIP do
+       { ADV(L'; l',L'); TBVSLI(l'; V1,l_); if TMATCH(l',T) # () then
+          { UNDO(V1); UNDO(V2); if TMATCH(T,l') # () then
+            SKIP := TRUE }; UNDO(V1); UNDO(V2) }
+     }; if ~SKIP then L* := COMP(T,L*).
+(3)  [ Atomic terms.] if TKIND(T) # DOS then return.
+(4)  [ Arguments. ] C := OARGLST(T); while C # () do
+       { ADV(C; c,C); L* := STLINS(F,c,L*) } ||

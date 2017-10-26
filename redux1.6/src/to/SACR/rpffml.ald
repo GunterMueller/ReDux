@@ -1,0 +1,51 @@
+[ $Author: buendgen $
+  $Date: 1993/10/25 10:04:30 $
+  $Revision: 1.2 $
+]
+                    G:=RPFFML(r,F,V)
+[Rational polynomial from formula.
+F is a formula or term in prefix form over variables occurring in V. If 
+F is a formula, G is the standardized formula over the integers with G 
+equivalent to F. If F is a term, G is the rational polynomial with F=G.
+Taken from Andreas Webers' QE package: FSTAN1 paramerized by variable V
+list instead of global variable list VARL [RB].] 
+    const FALSE=0, TRUE=1.
+    const EQUIV=5, XOR=6, IMPL=7, ORS=8, ANDS=9, NOTS=10, 
+          FORALL=11, EXISTS=12.
+    const GTS=14, LTS=15, EQS=16, NES=17, LES=18, GES=19.    
+    const PLUS=20, MINUS=21, DIFF=22, TIMES=23, QUOTIENT=24, 
+          EXP=25, NUM=26, VAR=27. 
+(1) [Decompose.] FDEC(F;F1,p,F2). 
+(2) [Branch on p.] 
+    case p of 
+    {FORALL, EXISTS  
+           do {FDEC(F1;R,c,v); G:=FCOMP(INFVIV(v,V),p,RPFFML(r,F2,V))}; 
+     [the case p=NOTS has to be treated seperately!]
+     NOTS do G:=FCOMP(0,p,RPFFML(r,F2,V));
+     EQUIV,XOR, IMPL, ORS, ANDS 
+           do G:=FCOMP(RPFFML(r,F1,V),p,RPFFML(r,F2,V)); 
+     EQS, NES, LTS, LES, GTS, GES 
+           do {F1:=RPFFML(r,F1,V); F2:=RPFFML(r,F2,V); 
+               F1:=RPDIF(r,F1,F2); IPSRP(r,F1;F2,G); 
+               if RNSIGN(PLBCF(r,F1))>=0 \/p=EQS\/p=NES then 
+                 G:=FCOMP(G,p,r) else [negate relation.]       
+                 G:=FCOMP(G,ROMIN(p),r)};  
+                         [changed from ROPNEG]
+     NUM   do G:=RPFCV(r,RNINT(F2),0); 
+     VAR   do G:=RPFCV(r,RNINT(1),INFVIV(F2,V)); 
+     MINUS, EXP 
+           do {F1:=RPFFML(r,F1,V); 
+               if p=EXP then {FDEC(F2;G,p,F2); if p#NUM \/ F2<0 then 
+                 {print "Illegal exponent in RPFFML."; stop }; 
+                 G:=RPEXP(r,F1,F2)} 
+               else G:=RPNEG(r,F1)}; 
+     PLUS, DIFF, TIMES, QUOTIENT 
+           do {F1:=RPFFML(r,F1,V); F2:=RPFFML(r,F2,V); 
+               case p of  
+               {PLUS  do G:=RPSUM(r,F1,F2); 
+                DIFF  do G:=RPDIF(r,F1,F2); 
+                TIMES do G:=RPPROD(r,F1,F2); 
+                QUOTIENT 
+                      do {RPQR(r,F1,F2;G,R);
+                      if ~R=0 then {
+              print "Illegal denominator on RPFFML."; stop} }}}}  ||

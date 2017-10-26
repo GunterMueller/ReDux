@@ -1,0 +1,46 @@
+%% 
+DATATYPE PEANOL;
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION Peano-Arthmetik mit Simulation von Externen Objekten
+%%       Regeln {1,2,5,6,9,10,11,12} sind kanonisch       ???
+%%       Regeln {1,...,12} sind zusammen mit
+%%       15) (" S(A) " + b) == s((" A " + b)) und
+%%       16) (" S(A) " * b) == ((" A " * b) + b)
+%%       konfluent (wobei 1 und 3 kollabieren koennen)
+SORT
+	EXTERN, NAT;
+CONST
+	0: EXTERN;
+VAR
+	a, b, c: NAT;
+	A, B, C: EXTERN;
+OPERATOR
+	o:  -> NAT;
+	s: NAT -> NAT;
+	+: NAT, NAT -> NAT;
+	*: NAT, NAT -> NAT;
+	": EXTERN -> NAT;
+	S: EXTERN -> EXTERN;
+	#: EXTERN, EXTERN -> EXTERN;
+	@: EXTERN, EXTERN -> EXTERN;
+NOTATION
+	s, S: FUNCTION;
+	+, *, #, @: INFIX;
+	": ROUNDFIX ";
+AXIOM
+  [1]  (o + a) == a;
+  [2]  (s(a) + b) == s((a + b));
+  [3]  (o * a) == o;
+  [4]  (s(a) * b) == ((a * b) + b);
+
+  [5]  (0 # A) == A;
+  [6]  (S(A) # B) == S((A # B));
+  [7]  (0 @ A) == 0;
+  [8]  (S(A) @ B) == ((A @ B) # B);
+
+  [9]  o == " 0 ";
+ [10]  s(" A ") == " S(A) ";
+ [11]  (" A " + " B ") == " (A # B) ";
+ [12]  (" A " * " B ") == " (A @ B) ";
+END
+  

@@ -1,0 +1,43 @@
+
+i  ; de/install term ordering
+i  ; install term orderings 
+1  ; polynomial ordering
+
+q  ; query interpretations 
+o  ; use the solution 1 of Ben Cherifa and Lescanne
+6;                    ; 0
+2;                    ; 1
+6;                    ; I
+10;                   ; X
+20;                   ; Y
+30;                   ; Z
+6;                    ; O
+x1+x2+5;              ; +
+x1*x2;                ; *
+2*x1+2;               ; -
+x1*x2;                ; .
+x1*x2 + 5*x2;         ; M
+x1+x2+5;              ; #
+x1*x2;                ; @
+s                     ; select term ordering
+1                     ; polynomial ordering
+
+k                     ; run (AC)-Knuth-Bendix completion procedure
+n                     ; Is a subset of the rules ...
+q (2,1,1,1,1,1,0)     ; quick query
+
+
+n                     ; Do you wish to continue with ...
+d                     ; display data type
+q                     ; quit
+
+; call with %cat Polynomials/RX-\>RXC.in | ac
+
+
+
+
+
+
+
+
+

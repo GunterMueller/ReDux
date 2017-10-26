@@ -1,0 +1,12 @@
+grp - the usual group axioms
+grp2hom - a homomorphism between 2 groups 
+arith - arithmetic axioms from John Guttag
+domino - example from Ursula Martin
+        (dom and domino2 are variations on domino)
+group56 - group of order 56 from Ursula Martin
+fib4 and fib5 - fibonacci example also from Ursula
+
+All of the examples were run using the recursive path
+ordering, and with function symbols order alphabetically
+(a < b < ...).
+

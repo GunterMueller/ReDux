@@ -1,0 +1,28 @@
+DATATYPE TWOTHREE1;
+SORT
+	NAT, TREE, VOID;
+CONST
+	0: NAT;
+	NIL: TREE;
+	UNDEF: VOID;
+VAR
+	A, B, C, D, E: NAT;
+	i, m, l, r: NAT;
+	L, L1, L2, M, M1, M2, R, R1, R2, T, T1, T2: TREE;
+OPERATOR
+	S: NAT -> NAT;
+	NODE2: TREE, NAT, TREE -> TREE;
+	INSERT: NAT, TREE -> TREE;
+	INS2: NAT, NAT, NAT, TREE -> TREE;
+NOTATION
+	S, INSERT: FUNCTION;
+AXIOM
+[23] INSERT(i,NIL)==NODE2(NIL,i,NIL);
+[24] INSERT(i,NODE2(L,m,R))==
+        INS2(i,m,i,NODE2(L,m,R));
+[25] INS2(0   ,0   ,i,NODE2(L,m,R))==NODE2(L,m,R);
+[26] INS2(S(A),0   ,i,NODE2(L,m,R))==NODE2(L,m,INSERT(i,R));
+[27] INS2(0   ,S(B),i,NODE2(L,m,R))==NODE2(INSERT(i,L),m,R);
+[28] INS2(S(A),S(B),i,NODE2(L,m,R))==INS2(A,B,i,NODE2(L,m,R));
+[29] INS2(A   ,B   ,i,NIL)==UNDEF;
+END

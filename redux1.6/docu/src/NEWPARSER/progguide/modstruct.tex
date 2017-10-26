@@ -1,0 +1,84 @@
+\section{How the Parser Works}
+
+\subsection{Module Structure}
+
+The new \redux\ parser is split up into several modules, as can be seen
+in Figure~\ref{modules}. 
+In the sequel, the different modules and
+their purposes will be explained in full detail.
+
+\begin{figure}[htbp]
+\begin{center}
+\vspace{1cm}
+\epsfig{file={modules.eps},angle=270}
+\caption{The Module Structure of the Parser}
+\label{modules}
+\end{center}
+\end{figure}
+
+\begin{description}
+\item[objparse.ald:] This \ALDES-module contains interface routines to the
+parser. It provides the programmer with functions to parse terms, axioms,
+data types etc.
+\item[parse.y:] This file contains the YACC parser. It consists mainly of
+the grammar (and semantic actions associated with each production rule)
+of data types and other structures intended to be parsed.
+Error handling for syntactical mistakes is also done here.
+\item[scan.l:] The scanner (or lexical analyzer) makes up the biggest part
+of this file. It is held in LEX-syntax with some extensions\footnote{These
+extensions comprise renaming of the scanner main function and changing
+of the input file access method.} that make it
+necessary to use GNU FLEX instead of standard LEX to translate it.
+Symbol table handling is not done within this module.
+\item[symlist.ald:] This file is responsible for symbol table management.
+During parsing of signature descriptions, symbols are entered into the
+data type symbol list; thereafter these symbols can be used to
+build terms and axioms. During term parsing almost all of the lexical
+analysis is done in this module.
+\item[parsax.ald:] The file {\tt parsax.ald} contains auxiliary parsing
+routines. It is called from the main parser of file {\tt parse.y} to
+do most of the semantical actions. The procedures and functions would
+have been included into the parser, if C were the only implementation
+language used. To keep the main parser from coping with \ALDES\ memory
+management problems they were excluded;
+thus merely \ALDES-function calls occur within the
+parser. Most of the work is done in {\tt parsax.ald} which is to a
+great part responsible for construction of the appropriate data structures.
+\item[check.ald:] To check the semantical correctness of parser input
+procedures of this file are called.
+\item[semerr.ald:] Whenever a semantic error was found by the parser or
+by auxiliary routines this module is used to print out error messages.
+Warnings are also reported by a function of this module.
+\item[insert.ald:] Insertion of parts of a data type, e.g. variables,
+constants, operators, etc. into a data type is maintained within this file. 
+Moreover, it provides the user with functions to add new objects into
+the symbol table of a prior parsed data type.
+\item[ambig.ald:] As the parser puts only few restrictions on which
+object names may be used, and blanks can always be  omitted,
+problems arise during term output about when it is unavoidable to
+write blanks between objects names to keep output unambiguous and
+to enable rescanning of terms and equations. Therefore every signature
+object is extended by an {\em ambiguity list}\footnote{See the section
+on data structures for a more thorough description of ambiguity lists.},
+where possible follow-up object names are stored. Whenever those
+follow-up object names occur during term output blanks or
+parentheses, depending on term output mode, have to be written
+additionally.
+This file contains the routines necessary to handle ambiguities.
+\item[fxpras.ald:] The structure of terms is, according to the grammar,
+not always uniquely determined. Thus, semantical information, such as
+precedence and associativity, is needed to transform the textual description
+of a term into its internal, unambiguous representation.
+The functions in this module allows to restructure terms
+(fxpras: {\it f}i{\it x} term, according to  {\it pr}ecedence and 
+{\it as}sociativity declarations) 
+in order to fulfill the data type declarations.
+\item[extern.ald:] Input and output functions for external objects (i.e.
+ALDES or SAC2 objects) are gathered in this file.
+\end{description}
+
+The complete parser consists of some additional files not mentioned here,
+but their function is either related to output of \redux\ objects, 
+or they provide auxiliary routines (e.\,g., initialization) which are not 
+vital to understand the parse process. 
+Both kinds of files will be explained later.

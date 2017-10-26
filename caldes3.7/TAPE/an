@@ -1,0 +1,406 @@
+                    b:=ACFIR(M,a,b_)
+[Algebraic number field element change from algebraic integer
+representation.  M is the minimal integral polynomial of an algebraic
+number alpha. a  is a positive integer. b_ is an element of Q(alpha)
+expressed as a function of \overline{alpha}=a*alpha. b is b_ expressed
+as a function of alpha.]
+(1) [Decompose.] ADEC(b_;r_,B_).
+(2) [Convert polynomial.] IUPHC(B_,a;B,d).
+(3) [Reduce to standard form.] b:=ARED(M,r_,B) ||
+                    b_:=ACTIR(M_,a,b)
+[Algebraic number field element change to algebraic integer 
+representation.  M_ is the minimal integral polynomial of an algebraic
+integer \overline{alpha}. a  is a positive integer. b is an element of
+Q(\overline{alpha}) expressed as a function of alpha=\overline{alpha}/a.
+ b_ is b expressed as a function of \overline{alpha}.]
+(1) [Decompose.] ADEC(b;r,B).
+(2) [Convert polynomial.] IUPHE(B,a;B_,d).
+(3) [Reduce to standard form.] r_:=RNPROD(r,(1,d)); b_:=ARED(M_,r_,B_)||
+                    ADEC(a;r,A)
+[Algebraic number field decomposition.  a  is  an element of Q(alpha) 
+for some algebraic number alpha. If a=0 then r=A=0. Otherwise r is the 
+rational part and A  is the polynomial part of a.]
+    safe ADEC.
+(1) [a=0?] if a=0 then {r:=0; A:=0; return}.
+(2) [Parts] FIRST2(a;r,A) ||
+                    c:=ADIF(a,b)                                     
+[Algebraic number field difference.  a  and b are elements    
+of Q(alpha) for some algebraic number alpha.  c=a-b.]                
+(1)  c:=ASUM(a,ANEG(b)) ||                                       
+                    b:=AINV(M,a)                                      
+[Algebraic number field inverse.  a  is a non-zero                      
+element of Q(alpha) for some algebraic number alpha.  M is the          
+integral minimal polynomial for alpha.  b=1/a.]                       
+     safe s.
+(1)  [Initialize.] ADEC(a;a',A).
+(2)  [a rational?] if PDEG(A)=0 then {b:=(RNINV(a'),A); return}.
+(3)  [Extended Euclidean algorithm] IUPHEE(M,A;r,B).
+(4)  [Canonical output.] IPSCPP(1,B;s,c,B'); b*:=RNRED(c,r); 
+     b':=RNQ(b*,a'); if s<0 then b':=RNNEG(b'); b:=(b',B') ||
+                    C:=AIPPR(r,M,A,B)                              
+[Algebraic integer polynomial product.  A  and B are polynomials    
+in r variables, r>=0, over Z(alpha ) for some algebraic integer   
+alpha. M is the integral minimal polynomial of alpha. C=A*B.]          
+    safe a.                                                            
+(1) [A or B zero] if A=0 \/ B=0 then { C:=0; return }.
+(2) [r=0.] if r=0 then { C:=AIPROD(M,A,B); return }.
+(3) [General case.] A*:=CINV(A); B*:=CINV(B); C:=0; r':=r-1;
+    r'':=r+1;
+    repeat { ADV2(B*;b,f,B*); A':=A*; C1:=(); repeat                   
+    { ADV2(A';a,e,A'); if r'=0 then c:=AIPROD(M,a,b) else          
+    c:=AIPPR(r',M,a,b); C1:=COMP2(e+f,c,C1) } until A'=();
+    C:=IPSUM(r'',C,C1)  } until B*=() ||                        
+                    c:=AIPROD(M,a,b)                               
+[Algebraic integer product.  a  and b are elements of Z(alpha) for
+some algebraic integer alpha. M is the integral minimal polynomial 
+of alpha. c=a*b.]                                 
+(1) [Reduce product.] c':=IPPROD(1,a,b); IPQR(1,c',M;q,c)||                          
+                    AIUPGC(M,d^,d,A,B;C,A_,B_)                      
+[Algebraic integer number field univariate polynomial greatest common 
+divisor and cofactors.  M is the minimal integral polynomial of an
+algebraic integer alpha. d^ is a multiple of the defect of alpha.
+d is the discriminant of M. A  and B are non-zero univariate
+polynomials over Z(alpha) with integer leading coefficients represented
+by integer-primitive bivariate integral polynomials. C=gcd(A,B),
+a non-zero univariate polynomial over Z(alpha) with integer leading
+coefficient. C is the integer primitive part of the associate
+of the gcd(A,B) over Q(alpha) with integer leading coefficient
+c=gcd(a,b)d^. A_ and B_ are the integer primitive parts of the
+polynomials c*d^*A/C and c*d^*B/C respectively.]
+(1) [Compute normalization factor.]                                    
+    a:=PLBCF(2,A); b:=PLBCF(2,B); c:=IPROD(IGCD(a,b),d^);
+    c_:=IPROD(c,d^); A^:=IPIP(2,c_,A); B^:=IPIP(2,c_,B).
+(2) [Compute degrees.]                                                  
+    u:=PDEG(A); v:=PDEG(B).
+(3) [Initialize prime list and gcd degree.]                            
+    P:=PRIME; w:=MIN(u,v) +1.
+(4) [Obtain next prime.]                                               
+    if P=() then { print "Prime list exhausted in AIUPGC."; stop };
+    ADV(P;p,P).
+(5) [Map normalization factor.]                                        
+    c*:=MDHOM(p,c); if c*=0 then goto 4.
+(6) [Check for lucky prime.]                                           
+    if IDREM(a,p) = 0 \/ IDREM(b,p) = 0 then goto 4;
+    d*:=IDREM(d,p); if d* = 0 then goto 4;
+    M*:=MPHOM(1,p,M); A*:=MPHOM(2,p,A); B*:=MPHOM(2,p,B).
+(7) [Probabilistically compute gcd modulo (p,M).]                      
+    GRUPGC(p,M*,A*,B*;C*,A^_*,B^_*,E); if E then goto 4.
+(8) [Test for constant g.c.d.]                                       
+    if IPONE(2,C*) then {C:=C*; A_:=A; B_:=B; return} .
+(9) [Conditional initialization of Chinese remainder process.]       
+    w*:=PDEG(C*); t:=ICOMP(w,w*); if t > 0 then { Q:=1; A':=0;
+    B':=0; C':=0; w:=w* }.
+(10)[Test for unlucky prime.]                                          
+    if t < 0 then goto 4.
+(11)[Apply Chinese remainder algorithm.]                               
+    C^*:=MPMDP(2,p,c*,C*);
+    q':=MDINV(p,MDHOM(p,Q)); C_:=IPCRA(Q,p,q',2,C',C^*);
+    A^*:=MPMDP(2,p,d*,A^_*); A':=IPCRA(Q,p,q',2,A',A^*);
+    B^*:=MPMDP(2,p,d*,B^_*); B':=IPCRA(Q,p,q',2,B',B^*);
+    Q:=IPROD(Q,p).
+(12)[Check termination.]                                               
+    if ~( EQUAL(C',C_) /\ EQUAL(A^,AIPPR(1,M,C_,A')) /\
+      EQUAL(B^,AIPPR(1,M,C_,B')) ) then { C':=C_; goto 4 }.
+(13)[Remove normalization.]                                            
+    IPICPP(2,C';c',C); IPICPP(2,A';a',A_); IPICPP(2,B';b',B_) ||                                       
+                    b:=ANEG(a)
+[Algebraic field negate.  a is an element of Q(alpha) for some alpha.
+b=-a.]
+(1) [a zero?] if a=0 then {b:=0; return}.
+(2) [Decompose.] ADEC(a;a',A').
+(3) [Negate.] b':=RNNEG(a').
+(4) [Reduce to canonical form.] b:=(b',A') ||
+
+                    ANRAN(n,k;M,I)
+[Algebraic number, random.  n is a positive beta-digit, k is a 
+non-negative beta-digit. M is an irreducible integral univariate 
+polynomial of degree n and with coefficients <2^k in absolute value
+having at least one real zero. I is a rational isolating interval 
+of a real zero of M.]
+(1) [Irreducible integral polynomial] repeat M:=IPRAN(1,k,(1,1),(n));
+    IPFAC(1,M;s,c,L) 
+    until LENGTH(L)=1 /\ FIRST(FIRST(L))=1/\PDEG(SECOND(FIRST(L)))=n.
+(2) [Isolating interval.] L:=IPRIM(M); if L=() then goto 1 else 
+    {n1:=LENGTH(L); n1:=MDRAN(n1)+1; I:=LELT(L,n1)} ||
+                    C:=APAPR(r,M,a,B)                                     
+[Algebraic polynomial algebraic product.  M is the integral minimal 
+polynomial of some algebraic number alpha. a  is an element of 
+Q(alpha). B is a polynomial over Q(alpha) in r variables, r > 0. 
+C=a*B.]
+     safe b,r',B',e.                                                           
+(1)  [C=0.]  if a=0 \/ B=0 then { C:=0;  return }.
+(2)  [General case.]  B':=B;  C:=();  r':=r-1;  repeat                 
+     ADV2(B';e,b,B');  if r'=0 then c:=APROD(M,a,b) else           
+     c:=APAPR(r',M,a,b);  C:=COMP2(c,e,C)  until B'=();  C:=INV(C) ||
+                    C:=APPROD(r,M,A,B)                              
+[Algebraic number field polynomial product.  A  and B are polynomials    
+over Q(alpha) in r variables, r>=0, for some algebraic number   
+alpha. M is the integral minimal polynomial of alpha. C=A*B.]          
+    safe a.                                                            
+(1) [A or B zero] if A=0 \/ B=0 then { C:=0; return }.
+(2) [r=0.] if r=0 then { C:=APROD(M,A,B); return }.
+(3) [General case.] A*:=CINV(A); B*:=CINV(B); C:=0; r':=r-1;
+    repeat ADV2(B*;b,f,B*); A':=A*; C1:=(); repeat                   
+    ADV2(A';a,e,A'); if r'=0 then c:=APROD(M,a,b) else          
+    c:=APPROD(r',M,a,b); C1:=COMP2(e+f,c,C1) until A'=();
+    C:=APSUM(r,C,C1) until B*=() ||                        
+                    c:=APROD(M,a,b)
+[Algebraic field product.  M is an integral minimal polynomial for some
+algebraic number alpha. a  and b are elements of Q(alpha). c=a*b.]
+(1) [a or b zero?] if a=0 \/ b=0 then {c:=0; return}.
+(2) [Decompose.] ADEC(a;a',A'); ADEC(b;b',B').
+(3) [Product.] C':=IPPROD(1,A',B'); c':=RNPROD(a',b'). 
+(4) [Reduce to canonical form.] c:=ARED(M,c',C') ||
+                    C:=APSUM(r,A,B)                                    
+[Algebraic polynomial sum.  A  and B are algebraic polynomials in r      
+variables, r>=0.  C=A+B.]                                            
+     safe a,b,C,f.                                                   
+(1)  [A=0 or B=0.]  if A=0 then { C:=B;  return };  if B=0             
+     then { C:=A;  return }.
+(2)  [r=0.]  if r=0 then { C:=ASUM(A,B);  return }.
+(3)  [Match coefficients.]  A':=A;  B':=B;  C':=();  r':=r-1;
+     repeat {  e:=FIRST(A');  f:=FIRST(B');  if e > f                
+     then { ADV2(A';e,a,A');  C':=COMP2(a,e,C') } else               
+     if e < f then { ADV2(B';f,b,B');  C':=COMP2(b,f,C') }        
+     else { ADV2(A';e,a,A');  ADV2(B';f,b,B');  if r'=0            
+     then c:=ASUM(a,b) else c:=APSUM(r',a,b);
+     if c # 0 then C':=COMP2(c,e,C') }  } until A'=()                
+     \/ B'=().
+(4)  [Finish.]  if A'=() then A':=B';  if C'=() then C:=A'             
+     else { C:=INV(C');  SRED(C',A') };  if C=() then C:=0 ||                                                          
+                    a:=ARAN(M,k)
+[Algebraic field element random.  k is a non-negative
+beta-digit, M is the integral minimal polynomial of alpha. a is 
+a random element of Q(alpha) with coefficients of size <2^k in 
+absolute value.]
+    safe m.
+(1) [Integral polynomial.] m:=PDEG(M); d:=MDRAN(m); 
+    A:=IPRAN(1,k,(1,1),(d)).
+(2) [Canonical.] a:=ARED(M,RNRAND(k),A) || 
+                    b:=ARED(M,a',A')
+[Algebraic field reduction.  M is an integral minimal polynomial for 
+some algebraic number alpha. a' is a rational number, A' an integral
+polynomial. b=a'*A'(alpha), an element of Q(alpha).]
+(1)  [b zero?] if a'=0 \/ A'=0 then {b:=0; return}.
+(2)  [Modified remainder.] IUPMPR(A',M;a*,A*). 
+(3)  [Positive primitive polynomial.] IPSCPP(1,A*;s,b^,B').
+(4)  [Rational part.] if s<0 then b^:=INEG(b^); b_:=RNRED(b^,a*); 
+     b':=RNPROD(a',b_); b:=(b',B') ||
+                    c:=ASUM(a,b)
+[Algebraic field sum.  a  and b are elements of Q(alpha) for some
+alpha. c=a+b.]
+(1) [a or b zero?] if a=0 then {c:=b; return} else if b=0 then 
+    {c:=a; return}.
+(2) [Decompose.] ADEC(a;a',A'); ADEC(b;b',B'); FIRST2(a';R1,R2);
+    FIRST2(b';S1,S2).
+(3) [Least common multiple.] IGCDCF(R2,S2;G,R_2,S_2); 
+    A*:=IPIP(1,IPROD(R1,S_2),A'); B*:=IPIP(1,IPROD(S1,R_2),B').
+(4) [Sum.]
+    C*:=IPSUM(1,A*,B*); if C*=0 then {c:=0; return}.
+(5) [Reduce.]
+    IPSCPP(1,C*;s,c*,C'); if s<0 then c*:=INEG(c*);
+    c':=RNRED(c*,IPROD(R2,S_2)); c:=(c',C') || 
+    
+                    B:=AUPCFI(M,a,B_)
+[Algebraic number field univariate polynomial change from algebraic
+integer representation.  M is the minimal integral polynomial of an
+algebraic number alpha. a  is a positive integer. B_ is a univariate
+polynomial over Q(alpha) whose coefficients are expressed as functions
+of \overline{alpha}=a*alpha, an algebraic integer. B is B_ with coefficients
+expressed as functions of alpha.]
+(1) [Transform coefficients.] B_':=B_; B':=(); while B_'#() do { 
+    ADV2(B_';e,b_,B_'); b:=ACFIR(M,a,b_); B':=COMP2(b,e,B') };
+    B:=INV(B') ||
+                    B_:=AUPCTI(M_,a,B)
+[Algebraic number field univariate polynomial change to algebraic
+integer representation.  M_ is the minimal integral polynomial of an
+algebraic integer \overline{alpha}. a  is a positive integer. B is a
+univariate polynomial over Q(\overline{alpha}) whose coefficients are
+expressed as functions of alpha=\overline{alpha}/a. B_ is B with
+coefficients expressed as functions of \overline{alpha}.]
+(1) [Transform coefficients.] B':=B; B_':=(); while B'#() do {
+    ADV2(B';e,b,B'); b_:=ACTIR(M_,a,b); B_':=COMP2(b_,e,B_') }; 
+    B_:=INV(B_') ||
+                    A*:=AUPFBI(A)
+[Algebraic univariate integral polynomial from bivariate integral
+polynomial representation.  A  is a non-zero bivariate integral
+polynomial representing a univariate polynomial over Z(alpha), alpha
+an algebraic integer. A* is the normal form of A.]
+(1) [Compute contents and primitive parts.] A':=A; A*:=(); repeat {
+    ADV2(A';e,A1,A'); IPSCPP(1,A1;s,c,A_1); if s<0 then c:=INEG(c);
+    r:=(c,1); a:=(r,A_1); A*:=COMP2(a,e,A*) } until A'=(); A*:=INV(A*)||
+                    AUPGCD(M,A,B;C,A_,B_)
+[Algebraic number field univariate polynomial greatest common divisor
+and cofactors.  A  and B are univariate polynomials over Q(alpha) for
+some algebraic number alpha. M is the minimal polynomial of alpha.
+C=gcd(A,B), a monic polynomial. A_ and B_ are the cofactors A/C and
+B/C (or 0 if C=0).]
+(1)  [A=B=0.] if A=0 /\ B=0 then { C:=0; A_:=0; B_:=0; return }.
+(2)  [A=0 or B=0.] if A=0 then { C:=AUPMON(M,B); A_:=0;
+     B_:=PINV(0,PLDCF(B),1); return }; if B=0 then {C:=AUPMON(M,A);
+     B_:=0; A_:=PINV(0,PLDCF(A),1); return }.
+(3)  [Compute monic minimal polynomial.] M_:=IUPMON(M).
+(4)  [Compute discriminant.] if PDEG(M_)=1 then d:=PLDCF(M_) else
+     d:=IPDSCR(1,M_).
+(5)  [Convert A_ and B_ to algebraic integer representation.]
+     m:=PLDCF(M); A^:=AUPCTI(M_,m,A); B^:=AUPCTI(M_,m,B).
+(6)  [Conversion to monic.] A':=AUPMON(M,A^); B':=AUPMON(M,B^).
+(7)  [Conversion to integral polynomial representation.]
+     AUPTBI(A';A'',a); AUPTBI(B';B'',b).
+(8)  [Compute gcd.] AIUPGC(M_,d,d,A'',B'';C'',A_'',B_'').
+(9)  [Conversion of outputs.] C:=AUPCFI(M,m,AUPFBI(C''));
+     A_':=AUPCFI(M,m,AUPFBI(A_'')); B_':=AUPCFI(M,m,AUPFBI(B_'')).
+(10) [Normalize cofactors.] A_:=APAPR(1,M,PLDCF(A),A_');
+     B_:=APAPR(1,M,PLDCF(B),B_') ||
+
+                    A_:=AUPMON(M,A)
+[Algebraic number field univariate polynomial monic.  M is the minimal
+polynomial of an algebraic number alpha.  A  is a non-zero univariate
+polynomial over Q(alpha). A_ is the monic polynomial A/ldcf(A).]
+(1) [Multiply reductum by inverse of leading coefficient.] 
+    PDEC(A;e,a,A*); a':=AINV(M,a); A^:=APAPR(1,M,a',A*);
+    u:=((1,1),(0,1)); A_:=PCOMP(e,u,A^) ||
+                    A:=AUPRAN(M,n,k)
+[Algebraic univariate polynomial random.  M is the integral minimal
+polynomial of some algebraic number alpha.  n and k are non-negative
+integers. A  is a random algebraic polynomial over of degree n with 
+algebraic elements of Q(alpha) with coefficients < 2^k in absolute 
+value.]
+(1) [Initialize.] repeat a:=ARAN(M,k) until a#0; A:=(a,n).
+(2) [Lower terms.] for i=n-1,n-2,...,0 do {a:=ARAN(M,k);
+    if a#0 then A:=COMP2(a,i,A)}; A:=INV(A) ||
+
+                    AUPTBI(A;A*,a*)
+[Algebraic univariate integral polynomial to bivariate integral 
+polynomial representation.  A  is a non-zero algebraic univariate
+integral polynomial. A* is an integer-primitive bivariate integral
+polynomial, a* is a positive integer such that a**A(x)=A*(alpha,x).]
+(1) [Compute least common multiple of denominators.] ADV2(A;e,a',A');
+    r:=FIRST(a'); a*:=SECOND(r); while A'#() do { ADV2(A';e,a',A');
+    r:=FIRST(a'); a:=SECOND(r); a*:=ILCM(a*,a) }.
+(2) [Multiply coefficients by lcm.] A':=A; A*:=(); repeat {
+    ADV2(A';e1,a1,A'); ADEC(a1;r1,A1); FIRST2(r1;b1,c1);
+    d1:=IPROD(b1,IQ(a*,c1)); A*1:=IPIP(1,d1,A1); A*:=COMP2(A*1,e1,A*) }
+    until A'=(); A*:=INV(A*) ||
+                    c:=GRDIF(p,a,b)
+[Galois ring element difference.  p is a prime \beta-integer.  a  and
+b are elements of GR(p,M) for some polynomial M. c=a-b.]
+(1)  [Use MP arithmetic.] c:=MPDIF(1,p,a,b);  return||
+                    GRINV(p,M,a;b,E)
+[Galois ring inverse.  p is a prime beta-integer.  M is a monic
+polynomial over Z_p.  a  is a non-zero element of GF(p,M). If 
+a  is not a unit, then E=1 and b is undefined. Otherwise E=0 and b=1/a.]
+(1)  [Initialize.] E:=0; a1:=M;  a2:=a;  v1:=0;  v2:=(0,1).
+(2)  [Remainder sequence.]  repeat {c:=MDINV(p,PLDCF(a2));
+     v2:=MPMDP(1,p,c,v2); if PDEG(a2) = 0 then { b:=v2; return }; 
+     a2:=MPMDP(1,p,c,a2); MPQR(1,p,a1,a2;q,a3); if a3=0 then 
+     {E:=1; return}; v3:=MPDIF(1,p,v1,MPPROD(1,p,q,v2)); a1:=a2; a2:=a3;
+     v1:=v2; v2:=v3 }||                                               
+                    b:=GRNEG(p,a)
+[Galois ring element negation.  p is a prime beta-integer.  a  is an
+element of GR(p,M) for some polynomial M. b=-a.]
+(1)  [Use MP arithmetic.] b:=MPNEG(1,p,a);  return||
+                    C:=GRPDIF(r,p,A,B)                                 
+[Galois ring polynomial difference.  p is a prime beta-integer.  A  and
+B are polynomials in r variables, r>=0, over GR(p,M) for some 
+polynomial M. C=A-B.]
+(1)  [Use MP arithmetic.] n:=r+1; C:=MPDIF(n,p,A,B); return||
+                    C:=GRPGRP(r,p,M,a,B)                              
+[Galois ring polynomial Galois ring element product.  p is a prime
+beta-integer. M is a monic polynomial over Z_p. a  is an element
+of GR(p,M). B is a polynomial over GR(p,M) in r variables, r>0.
+C=a*B.]
+(1)  [C=0.]  if a=0 \/ B=0 then { C:=0;  return }.
+(2)  [General case.]  B':=B; C:=(); r':=r-1; repeat
+     { ADV2(B';e,b,B');  if r'=0 then c:=GRPROD(p,M,a,b) else
+     c:=GRPGRP(r',p,M,a,b); if c#0 then C:=COMP2(c,e,C) } until B'=();
+     if C=() then C:=0 else C:=INV(C); return||
+                    GRPMON(r,p,M,A;A',E)                           
+[Galois ring polynomial monic.  p is a prime beta-integer.  M is a
+monic polynomial over Z_p. A  is a polynomial over GR(p,M) in r
+variables, r>0. If A=0 then A'=0 otherwise if gcd(M,pldbc(A))#1
+then E=1 and A' is undefined otherwise E=0 and A' is a monic
+polynomial over GR(p,M) similar to A.] 
+(1)  [A eq 0.]  if A = 0 then { A':=0;  return }.
+(2)  [A ne 0.]  a:=PLBCF(r,A); GRINV(p,M,a;a',E);
+     if E = 1 then return; A':=GRPGRP(r,p,M,a',A);
+     return||                                                          
+                    B:=GRPNE(r,p,A)                                    
+[Galois ring polynomial negative.  p a prime beta-integer.  A  is a
+polynomial in r variables, r>=0, over GR(p,M) for some polynomial M.
+B=-A.]                       
+(1)  [Use MP arithmetic.] n:=r+1; B:=MPNEG(n,p,A)||
+                    C:=GRPPRO(r,p,M,A,B)                               
+[Galois ring polynomial product.  p is a beta-integer.  M is a monic 
+polynomial over Z_p. A  and B are polynomials over GR(p,M) in r 
+variables, r>=0. C=A*B.]
+(1)  [A or B zero.] if A=0 \/ B=0 then { C:=0;  return}.
+(2)  [r=0.]  if r=0 then { C:=GRPROD(p,M,A,B);  return}.
+(3)  [General case.]  A*:=CINV(A); B*:=CINV(B); C:=0; r':=r-1;
+     repeat { ADV2(B*;b,f,B*); A':=A*; C1:=();  repeat                 
+     { ADV2(A';a,e,A');  if r'=0 then c:=GRPROD(p,M,a,b) else
+     c:=GRPPRO(r',p,M,a,b);  if c#0 then C1:=COMP2(e+f,c,C1) }
+     until A'=(); if C1#() then C:=GRPSUM(r,p,C,C1)  } until B*=();
+     return||
+                    GRPQR(r,p,M,A,B;Q,R,E)                         
+[Galois ring polynomial quotient and remainder.  p is a prime
+beta-integer. M is a monic polynomial over Z_p. A  and B, B#0, are
+polynomials over GR(p,M) in r variables, r>=1. If gcd(M,plbcf(B))#1 
+then E=1 and Q and R are undefined. Otherwise E=0 and Q and R are
+unique polynomials over GR(p,M) such that either B divides A, Q=B/A,
+and R=0 or else B does not divide A  and A=BQ+R with degree(R)
+minimal.] 
+(1)  [Initialize.]  n:=PDEG(B); b:=PLDCF(B); B':=PRED(B); Q:=();
+     R:=A; r':=r-1.
+(2)  [Compute quotient terms.]  while R # 0 do { m:=PDEG(R);
+     d:=m-n;  if d < 0 then go to  3;  a:=PLDCF(R);
+     if r'=0 then {GRQ(p,M,a,b;q,E);
+     if E = 1 then return; s:=0}                                    
+     else GRPQR(r',p,M,a,b;q,s);
+     if s # 0 then go to  3; Q:=COMP2(q,d,Q); Q1:=LIST2(d,q);
+     R':=PRED(R); Q':=GRPPRO(r,p,M,B',Q1); R:=GRPDIF(r,p,R',Q') }.
+(3)  [Finish.]  if Q=() then Q:=0 else Q:=INV(Q);  E:=0 ||            
+                    c:=GRPROD(p,M,a,b)
+[Galois ring element product.  p is a prime beta-integer.  M is a monic
+polynomial over Z_p. a  and b are elements of GR(p,M). c=a*b.]
+(1)  c':=MPPROD(1,p,a,b); MPQR(1,p,c',M;q,c)||                   
+                    C:=GRPSUM(r,p,A,B)                                  
+[Galois ring polynomial sum.  p is a prime beta-integer.  A  and B 
+are polynomials in r variables, r>=0 over GR(p,M) for some polynomial
+M. C=A+B.]  
+(1)  [Use MP arithmetic.] n:=r+1; C:=MPSUM(n,p,A,B); return||
+                    GRQ(p,M,a,b;c,E)
+[Galois ring quotient.  p is a prime beta-integer.  M is a monic
+polynomial over Z_p. a  and b are elements of GR(p,M), b nonzero.
+If gcd(M,plbcf(b))#1 then E=1 and c is undefined otherwise
+E=0 and c=a/b.]
+(1)  if a = 0 then c:=0 else { GRINV(p,M,b;F,E); if E = 1    
+     then return; c:=GRPROD(p,M,a,F)} ||                       
+                    c:=GRSUM(p,a,b)
+[Galois ring element sum.  p is a prime beta-integer.  a  and b are
+elements of GR(p,M) for some polynomial M. c=a+b.]
+(1)  [Use MP arithmetic.] c:=MPSUM(1,p,a,b); return||
+                    GRUPGC(p,M,A,B;C,A_,B_,E)                       
+[Galois ring univariate polynomial greatest common divisor and
+cofactors.  p is a prime beta-integer. M is a monic polynomial
+over Z_p. A  and B are univariate polynomials over GR(p,M).
+If gcd(M,s_i)#1 for some leading subresultant coefficient s_i
+then E=1 and C, A_, and B_ are undefined, otherwise E=0 and 
+C = gcd(A,B), C monic. If C#0, then A_ = A/C and B_ = B/C, otherwise 
+A_ = 0 and B_ = 0.]
+(1)  [A = B = 0] 
+     if A = 0 /\ B = 0 then { C:=0; A_:=0; B_:=0; return }.
+(2)  [A = 0 or B = 0.] 
+     if A = 0 then { GRPMON(1,p,M,B;C,E); if E then return; 
+       A_:=0; B_:=PINV(0,PLDCF(B),1); return }; 
+     if B = 0 then { GRPMON(1,p,M,A;C,E); if E then return; 
+       B_:=0; A_:=PINV(0,PLDCF(A),1); return }.
+(3)  [General case.] 
+     m:=PDEG(A); n:=PDEG(B); 
+     if m >= n then {A':=A; GRPMON(1,p,M,B;C,E); if E then return}        
+       else { A':=B; GRPMON(1,p,M,A;C,E); if E then return}; 
+     repeat { GRPQR(1,p,M,A',C;Q,R,E); if E then return;
+       if R = 0 then go to  4 
+       else { A':=C; GRPMON(1,p,M,R;C,E); if E then return} }.
+(4)  [Make up cofactors.] GRPQR(1,p,M,A,C;A_,R,E); if E then return; 
+     GRPQR(1,p,M,B,C;B_,R,E) ||                 

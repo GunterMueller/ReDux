@@ -1,0 +1,50 @@
+%%  comment symbol
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS not complete
+%%  DESCRIPTION finitely presented commutative Ring with unit
+%%  DESCRIPTION <X, Y , Z; X^2Y-Y-1, XYZ-Z^2>
+%%  ORIGIN
+DATATYPE CommutativeRingWithUnit;
+SORT
+	Ring;
+EXTERNAL
+        SAC2IP: XREAD=IPRRDE, XWRITE=IPRWRE, XTERM=TFIPRE, XFG=IPRFG;
+CONST
+	0: Ring;
+	1: Ring;
+VAR
+	a, b, c, d, e: Ring;
+OPERATOR
+	+: Ring, Ring -> Ring;
+	*: Ring, Ring -> Ring;
+	-: Ring -> Ring;
+        X, Y, Z: -> Ring;
+COERCION
+        ': SAC2IP -> Ring;
+NOTATION
+        ': ROUNDFIX ';    %% argument between quotes
+PREC
+        + < *;
+THEORY
+	+, *: AC;
+PROPERTY
+        -: SAC2IP=IPRNEG;
+        *: SAC2IP=IPRPRO;
+        +: SAC2IP=IPRSUM;
+        1: SAC2IP=IPRONE;
+        0: SAC2IP=PRZERO;
+AXIOM
+    [1]   0 + a == a;
+    [2]   0 * a == 0;
+    [3]   1 * a == a;
+    [4]   -0 == 0;
+    [5]   --a == a;
+    [6]   a + -a == 0;
+    [7]   -(a + b) == -a + -b;
+    [8]   a * -b == -(a * b);
+    [9]   a * (b + c) == a * b + a * c;
+   [10]   X * X * Y == Y + 1;
+   [11]   X * Y * Z == Z * Z;
+   %% [12]   X * Z * Z == Z * Y + Z;
+   %% [13]   Y * Y * Z == (-(Y * Z)) + Z * Z * Z;
+END

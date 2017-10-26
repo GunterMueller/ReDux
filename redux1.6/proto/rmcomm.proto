@@ -1,0 +1,41 @@
+#!/bin/sh -f
+# Change comments from old data type style to new style
+
+ AWK=AWK
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+
+# print usage
+if [ $# -eq 0 ] 
+then
+  echo "usage: rmcomm <file>" >&2
+  exit
+fi
+
+# find first lexeme of data type
+first=`$AWK '{ if(NF!=0) { print $1; exit } }' <$1`
+
+# no comment symbol
+if [ "TYPE" = $first ] 
+then
+  cat <$1
+  exit
+fi
+
+# same comment symbol as in new style
+if [ "%%" = $first ]
+then
+  cat <$1
+  exit
+fi
+
+# new comment symbol already used as (part of) identifier
+ctst=`grep "%%" <$1`
+if [ "" != "$ctst" ]
+then
+  echo "Comments in data type cannot be converted!" >&2
+  echo "Change identifier name containing '%%'" >&2
+  exit 10
+fi
+
+sed "s/\(\\$first\)/%% /" <$1

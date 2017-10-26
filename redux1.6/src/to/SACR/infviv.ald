@@ -1,0 +1,14 @@
+[ $Author: buendgen $
+  $Date: 1993/10/08 10:22:31 $
+  $Revision: 1.1 $
+]
+                         i:=INFVIV(v,V)
+[Index from variable in variable list. 
+v is a variable. V is a list of variables. 
+Then if v does not occur in the V an error message is given. Otherwise 
+if v=v_j for some j then i=j.  Taken from Andreas Webers' QE package: 
+INFV paramerized by variable V list instead of global variable list 
+VARL [RB].]
+      safe INFVIV.
+(1)  [Search.] i:=VLSRCH(v,V); if i>0 then return.
+(2)  [Error.] print "Variable missing in VARL."; stop ||

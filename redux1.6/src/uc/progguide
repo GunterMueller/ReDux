@@ -1,0 +1,145 @@
+        Programmer's Guide
+        =-=-=-=-=-=-=-=-=-
+
+Der zentrale Algorithmus der Unfailing Completion ist die Prozedur UFCMPT
+aus ufcmpt.ald. Ihre einzelnen Schritte entsprechen genau der Spezifikation
+der Inferenzregeln von Projektblatt 3.
+
+
+Eine Beschreibung der Prozedur im einzelnen findet sich weiter unten;
+folgende Invarianten sind stets zu Beginn von Schritt 2 erfuellt:
+
+* fuer alle s <-> t aus P:
+        (Pi)   s und t in (R u E)-Normalform
+        (Pii)  s # t
+        (Piii) P \ {s <-> t} enthaelt keine Instanz von s <-> t
+
+* fuer alle l -> r aus R:
+        (Ri)   l in (R'(l) u E'(l))-Normalform
+        (Rii)  r in ((R \ {l -> r}) u E)-Normalform
+
+* fuer alle s <-> t aus E:
+        (Ei)   s in (R'(s) u E'(s))-Normalform
+        (Eii)  t in (R'(t) u E'(t))-Normalform
+        (Eiii) P enthaelt keine Instanz von s <-> t
+        (Eiv)  E \ {s <-> t} enthaelt keine Instanz von s <-> t
+        (Ev)   s # t
+
+* fuer jedes (R u E)-normalisierte erweiterte kritische Paar
+  s <-> t von R u E gilt:
+        (XCP)  entweder s = t
+               oder s <-> t ist Instanz eines Paares aus P,
+               einer Gleichung aus E oder einer Regel aus R.
+
+Dabei sind R'(u) und E'(u) fuer alle Terme u definiert wie folgt:
+        R'(u) := {l -> r aus R | u # l}
+        E'(u) := {s <-> t aus E | u # s und u # t}
+
+
+Die Prozedur UFCMPT:
+
+(1) [Init]
+    Initialisierung von Listen, Flags und Zaehlern.
+    Aus P werden schon jetzt redundante Paare geloescht, um (Pii) und (Piii)
+    sicherzustellen; die anderen Invarianten gelten, weil R und E leer sind.
+    Die Eingabe von trace und step modes hat hier eigentlich nichts zu suchen!
+
+(2) [Proof!]
+    Dieser Schritt implementiert die Proof-Inferenzregel.
+
+(3) [Stop?]
+    Zaehlt die Runden.
+    Bricht ab, wenn MAXSTP erreicht ist oder keine kritischen Paare mehr da
+    sind.
+
+(4) [Orient/Unfail]
+    Dieser Schritt implementiert die Inferenzregeln Orient und Unfail.
+    Ist das ausgewaehlte kritische Paar orientierbar, so wird es zur neuen
+    Regel; dadurch koennen (Ri), (Rii), (Pi) und (XCP) verletzt werden.
+    Ist das kritische Paar nicht orientierbar, so wird es wegen (Eiii) auf
+    jeden Fall zur neuen Gleichung; dadurch koennen (Ei), (Eii), (Eiv), (Pi)
+    und (XCP) verletzt werden
+    (Eiii) gilt wegen (Piii) und (Ev) gilt wegen (Pii).
+    Nach dem Aufruf von CPRME gilt auch (Eiv) wieder.
+    Die kritischen Paare werden durch eine Gewichtung quasigeordnet, bei der
+    Auswahl spielt also in der Regel auch die Reihenfolge in der Liste P eine
+    Rolle. Die Gewichtsfunktion ist mit dem Makro STRATV (aus tp/tpcp.ald)
+    festgelegt.
+
+(5) [Collapse2]
+    Dieser Schritt implementiert die Collapse-Inferenzregel fuer Gleichungen.
+    Alle Gleichungen, die aufgrund der neuen Regel oder Gleichung kollabieren,
+    werden aus E entfernt und im Delete-Schritt zu P hinzugefuegt.
+    Weil (Ei) und (Eii) vor dem Orient/Unfail-Schritt galten, gelten sie nach
+    diesem Collapse-Schritt wieder. (Beweis per Induktion ueber |E|)
+
+(6) [Collapse1]
+    Dieser Schritt implementiert die Collapse-Inferenzregel fuer Regeln.
+    Alle Regeln, die aufgrund der neuen Regel oder Gleichung kollabieren,
+    werden aus R entfernt und im Delete-Schritt zu P hinzugefuegt.
+    Weil (Ri) vor dem Orient/Unfail-Schritt galt, gilt es nach diesem
+    Collapse-Schritt wieder. (Beweis per Induktion ueber |R|)
+
+(7) [Compose]
+    Dieser Schritt implementiert die Compose-Inferenzregel.
+    Dabei wird die Inferenzregel nur auf solche Regeln angewandt, deren
+    rechte Seite sich mit der neuen Regel oder Gleichung reduzieren laesst.
+    Weil (Rii) vor dem Orient/Unfail-Schritt galt, gilt es nach dem
+    Compose-Schritt wieder. (Beweis per Induktion ueber |R|)
+
+(8) [Deduce]
+    Dieser Schritt implementiert die Deduce-Inferenzregel.
+    Es werden alle erweiterten kritischen Paare bezueglich der neuen Regel
+    oder Gleichung gebildet. Dies sichert, dass nach Hinzunahme der
+    neugebildeten Paare zu P im Delete-Schritt (XCP) wieder erfuellt ist.
+    (Beweis per Induktion ueber |R u E|)
+    Aus den neugebildeten Paaren werden gleich wieder einige geloescht, weil
+    sie redundante Symmetrien in sich oder zu anderen Paaren aufweisen; dieser
+    Loeschschritt ist jedoch nicht so stark wie der Delete-Schritt.
+
+(9) [Simplify]
+    Dieser Schritt implementiert die Simplify-Inferenzregel.
+    Normalisiert werden die neugebildeten erweiterten kritischen Paare,
+    die kollabierten Gleichungen und Regeln, sowie alle Paare aus P, die sich
+    mit der neuen Regel oder Gleichung reduzieren lassen. Dies sichert, dass
+    bei Hinzunahme dieser reduzierten Paare zu P im Delete-Schritt (Pi) nicht
+    verletzt wird.
+
+(10) [Delete]
+     Dieser Schritt implementiert neben der Delete-Inferenzregel noch einige
+     staerkere Kriterien, um redundante kritische Paare zu loeschen.
+     Die Hinzunahme der Liste P* der im Simplify-Schritt reduzierten Paare
+     koennte (Pii), (Piii) und (Eiii) verletzen.
+     Der Aufruf von CPRMSY mit P* sichert, dass (Pii) nicht verletzt wird.
+     (Beweis per Induktion ueber |P|)
+     Der Aufruf von CPRME mit P* sichert, dass (Eiii) nicht verletzt wird.
+     (Beweis per Induktion ueber |P|)
+     Schliesslich sichert das sukzessive Hinzufuegen der Paare aus P* zu P
+     durch CPADD die Invariante P(iii). (Beweis per Induktion ueber |P|)
+
+(11) [Simplify goal]
+     Dieser Schritt implementiert einfach die gleichnamige Inferenzregel
+     und den Sprung an den Beginn der Vervollstaendigungsschleife.
+
+
+Die Spezifikationen fuer die Algorithmen zum geordneten Normalisieren von
+Termen und zur Berechnung der erweiterten kritischen Paare sind den
+Projektblaettern 1 und 2 zu entnehmen.
+
+
+Anmerkungen:
+
+1. Schritte, in denen Instanzen von kritischen Paaren oder Gleichungen
+   geloescht werden muessen, machen sich zur Vermeidung unnuetzer
+   Match-Versuche eine bestimmte Gewichtung der Paare zunutze, die mittels
+   CPLSW8 (aus ucax.ald) eingetragen wird. Diese Gewichtung muss folgende
+   Bedingung erfuellen:
+        Wenn s' <-> t' eine Instanz von s <-> t ist,
+        dann gilt CPW8(s <-> t) <= CPW8(s' <-> t').
+
+2. Beim geordneten Normalisieren und beim Berechnen der erweiterten kritischen
+   Paare wird vorausgesetzt, dass das Orientieren mittels TPPO auch mit
+   gebundenen Termen moeglich ist. Waehrend beim Normalisieren dieses Problem
+   durch Kopieren vermieden werden koennte, ist beim Berechnen der kritischen
+   Paare ein Aufruf von TPPO mit Termen, bei denen Variablen an andere freie
+   Variablen gebunden werden, unverzichtbar!

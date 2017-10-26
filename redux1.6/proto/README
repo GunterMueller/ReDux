@@ -1,0 +1,87 @@
+Files in this directory:
+========================
+
+README:             This file.
+
+ald3.7.proto,
+aldr.proto,
+blif2rdx.proto,
+cvcoerc.proto,
+dtcv.proto,
+dtcvdir.proto,
+GetPathOrdering.proto,
+GetPathOrdering_old.proto,
+mhead.proto,
+mksrt.proto
+regrep.proto,
+rglobs.proto,
+rgrep.proto,
+rhead.proto,
+rincl.proto,
+rkwic.proto,
+rmcomm.proto,
+start_redux.prot,
+toc.proto,
+typ2rdx.proto,
+typ2rdxdir.proto:   Prototypes of shell scripts.
+
+kwic.proto:         Symbolic link to the prototype of kwic
+
+Dtcv_Makefile.proto,
+demo_Makefile.proto,
+it_Makefile.proto,
+mak_Makefile.proto,
+olddemo_Makefile.proto: Prototypes of make files.
+
+io.C.proto:         Prototype of low level-functions.
+
+
+Description:
+============
+The files in this directory are prototypes (templates) for the files
+that are actually run. During the installation process, the
+installation make file filters the prototypes through sed to insert
+file names and other, installation dependent values into several
+variable- and macro definitions. To reduce the probability that
+a text substitution occurs accidentally, only lines that contain a
+special text pattern are considered by the sed command script. These
+patterns are different for the make files and the shell scripts:
+
+Shell scripts:
+--------------
+Pattern              | Shell variable is set to
+---------------------+----------------------------------------------------------
+ALDES=ALDES          | Directory with ALDES Compiler and SAC-2 system
+AMODULES=AMODULES    | List of ReDuX-modules written in ALDES
+BE=BE                | Name of back end compiler
+BEO=BEO              | Options for back end compiler other than optimization
+CMODULES=CMODULES    | List of ReDuX-modules written in C
+DPQR=DPQR            | Name of default library for SAC-2 low level routines
+optimize=OPTIMIZE    | Optimization flag for back end compiler
+RDX=RDX              | Name of ReDuX directory
+
+make files:
+-----------
+Pattern              | make macro is set to
+---------------------+----------------------------------------------------------
+ALDES = ALDES        | Directory with ALDES Compiler and SAC-2 system
+BE = BE              | Name of back end compiler
+BEO = BEO            | Options for back end compiler other than optimization
+DPQR = DPQR          | Name of default library for SAC-2 low level routines
+LEX = LEX            | Name of lexer (either lex or flex)
+LEXLIB = LEXLIB      | back end compiler option to link lex library
+OPTIMIZE = OPTIMIZE  | Optimization flag for back end compiler
+RDX = RDX            | Name of ReDuX directory
+YACC = YACC          | Name of yacc-tool (Either yacc or bison)
+YACCFLAGS = YACCFLAGS| Flags for yacc-tool
+
+io.C.proto:
+-----------
+Pattern              | make macro is set to
+---------------------+----------------------------------------------------------
+CLOCKSCALING         | Clock scaling factor
+
+Additionally, in all lines that contain the string
+``modified by the ReDuX'', the text ``Only to be'' is replaced by
+``The previous line was''. This corrects comments during the
+installation.

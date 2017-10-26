@@ -1,0 +1,26 @@
+Introduction to the SAC-2 Basic System
+
+The SAC-2 Basic System is a collection of simple algorithms which facilitate input and output of elementary data and provide some useful operations on single-precision integers. All subsequent SAC-2 systems depend on the Basic System.
+
+Any main program which uses the SAC-2 Basic System should have a call of BEGIN0 as its first executable statement. BEGIN0 initializes, as required, all system global variables (and arrays) associated with the Basic System. For a description of these system globals, see "SAC-2 Global Variables". The version of BEGIN0 which is provided is used in UNIVAC 1100 series SAC-2 implementation. The values which it assigns to the global variables
+ CUNIT, IUNIT, OUNIT, MUNIT AND PRNTR may need to be changed for use on a different computer. Note also that this version identifies MUNIT and OUNIT with PRNTR but, for example, MUNIT could be a keyboard terminal and OUNIT could be a card punch. Also, these assignments can be changed dynamically in the user's program.
+
+The character code arrays. ACODE, LCODE and SCODE, which are used for the SAC-2 computer-independent input and output, are initialized in step (5) of BEGIN0. For this purpose, BEGIN0 inputs a record from CUNIT, normally a punched card, containing the ALDES character set,
+
+0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.,=+-*/$()«`
+
+(where "«`" means a blank), in positions 1 to 47. Thus such a card will normally be the first card of the user's input deck. Alternatively, this character code record may be kept permanently in a file.
+
+In step (1), BEGIN0 calls the algorithm CLOCK, and assigns the value it returns to the system global variable T0. The value returned by CLOCK should be the current central processing unit clock reading in milliseconds, an integer. Thus CLOCK is obviously a computer-dependent algorithm which must be provided for each SAC-2 implementation. The version provided with the system always returns a value of 0; it can be used until a meaningful version is available.
+
+The ALDES translator translates the ALDES "input" and "output" statements into calls of the subroutines INPUT and OUTPUT. These two subroutines are provided with the system as computer-independent Fortran subroutines.
+
+In translating a recursive algorithm, the ALDES translator generates calls of the STACK-handling algorithms IUP and IDN. These algorithms are included so that a user of the SAC-2 Basic System can write recursive algorithms, but he will not normally call IUP and IDN explicitly.
+
+A main algorithm using the SAC-2 Basic System normally concludes with a call of END0. This algorithm outputs a line giving the elapsed time, in milliseconds, since BEGIN0 was called.
+
+Let N be any positive integer. Then by an N-integer we mean any integer A such that |A|<N. For any given computer, together with its Fortran compiler, we define the parameter g to be the largest positive integer such that every g-integer is a (single-precision) Fortran integer. For most computers g is a power of 2, but this is not assumed.
+
+Several algorithms of the Basic System provide arithmetic operations on g-integers (provided that the results of the operations are also g-integers). Addition, subtraction (or negation), multiplication, division and exponentiation are provided via the ALDES operation symbols +,-,/ and**. Note that in ALDES "a/b" denotes [a/b], the integral part of a/b. In general, we shall have occasion to use the floor function, ë xï, the  ceiling function, éxù, and the integral part function, [x], as defined in "The Art of Computer Programming, Vol. I: Fundamental Algorithms, by D.E. Knuth. Operations on g-integers provided as algorithms of the Basic System are SIGN, ABS, MAX, MIN, ODD, EVEN, REM, QREM and EXP. If A and B are arbitrary integers, B­0, we define the remainder of A and B as rem(A,B)=A-B.Q where Q=[A/B]. REM realizes the function rem for g-integers, and QREM also outputs the quotient Q. EXP realizes the exponentiation function, exp(a,b)=ab, defined for b³0, with 00=1. Thus "a**b" and "EXP(a,b)" are equivalent. Algorithms GREAD and GWRITE provide input and output of g-integers.
+
+The ALDES main program TESTBS is provided as a test program for the BASIC System. This program methodically invokes each subprogram of the system at least once (as described in the comments following each step number). It may help to reveal and diagnose any problems arising in the implementation of the system. Its purpose is not to provide a thorough test of the algorithms; this has previously been done by extensive usage.

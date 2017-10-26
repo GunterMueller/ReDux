@@ -1,0 +1,28 @@
+%% 
+DATATYPE RING;
+%% DESCRIPTION ring with one
+%% ORIGIN Peterson & Stickel 1981
+SORT
+	RNG;
+CONST
+	0, 1: RNG;
+VAR
+	v, x, y, z: RNG;
+OPERATOR
+	+: RNG, RNG -> RNG;
+	*: RNG, RNG -> RNG;
+	~: RNG -> RNG;
+NOTATION
+	~: FUNCTION;
+	+, *: INFIX;
+THEORY
+	+: AC;
+AXIOM
+[1] (0 + x)==x;
+[2] (~(x) + x)==0;
+[3] (1 * x)==x;
+[4] (x * 1)==x;
+[5] (x * (y + z))==((x * y) + (x * z));
+[6] ((x + y) * z)==((x * z) + (y * z));
+[7] ((x * y) * z)==(x *  (y * z));
+END

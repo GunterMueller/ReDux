@@ -1,0 +1,175 @@
+#---------------------------------------------------------------------
+# Declarations
+#---------------------------------------------------------------------
+
+# Backend
+
+# Backend options
+#BEO =#           use dynamic linkage
+#BEO = -static#   use static linkage
+ BEO = BEO
+#^^^^^^^^^        Only to be modified by the ReDuX
+#                 installation make file!
+ 
+# Backend used for linking, use the same that was used for compiling!
+ BE = BE $(BEO)
+#^^^^^^^^^        Only to be modified by the ReDuX
+#                 installation make file!
+# FLEX Library
+LEXLIB = LEXLIB
+#^^^^^^^^^        Only to be modified by the ReDuX
+#                 installation make file!
+ 
+# Paths
+ 
+# Path of ReDuX System:
+ RDX = RDX
+#^^^^^^^^^        Only to be modified by the ReDuX
+#                 installation make file!
+# Path of SAC2 Libraries:
+ ALDES = ALDES
+#^^^^^^^^^^^^^    Only to be modified by the ReDuX
+#                 installation make file!
+SDIR = $(ALDES)/lib
+ 
+ACDIR = $(RDX)/src/ac
+ICDIR = $(RDX)/src/ic
+ITDIR = $(RDX)/src/it
+TCDIR = $(RDX)/src/tc
+TODIR = $(RDX)/src/to
+TPDIR = $(RDX)/src/tp
+UCDIR = $(RDX)/src/uc
+
+BINDIR = $(RDX)/bin
+OBJDIR = $(RDX)/obj
+LIBDIR = $(RDX)/lib
+
+
+# library for dpr and/or dqr if not contained in libsac2
+# default
+#DPQR = dpqr-slow
+# for sun4c architectures (ELCs, Sparc2)
+#DPQR = dpqr-sun4
+# for sun4m architectures (Sparc10)
+#DPQR = dpqr-sun10
+ DPQR = DPQR
+#^^^^^^^^^        Only to be modified by the ReDuX
+#                 installation make file!
+ 
+# Avoids trouble on systems where the `SHELL' variable might be
+# inherited from the environment:
+SHELL = /bin/sh
+
+#--------------------------------------------------------------------
+# Files  
+#--------------------------------------------------------------------
+
+SCRIPTS = TC TO TS IC AC TRD UC
+
+IOOBJ = $(OBJDIR)/io/io.o 
+
+TCINO = $(OBJDIR)/tc/mexit.o $(OBJDIR)/tc/qct.o
+TCOBJ = $(TCINO) $(IOOBJ)
+TC0OB = $(OBJDIR)/main/tc0.o $(OBJDIR)/tc/tckb0.o $(TCINO) $(IOOBJ)
+TCSOB = $(OBJDIR)/main/tc-s.o $(OBJDIR)/tc/tckb-s.o $(TCINO) $(IOOBJ)
+TCTOB = $(OBJDIR)/main/tc-t.o $(OBJDIR)/tc/tckb-t.o $(TCINO) $(IOOBJ)
+TCSTO = $(OBJDIR)/main/tc-st.o $(OBJDIR)/tc/tckb-st.o $(TCINO) $(IOOBJ)
+
+TOOBJ = $(IOOBJ) 
+
+TSOBJ = $(OBJDIR)/ic/ictsi.o $(IOOBJ)
+TSTOB = $(OBJDIR)/main/tst.o $(OBJDIR)/ic/ictsi.o $(IOOBJ)
+ICOBJ = $(OBJDIR)/ic/icici.o $(OBJDIR)/tc/mexit.o $(IOOBJ)
+ACOBJ = $(IOOBJ) #$(HOME)/aldes/PSOFM/psofm.o
+
+RDOBJ = $(IOOBJ) 
+
+UCOBJ = $(IOOBJ) $(OBJDIR)/uc/ufcmptq.o $(OBJDIR)/tc/mexit.o
+
+#--------------------------------------------------------------------
+# Libraries
+#--------------------------------------------------------------------
+
+PARSER =$(LIBDIR)/libtpo.a
+ICLIB = $(LIBDIR)/libicmain.a $(LIBDIR)/libic.a $(LIBDIR)/libto.a \
+        $(LIBDIR)/libtc.a $(LIBDIR)/libsacr.a $(PARSER) \
+        $(LIBDIR)/libintdummy.a $(LIBDIR)/libco.a \
+        $(LIBDIR)/libax.a
+RDLIB = $(LIBDIR)/librdmain.a $(LIBDIR)/librd.a $(PARSER) \
+        $(LIBDIR)/libint.a  $(LIBDIR)/libax.a
+TCLIB = $(LIBDIR)/libtcmain.a $(LIBDIR)/libtc.a $(LIBDIR)/libto.a \
+        $(LIBDIR)/libsacr.a $(PARSER) $(LIBDIR)/libint.a \
+        $(LIBDIR)/libax.a
+TOLIB = $(LIBDIR)/libtomain.a $(LIBDIR)/libto.a $(LIBDIR)/libsacr.a \
+        $(PARSER) $(LIBDIR)/libint.a $(LIBDIR)/libax.a
+TSLIB = $(LIBDIR)/libtsmain.a $(LIBDIR)/libic.a $(LIBDIR)/libtc.a \
+        $(PARSER)  $(LIBDIR)/libintdummy.a $(LIBDIR)/libco.a \
+        $(LIBDIR)/libax.a
+ACLIB = $(LIBDIR)/libacmain.a $(LIBDIR)/libac.a $(LIBDIR)/libtc.a \
+        $(LIBDIR)/libto.a $(LIBDIR)/libsacr.a $(PARSER) \
+        $(LIBDIR)/libint.a $(LIBDIR)/libco.a \
+        $(LIBDIR)/libax.a
+UCLIB = $(LIBDIR)/libucmain.a $(LIBDIR)/libuc.a $(LIBDIR)/libtc.a \
+        $(LIBDIR)/libto.a $(LIBDIR)/libsacr.a $(PARSER) \
+        $(LIBDIR)/libintdummy.a $(LIBDIR)/libax.a
+
+#--------------------------------------------------------------------
+# Targets
+#--------------------------------------------------------------------
+
+algos: $(ITDIR)/algos
+	-ln -s $(ITDIR)/algos
+tc: $(TCOBJ) $(TCLIB) algos
+	$(BE) $(TCOBJ) $(TCLIB) -L$(SDIR) -lsac2 -l$(DPQR) -llow
+	mv a.out tc
+	chmod go+rx tc
+to: $(TOOBJ) $(TOLIB)
+	$(BE) $(TOOBJ) $(TOLIB) -L$(SDIR) -lsac2 -l$(DPQR) -llow
+	mv a.out to
+	chmod go+rx to
+ts: $(TSOBJ) $(TSLIB)
+	$(BE) $(TSOBJ) $(TSLIB)  -L$(SDIR) -lsac2 -l$(DPQR) -llow
+	mv a.out ts
+	chmod go+rx ts
+ic: $(ICOBJ) $(ICLIB) 
+	$(BE) $(ICOBJ) $(ICLIB)  -L$(SDIR) -lsac2 -l$(DPQR) -llow
+	mv a.out ic
+	chmod go+rx ic
+trd: $(RDOBJ) $(RDLIB) 
+	$(BE) $(RDOBJ) $(RDLIB)  -L$(SDIR) -lsac2 -l$(DPQR) -llow
+	mv a.out trd
+	chmod go+rx trd
+ac: $(ACOBJ) $(ACLIB)
+	$(BE) $(ACOBJ) $(ACLIB) -L$(SDIR) -lsac2 -l$(DPQR) -llow
+	mv a.out ac
+	chmod go+rx ac
+uc: $(UCOBJ) $(UCLIB)
+	$(BE) $(UCOBJ) $(UCLIB)  -L$(SDIR) -lsac2 -l$(DPQR) -llow
+	mv a.out uc
+	chmod go+rx uc
+# shell scripts to call programs
+TC: script.proto
+	sed -e 's/REDUXDEMO/tc/' -e 's!REDUXPATH!$(RDX)!' script.proto > $@
+	chmod a+rx $@
+TO: script.proto
+	sed -e 's/REDUXDEMO/to/' -e 's!REDUXPATH!$(RDX)!' script.proto > $@
+	chmod a+rx $@
+TS: script.proto
+	sed -e 's/REDUXDEMO/ts/' -e 's!REDUXPATH!$(RDX)!' script.proto > $@
+	chmod a+rx $@
+IC: script.proto
+	sed -e 's/REDUXDEMO/ic/' -e 's!REDUXPATH!$(RDX)!' script.proto > $@
+	chmod a+rx $@
+TRD: script.proto
+	sed -e 's/REDUXDEMO/trd/' -e 's!REDUXPATH!$(RDX)!' script.proto > $@
+	chmod a+rx $@
+AC: script.proto
+	sed -e 's/REDUXDEMO/ac/' -e 's!REDUXPATH!$(RDX)!' script.proto > $@
+	chmod a+rx $@
+UC: script.proto
+	sed -e 's/REDUXDEMO/uc/' -e 's!REDUXPATH!$(RDX)!' script.proto > $@
+	chmod a+rx $@
+scripts: $(SCRIPTS)
+all: tc to trd ts ic ac uc $(SCRIPTS)
+clean:
+	rm -f tc to trd ts ic ac uc $(SCRIPTS)

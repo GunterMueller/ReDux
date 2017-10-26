@@ -1,0 +1,24 @@
+%%  comment symbol
+DATATYPE VGRP;
+SORT
+	F, G;
+CONST
+	0: G;
+	1: F;
+VAR
+	u, v, w, x, y, z: G;
+	f, g, h: F;
+OPERATOR
+	+: G, G -> G;
+	~: G -> G;
+	app: F, G -> G;
+	/: F -> F;
+NOTATION
+	~, app, /: FUNCTION;
+	+: INFIX;
+AXIOM
+  [1] (app(f,x) + app(1,x)) == app(f,x);
+  [2] (app(f,x) + app(/(f),x)) == app(1,x);
+  [3] ((app(f,x) + app(g,x)) + app(h,x)) == 
+              (app(f,x) + (app(g,x) + app(h,x)));
+END

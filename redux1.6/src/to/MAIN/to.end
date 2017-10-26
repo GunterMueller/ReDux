@@ -1,0 +1,105 @@
+
+[ *** End of Global Safe Variables ***]
+
+     safe t,N,C,V,A,DUNIT,CRT.                                    
+(1)  [Initialize ReDuX system.] BGNRWD(4).
+(2)  [Output breadth: 80 characters.] RMARG:=79.
+(3)  [Garbage collector messages on.] GCM:=1;
+     [ [ALDES trace settings.] TRMAX:=500; COUNT:=1 ]
+     [Reset timers.] RTI:=0; MTI:=0; CTI:=0; UTI:=0; OTI:=0; STI:=0;
+     STPWT:=-CLOCK();
+     [Reset counters.] UC:=0; MC:=0; RC:=0;
+     [ReDuX traces off.] PNTRC:=0; CETRC:=0; STRC:=0; 
+     PITRC:=0; POTRC:=0; TOTRC:=0.
+(4)  [Use fort.4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.] 
+     STOUTL("-><--><--><--><--><--><--><--><--><--><--><--><-");
+     STOUTL("|                                              |");
+     STOUTL("|        ReDuX termination laboratory          |");
+     STOUTL("V                                              V");
+     STOUTL("->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-");
+     BLINES(1); STOUTL("           [$Revision: 1.1 $] "); 
+     BLINES(1).
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=CLOCK(); DT:=DTPRS(); t:=CLOCK()-t; 
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.").
+(8)  [Set input unit back to keybord.] IUCHNG(CRT); ISIZE:=80.
+(9)  [Write data type.] BLINES(1); t:=CLOCK(); DTWRT(DT); t:=CLOCK()-t;
+     STROUT("Display time: "); GWRITE(t); STOUTL(" ms."); BLINES(1);
+     STOUTL("Ready? *"); READ; C^:=CREAD().
+
+(10) [Initialize orderings.] DTDIS(DT; N,C,V,F,A); O_:=(); O*:=().
+(11) [Main menue.] c:=MENU(); case c of 
+     { [exit]            0 do goto 99;
+       [add]             1 do goto 16;
+       [remove]          2 do goto 15;  
+       [select ordering] 3 do O*:=TORDSE(DT,O_);
+       [order datatype]  4 do goto 12;
+       [order axioms]    5 do goto 13;
+       [toggle traces]   6 do {if POTRC then 
+                           { STROUT("Traces OFF"); POTRC:=0; 
+                             PITRC:=0; TOTRC:=0
+                           } else 
+                           { STROUT("Traces ON"); 
+                             POTRC:=1; PITRC:=1; TOTRC:=1
+                           }; WRITE;};
+       [list orderings]  7 do goto 14;
+       [list data type]  8 do goto 17;
+       [trace symbnol quasi ordering.] 9 do DTPOIW(DT);
+      }; goto 11. 
+(12) [Compare axioms in data type.] 
+     if O* # () then 
+     { A':=A; while A' # () do
+       { ADV(A'; a,A'); ADIS(a;n,t1,VHS,t2,l_); 
+         CP:=CPCONS(t1,t2,0,0,()); 
+         o:=TPPO(CP,O*); ORDWRT(t1,t2,o);
+       };
+     } else STOUTL("No ordering(s) selected."); 
+     goto 11.
+(13) [Compare axiom.] 
+     if O* # () then
+     { STOUTL("Input axiom *"); a:=AXPRS(DT);
+       ADIS(a; n,t1,VHS,t2,l_); 
+       CP:=CPCONS(t1,t2,0,0,()); 
+       o:=TPPO(CP,O*); ORDWRT(t1,t2,o);
+     } else STOUTL("No ordering(s) selected."); 
+     goto 11.
+(14) [list orderings] WRITE; 
+     STOUTL("Orderings installed: (K=Knuth-Bendix,P=Path,1-9=Poly)");  
+     O^:=TORDGT(DT); if O^ = () then
+     STROUT("None.") else CLOUT(O^); WRITE; WRITE;
+     STOUTL("Orderings selected: (K=Knuth-Bendix,P=Path,1-9=Poly)");
+     if O* = () then STROUT("None.") else CLOUT(O*); WRITE;
+     goto 11.
+(15)  [remove orderings] 
+     if TORDGT(DT) # () then {O_:=TORDRM(DT); O*:=();}
+     else STOUTL("No ordering(s) installed.");
+     goto 11.
+(16) [Add orderings] O_:=TORDIN(DT); goto 11.
+(17) [List data type] WRITE; DTWRT(DT); WRITE; 
+     STOUTL("Ready? *"); READ; goto 11.
+(99) [Finish up] ENDS ||                                               
+
+
+
+[---------------------------------------------------------------------
+     Section 2.
+     Interactive algorithms.
+---------------------------------------------------------------------]
+                    c:=MENU()
+[Main menu of ordering programm.] 
+(1)  BLINES(1); STOUTL("        --  Menu  -- "); 
+     STOUTL("  1 -- add orderings"); 
+     STOUTL("  2 -- remove orderings"); 
+     STOUTL("  3 -- select an automatic ordering");
+     STOUTL("  4 -- order the axioms of data type");
+     STOUTL("  5 -- order an axiom"); 
+     STOUTL("  6 -- toggle traces"); 
+     STOUTL("  7 -- list the installed orderings");
+     STOUTL("  8 -- display the data type"); 
+     [STOUTL("  9 -- trace the symbol quasi ordering");]
+     STOUTL("  0 -- exit program").
+(2)  BLINES(1); STOUTL("Enter your choice [0-8]*"); READ;
+     c:=AREADR(); if c < 0 \/ c > 9 then goto 1 ||
+

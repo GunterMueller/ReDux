@@ -1,0 +1,68 @@
+[Project: ALDES interpreter
+   module name        : ITDUMMY -- dummy procedures if libit.a
+                                    is not available
+   modulespecification: dummy procedures
+   programmer         : Reinhard Buendgen
+   language           : aldes
+   last change        : $Date: 1995/10/11 13:24:20 $
+                        by $Author: buendgen $
+   version:           : $Revision: 1.2 $
+   bugs               : non known
+   modules needed     :
+]
+
+
+                    ALGDIS(A; i,t,n1,n2)
+[]
+(1)  [] ISTINI(A,()); i:=123456; t:=i; n1:=i; n2:=i ||
+
+                    ISTINI(U,F)
+[]
+(1)  [Print message, abort program.]
+     CLOUT("Interpreter not implemented, program aborted.");
+     EMPTOB; HALT ||
+
+                    R:=SGCALL(S,I)
+[]
+(1)  [] ISTINI(S,()); R:=123456 ||
+
+                    r:=FCALL(f,n,A)
+[]
+(1)  [] ISTINI(f,()); r:=123456 ||
+     
+                    r:=FCALL0(f)
+[]
+(1)  [] ISTINI(f,()); r:=123456 ||
+
+                    r:=FCALL1(f,a1)
+[]
+(1)  [] ISTINI(f,()); r:=123456 ||
+ 
+                    r:=FCALL2(f,a1,a2)
+[]
+(1)  [] ISTINI(f,()); r:=123456 ||
+  
+                    r:=FCALL3(f,a1,a2,a3)
+[]
+(1)  [] ISTINI(f,()); r:=123456 ||
+  
+                    R:=PCALL(p,m,n,A)
+[]
+(1)  [] ISTINI(p,()); R:=123456 ||
+  
+                    R:=PCALL0(p,m)
+[]
+(1)  [] ISTINI(p,()); R:=123456 ||
+  
+                    R:=PCALL1(p,m,a1)
+[]
+(1)  [] ISTINI(p,()); R:=123456 ||
+  
+                    R:=PCALL2(p,m,a1,a2)
+[]
+(1)  [] ISTINI(p,()); R:=123456 ||
+
+                    R:=PCALL3(p,m,a1,a2,a3)
+[]
+(1)  [] ISTINI(p,()); R:=123456 ||
+  

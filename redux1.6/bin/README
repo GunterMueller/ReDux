@@ -1,0 +1,58 @@
+Directory bin
+=============
+Tools for the ReDuX system.
+
+Contents:
+  aglobs:    find global variables in ALDES-file
+  ald:       script for calling the ALDES-C compiler
+  asplit:    split ALDES-file into one file for each algorithm
+  choosetype: copies ReDuX data type from type-directory to ./file.4
+  fald:      auxiliar script for rgrep (find *.ald files recursively)
+  fhds:      auxiliar script for rgrep (find *.h  files recursively)
+  headers:   filter to extract headers from ALDES-files
+  include_cpp.sed: sed-script for rinc
+  include_m4.sed:  sed-script for rinc
+  regrep:    recursive egrep in *.ald files
+  rgrep:     recursive fgrep in *.ald files
+  rhead:     collect headers of ReDuX files
+  rinc:      redux include from [ #include .. ] comments
+  toc:       script computing table of contents file from ALDES sources
+  toc.awk:   awk-script for toc
+  unstrip_cpp.sed: sed script for rinc
+
+Description of the tools:
+
+ ald
+    See comments in the header of ald
+
+ choosetype [<directory>]
+    (see comments in choosetype)
+    <directory> determines from which directory a *.typ file
+    shall be selected interactively (default: typ).
+    A file with name "_type_is_"<Typename>"_" in the working directory
+    describes the contents of fort.4 an. (Such a file must perhaps be created
+    with
+        % echo > _type_is_
+    ).
+    
+ rgrep <string for fgrep> [ac|ax|co|ic|tc|to|tp|<directory>]
+    performs a recursive fgrep in all *.ald files of ReDuX/src,
+    or if the according ReDuX-subsystem or directory
+
+ toc <filename> ...
+    <filename> is a name of an ALDES-source file, the suffix `.ald'
+    may be omitted. The output will be directed to `stdout' and has the
+    format:
+       <Funct.-/Proc. head> : <filename>
+    and is sorted alphabetically according the Funct.-/Proc. names.
+
+Porting ReDuX:
+  To port ReDuX possible some path names must be changed in some scripts.
+  (In the distribution all path names are set as if ReDuX were located in
+     /usr/local/redux
+   and ALDES/SAC2 were located in
+     /usr/local/caldes
+  )
+
+  ald: check $BE and $ALDES
+  toc: check $RDX

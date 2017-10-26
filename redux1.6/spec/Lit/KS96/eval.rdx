@@ -1,0 +1,103 @@
+DATATYPE EVAL;
+%% AUTHOR Kapur Subramaniam
+%% ORIGIN Automating Induction over Mutually Recursive Functions
+%%        adapted to non-conditional equations
+
+SORT Expression, IdIndex, Nat, State, Bool;
+
+%%CONST
+%%    f, t:     Bool;
+%%    0:        Nat;
+%%    o:        IdIndex;
+%%    start:    State;
+
+OPERATOR
+     f, t:                                       -> Bool;
+     /\:      Bool, Bool                         -> Bool;
+     =n=:     Nat, Nat                           -> Bool;
+     =i=:     IdIndex, IdIndex                   -> Bool;
+
+     0:                                          -> Nat;
+     s:       Nat                                -> Nat;
+     +:       Nat,        Nat                    -> Nat;
+     lookup:  IdIndex,    State                  -> Nat;
+     eval:    Expression, State                  -> Nat;
+     if-nat:  Bool,       Nat,        Nat        -> Nat;
+
+     o:                                          -> IdIndex;
+     ':       IdIndex                            -> IdIndex;
+ 
+     nat:     Nat                                -> Expression;
+     id:      IdIndex                            -> Expression;
+     plus:    Expression, Expression             -> Expression;
+     apply:   Expression, IdIndex,    Expression -> Expression;
+     exp:     Expression, IdIndex,    Expression -> Expression;
+     exhelp:  Expression                         -> Expression;
+     if-exp:  Bool,       Expression, Expression -> Expression;
+
+     start:                                      -> State;
+     update: IdIndex,     Nat,        State      -> State;
+
+%% type of result of lookup 
+%% = type of 2nd parameter of update
+%% = type of eval
+%% = Nat or Expression // here I chose Nat
+
+
+NOTATION
+     ':                                   POSTFIX;
+     eval, id, nat, plus, lookup, exhelp: FUNCTION;     
+
+VAR
+     b:                 Bool;
+     n, m:              Nat;
+     x, y, z:           IdIndex;
+     e, e1, e2, e3, e4: Expression;
+     S, S1, S2:         State;
+
+AXIOM
+ [1]  b /\ b                  == b;
+ [2]  f /\ b                  == f;
+ [3]  b /\ f                  == f;
+
+ [4]  n =n= n                 == t;
+ [5]  0 =n= sn                == f;
+ [6]  sn =n= 0                == f;
+ [7]  sn =n= sm               == n =n= m;
+
+ [8]  x =i= x                 == t;
+ [9]  o =i= x'                == f;
+[10]  x' =i= o                == f;
+[11]  x' =i= y'               == x =i= y;
+
+[27]  0  + n                  == n;
+[28]  sm + n                  == s(m + n);
+
+[29]  if-nat(t,m,n)            == m;
+[30]  if-nat(f,m,n)            == n;
+
+[31]  if-exp(t,e1,e2)         == e1;
+[32]  if-exp(f,e1,e2)         == e2;
+ 
+[33]  lookup(x,start)         == 0;
+[34]  lookup(x,update(y,n,S)) == if-nat(x =i= y,n,lookup(x,S));
+
+[35]  exp(nat(n),x,e)         == nat(n);
+[36]  exp(id(x),x,e)          == exhelp(e);
+[37]  exp(id(x),y,e)          == if-exp(x =i= y,exhelp(e),id(x));
+[38]  exp(plus(e1,e2),x,e)    == plus(exp(e1,x,e),exp(e2,x,e));
+[39]  exp(apply(e1,x,e2),y,e) == exp(exp(e1,x,e2),y,e);
+
+[40]  exhelp(nat(n)) == nat(n);
+[41]  exhelp(id(x)) == id(x);
+[42]  exhelp(plus(e1,e2)) == plus(exhelp(e1),exhelp(e2));
+[43]  exhelp(apply(e1,x,e2)) == exp(e1,x,e2);
+
+[44]  eval(nat(n),S) == n;
+[45]  eval(id(x),S) == lookup(x,S);
+[46]  eval(plus(e1,e2),S) == eval(e1,S) + eval(e2,S);
+[47]  eval(apply(e1,x,e2),S) == eval(e1,update(x,eval(e2,S),S));
+
+%% extra rule
+[48]  eval(if-exp(b,e1,e2),S) == if-nat(b,eval(e1,S),eval(e2,S));
+END

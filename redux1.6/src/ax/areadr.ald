@@ -1,0 +1,19 @@
+                    a:=AREADR()
+[Atom read, robust.  
+An atom a is read from the input stream.  Any preceding blanks are 
+skipped. If an unallowed character is found the the user is asked for a 
+new number.]
+     safe AREADR.
+(1)  [Skip blanks and read sign, if any.]  S:=1;  C:=CREADB().
+(2)  if C='+' then C:=CREADB() else if C='-' then { C:=CREADB(); S:=-1};
+     if ~ DIGIT(C) then goto 4.
+(3)  [Read digits and convert.]  a:=0;  repeat 
+      { if a > BETA/10 then goto 4;
+        a:=10 * a+C-'0'; if a >= BETA then goto 4;
+        C:=CREAD() 
+      } until ~ DIGIT(C);  BKSP;  a:=S * a;  return.
+(4)  [Error.]  print "Error found by AREADR.";  DIBUFF;  
+     print"Repeat input ([S] to abort) *"; WRITE;
+     S:=1;  READ; C:=CREADB(); if C='S' then stop 
+     else goto 2 ||
+

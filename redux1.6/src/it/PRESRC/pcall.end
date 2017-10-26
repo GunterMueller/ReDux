@@ -1,0 +1,2 @@
+     }.
+(3)  [Collect result.] R:=(); for i=m,m-1,...,1 do R:=COMP(r[i],R) ||

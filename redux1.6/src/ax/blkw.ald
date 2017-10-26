@@ -1,0 +1,10 @@
+
+                    BLKW(n)
+[Write blanks.
+A  number of maximum n blanks are written on output. Writing terminates
+as soon as RMARG is reached.]
+     safe BLKW.
+(1)  [Change of 12.11.89, RB] n':=OPOS+n+1; if n' > RMARG then WRITE
+     else TAB(n') ||
+
+

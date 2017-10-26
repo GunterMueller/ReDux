@@ -1,0 +1,15 @@
+Introduction to the SAC-2 Combinatorial System
+
+The SAC-2 Combinatorial System depends on the SAC-2 Basic System, the SAC-2 List Processing System and the SAC-2 Arithmetic System. Currently this is a small system; it will be expanded in the future. This introduction describes the data structures, definitions and conventions of the combinatorial system and surveys its algorithms and capabilities.
+
+Currently there are no global variables associated with the combinatorial system. A main program which uses the combinatorial system should begin by calling BEGIN2, thereby initializing the SAC-2 Arithmetic System, and end by calling END1.
+
+The combinatorial system contains several algorithms for performing operations on "characteristic sets". A characteristic set is a set of non-negative integers represented in a particular way, namely, the set S is represented by the integer A = Sies 2i. Note that this is an efficient representation just in case the sets involved are moderately "dense". The algorithms in this set generally have names beginning with the letter CS. These algorithms depend on subalgoritms (DAND,DNOT, DOR, DNIMP) use arithmetic to access successive bits of b-digits. These subalgorithms will suffice for most purposes, but the user should be aware of applications for which it would be worthwhile to rewrite these in assembly language.
+
+There are some algorithms to compute factorials, binomial coefficients and sums of binomial coefficients.
+
+There are some algorithms pertaining the permutations. In particular there is an algorithm to generate a random permutation.
+
+A partition of the positive integer n is a multiset of positive integers whose sum is n. In the SAC-2 Combinatorial System a mulitiset of positive integers is represented as a list of integers (a1,...,ak) with a1 ² a2 ²...² ak; an integer a  occurs exactly as often in this list as in the multiset which it represents. There are several algorithms for working with partitions.
+
+There is an algorithm, ASSPR, for the optimal assignment problem. ASSPR uses a subalgorithm, SDR, for the problem of systems of distinct representatives.

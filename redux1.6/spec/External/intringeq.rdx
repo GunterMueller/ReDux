@@ -1,0 +1,39 @@
+%% 
+DATATYPE INTRING;
+SORT
+	BOOL, RING, ;
+EXTERNAL
+	SACINT: XREAD=IREAD, XWRITE=IWRITE, XEQ=EQUAL;
+CONST
+	0, 1: RING;
+	t, f: BOOL;
+VAR
+	a, b, c, d, e: RING;
+OPERATOR
+	+: RING, RING -> RING;
+	*: RING, RING -> RING;
+	~: RING -> RING;
+	=: RING, RING -> BOOL;
+COERCION
+	": SACINT -> RING;
+NOTATION
+	~: FUNCTION;
+	+, *, =: INFIX;
+	": ROUNDFIX ";
+THEORY
+	+, *: AC;
+	=: COM;
+AXIOM
+  [1] (0 + a) == a;
+  [2] (0 * a) == 0;
+  [3] (1 * a) == a;
+  [4] ~(0) == 0;
+  [5] ~(~(a)) == a;
+  [6] (a + ~(a)) == 0;
+  [7] ~((a + b)) == (~(a) + ~(b));
+  [8] (a * ~(b)) == ~((a * b));
+  [9] (a * (b + c)) == ((a * b) + (a * c));
+ [10] ( a = a ) == t;
+ [11] " 2 " == (1 + 1);
+ [12] (" 2 " * a) == (a + a);
+END

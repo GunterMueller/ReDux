@@ -1,0 +1,12 @@
+[-------------------------]
+[ Completion main program ]
+[-------------------------]
+
+[Stacksize:]
+    pragma TMU=20000.
+[Heapsize:]
+    pragma TNU=256000.
+
+                    UFC.
+[Main, unfailing completion.]
+

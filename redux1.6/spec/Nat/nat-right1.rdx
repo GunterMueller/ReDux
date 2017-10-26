@@ -1,0 +1,24 @@
+%%  comment symbol
+DATATYPE NAT;
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION specification of natural numbers
+%%  STATUS 
+SORT
+	NAT;
+CONST
+	0: NAT;
+VAR
+	a, b, c, d, e: NAT;
+OPERATOR
+	+: NAT, NAT -> NAT;
+	S: NAT -> NAT;
+NOTATION
+	S: FUNCTION;
+	+: INFIX;
+AXIOM
+  [1] (0 + a)==a;
+  [2] (S(a) + b)==(a + S(b));
+  [3] ((a + b) + c) == (a + (b + c));
+  [4] S((a + b)) == (a + S(b));
+END
+

@@ -1,0 +1,23 @@
+DATATYPE Z3;
+SORT
+	KOEF;
+CONST
+	0, 1: KOEF;
+VAR
+	a, b, c, d, e: KOEF;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+NOTATION
+	+, *, ~: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+ [1] +(0,a) == a;
+ [2] *(0,a) == 0;
+ [3] *(1,a) == a;
+ [4] *(a,+(b,c)) == +(*(a,b),*(a,c));
+ [5] +(+(a,a),a) == 0;
+ [6] ~(a) == +(a,a);
+END

@@ -1,0 +1,72 @@
+-><--><--><--><--><--><--><--><--><--><--><--><-
+|                                              |
+|          ReDuX AC-rewrite laboratory         |
+V                                              V
+->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-
+ 
+           [$Revision: 1.1 $] 
+ 
+Loading your data type ...
+Acception time: 10 ms.
+ 
+DATATYPE RNG;
+SORT
+        RNG;
+CONST
+        0, 1: RNG;
+VAR
+        x, X, Y, Z: RNG;
+OPERATOR
+        +: RNG, RNG -> RNG;
+        *: RNG, RNG -> RNG;
+        I: RNG -> RNG;
+NOTATION
+        +, *, I: FUNCTION;
+THEORY
+        +: AC;
+AXIOM
+ [1] +(0,X) == X;
+ [2] +(I(X),X) == 0;
+ [3] *(1,X) == X;
+ [4] *(X,1) == X;
+ [5] *(X,+(Y,Z)) == +(*(X,Y),*(X,Z));
+ [6] *(+(X,Y),Z) == +(*(X,Z),*(Y,Z));
+ [7] *(*(X,Y),Z) == *(X,*(Y,Z));
+END
+Display time: 0 ms.
+ 
+Ready? *
+
+
+Computing extension rules ...
+ 
+ 
+You have the following choices: 
+  u - unify two terms 
+  m - match two terms 
+  e - test equality of two terms 
+  n - normalize a term
+  x - compute an external term
+  t - set/unset trace options
+  d - display data type
+  c - compute critical pairs
+  k - run (AC)-Knuth-Bendix completion procedure
+  p - prove equational theorem
+  i - de/install term ordering
+  s - select term ordering
+  o - order axioms of data type
+  O - order axioms
+  S - show times and counters
+  r - reset times and counters
+  h - help, print menu
+  q - quit
+Go on [u/m/e/n/x/t/d/c/k/p/i/s/o/O/S/r/h/q]?  * 
+q
+
+ 
+ 
+ 
+ 
+581 symbols and 1206 properties.
+0 Garbage collections, 0 cells reclaimed, in 0 ms.
+1525188 cells in AVAIL, 1536000 cells in space.

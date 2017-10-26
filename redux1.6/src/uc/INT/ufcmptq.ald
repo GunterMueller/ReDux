@@ -1,0 +1,90 @@
+[---------------------------------------]
+[ Unfailing Completion query algorithms ]
+[---------------------------------------]
+
+[ #include "globs.h" ]
+[ #include "tp.h" ]
+
+[----------------]
+[ EXPORT section ]
+[----------------]
+
+
+
+                    QCPLCP(L; C,L*)
+[Query critical pair from list of critical pairs.
+ L is a list of critical pairs. The user may select
+ one critical pair C from the list L. In this case
+ the selected critical pair is removed from the list L
+ thus resulting in a new list L* and L is destroyed.
+ If the user did not select any critical pair, C=()
+ and L*=L.]
+
+(1) [Init] C:=(); L*:=L.
+(2) [select or default?]
+    STOUTL("Do you want to select the critical pair");
+    STOUTL("considered next? [Y/N]");
+    READ; a:=UCASE(CREAD());
+    if a#'Y' then return.
+(3) [select critical pair; first copy L to L_ and sort L_]
+    L_:=COPY(L); L_:=LOISE((),L_,LENGTH(L_));
+    i:=1; L':=L_;
+    repeat
+      j:=1;
+      while L'#() /\ IREM(j,16)#0 do
+      { ADV(L'; CP,L');
+        IWRITE(i); STROUT(": "); CPWRT(CP); WRITE;
+        i:=i+1; j:=j+1;
+      };
+      STOUTL("Enter number of critical pair or");
+      if L'#() then STOUTL("-1 to see more critical pairs or");
+      STOUTL("0 for default selection.");
+      n:=IREAD(); if n=0 then return;
+    until n>0 \/ L'=().
+(4) [delete critical pair from list]
+    if n<1 \/ n>LENGTH(L_) then return;
+    L':=L_;
+    for j=1,...,n do ADV(L'; C,L');
+    L*:=DELETE(C,L) ||
+
+
+
+                    QUFSM(;m,t)
+[Query step and trace mode for unfailing completion.
+ m=TRUE if the user wants to work in step mode,
+ t=TRUE if the user wants to work in trace mode.]
+
+(1) [Init]
+    m:=FALSE; t:=FALSE.
+(2) [set trace mode]
+    STOUTL("Do you want to work in trace mode? [Y/N] ");
+    READ; C:=UCASE(CREAD()); if C='Y' then t:=TRUE.
+(3) [set step mode]
+    STOUTL("Do you want to work in step mode? [Y/N] ");
+    READ; C:=UCASE(CREAD()); if C='Y' then m:=TRUE ||
+
+
+
+                    WRTI01(i,P,E,R,t,s)
+[write status information.]
+(1) STROUT("Step "); IWRITE(i);
+    STROUT(": |P| = "); IWRITE(LENGTH(P));
+    STROUT(", |E| = "); IWRITE(LENGTH(E));
+    STROUT(", |R| = "); IWRITE(LENGTH(R)); WRITE;
+    if t then 
+    { STOUTL("Equation set:");
+      CPLWRT(E); WRITE;
+      STOUTL("Rule set:");
+      ASWRT(R); WRITE
+    } ||
+
+
+
+                    WRTI02(n,d,t)
+[write status information.]
+(1) if t then
+    { STROUT("# of discarded CPs : "); IWRITE(d);
+      STROUT(" (");
+      if n>0 then IWRITE((100 * d) /  n) else IWRITE(0);
+      STROUT("%)"); WRITE
+    } ||

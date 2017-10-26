@@ -1,0 +1,51 @@
+DATATYPE XRING;
+SORT
+	EXTERN, RING;
+CONST
+	0, 1: EXTERN;
+VAR
+	a, b, c, d, e: RING;
+	A, B, C: EXTERN;
+OPERATOR
+	o:  -> RING;
+	i:  -> RING;
+	+: RING, RING -> RING;
+	*: RING, RING -> RING;
+	~: RING -> RING;
+	": EXTERN -> RING;
+	#: EXTERN, EXTERN -> EXTERN;
+	@: EXTERN, EXTERN -> EXTERN;
+	!: EXTERN -> EXTERN;
+NOTATION
+	~, !: FUNCTION;
+	+, *, #, @: INFIX;
+	": ROUNDFIX ";
+THEORY
+	+, *, #, @: AC;
+AXIOM
+  [1] (o + a) == a;
+  [2] (o * a) == o;
+  [3] (i * a) == a;
+  [4] ~(o) == o;
+  [5] ~(~(a)) == a;
+  [6] (a + ~(a)) == o;
+  [7] ~((a + b)) == (~(a) + ~(b));
+  [8] (a * ~(b)) == ~((a * b));
+  [9] (a * (b + c)) == ((a * b) + (a * c));
+
+  [10] (0 # A) == A;
+  [11] (0 @ A) == 0;
+  [12] (1 @ A) == A;
+  [13] !(0) == 0;
+  [14] !(!(A)) == A;
+  [15] (A # !(A)) == 0;
+  [16] !((A # B)) == (!(A) # !(B));
+  [17] (A @ !(B)) == !((A @ B));
+  [18] (A @ (B # C)) == ((A @ B) # (A @ C));
+
+  [19] o == " 0 ";
+  [20] i == " 1 ";
+  [21] ~(" A ") == " !(A) ";
+  [22] (" A " + " B ") == " (A # B) ";
+  [23] (" A " * " B ") == " (A @ B) ";
+END

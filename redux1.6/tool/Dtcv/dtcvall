@@ -1,0 +1,5 @@
+#!/bin/sh -f
+for file in $@
+do
+  dtcv $file >$file".new"
+done

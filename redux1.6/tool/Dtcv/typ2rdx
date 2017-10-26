@@ -1,0 +1,14 @@
+#!/bin/csh
+# SYNOPSIS typ2rdx <file name>.typ [<file name>.typ ...]
+#
+# convert all .typ files  to .rdx files
+#
+
+set RDX="/home/buendgen/ReDuX"                    # ReDuX directory
+#   ^^^^^^^                      The previous line was modified by the ReDuX 
+#                                installation make file!
+set RDXB=$RDX/bin 
+
+foreach i ($argv)
+  $RDXB/dtcv $i > $i:r".rdx"
+end

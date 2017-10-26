@@ -1,0 +1,27 @@
+DATATYPE INT;
+SORT
+	INT;
+CONST
+	0: INT;
+VAR
+	A, B, C, CAUX: INT;
+OPERATOR
+	+: INT, INT -> INT;
+	I: INT -> INT;
+	S: INT -> INT;
+	P: INT -> INT;
+NOTATION
+	+, I, S, P: FUNCTION;
+AXIOM
+ [1] +(0,A)==A;
+ [2] +(+(A,B),C)==+(A,+(B,C));
+ [3] +(A,0)==A;
+ [4] I(0)==0;
+ [5] +(S(A),B)==S(+(A,B));
+ [6] +(P(A),B)==P(+(A,B));
+ [7] S(P(A))==A;
+ [8] P(S(A))==A;
+ [9] I(S(A))==+(I(A),P(0));
+[10] I(P(A))==+(I(A),S(0));
+END
+;file ic ZC.typ

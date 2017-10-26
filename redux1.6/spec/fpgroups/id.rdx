@@ -1,0 +1,26 @@
+DATATYPE ID;
+SORT
+	ID;
+CONST
+	0: ID;
+VAR
+	A, B, C: ID;
+OPERATOR
+	a:  -> ID;
+	b:  -> ID;
+	c:  -> ID;
+	+: ID, ID -> ID;
+	I: ID -> ID;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(I(A),A)==0;
+[3] +(+(A,B),C)==+(A,+(B,C));
+[4] +(a(),+(a(),a()))==0;
+[5] +(b(),+(b(),b()))==0;
+[6] +(c(),+(c(),+(c(),c())))==0;
+[7] +(c(),I(a()))==+(a(),c());
+[8] +(b(),+(c(),I(b())))==+(a(),+(b(),I(a())));
+END
+; This file is id.typ 

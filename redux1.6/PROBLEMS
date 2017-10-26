@@ -1,0 +1,49 @@
+Installation Problems
+=====================
+
+Here we list a few problems that may occur during the installation.
+
+* MAKEFILE (editing)
+
+  When editing rinstall.w or Makefile make sure that your editor does
+  not expand <TAB>s to <SPACE>s automatically.
+
+  My emacs enters C-WEB-mode when editing rinstall.w which expands <TABS>.
+  You may try 
+   % emacs --no-site-file rinstall.w
+  or
+   % emacs --no-init-file rinstall.w
+  if you too have that kind of problem.
+
+* GNU-TOOLS (NAMES, PATHES, OPTIONS)
+
+  There is no fixed standard as to the names and pathes of gnu-tools. 
+  Mostly they have the standard-Unix names prefixed with a 'g'.
+  We assume the default path /usr/local/bin.
+  In particular in systems like Linux gnu-tools may be accessible under
+  the unprefixed Unix-name. You must be aware of this if standard Unix tools
+  and gnu tools require different options.
+
+* SOLARIS (PATHES)
+
+  In later Solaris versions some Unix tools are placed in /usr/ccs/bin.
+  Make sure to include this path in your path-variable.
+
+* LEX/FLEX
+
+  The flex-library libfl.a is often hidden in the gnu or flex installation or
+  library directory. You may need to use the option  "-L<dir-of-flexlib>"
+  before the option "-lfl".
+
+  See also GNU-TOOLS (NAMES, PATHES, OPTIONS)
+
+* CPP
+
+  The gnu C-preprocessor (ccpp or cpp) is often hidden very deeply in the
+  gcc library. E.g. on my Linux system it is under
+
+  /usr/lib/gcc-lib/i486-linux/2.72/cpp
+
+  You may  want to add a link from a bin-directory in your path variable
+  to that file
+

@@ -1,0 +1,295 @@
+\section{The TC-Subsystem} \label{se:tc}
+
+The {\it tc}-subsystem provides all operations needed to build a Knuth-Bendix 
+completion procedure (\cite{KnuthBendix:67}).
+In particular, there are algorithms for unification, matches, reductions,
+\index{unification}
+\index{match}
+\index{reduction}
+critical pair computations, and completion.
+\index{critical pair}
+\index{completion}
+The completion procedures implemented roughly follow the strategy depicted in
+\index{strategy}
+Figure~\ref{fi:cmpl}.
+\begin{figure}[ht]
+\begin{center}
+\fbox{
+\begin{minipage}{5.5in} %necessary if there is a footnote within the figure
+\begin{quote}
+\begin{center} ${\cal R} \leftarrow$ {\bf COMPLETE}$({\cal E},\succ)$
+\end{center}
+[Completion procedure. \\
+$\cal E$ is a set of equations and $\succ$ is a terminating term ordering.
+Then ${\cal R}$ is a canonical term rewriting system with
+\( =_{\cal R} \; = \; =_{\cal E} \).]
+\begin{description}
+ \item[{(1) [Initialise.]}] \(  {\cal R} := \emptyset \).
+ \item[{(2) [Simplify.]}] {\bf while} the {\em simplify}-inference rule
+   applies {\bf do} \\
+  \( ({\cal E};{\cal R}) := Simplify(({\cal E};{\cal R})). \)
+ \item[{(3) [Delete.]}] {\bf while} the {\em delete}-inference rule
+   applies {\bf do} \\
+  \( ({\cal E};{\cal R}) := Delete(({\cal E};{\cal R})). \)
+ \item[{(4) [Stop?]}] {\bf if} \(  {\cal E} = \emptyset \) {\bf then return}
+      ${\cal R}$ and {\bf stop}.
+ \item[{(5) [Orient.]}] Let \( a \leftrightarrow b \in {\cal E} \) then
+      \( {\cal E} := {\cal E} \setminus \{ a \leftrightarrow b \} \); \\
+      {\bf if} \( a \succ b \) {\bf then} \(  \bgn l := a; r  := b \nd \) \\
+      {\bf elsif} \( b \succ a \) {\bf then} \(  \bgn l := b; r  := a \nd \) \\
+      {\bf else stop} with failure; \\
+      \( {\cal R} := {\cal R} \cup \{ l \rightarrow r \} \).
+ \item[{(6) [Collapse.]}] {\bf while} the {\em collapse}-inference rule
+     applies {\bf do} \\
+    \( ({\cal E};{\cal R}) := Collapse(({\cal E};{\cal R})). \)
+ \item[{(6') [Subconnectedness criterion.]}] \null \\
+    \( {\cal E} := {\cal E} \setminus \{ \mbox{Equations originating from a
+    collapsed rule} \} \).
+ \item[{(7) [Compose.]}] {\bf while} the {\em compose}-inference rule
+   applies {\bf do} \\
+   \( ({\cal E};{\cal R}) := Compose(({\cal E};{\cal R})). \)
+ \item[{(8) [Deduce.]}] Compute all critical pairs ${\cal P}$ of 
+    $l \rightarrow r$ and rules
+    in $\cal R$. \( {\cal E} := {\cal E} \cup {\cal P} \)\footnote{Here we
+                                             identify pairs and equations.};
+    \\ {\bf continue} with step 2. \hfill $\Box$
+\end{description}
+\end{quote}
+\end{minipage}
+}
+\end{center}
+\caption{Algorithm {\em COMPLETE}} \label{fi:cmpl}
+\end{figure}
+The {\em simplify}-, {\em delete}-, {\em collapse}-, and {\em compose}
+inference rules are those presented in \cite{Dershowitz:89}.
+The subconnectedness criterion in step 6' was proposed by K{\"u}chlin
+\cite{Kuechlin:86}.
+
+In addition to the standard completion procedures shown in 
+Figure~\ref{fi:cmpl}, there are modified 
+\index{critical pair!criterion}
+completion procedures which employ critical pair criteria:
+\begin{enumerate}
+ \item in addtion to step 6',
+  the subconnectedness criterion is also applied in the Deduce step (8)
+  as described in \cite{Kuechlin:86}.
+\index{subconnectedness criterion}
+ \item the transformation criterion \cite{Buendgen:91b} and
+\index{transformation criterion}
+ \item the combination of the subconnectedness - and the
+  transformation criterion.
+\end{enumerate}
+For each criterion there are special critical pair computation algorithms and
+completion procedures.
+
+The algorithms of the {\it tc} subsystem cannot deal with external terms,
+except for the reduction algorithms.
+
+The implementation of the major part of the  algorithms in the
+{\it tc}-subsystem is described in \cite{Kuechlin:82a}.
+
+\subsection{The {\tt tcr}-Module}
+
+The {\tt tcr} module contains the term reduction algorithm TIREDS which 
+\index{reduction}
+normalises a free term $t$ w.\,r.\,t.\ a set of rewrite rules $\cal R$.
+\index{normalisation}
+The result is $t$ is $t$ if irreducible otherwise TIREDS returns the normal
+form $t^*$ of $t$ and $t$ is destroyed.
+The innermost reduction strategy used in TIREDS is discussed in
+\index{reduction!strategy}
+\cite{Kuechlin:82b} and \cite{Stickel:83}.
+
+TAPPLY computes a one step reduction at the top position of a non-atomic term.
+\index{term!non-atomic}
+The term resulting from TAPPLY is semi-bound, the bound variables serving
+as marks.
+External terms can be reduced using TXAPLY.
+\index{term!external}
+
+A term computed by TAPPLY or TIREDS may have non-variable subterms with the
+same representation, i.\,e.\ there is one representation of a subterm
+in the memory and more than one pointer pointing to it.
+Such terms should normally be avoided in the ReDuX system.
+\index{term!copy}
+Copying the term (with TFCVS, ACOPY, TRPCVS from {\tt tpcy}) results in a 
+correct representation of the term (with variables renamed).
+Also TSTDR destructively modifies its argument (a term --- possibly in the 
+non-standard representation resulting from TAPPLY or TIREDS) resulting in an
+equivalent term in which only constants, variables and extended terms may
+be shared.
+
+TIREDS assumes that constants are irreducible, in particular no left-hand side
+\index{constant}
+of a rule may be a constant.
+However there are no such restrictions for nullary function symbols
+(operators with ODTYPE equal to the empty list).
+
+The time spent in the non-trivial parts of TIREDS and in TSMTH 
+(reducibility test, see {\tt tpu}) is accumulated in the global variable RTI.
+The number of successful reductions is counted in the global variable RC.
+
+\subsection{The {\tt tckbq}-Module}
+
+The module {\tt tckbq} contains algorithms to administer lists ({\tt q} for
+waiting queues) of axioms and critical pairs used in the Knuth-Bendix
+\index{axiom}
+\index{critical pair}
+\index{queue}
+\index{Knuth-Bendix completion}
+completion procedure.
+
+Sets of axioms (equations or rewrite rules) are organised as lists 
+whose elements are axioms  which are sorted in ascending order of the sizes 
+of their respective left-hand sides.
+ALINS inserts an axiom into a sorted list of axioms.
+ALPUR partitions a set of axioms into a set of axioms with reducible 
+left-hand sides and one with irreducible left-hand sides (w.\,r.\,t.\ to
+a given rule).
+This is used to implement the collapse-inference rule in the completion
+algorithm (see Figure~\ref{fi:cmpl}).
+
+To construct queues of critical pairs the algorithm LOISE (from {\tt axsl1})
+can be used because the first field of a critical pair contains the 
+weight information according to which the pairs must be ordered.
+In addition there are algorithms to separate irreducible pairs from
+reducible pairs (CPLCLR, CPLOPR), 
+\index{critical pair!normalisation}
+to normalise a list of critical pairs (CPNLNF, CPOLNF, CPLOPR) and to apply
+\index{subconnectedness criterion}
+the subconnectedness criterion (\cite{Kuechlin:86}) to old critical pairs
+(CPLCCA).
+CPNLNF and CPOLNF differ only in their trace output.
+CPLOPR combines the separation and the normalisation steps and assumes that
+the left-hand sides (CPLHS) of the critical pairs are greater than the
+respective right-hand sides.
+
+\subsection{The {\tt tcsrt1}-Module}
+
+The algorithm LAXBMS from the module {\tt tcsrt1} sorts a list of axioms
+\index{sorting}
+according to their axiom number (ANUM) in ascending order.
+It is based on the LBIBMS algorithm from the SAC-2 {\it lp}-subsystem.
+This algorithm is parametrised using macro techniques.
+
+\subsection{Critical Pair Computation}
+
+There are four algorithms to compute critical pairs.
+\index{critical pair}
+All of them essentially compute all critical pairs between a single rule $r$ 
+and a set of rules $\cal R$.
+This means for all \( r' \in {\cal R} \) to superpose $r$ into $r'$ and
+$r'$ into $r$ and to compute all {\em intrinsic critical pairs} between
+\index{critical pair!intrinsic}
+$r$ and a copy of $r$.
+
+The module {\tt tccpc} contains a standard critical pair computation 
+without criteria.
+Its main algorithm is ASCPS.
+
+The module {\tt tccpc-s} implements the critical pair computation with
+subconnectedness criterion (\cite{Kuechlin:86}).
+\index{subconnectedness criterion}
+Its main algorithm is ASCPSU.
+There is also an algorithm RSDCPS computing all normalised critical pairs of
+a term rewriting system which can be used to test whether the system is
+\index{confluence}
+confluent.
+
+The module {\tt tccpc-t} implements the critical pair computation with
+the application of the transformation criterion (\cite{Buendgen:91b}).
+\index{transformation criterion}
+The interface of the main algorithm ASCPST differs from that of ASCPS and 
+ASCPSU.
+If the transformation criterion applies the rule which reduces the left-hand 
+side of $r$ is returned.
+Otherwise the resulting set of critical pairs is partitioned into
+\index{critical pair!oriented}
+oriented critical pairs and non-orientable critical pairs.
+All returned critical pairs are ${\cal R} \cup \{r\}$-normalised.
+
+The module {\tt tccpc-st} uses a combination of the subconnectedness- and the
+transformation criteria.
+Its main algorithm ASCPTU has the same interface as ASCPTS.
+
+\subsection{The Knuth-Bendix Completion}
+
+There is one completion algorithm for every critical pair computation procedure.
+\index{completion}
+The completion strategy implemented is roughly that of Figure~\ref{fi:cmpl}.
+One difference being that the set of equations $\cal E$ is partitioned into 
+three or four waiting queues of axioms or (oriented) critical pairs.
+\index{queue}
+\index{axiom}
+\index{critical pair}
+All completion algorithms apply the subconnectedness criterion in the
+\index{subconnectedness criterion}
+collapse step (CPLCCA).
+
+Each completion procedure can either be run in step mode (global variable 
+\index{step mode}
+STEPM $ = 1$) or in automatic mode (STEPM $= 0$).
+\index{automatic mode}
+In {\em automatic mode} the whole completion runs automatically as long as all
+equations and critical pairs are orientable.
+If the completion is run in {\em step mode} the program is interrupted at 
+every orientation step.
+The user can then orient the critical pair by hand, toggle traces,
+delay the consideration of a critical pair and so on.
+The details are described in \RUD.
+
+All completion procedures display statistical and trace output.
+
+The module {\tt tckb0} contains the completion algorithm DTKB which computes
+critical pairs without using a criterion.
+The set of equations $\cal E$ is stored as
+\begin{enumerate}
+ \item a queue Q1 for initial equations and collapsed rules,
+ \item a standard critical pair queue Q2 and
+ \item a queue Q3 where critical pairs are held which 
+    were manually but back (option ``B'' in QCA).
+\end{enumerate}
+Q1 has priority over Q2 which has priority over Q3.
+
+The module {\tt tckb-s} contains the completion procedure DTKBC which computes
+critical pairs applying the subconnectedness criterion.
+\index{subconnectedness criterion}
+Otherwise it differs from DTKB only in some statistical and trace output.
+
+The module {\tt tckb-t} contains the completion procedure DTKBT which computes
+critical pairs applying the transformation criterion.
+\index{transformation criterion}
+I.\,e.\ whenever the left-hand side of the last oriented rule can be reduced 
+by a new oriented critical pair, all other critical pairs computed with this 
+rule are discarded, the rule is pushed back onto Q0 and the oriented critical 
+pair is considered as the next new rule.
+The set of equations is stored as
+\begin{enumerate}
+ \item a queue Q0 for initial equations and collapsed rules,
+ \item a queue Q1 of oriented and normalised critical pairs,
+ \item a queue Q2 of (initially non-orientable) critical pairs and
+ \item a  queue Q3 where critical pairs are held which 
+    were manually but back (option ``B'' in QCA).
+\end{enumerate}
+Q0 has the  highest and Q3 the lowest priority.
+The priorities  of Q1 and Q2 are equal.
+ 
+The module {\tt tckb-st} contains the completion procedure DTKBTC which 
+combines the subconnectedness and the transformation criterion during the 
+critical pair computation.
+It differs from DTKBT only in some statistical and in some trace output.
+
+The main program TC %call DTKB, DTKBC, DTKBT and DTKBTC respectively.
+first reads a data type from input stream 4, displays the data type.
+The the use can select from a menu whether he wants to match or unify
+two terms, test for structural equality, prove equality modulo $\cal R$,
+normalise a term, define term ordering, perform termination tests and
+and run one of the completion procedures (DTKB, DTKBC, DTKBT, DTKBTC)
+described above.
+
+There are interactive routines in {\tt tcint}, {\tt mexit} and {\tt qct}.
+A leading M (for message) in the procedure name means that information is only
+\index{message}
+output whereas a leading Q (for query) denotes a procedure containing a 
+\index{query}
+dialogue.

@@ -1,0 +1,160 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPERR -- Scanner/Parser ERRor handling
+   modulespecification: Error handling routines for scanner and parser
+                        derived from tpdd, Revision: 1.12
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : $Date: 1993/08/11 09:12:57 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   bugs               : none known
+   modules needed     : SAC-2: low/bs, low/sy, low/lp
+
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[--------------------------------------------------------------------
+    Call structure:
+       ERRORD(message no. , algo no.)
+         -> ERROMD(message no. , algo no.)
+         ( -> ERPCID)
+       ERRSD((message no. , algo no., message2)
+         -> ERROMD(message no. , algo no.)
+         ( -> ERPCID)
+--------------------------------------------------------------------]
+                                                                       
+[---------------------------------------------------------------------
+     Section 1.  Algorithms for Export
+----------------------------------------------------------------------]
+
+
+                    ERRORD(n,m)                                       
+[Error messages at definition level.                                   
+Both  n  and  m are numbers. Then the error message no. n, the symbol
+SYM and the additional message no. m are output.]                      
+     safe S,X,I,n'.                                                    
+(1)  [Origination message.] WRITE; ERROMD(n,m).
+(2)  [Error message.] S:=" -SYMBOL"; X:=" EXPECTED,"; I:="IDENTIFIER";
+     case n of                                                         
+     { 1 do {SWRT(DTS); CLOUT(S); CLOUT(X)};                           
+       2 do {CLOUT(I);  CLOUT(X)};                                     
+       3 do {SWRT(DSS); CLOUT(S); CLOUT(X)};                           
+       4 do {SWRT(DAS); CLOUT(S); CLOUT(X)};                           
+       5 do {SWRT(DES); CLOUT(S); CLOUT(X)};                           
+       6 do {SWRT(DPS); CLOUT(S); CLOUT(X)};                           
+       7 do {SWRT(DCB); CLOUT(S); CLOUT(X)};                           
+       8 do {SWRT(DOB); CLOUT(S); CLOUT(X)};                           
+       9 do print"INCORRECT ARGUMENT LIST";                            
+      10 do print"NON-STANDARD TERM ENCOUNTERED -";                    
+      11 do {CLOUT(I); CLOUT(" OR INTEGER"); CLOUT(X)};                
+      12 do {CLOUT(I);CLOUT(" OR EXTRAORDINARY ");CLOUT(I);CLOUT(X)};  
+      13 do {CLOUT("NAME OF AN OBJECT"); CLOUT(X); CLOUT(" GRAMMAR");
+             CLOUT(S)};                                                
+      14 do {SWRT(DLS); CLOUT(S); CLOUT(X)};                           
+      15 do print"NUMBER EXPECTED,";
+      16 do print"NON-STANDARD PROPERTY ENCOUNTERED -";
+      17 do {SWRT(DNS); CLOUT(S); CLOUT(X)};
+      18 do print"CANNOT DEFINE SYMBOL AS 2nd ROUNDFIX SYMBOL - ";
+      19 do print"INFIX OPERATORS REQUIRE EXACTLE TWO PARAMETERS - ";
+      20 do print"ROUNDFIX OPERATORS REQUIRE A PROPERTY ROUND - ";
+      21 do {CLOUT("Term or "); SWRT(DOB); CLOUT(S); CLOUT(X)}
+     }.
+(3)  [Display faulty symbol.] if n=10 then return;
+     CWRIT4(' ','=','=',' '); if SYMBOL(SYM)=TRUE then SWRT(SYM)       
+     else UWRIT1(SYM); CWRIT3(' ','=','=');
+     CWRIT6(' ','F','O','U','N','D'); WRITE; DIBUFF.
+(4)  [Prompt corrected input.] if n=5 then n':=1 else                 
+     if (n=7 /\ m=6) \/ (n = 21 /\ m = 16) then n':=3 else 
+     if n = 16 \/ n=18 then n':=5 else if n < 9 \/ n > 10 then n':=2; 
+     ERPCID(n') ||                                              
+ 
+                   ERRSD(n,m,m')                                     
+[Semantic-error messages at definition level.                          
+The  semantic-error  message no. n is output. m is a number indicating
+the calling  algorithm.  m'  is  an  additional  piece  of  information
+depending on the kind of error-message.]                               
+(1)  WRITE; ERROMD(n,m);
+     CLOUT("(SEMANTIC-ERROR)"); EMPTOB.
+(2)  case n of                                                         
+     {1  do {CLOUT("Undeclared identifier == "); SWRT(m');
+             CLOUT(" == encountered."); WRITE; ERPCID(2)};             
+      2  do {CLOUT("The variables in the right-hand side of");
+             CLOUT(" axiom no. "); AWRITE(m'); EMPTOB;
+             CLOUT(" are not a subset of the variables in the");
+             CLOUT(" left-hand side of this axiom."); ERPCID(1)};      
+      3  do {CLOUT("Pure constant or variable not allowed");
+             CLOUT(" as left-hand side of axiom no. "); AWRITE(m');
+             WRITE; CLOUT(". Constants may be redeclared");
+             CLOUT(" as nullary operators"); EMPTOB};
+      4  do {CLOUT("Wrong type in argument "); SWRT(m');ERPCID(3)};
+      5  do {CLOUT("Too few arguments! "); ERPCID(3)};
+      6  do {CLOUT("The right-hand side of the axiom is not");
+             CLOUT(" type compatible to its left-hand side! "); 
+             ERPCID(4)};
+      7  do {CLOUT("The right-hand side of axiom no. "); 
+             AWRITE(m'); EMPTOB; CLOUT(" is not ");
+             CLOUT("type compatible to the left-hand side! "); 
+             ERPCID(1)};
+      8 do  {CLOUT("The domain and range of the operator are ");
+             CLOUT("not AC compatible! "); ERPCID(6)};
+      9 do  {CLOUT("Warning! No variable of type "); SWRT(m');
+             CLOUT(" has been declared."); WRITE;
+             CLOUT(" A new generic variable of that type will be");
+             CLOUT(" created."); WRITE};
+      10 do {CLOUT("Infix operator expected : "); SWRT(m')};
+      11 do {CLOUT("Postfix operator expected : "); SWRT(m')};
+      12 do {CLOUT("Operator expected : "); SWRT(m')};
+      13 do {CLOUT("Second part of roundfix operator expected : "); 
+             SWRT(m')};
+      14 do {CLOUT("External type "); SWRT(m');
+             CLOUT(" found at unexpected place!"); ERPCID(2) }
+     } ||                                                              
+
+[---------------------------------------------------------------------
+     Section 2.  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    ERPCID(m)
+[Error, prompt corrected input at definition level.
+m is a number indicating the message to be output.]
+     safe ERPCID.
+(1)  WRITE; print"Repeat your input, please, starting with";
+     case m of
+     {1  do print"END-symbol or faulty KIND-declaration. *";
+      2  do print"expected symbol. *";
+      3  do print"faulty argument-list. *";
+      4  do print"right hand side of axiom. *";
+      5  do print"property indicator. *";
+      6  do print"operator definition. *"
+     }.
+(2)  READ ||
+
+                    ERROMD(n,m)
+[Error origination message at definition level.
+Both  n  and m are numbers, n indicating the kind of error and m the
+calling algorithm. The error origination message is output.]
+(1)  CLOUT("*** Error no. "); AWRITE(n);
+     CLOUT(" occurred in algorithm ").
+(2)  if m > BETA then {CLOUT(m); WRITE; return}.
+(3)  case m of
+     {1  do CWRIT5('D','T','P','R','S');
+      2  do CWRIT5('C','S','P','R','S');
+      3  do CWRIT5('V','S','P','R','S');
+      4  do CWRIT4('O','P','R','S');
+      5  do CWRIT5('A','S','P','R','S');
+      6  do CWRIT4('T','P','R','S');
+      7  do CWRIT4('T','W','R','T');
+      8  do CWRIT5('A','C','O','N','S');
+      9  do CWRIT5('A','X','P','R','S');
+      10 do CWRIT5('O','P','P','R','S');
+      11 do CWRIT5('O','S','P','R','S');
+      12 do CWRIT6('T','P','R','S','P','R');
+      13 do CWRIT6('T','P','R','S','R','O');
+      14 do CWRIT6('T','P','R','S','P','O');
+      15 do CWRIT6('T','P','R','S','I','N');
+      16 do CWRIT6('T','P','R','S','L','S');
+      17 do CWRIT5('X','Y','P','R','S');
+      18 do CWRIT6('T','X','O','P','R','S');
+     }; WRITE ||

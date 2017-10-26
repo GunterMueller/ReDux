@@ -1,0 +1,19 @@
+DATATYPE T;
+SORT
+	T;
+CONST
+	A, B, C: T;
+VAR
+	x, X, Y, Z, X1, Y1, Z1, X2, Y2, Z2: T;
+OPERATOR
+	F: T -> T;
+	G: T, T -> T;
+	+: T, T -> T;
+	*: T, T -> T;
+NOTATION
+	F, G, +, *: FUNCTION;
+THEORY
+	+, *: AC;
+AXIOM
+[1] +(A,B)==C;
+END

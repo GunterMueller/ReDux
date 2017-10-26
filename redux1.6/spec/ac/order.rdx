@@ -1,0 +1,56 @@
+%%  comment symbol
+DATATYPE ORDER;
+%%  AUTHOR  R. Buendgen
+%%  DESCRIPTION Boolean combination of order relations
+SORT
+	BOOLEAN, ELEMENT;
+CONST
+	F, T: BOOLEAN;
+VAR
+	p, q, r: BOOLEAN;
+	a, b, c: ELEMENT;
+OPERATOR
+	#: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  exclusive or
+	/\: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  and
+	~: BOOLEAN -> BOOLEAN;	%%  not
+	=>: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  implies
+	\/: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  or
+	<=>: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  equivalent
+	|: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  nand
+	>: ELEMENT, ELEMENT -> BOOLEAN;
+	<: ELEMENT, ELEMENT -> BOOLEAN;
+	<=: ELEMENT, ELEMENT -> BOOLEAN;
+	>=: ELEMENT, ELEMENT -> BOOLEAN;
+	<>: ELEMENT, ELEMENT -> BOOLEAN;
+	=: ELEMENT, ELEMENT -> BOOLEAN;
+NOTATION
+	~: FUNCTION;
+	#, /\, =>, \/, <=>, |, >, <, <=, >=, <>, =: INFIX;
+THEORY
+	#, /\: AC;
+AXIOM
+  [1] (p \/ q) == ((p /\ q) # (p # q));
+  [2] (p => q) == ((p /\ q) # (p # T));
+  [3] (p <=> q) == (p # (q # T));
+  [4] ~(p) == (p # T);
+  [5] (p # F) == p;
+  [6] (p # p) == F;
+  [7] (p /\ T) == p;
+  [8] (p /\ p) == p;
+  [9] (p /\ F) == F;
+ [10] (p /\ (q # r)) == ((p /\ q) # (p /\ r));
+ [11] (p | q) == ~((p /\ q)) ;
+
+ [12] (a >= b) == ((a > b) \/ (a = b));
+ [13] (a <= b) == ((a < b) \/ (a = b));
+ [14] (a <> b) == ((a < b) \/ (a > b));
+ [15] (a = a) == T;
+ [16] (a > b) == (b < a);
+ [17] ((a > b) /\ (a < b)) == F;
+ [18] ((a > b) /\ (a = b)) == F;
+ [19] ((a < b) /\ (a = b)) == F;
+ [20] (a < a) == F;
+  %% 21) (a <> b) == ~((a = b)) ; forces = to be commutative
+  %% 22) ((a <= b) /\ (a < b)) == (a < b); is a consequence of 1-20
+  %% 23) ((a > b) \/ ((a = b) \/ (a < b))) == T ; forces = to be commutative
+END

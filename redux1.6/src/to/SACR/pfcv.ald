@@ -1,0 +1,7 @@
+                       A:=PFCV(r,s,i)
+[Polynomial from constant or variable. 
+s is a coefficient, i is 0 or a variable index, 1<=i<=r, r>=0.
+A is the polynomial s\cdot x_i, if i>0 and A=s, if i=0 or r=0.]
+(1) [A constant?] if r=0\/s=0 then {A:=s; return}.
+(2) [General case.] A:=s; for j=1,...,r do
+    {if j=i then e:=1 else e:=0; A:=PCOMP(e,A,0)} ||

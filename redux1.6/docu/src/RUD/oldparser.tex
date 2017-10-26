@@ -1,0 +1,320 @@
+\section{The Old Parser}
+\label{OldParser}
+In this Appendix, the old \redux\  specification parser is described. Versions
+of the \redux\  demo programs that use the old parser can be found
+in subdirectory {\tt olddemo} in the \redux\  main directory.
+
+\subsection{Algebraic Specifications}
+The input file  $\langle$prog$\rangle${\tt .in} must contain a one or 
+many sorted algebraic specification.
+The algebra name, constants and variables with associated type (sort) belong 
+to that specification. All function symbols (operators) must be 
+listed together with their domains and ranges, all constants and variables 
+together with their types. 
+And, last but not least, we need the set of axioms.
+In Figure~\ref{fi:syn.old}, we present the syntax of an algebraic specification in 
+extended BNF.
+It is the same given in \cite{Kuechlin:82a} and 
+\cite{Buendgen:87} with the addition of properties assigned to the
+operators to denote unification states 
+(for the {\tt ac} program),
+operator notation (prefix, infix, postfix, roundfix and
+Lisp notation) and to supply additional information
+to deal with external objects.
+
+If the first symbol of the data type specification file is not
+{\tt TYPE} then this symbol is declared as comment symbol and may be used
+to declare all characters to the right of the comment symbol to be 
+a comment in the remaining input.
+This comment symbol is then known to the rest of the program and
+may be used whenever terms or theorems are read in.
+If the first symbol of the data type specification file is {\tt TYPE} then
+no comment symbol is available.
+\input{oldsyntax}
+
+%AlgebraName, ConstantName, VariableName and TypeName  are
+%usual identifiers. An OperatorName consists of identifiers and the special 
+%symbols listed below.
+%\begin{quote}
+%``\verb+=+'', ``\verb-+-'', ``\verb+*+'', ``\verb+/+'', ``\verb+$+'',
+%``\verb+!+'', ``\verb+"+'', ``\verb+#+'', ``\verb+%+'', ``\verb+&+'',
+%``\verb+'+'', ``\verb+;+'', ``\verb+<+'', ``\verb+>+'', ``\verb+?+'',
+%``\verb+@+'', ``\verb+[+'', ``\verb+]+'', ``\verb+^+'', ``\verb+_+'',
+%``\verb+`+'', ``\verb+{+'', ``\verb+|+'', ``\verb+}+'' and ``\verb+~+''. 
+%\end{quote}
+%A ConstantName can also be a nonnegative integer.
+%A number is a positive integer to enumerate the rules. 
+
+In the current implementation the term-syntax has the
+following limitations that will be removed in a later revision.
+Operator names may start with a special symbol and end with an
+identifier or digit and on the other hand may start with an identifier
+and end with an identifier or digit, therefore
+it is impossible for the parser to uniquely interpret a term
+\verb+(A*B)+ as  either \verb+(A * B)+ or \verb+(A *B ...)+, where
+``{\tt *}'' is an infix operator. Therefore infix operators must be
+separated by blanks from their arguments.
+Roundfix Operators also have to be separated by blanks from their argument
+list. Otherwise \verb+<A,B>+ might be interpreted as \verb+<A,+\ldots
+instead of as \verb+< A,B >+, where ``{\tt <}'' and ``{\tt >}'' form a
+roundfix operator. A later
+revision might restrict operator names to consist either only of
+special symbols or of identifiers and digits with a leading
+identifier. 
+
+The following 
+semantic constraints are given: the argument list of an operator in a term must
+be as long as the type list of its domain and the arguments must be of the
+appropriate type. Also the name of an operator variable or constant
+may not be the same as another operator's, variable's or constant's name.
+Furthermore, no left-hand side of a Rule may consist only of a ConstantName
+or a VariableName. If a constant is needed as a left-hand side of a
+rule, a nullary operator can be used instead. 
+
+After reaching the {\tt END} symbol, the programs stop reading the
+algebraic specification. This feature can also be used to put 
+comments at the end of algebraic specification files.
+
+Algebraic specifications are called {\em data types} in the \redux\  system.
+The data type describing lists over the elements 0 and 1 can be described as
+shown in Figure~\ref{fi:exa.old}.
+
+\begin{figure}[htbp]
+\begin{center}
+%\fbox{
+\begin{minipage}{5.9in} %necessary if there is a footnote within the figure
+\begin{quote}
+\begin{verbatim}
+# comment symbol
+TYPE LIST. 
+# STATUS completed
+# AUTHOR Reinhard Buendgen
+# DESCRIPTION List({0,1}): cons, app, rev
+# ORIGIN  folklore
+CONSTS 
+   0,1-EL. 
+   nil-LIST 
+VARS 
+   A,B,C-EL. 
+   L,M,N-LIST
+OPS 
+   @(LIST,LIST)-LIST   FIX: INFIX.              # append 
+   [(EL,LIST)-LIST  FIX: ROUNDFIX ROUND: ].     # cons
+   rev(LIST)-LIST                               # reverse
+AXIOMS
+   1) (nil @ L) == L
+   2) ([ A,L ] @ M) == [ A,(L @ M) ]
+   3) rev(nil) == nil
+   4) rev([ A,L ]) == (rev(L) @ [ A,nil ])
+END
+\end{verbatim}
+\end{quote}
+\end{minipage}
+%} %end fbox
+\end{center}
+\caption{An example of a \redux\  data type specification} \label{fi:exa.old}
+\end{figure}
+The name of the data type is {\tt LIST}, the constants {\tt 0} and {\tt 1}
+are of sort {\tt EL} and {\tt NIL} is of sort {\tt LIST}.
+There are variables of sort {\tt EL} ({\tt A, B, C}) and of sort {\tt LIST}
+({\tt L, M, N}) and operators {\tt APP, CONS} and {\tt REV} with range sorts 
+{\tt LIST} $\times$ {\tt LIST}, {\tt EL} $\times$ {\tt LIST} and
+{\tt LIST} respectively, and result sorts {\tt LIST}.
+
+\subsection{Operator Properties}
+\label{OperatorProperties}
+The four property indicators have the following meaning:
+
+\begin{description}
+\item[USTAT:] This indicator is used in conjunction with the
+values {\tt AC} and {\tt COM}. The property value {\tt AC} indicates
+that the operator is associative and commutative. Therefore it can
+only be used with binary operators whose arguments and range 
+are of the same type.
+The value {\tt COM} is used for commutative operators. It can only be
+used with a binary operators whose arguments share the same type.
+
+\item[FIX:]
+The indicator {\tt FIX} is used to associate parsing properties
+to operators, i.\,e.\ information if the operator ought to be parsed and
+written as prefix, postfix, infix, roundfix operator, in LISP style
+or as constant (i.\,e.\ without parentheses for the arguments).
+See Appendix~\ref{OperatorNotation}.
+
+\item[ROUND:] This indicator is used to indicate the second part of a
+roundfix operator. It is used together with {\tt FIX: ROUNDFIX}.
+See Appendix~\ref{OperatorNotation}.
+
+\item[XINT:]
+The {\tt XINT} indicator is used to adjoin an interpretation to an
+operator. The corresponding value is a name for an \ALDES\ algorithm.
+See Appendix~\ref{ExternalObjects}.
+\end{description}
+
+Each property indicator can be used at most once per operator.
+
+\subsection{Operator Notation}
+\label{OperatorNotation}
+The standard parser supports operators with four different notations.
+The following is a list of the notions and the respective declarations in
+$\langle$prog$\rangle${\tt .in}:
+\begin{itemize}
+\item
+Prefix notation: as in {\tt f(r,n)} \\
+declaration of ``{\tt f}'' : {\tt f(REAL,NAT) - REAL FIX:PREFIX}\\
+Prefix is the standard notation and will be supported if there is no 
+``{\tt FIX}'' property added to the declaration of an operator.
+\item 
+Postfix notation as in {\tt (n)!} \\
+declaration of ``{\tt !}'' : {\tt !(REAL) - REAL FIX:POSTFIX}
+\item 
+Infix notation as in {\tt (n + m)} \\
+declaration of ``{\tt +}'' : {\tt +(NAT,NAT) - LIST FIX:INFIX} \\
+The infix notation requires a domain type list of length two.
+It also does not allow empty terms like {\tt ( + )} as the other notations
+support. 
+\item
+Roundfix notation as in {\tt < v1,v2 >} e.\,g.\  for the scalar product\\
+declaration of ``{\tt <\ldots >}'' : 
+{\tt <(VEC,VEC) - NAT FIX:ROUNDFIX ROUND:>}
+\item Lisp-fix notation as in {\tt (apply f a)} which is used in Lisp syntax\\
+declaration of ``{\tt apply}'': 
+{\tt apply(LISPOBJ,LISPOBJ) - LISPOBJ FIX: LISP} \\
+If in case of an input error the parser requests to reenter the argument list
+of an Lisp-fix operator the user is supposed to {\em first enter a blank
+character} and then to enter the arguments separated by blanks and 
+terminated by a closing parenthesis.
+
+\item Constant notation as in {\tt CONS(A,nil)}\\
+declaration of ``{\tt nil}'': {\tt nil() - LIST FIX: CONSTS}\\ 
+This operator notation is restricted to nullary operators.
+The fixing state {\tt FIX: CONSTS} can be omitted since it is the
+default for nullary operators.
+\end{itemize}
+Associative commutative (AC) and commutative operators can be  combined
+with any of the aforementioned notations. 
+AC-operators can be parsed in flattened form, that is more then two
+arguments are allowed in the argument list.
+\begin{example}
+If {\tt A}, {\tt B}, {\tt C} and {\tt D} are declared as variables (or
+constants) of type {\tt NAT} and the following AC-operators are declared:
+\begin{verbatim}
+OPS
+  *(NAT,NAT)-NAT USTAT: AC FIX: INFIX.
+  f(NAT,NAT)-NAT USTAT: AC
+\end{verbatim}
+Then the term {\tt (f(A,A) * (B * f(C,C,C,C) * D))} is a correct term
+and corresponds to the term {\tt (f(A,A) * (B * (f(C,f(C,f(C,C))),D)))}.
+\hfill $\Box$
+\end{example}
+Note that only the AC-rewrite laboratory and the term ordering ({\tt
+to}) program use the information that
+operators with unification status AC are to be considered 
+associative and commutative.
+All other programs ignore the unification status except in the term
+ordering algorithms.
+In particular only these two programs can handle flat terms correctly.
+
+\subsection{Constants vs. Nullary Operators}
+Constants may also be defined as nullary operators in
+the section `OperatorSpec' of  the grammar:
+\begin{quote}
+\begin{verbatim}
+OPS
+        ...
+        nil() - LIST.
+        ...
+\end{verbatim}
+\end{quote}
+Even though they are declared with an empty argument list,
+they are read and written {\em without} argument list inside a term
+(e.\,g.\ {\tt nil} or {\tt cons(L,nil)} are correct terms).
+
+If empty argument lists of nullary operators are desired inside a term,
+the operator must be declared with an explicit notational property
+(e.\,g.\ with property {\tt FIX: PREFIX}, {\tt nil()} is a correct term
+and with {\tt FIX: LISP}, {\tt (nil)} is a correct term).
+
+The main difference between constants and nullary operators is the
+built-in assumption that constants are irreducible.
+Therefore the left-hand side of an equation may not be a constant.
+This restriction does not apply to nullary operators.
+Thus in \redux\  constants can be handled more efficiently than
+operators.
+So far only operators may have properties (see
+Appendices~\ref{OperatorProperties},
+\ref{OperatorNotation} and \ref{ExternalObjects}).
+
+\subsection{External Objects}
+\label{ExternalObjects}
+Some \redux\  programs allow to manipulate external objects (like
+\ALDES\ integers, SAC-2 lists, SAC-2 (long) integers, etc.).
+Each of these object classes must be defined in the `ExtSpec' part
+of the data type definition by associating a \redux-type name with a set
+of properties describing the interface to the external data type:
+
+\begin{description}
+\item[XREAD:] Procedure name of a nullary procedure to read an external object.
+
+\item[XWRITE:] Procedure name of a nullary procedure to write
+an external object.
+
+\item[XEQ:] Procedure name of a binary boolean function to test the
+equality of two external objects.
+
+\item[XLT:] Procedure name of a binary boolean function to test if the
+first of two external objects is less than the second one.
+\[\vdots\]
+
+\end{description}
+
+\begin{example}
+The following external specification allows the import of SAC-2 lists and
+SAC-2 integers.
+\begin{quote}
+\begin{verbatim}
+EXTERNAL
+  SAC2LIST  XREAD: LREAD  XWRITE: LWRITE  XEQ: EQUAL.
+  SAC2INT   XREAD: IREAD  XWRITE: IWRITE  XEQ: EQUAL
+\end{verbatim}
+\end{quote}
+\end{example}
+
+Operators may be assigned a property ({\tt XINT:} {\em AlgorithmName})
+which describes the interpretation of the operator as function over the
+external objects.
+
+External objects may be introduced into terms via coercion operators.
+A {\em coercion operator} is a unary operator whose argument type has been
+defined in `ExtSpec' and whose result type is a normal term type (sort).
+The argument of an coercion operator is read and written by the
+procedures specified in {\tt XREAD} and {\tt XWRITE} properties
+of the external type respectively.
+
+Terms containing external objects are called
+{\em external terms} or {\em mixed terms}.
+A well-formed mixed term \(t=f(c_1(O_1),\ldots, c_n(O_n))\) 
+may be computed in one step if \(f\) has been assigned an \(n\)-ary
+interpretation algorithm \(A\)
+under property {\tt XINT}, the \(c_i\) are coercion operators and the
+\(O_i\) are external objects.
+Then the computation of \(t\) evaluates to $c(O)$ where $c$ is the
+coercion operator mapping the resulting external sort of $A$ to the
+result sort of $f$ and $O$ is the result of 
+\(A(O_1,\ldots,O_n)\).
+
+Applying these one-step computations as often as possible to all
+subterms is called {\em computing} that term.
+
+External objects must not be used in {\tt ic}, {\tt to}, {\tt ts}
+and {\tt uc}.
+The {\tt ac} program can handle external terms, but in the term ordering
+algorithms, external operators
+are treated like constants, independent of their argument. Its
+main menu contains an item to compute terms with external operators.
+In {\tt trd}, external operators have a fixed argument that
+must be supplied interactively by the user.
+All programs using external objects read in the file {\tt algos}
+that contains one entry for each algorithm that can be specified
+after {\tt XREAD}, {\tt XWRITE}, {\tt XEQ}, {\tt XLT}, and {\tt XINT}.
+

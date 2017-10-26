@@ -1,0 +1,9 @@
+x:=ALDESNIL()                   : ALDES constant nil
+x:=ALDESZERO()                  : ALDES constant zero
+x:=ALDESONE()                   : ALDES constant one
+x:=ALDESNEG(y)                  : ALDES operator unary minus
+x:=ALDESPLUS(y,z)               : ALDES operator plus
+x:=ALDESMINUS(y,z)              : ALDES operator minus
+x:=ALDESTIMES(y,z)              : ALDES operator times
+x:=ALDESDIV(y,z)                : ALDES operator div
+x:=ALDESEXP(y,z)                : ALDES operator to the power of

@@ -1,0 +1,44 @@
+%% 
+DATATYPE BOOLGROUP;
+%% STATUS completed
+%% DESCRIPTION boolean ring
+%% Built-in rules: (1-7)
+SORT
+	BOOLEAN;
+EXTERNAL
+        SAC2BP: XREAD=IPRRDE, XWRITE=IPRWRE, XTERM=TFIPRE, XFG=IPRFG;
+CONST
+        F, T: BOOLEAN;
+VAR
+        p, q, r: BOOLEAN;
+OPERATOR
+        #: BOOLEAN, BOOLEAN -> BOOLEAN;
+        /\: BOOLEAN, BOOLEAN -> BOOLEAN;
+        -: BOOLEAN -> BOOLEAN;
+        A: -> BOOLEAN;
+        B: -> BOOLEAN;
+        C: -> BOOLEAN;
+        a: -> BOOLEAN;
+        b: -> BOOLEAN;
+        c: -> BOOLEAN;
+THEORY
+        #,/\: AC;
+PREC
+        # < /\;
+NOTATION
+        -: PREFIX;
+PROPERTY
+        F: SAC2BP=PRZERO;
+        T: SAC2BP=IPRONE;
+        #: SAC2BP=BPRSUM;
+        /\: SAC2BP=BPRPRO;
+        -: SAC2BP=BPRNEG;
+AXIOM 
+[1] p # F == p;
+[2] p # p == F;
+[3] p /\ T == p;
+[4] p /\ p == p;
+[5] p /\ F == F;
+[6] p /\ (q # r) == p /\ q # p /\ r;
+[7] -p == p;
+END 

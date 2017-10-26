@@ -1,0 +1,99 @@
+[Project: External Evaluation.
+   module name        : EVBP -- EValuate in Boolean Polynomial.
+   modulespecification: Algorithms to evaluate in a ring of polynomials
+                        over a boolean ring.
+   programmer         : Werner Lauterbach
+   language           : aldes
+   last change        : 28.10.94
+                        $Date: 1995/07/10 16:43:20 $
+                        by $Author: lauterba $
+   version            : $Revision: 1.2 $
+   bugs               : none known
+   modules needed     : ???/bpoly.ald
+                        ev/???/evip.ald
+]
+
+[ #include "ev.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+ 
+[----------------------------------------------------------------------
+     This algorithms are intended to evaluate in an boolean ring:
+     Let (B, +, *, -, 0, 1) the signature:
+         B  <--->  boolean
+         +  <--->  BPRSUM                :  +: N x N --> N
+         *  <--->  BPRPRO                :  *: N x N --> N
+         -  <--->  BPRNEG                :  -: N --> N
+         0  <--->  PRZERO from evipr.ald :  constant
+         1  <--->  IPRONE from evipr.ald :  constant
+-----------------------------------------------------------------------
+     External Algorithms:
+     XFG    : IPRFG from evipr.ald
+     XREAD  : IPRRDE from evipr.ald
+     XWRITE : IPRWRE or IPRWEN from evipr.ald
+     XTERM  : TFIPRE from evipr.ald
+     XLT    : Not implemented.
+     XEQ    : Not implemented.
+-----------------------------------------------------------------------
+     Extensions:
+     1) boolean algebra
+-----------------------------------------------------------------------]
+
+                    p:=BPRSUM(d,p1,p2)
+[Boolean Polynomial Ring sum.
+d is the dictionary, p1 and p2 are boolean polynomials of rank 
+LENGTH(d). p=p1+p2. [WL]]
+     safe rank.
+(1)  [Init.] rank:=LENGTH(d).
+(2)  [Call BPSUM.] p:=BPSUM(rank,p1,p2) ||
+
+                    p:=BPRPRO(d,p1,p2)
+[Boolean Polynomial Ring PROduct.
+d is the dictionary, p1 and p2 are boolean polynomials of rank 
+LENGTH(d). p=p1*p2. [WL]]
+     safe rank.
+(1)  [Init.] rank:=LENGTH(d).
+(2)  [Call BPPROD.] p:=BPPROD(rank,p1,p2) ||
+
+                    p:=BPRNEG(DUMMY,p1)
+[Boolean Polynomial Ring NEGative.
+DUMMY is the not used dictionary, p1 an boolean polynomial. 
+p=-p1. [WL]]
+
+(1)  [Negate.] p:=p1 ||
+
+[----------------------------------------------------------------------
+     Extension Algorithms.
+-----------------------------------------------------------------------]
+
+[----------------------------------------------------------------------
+     This algorithms are intended to evaluate in an boolean algebra:
+     Let (B, \/, /\, ', 0, 1) the signature:
+         B   <--->  boolean
+         \/  <--->  BPROR                 :  \/: N x N --> N
+         /\  <--->  BPRPRO                :  /\: N --> N
+         '   <--->  BPRNOT                :  ':  N --> N
+         0   <--->  PRZERO from evipr.ald :  constant
+         1   <--->  IPRONE from evipr.ald :  constant
+     Comment: To define the xor-operator use BPRSUM.
+-----------------------------------------------------------------------]
+
+                    p:=BPROR(d,p1,p2)
+[Boolean Polynomial Ring OR.
+d is the dictionary, p1 and p2 are boolean polynomials of rank 
+LENGTH(d). p=p1\/p2. [WL]]
+     safe rank.
+(1)  [Init.] rank:=LENGTH(d).
+(2)  [Call.] p:=BPSUM(rank,BPSUM(rank,p1,p2),BPPROD(rank,p1,p2)) ||
+
+                    p:=BPRNOT(d,p1)
+[Boolean Polynomial Ring NOT.
+d is the dictionary, p1 an boolean polynomial of rank LENGTH(d).
+p=not(p1). [WL]]
+     safe rank.
+(1)  [Init.] rank:=LENGTH(d).
+(2)  [Call.] p:=BPSUM(rank,IPRONE(d),p1) ||

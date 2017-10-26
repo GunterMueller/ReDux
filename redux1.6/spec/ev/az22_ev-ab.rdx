@@ -1,0 +1,47 @@
+%%  comment symbol
+%%  AUTHOR Werner Lauterbach
+%%  STATUS not complete
+%%  DESCRIPTION abelian group 
+%%  DESCRIPTION <A,B,C,D,E; ABC=D,BCD=E,CDE=A,DEA=B,EAB=C>
+%%  ORIGIN Knuth & Bendix
+DATATYPE AbelianGroup;
+SORT
+	Group;
+EXTERNAL
+        AGROUP: XTERM=TFAGE, XFG=AGFG;
+CONST
+	0: Group;
+VAR
+	a, b, c, d, e: Group;
+OPERATOR
+	+: Group, Group -> Group;
+	-: Group -> Group;
+        A,B,C,D,E: -> Group;
+COERCION
+        ': AGROUP -> Group;
+NOTATION
+        ': ROUNDFIX ';
+THEORY
+	+: AC;
+PROPERTY
+        -: AGROUP=AGNEG;
+        +: AGROUP=AGSUM;
+        0: AGROUP=AGZERO;
+AXIOM
+    [1]  0 + a == a;
+    [2]  -a + a == 0;
+    [3]  -0 == 0;
+    [4]  --a == a;
+    [5]  -(a + b) == -a + -b;
+
+    [6]  A+B+C == D;
+    [7]  B+C+D == E;
+    [8]  C+D+E == A;
+    [9]  D+E+A == B;
+   [10]  E+A+B == C;
+END
+
+
+
+
+

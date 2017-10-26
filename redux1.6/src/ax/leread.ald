@@ -1,0 +1,32 @@
+
+                    L:=LEREAD()
+[List extended read.  The list L is read from the input stream.
+An extended List may contain ranges indicated by '-', eg. (1,3-5).
+A List like (n-n) means (n). Any preceding blanks are skipped.]
+     safe C.
+(1)  [Read list elements.]
+     L:=(); C:=CREADB();
+     if C # '(' then go to 2;
+     repeat {
+        C:=CREADB();
+        if C=')' then { L:=INV(L); return } 
+        else if C='(' then { BKSP; L1:=LEREAD() } 
+        else if C='+' \/ C='-' \/ DIGIT(C)=1 then 
+        { BKSP; L1:=AREAD(); C:=CREADB(); if C='-' then 
+          { C:=CREADB(); if C='+' \/ C='-' \/ DIGIT(C)=1 then 
+            { BKSP; L2:=AREAD(); r:=TRUE } 
+            else go to 2
+          } else BKSP
+        } else go to 2;
+        if r=TRUE then 
+        { L3:=(); if L1<=L2 then 
+          { for i=L1,...,L2 do { L3:=COMP(i,L3) }; L1:=L3
+          } else 
+          { for i=L2,...,L1 do { L3:=COMP(i,L3) }; L1:=INV(L3)
+          }; L:=CONC(L1,L); r:=FALSE
+        } else L:=COMP(L1,L);
+        C:=CREADB();
+        if C=')' then BKSP
+        else if C # ',' then go to 2
+     }.
+(2)  [Error.] print "Error found by LEREAD."; DIBUFF;  stop||

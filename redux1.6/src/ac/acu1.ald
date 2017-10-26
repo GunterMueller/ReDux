@@ -1,0 +1,117 @@
+[ #include tp.h ]
+[ #include globs.h ]
+
+[
+  global MGCIC. safe MGCIC. [match count for mgci computations.]
+  global MGCIT. safe MGCIT. [time for mgci computations.]
+]
+
+
+
+[----------------------------------------------------------------------]
+[                                                                      ]
+[   Augmented terms:                                                   ]
+[                                                                      ]
+[----------------------------------------------------------------------]
+
+    const
+    AUGMTW8(T) = FIRST(T),
+                 [Augmented term, weight.]
+    AUGMTT(T)  = SECOND(T),
+                 [Augmented term, term.]
+    AUGMTVL(T) = THIRD(T),
+                 [Augmented term, variable list.]
+    AUGMTLB(T) = FOURTH(T),
+                 [Augmented term, linearity bit.]
+    AUGMTSB(T) = FIFTH(T).
+                 [Augmented term, substitution.]
+
+                    T:=AGTCNS(w,t,V,b,s)
+[Augmented term, construct.
+t is a term, w is its weigt, V is its variable list and b its
+linearity information. s is a substitution associated with t.
+Then the augmented term T is constructed from the above inputs.]
+
+(1)  [Construct.] T:=(w,t,V,b,s) ||
+
+                    AGTDIS(T; w,t,V,b)
+[Augmented term, display.
+T is an augmented term. Then its weight (w), term (t),
+variable list (V) and linearity bit (b) are displayed.]
+     safe AGTDIS.
+(1)  [Display.] ADV4(T; w,t,V,b,T') ||
+
+                    L*:=TALDJI(L,w,t,V,b,s)
+[List of augmented terms insert.
+L=(T1,...,Tn) is a list of augmented terms where Ti=(wi,ti,Vi,bi,si).
+[L is sorted in non-ascending order wrt. the wi.]
+t is a non-atomic term, w is its weight, V is its variable list and b 
+its linearity information. s is a substitution associated with t.
+Then L* = L if t is an instance of some ti in L. Otherwise L* is
+equal L union {(w,t,V,b,s)} \ { Ti in L | ti is an instance of t}.]
+
+(1)  [Initialize.] L':=L; s~:=TSIGN(t); E:=TUSTAT(t); L*:=L;
+     if PNTRC then { STROUT("TALDJI:  "); TDIWRT(t,(); D); WRITE };
+     T:=AGTCNS(w,t,V,b,s).
+(2)  [L empty.] if L = () then { L*:=LIST1(T); return }.
+(3)  [Compare.] T1:=FIRST(L'); AGTDIS(T1; w1,t1,V1,b1);
+     if s~ # TSIGN(t1) then if RED(L') = () 
+        then { RED(L'):=LIST1(T); return }
+        else { L':= RED(L'); goto 3 };
+     if w1 <= w then
+     { MC:=MC+1; MTI:=MTI-CLOCK();
+       [AC operator.] if E = DAC then M:=TMSAC(t1,t,V,b1)
+       [CO operator.] else if E = DCO then M:=TMSCO(t1,t,V,b1)
+       else M:=TLMSE(OARGLST(t1),OARGLST(t),V,b1); MTI:=MTI+CLOCK();
+       [t' matches t.] if M # () then  return
+     };  if w > w1 then { M:=(); goto 4 };
+     MC:=MC+1; MTI:=MTI-CLOCK();
+     [AC operator.] if E = DAC then M:=TMSAC(t,t1,V1,b)
+     [CO operator.] else if E = DCO then M:=TMSCO(t,t1,V1,b)
+     else M:=TLMSE(OARGLST(t),OARGLST(t1),V1,b); MTI:=MTI+CLOCK().
+(4)  [No match.] if M = () then if RED(L') = () 
+           then { RED(L'):=LIST1(T); return }
+           else { L':=RED(L'); goto 3 }.
+(5)  [t' matches t.] FIRST(L'):=T.
+(6)  [Other matching elements in L'.] if RED(L') = () then return;
+     T1:=SECOND(L'); AGTDIS(T1; w1,t1,V1,b1);
+     if w > w1 then { M:=(); goto 7 };
+     MC:=MC+1; MTI:=MTI-CLOCK();
+     [AC operator.] if E = DAC then M:=TMSAC(t,t1,V1,b)
+     [CO operator.] else if E = DCO then M:=TMSCO(t,t1,V1,b)
+     else M:=TLMSE(OARGLST(t),OARGLST(t1),V1,b); MTI:=MTI+CLOCK().
+(7)  [Match?] if M # () then RED(L'):=RED2(L') 
+     else L':=RED(L'); goto 6  ||
+
+                    TCSIE(t,S; T*,S*)
+[Term complete set of instances, modulo E.
+t is a non-atomic term,  S is a set of substitutions.
+Then T* = (t*1, ..., t*k) is a minimal set of terms where t*i=s(t) for
+some s in S and for every s' in S, s'(t) is an instance of a term in T*.
+S*=(s*1, ..., s*k) is a set of substitutions such that for each 
+1 <= i <= k, t*i = m*i(t).]
+
+     [safe c,z. [Statistics.]]
+
+(1)  [Initialize.] S':=S; L:=().
+[ [Statistics.] z:=CLOCK(); c:=MC.  ]
+(2)  [Compute instances.] while S' # () do
+     { ADV(S'; s,S'); SBAPPL(s); TFCVS(t; t*,V*); SBDAPP(s);
+       t':=TNDFLT(t*); w:=TXTENT(t'); b:=TNLIN(t'); UNDO(V*); 
+       L:=TALDJI(L,w,t',V*,b,s)
+     }.
+(3)  [Construct T* and S* from L.] T*:=(); S*:=(); while L # () do
+     { ADV(L; L1, L); T*:=COMP(AUGMTT(L1),T*);
+       S*:=COMP(AUGMTSB(L1),S*)
+     } ||
+
+[ (4)  [Statistics.]
+     z:=CLOCK()-z; MGCIT:=MGCIT+z; c:=MC-c; MGCIC:=MGCIC+c  ||
+]
+
+[;
+     STROUT("TCSIE - match count: "); GWRITE(c); WRITE;
+     STROUT("TCSIE - mgci time: "); GWRITE(z); WRITE;
+     STROUT("TCSIE - mgu length: "); GWRITE(LENGTH(S)); WRITE;
+     STROUT("TCSIE - mgci length: "); GWRITE(LENGTH(S*)); WRITE ||
+]

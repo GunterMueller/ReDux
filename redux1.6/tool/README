@@ -1,0 +1,20 @@
+Directory tool
+===============
+
+The directory tool contains tools for programming and documenting
+ALDES/ReDuX Programs.
+
+Contents:
+
+  Aglobs:             Search for variables that have benn externally declared
+                      global in ALDES modules
+  Asplit:             Split a ALDES-module in one file per algorithm
+                      (like fsplit)
+  Blif2rdx:           Compute ReDuX data type from BLIF specification
+  Check:              Automatische wiederholung von ReDuX-Programmen an Hand
+                      von fort.9 Log-Dateien
+  CpReDuX:            Kopieren des ReDuX Systems
+  Head:               extract header lines (macro expanded algorithm naes)
+                      from ALDES algorithms
+  Kwic:               Generate a KWIC-Index from ALDES files
+  Tlist:              Extract information from *.typ files.

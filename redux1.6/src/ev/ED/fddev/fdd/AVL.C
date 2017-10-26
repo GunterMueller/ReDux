@@ -1,0 +1,16 @@
+#include "AVL.h"
+#include "AVL.c"
+#include "tree.h"
+#pragma define(AVL<tn_ptr,tn_ptr_int>)
+#pragma define(AVL_element<tn_ptr,tn_ptr_int>)
+#pragma define(AVL<tn_ptr,tn_ptr_pair>)
+#pragma define(AVL_element<tn_ptr,tn_ptr_pair>)
+#pragma define(AVL<tn_ptr,tn_ptr>)
+#pragma define(AVL_element<tn_ptr,tn_ptr>)
+#pragma define(AVL<tn_ptr_triple,tn_ptr_pair>)
+#pragma define(AVL_element<tn_ptr_triple,tn_ptr_pair>)
+#pragma define(AVL<int_c,tn_ptr_int>)
+#pragma define(AVL_element<int_c,tn_ptr_int>)
+#pragma define(AVL<int_c,tn_ptr>)
+#pragma define(AVL_element<int_c,tn_ptr>)
+#pragma undeclared

@@ -1,0 +1,12 @@
+
+[ #include globs.h ]	
+
+
+                    S:=SCONS(C)
+[Symbol constructor.
+C  is  a  character-list.  Then  S is the corresponding symbol with C as
+property under indicator FLAT.]
+
+(1)  S:=ENTER(C); PUT(S,FLAT,C) ||
+
+

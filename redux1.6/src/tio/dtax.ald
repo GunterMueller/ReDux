@@ -1,0 +1,35 @@
+[----------------------------------------------------------------------]
+[- This file contains auxiliary routines to support data type ---------]
+[- properties and adding of (external) sorts.                 ---------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                  P:=DTGET(DT,i)
+[Data type, get property.  DT is a data type, i is an indicator.
+ The property list of data type DT is searched under the indicator
+ i. P is the property under i, if any, otherwise i is set to ().]
+(1) [DT=()] if DT=() then { P:=(); return }.
+(2) P:=ASSOC(i,DTPROP(DT)); if P#() then P:=FIRST(P); ||
+
+                  DTPUT(DT,i,P)
+[Data type, put property.  DT is a data type, i is an indicator and
+ P is a property. The property P is stored under indicator i of
+ the data type DT.]
+(1) [already there?] p:=DTPROP(DT); L:=ASSOC(i,p); if L#() then
+    { FIRST(L):=P; return }.
+(2) [new entry] DTPROP(DT):=COMP2(i,P,p) ||
+
+                  STADD(DT, sort)
+[Sort add.  DT is a data type, sort is a symbol denoting a sort.
+ sort is inserted into DT's sort list.]
+(1) DTSORTS(DT):= SUFFIX(DTSORTS(DT), sort) ||
+
+                  XSTADD(DT, xsort)
+[External sort add.  DT is a data type, xsort is a symbol denoting
+ an external sort (i.e. the symbol has properties XREAD, XWRITE,...).
+ xsort is inserted into DT's external type list.]
+(1) DTXSORTS(DT):=SUFFIX(DTXSORTS(DT), xsort) ||

@@ -1,0 +1,21 @@
+DATATYPE RNG;
+SORT
+	RNG;
+CONST
+	0, 1: RNG;
+VAR
+	x, y, z: RNG;
+OPERATOR
+	+: RNG, RNG -> RNG;
+	*: RNG, RNG -> RNG;
+	-: RNG -> RNG;
+THEORY
+	+, *: AC;
+PREC
+        + < *;
+AXIOM
+ [1] 0 + x       == x;
+ [2] -x + x      == 0;
+ [3] 1 * x       == x;
+ [4] x * (y + z) == x * y + x * z;
+END

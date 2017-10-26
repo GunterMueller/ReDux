@@ -1,0 +1,23 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/subset
+   modulespecification: subset test of unordered sets of gamma integers
+   programmer         : Reinhard Buendgen
+   language           : aldes
+   last change        : by $Author: buendgen $
+   version            : $Revision: 1.3 $
+                        formerly called SUBSET
+   bugs               : none known
+   modules needed     : sac2/ba, sac2/lp
+]
+ 
+
+                    b:=INTSBS(A,B)
+[Integer subset.
+A, B are unsorted sets of gamma integers.
+Then b is TRUE if all elemnts of A occur in B. Otherwise b = FALSE.]
+     safe b, a, A'.
+     const TRUE=1, FALSE=0. 
+(1)  [Initialize.] A':=A.
+(2)  [Test each element in A.] while A' # () do
+     { ADV(A'; a,A'); if ~INTMEM(a,B) then {b:=FALSE; return}
+     }; b:=TRUE ||

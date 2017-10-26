@@ -1,0 +1,33 @@
+DATATYPE F0F0;
+SORT
+	F0F0;
+CONST
+	0: F0F0;
+VAR
+	x, y, z, u, v, w: F0F0;
+OPERATOR
+	s: F0F0 -> F0F0;
+	p: F0F0 -> F0F0;
+	f: F0F0, F0F0, F0F0 -> F0F0;
+NOTATION
+	s, p: FUNCTION;
+AXIOM
+ [1] s(s(s(s(0)))) == 0;
+ [2] s(f(x,y,z)) == 0;
+ [3] s(p(x)) == 0;
+ [4] p(0) == 0;
+ [5] p(p(x)) == x;
+ [6] p(f(x,f(v,y,z),x)) == 0;
+ [7] f(p(x),y,z) == 0;
+ [8] f(f(x,y,z),u,v) == 0;
+ [9] f(x,y,p(z)) == 0;
+[10] f(x,y,f(u,v,w)) == 0;
+[11] f(x,p(y),z) == 0;
+[12] f(x,s(y),x) == 0;
+[13] f(s(x),f(u,v,w),s(y)) == 0;
+[14] f(x,x,y) == 0;
+[15] f(x,y,y) == 0;
+[16] f(0,x,s(y)) == 0;
+[17] f(s(x),y,0) == 0;
+[18] f(x,0,y) == 0;
+END

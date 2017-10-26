@@ -1,0 +1,21 @@
+DATATYPE X11;
+SORT
+	X11;
+CONST
+	0, a, b: X11;
+VAR
+	A, B, C: X11;
+OPERATOR
+	+: X11, X11 -> X11;
+	I: X11 -> X11;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(I(A),A)==0;
+[3] +(+(A,B),C)==+(A,+(B,C));
+[4] +(a,+(a,+(a,a)))==0;
+[5] +(b,b)==+(a,a);
+[6] +(b,+(a,+(a,a)))==+(a,b);
+END
+; This file is  GROUP.TYP

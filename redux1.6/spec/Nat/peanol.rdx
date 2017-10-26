@@ -1,0 +1,23 @@
+%%  comment symbol
+DATATYPE PEANOL;
+%%  DESCRIPTION peano specification of + and *
+%%  STATUS completed
+SORT
+	PEANOL;
+CONST
+	0: PEANOL;
+VAR
+	A, B, C, D, E: PEANOL;
+OPERATOR
+	*: PEANOL, PEANOL -> PEANOL;
+	+: PEANOL, PEANOL -> PEANOL;
+	S: PEANOL -> PEANOL;
+NOTATION
+	*, +, S: FUNCTION;
+AXIOM
+  [1] +(0,A)==A;
+  [2] +(S(B),A)==S(+(B,A));
+  [3] *(0,A)==0;
+  [4] *(S(B),A)==+(*(B,A),A);
+END
+

@@ -1,0 +1,28 @@
+%%  comment symbol
+DATATYPE BRING;
+%%  AUTHOR  R. Buendgen
+%%  STATUS complete
+%%  DESCRIPTION Boolean ring 
+SORT
+	BOOLEAN;
+CONST
+	T, F: BOOLEAN;
+VAR
+	p, q, r: BOOLEAN;
+OPERATOR
+	#: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  exclusive or
+	/\: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  and
+        A, B, C, D: -> BOOLEAN;
+THEORY
+	#, /\: AC;
+AXIOM
+  [6] (p # F) == p;
+  [7] (p # p) == F;
+  [8] (p /\ T) == p;
+  [9] (p /\ p) == p;
+ [10] (p /\ F) == F;
+ [11] (p /\ (q # r)) == ((p /\ q) # (p /\ r));
+ 
+ [12] A /\ B == C # B;
+ [13] A # C == B /\ D;
+END

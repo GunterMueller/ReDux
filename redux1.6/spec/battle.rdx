@@ -1,0 +1,23 @@
+DATATYPE OBJ;
+SORT
+	OBJ;
+CONST
+	0: OBJ;
+VAR
+	x, y, z: OBJ;
+OPERATOR
+	c: OBJ -> OBJ;
+	e: OBJ -> OBJ;
+	d: OBJ, OBJ -> OBJ;
+	g: OBJ, OBJ -> OBJ;
+	h: OBJ, OBJ -> OBJ;
+NOTATION
+	c, e, d, g, h: FUNCTION;
+AXIOM
+[1] h(z,e(x)) == h(c(z),d(z,x));
+[2] d(z,g(0,0)) == e(0);
+[3] d(z,g(x,y)) == g(e(x),d(z,y));
+[4] d(c(z),g(g(x,y),0)) == g(d(c(z),g(x,y)),d(z,g(x,y)));
+[5] g(e(x),e(y)) == e(g(x,y));
+END
+; This file is battle.typ: Battle of Hydra and Hercules, found in [DerJou:90]

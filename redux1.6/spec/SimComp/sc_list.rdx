@@ -1,0 +1,65 @@
+%%  comment symbol
+DATATYPE LIST;
+%%  STATUS completed
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION List(N): cons, app, rev, length
+%%  ORIGIN  folkore
+SORT
+	EXLIST, EXNAT, LIST, NAT;
+CONST
+	0: EXNAT;
+	NIL: EXLIST;
+VAR
+	a, b, c: NAT;
+	A, B, C: EXNAT;
+	l, m, n: LIST;
+	L, M, N: EXLIST;
+OPERATOR
+	o:  -> NAT;
+	s: NAT -> NAT;
+	+: NAT, NAT -> NAT;
+	[]:  -> LIST;	%%  nil
+	@: LIST, LIST -> LIST;	%%  append 
+	[: NAT, LIST -> LIST;	%%  cons
+	rev: LIST -> LIST;	%%  reverse
+	|: LIST -> NAT;	%%  length
+	': EXNAT -> NAT;	%%  coerce EXNAT -> NAT
+	S: EXNAT -> EXNAT;
+	&: EXNAT, EXNAT -> EXNAT;
+	": EXLIST -> LIST;	%%  coerce EXLIST -> LIST
+	{: EXNAT, EXLIST -> EXLIST;
+	APP: EXLIST, EXLIST -> EXLIST;
+	REV: EXLIST -> EXLIST;
+NOTATION
+	s, rev, S, APP, REV: FUNCTION;
+	+, @, &: INFIX;
+	[: ROUNDFIX ];
+	|: ROUNDFIX |;
+	': ROUNDFIX ';
+	": ROUNDFIX ";
+	{: ROUNDFIX };
+AXIOM
+   [1] ([] @ l) == l;
+   [2] ([ a,l ] @ m) == [ a,(l @ m) ];
+   [3] rev([]) == [];
+   [4] rev([ a,l ]) == (rev(l) @ [ a,[] ]);
+   [5] (o + a) == a;
+   [6] (s(a) + b) == s((a + b));
+   [7] | [] | == o;
+   [8] | [ a,l ] | == s(| l |);
+
+   [9] (0 & A) == A;
+  [10] (S(A) & B) == S((A & B));
+  [11] APP(NIL,L) == L;
+  [12] APP({ A,L },M) == { A,APP(L,M) };
+  [13] REV(NIL) == NIL;
+  [14] REV({ A,L }) == APP(REV(L), { A,NIL });
+
+  [21] o == ' 0 ';
+  [22] s(' A ') == ' S(A) ';
+  [23] (' A ' + ' B ') == ' (A & B ) ';
+  [24] [] == " NIL ";
+  [25] [ ' A '," L " ] == " { A,L } ";
+  [26] (" L " @ " M " ) == " APP(L,M) ";
+  [27] rev(" L ") == " REV(L) ";
+END

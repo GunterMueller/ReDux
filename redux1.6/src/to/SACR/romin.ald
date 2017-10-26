@@ -1,0 +1,13 @@
+                         p':=ROMIN(p)
+[Relational operator for minus sign. 
+p is a relational operator.
+p' is such that  (-a p -b) == (a p' b).]
+    safe ROMIN.
+    const GTS=14, LTS=15, EQS=16, NES=17, LES=18, GES=19.    
+(1) case p of {
+    GTS do p':=LTS;
+    LTS do p':=GTS;
+    EQS do p':=EQS;
+    NES do p':=NES;
+    LES do p':=GES;
+    GES do p':=LES} ||

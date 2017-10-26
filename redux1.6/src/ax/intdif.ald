@@ -1,0 +1,21 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/intdif
+   modulespecification: difference of unordered sets of gamma integers
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   status             : 
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+]                                                                      
+                                                                       
+                                                                       
+                    C:=INTDIF(A,B)                                     
+[Integer set difference. 
+A, B are unsorted sets of gamma integers. 
+Then C is the set difference of A - B.] 
+     safe A', a.
+(1)  [Initialize.]A':=A; C:=(). 
+(2)  [Subtract.] while A' # () do { ADV(A'; a,A');
+     if ~INTMEM(a,B) then C:=COMP(a,C) }; C:=INV(C) || 

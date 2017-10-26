@@ -1,0 +1,175 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICGNF2 -- Ground Normal Form anlysis (2)
+   modulespecification: Algorithms to describe the set of
+                        ground normal forms of an algebra
+                        by computing a pruned top set tree.
+   programmers        : Reinhard Buendgen, Hasko Eckhardt 
+   language           : aldes                                           
+   last change        : 24.10.88, 14.7.90, 11.11.90,
+                        26.2.91 - only change of specifications. -HE- 
+                        $Date: 1993/10/08 10:36:29 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.3 $
+   bugs               : none known
+   modules needed     : SAC2/low: fp, bs, lp, sy (low: complete);
+                        ReDuX/tp: dd, cy, wx     (tp:  complete);
+                             /ic: gnfa, gnfx, gnfd, gnfc.
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+[--------------------------------------------------------------------  
+     section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+                    
+                    G*:=PTSCMP(C,F,R,V,d)
+[Pruned top set tree compose.
+C is a list of constants, F is a list of operators, R is a list of
+rules, V is a list of variables containing at least one variable of each
+type in the set of types of elements in C and F. d is a non-negative
+integer. Then G* is a topset tree expanded up to level d s.th. all 
+labels of nodes in G* are terms in T(C union F,V) and the rule lists of
+the nodes in G* contain only rules out of R.
+ L2 is a list (L2 k, ..., L2 0), where the L2 i are lists of the unex-
+ tendable nodes of level i.                                            ]
+
+(1)  [Initialize.] if PNTRC then STOUTL("PTSCMP");
+     PTSINI(C,F,R,V; G*,D^,L1,L^); d':=0; L2 := (L1).
+(2)  [Expand tree.] while d' < d /\ D^ # () do
+     { PTSLXP(G*,D^,F,L2,L^; G',D',L''); L2 := L''; 
+       PTSTGS(G',D',L2; G*,D^,L''); L2 := L''; d':=d'+1
+     } || 
+
+[-----------------------------------------------------------------     
+     section 3   auxiliary algorithms for internal use in module       
+------------------------------------------------------------------]    
+
+                     NPTSEX(g,L1,O,F'; L*)
+[ Node of Pruned Top Set tree, EXpand. 
+  g is a node of a top set tree G.
+  The tree is expanded at least up to level 0, the node g is extendable.
+  Then G will be modified such that all successors of g are added as new
+  leaves to G. 
+  L1 is the list of unextendable nodes in the current level; 
+  L* will be an update of L1.
+  F' is a list of lists of all subterms of left-hand sides of rules 
+  with the same top operator.                                          
+  O is a list of function symbols. ]
+
+(1)  [ Initialize. ] if PNTRC then STOUTL("NPTSEX"); L' := L1;
+     GGLINI(g; H,C).
+(2)  [ Trivial Cases. ] if H = () then
+     { if EXTRC then NTSWRT(g); if NTSURL(g) # () then NTSURL(g) := 0; 
+         L* := L'; return }.
+         [ The unifying rule list is cleared after expansion. ]
+(3)  [ Construct arguments. ] H' := H; A := (); D := (); GROUND := TRUE;
+     while H' # () do
+     { ADV(H'; h,H'); h' := FIRST(h); TFCVS(NTSLAB(h'); a,V);
+       D := COMP(h',D); A := COMP(a,A);
+       if NTSGRD(h') # TRUE then GROUND := FALSE };
+     A := INV(A); D := INV(D).
+(4)  [ Label. ] t := TCONS(A,NTSLAB(g)); TBVSLI(t; V,l_); NC := NC+1.
+(5)  [ Check for reducibility and compute unifying rules. ]
+     R := NTSURL(g); R' := (); while R # () do
+     { ADV(R; r,R); ARDIS(r; L^*,V^*,R^*); R^* := R^*;
+       if TMATCH(L^*,t) # () then
+       { UNDO(V^*); if DLTRC then
+         { UNDO(V); STROUT("red. "); TWRT(t); WRITE }; go to 9 };
+       UNDO(V^*); I := TNMGCI(L^*,t,1); if I # () then 
+         R' := COMP(r,R'); UNDO(V); UNDO(V^*)
+     }.
+(6)  [ Construct node. ] n := NTSTCO(t,NTSLEV(g)+1,g,GROUND,D,R').
+(7)  [ Extensibility. ] if ~GROUND then 
+     { if ~NTSEXT(n,O,F') then 
+       { NTSGRD(n) := UNEXT; L' := COMP(n,L') } }
+     else
+     { n' := n;  repeat
+         NTSMCA(n') := 1; n' := NTSFAT(n')
+       until n' = () }.
+(8)  [ Add successor to g. ] NTSSUC(g) := COMP(n,NTSSUC(g)).
+(9)  [ Next successor. ] H' := GGLINC(H,C); H := H'; go to 2 ||
+
+                    PTSLXP(G,D,O,L2,L^; G*,D*,L*)
+[Pruned top set tree, level expand.
+G is a topset tree. D is a list of all nodes of level k. Then all 
+successors of nodes in D sub l are computed and added to G if a 
+non-ground node N of level less then l has no successor it will be
+deleted from G together with all nodes which have the label of 
+any deleted term as a subterm of its label. G* is the resulting
+topset tree. D* is the list of the nodes al level k+1 in G*. 
+G is destroyed.                   
+  L2 is a list (L2 k, ..., L2 0), where the L2 i are lists of the
+  unextendable nodes in level i. L* will be an update of L2 which
+  contains an additional list L2 k+1.
+  L^ is a list of lists of subterms of left-hand sides of rules 
+  with a specific top operator.    
+  O is a set of function symbols. ]
+
+(1)  [Initialize.] if PNTRC then STOUTL("PTSLXP");
+     D':=D; D*:=(); G*:=G; L' := (); L'' := COMP(L',L2).
+(2)  [Trivial case.] if D' = () then { L* := L''; return }.
+(3)  [Ground node or unextendable.] ADV(D'; n,D'); GRD := NTSGRD(n);
+     if (GRD = TRUE) \/ (GRD = UNEXT) then go to 2.
+(4)  [Expand node.] NPTSEX(n,L',O,L^; L'''); L' := L''';
+     SFIRST(L'',L');
+     if NTSSUC(n) # () then
+       if D* = () then D*:=COPY(NTSSUC(n)) else D*:=CCONC(NTSSUC(n),D*)
+     else { NPTSDT(G*,n,D*,D',L''; G',D'',D''',L''');
+       L'' := L'''; G*:=G'; D*:=D'';D' := D''' };
+     goto 2||
+
+                    PTSINI(C,F,A,V; G,L0,L1,L^)
+[Pruned top set tree, initialize.
+C is a list of constants, F is a list of operators, A is a set of rules
+V is a list of variables containing at least one variable of each type. 
+Then G is the topset tree generated up to level 0 with nodes labeled 
+with elements from T(C union F,V) which do not unify with the left-hand
+side of a rule in A. L0 is a list of its non-ground leaves.            
+  L1 will be the list of unextendable nodes;
+  L^ will be the list of lists of subterms of left-hand sides of rules
+  in A with a specific top operator from F.                      -HE-  ]
+
+(1)  [Initialize.] if PNTRC then STOUTL("PTSINI"); 
+     V*:=OVOET(V); G:=(); L^ := LSTL(F,A,FALSE); L''' := L^; L1 := ().
+(2)  [Level -1.]   while V* # () do
+     { ADV(V*; v,V*); A':=A; A~:=(); v~:=TTYPE(v);
+       while A' # () do
+       { ADV(A'; a',A'); if TTYPE(ALHS(a'))=v~ then A~:=COMP(a',A~) }; 
+       G:=COMP(NTSTCO(v,-1,(),FALSE,(),A~),G)
+     }.
+(3)  [Level 0, constants.] C':=C; while C' # () do
+     { ADV(C'; c,C'); g:=TSTGTS(G,TTYPE(c)); 
+       c^:=NTSTCO(c,0,g,TRUE,(),()); NTSSUC(g):=COMP(c^,NTSSUC(g));
+       NTSMCA(g) := 1 }.
+(4)  [Level 0, functions.] F':=F; L0:=(); while F'#() do
+     { ADV(F'; f,F'); g:=TSTGTS(G,TTYPE(f)); D':=ODTYPE(f); M:=();
+       a:=0; D:=(); while D' # () do
+       { ADV(D'; d',D'); g':=TSTGTS(G,d'); D:=COMP(g',D);
+         M:=COMP(TCONS((),NTSLAB(g')),M); a:=a+1;
+       }; D:=INV(D); M:=INV(M); t:=TCONS(M,f); NC := NC+1;
+       if a = 0 then GROUND:=TRUE else GROUND:=FALSE; 
+       A':=NTSURL(g); A~:=(); SKIP:=FALSE; while A' # () /\ ~SKIP do
+       { ADV(A'; a',A'); ARDIS(a'; L^*,V^*,R^*);  R^* := R^*;
+         if TSIGN(L^*)=TSIGN(f) then
+         { A~:=COMP(a',A~); if TMATCH(L^*,t) # () then SKIP:=TRUE };
+         UNDO(V^*)
+       }; if ~SKIP then
+       { f^:=NTSTCO(t,0,g,GROUND,D,A~); NTSSUC(g):=COMP(f^,NTSSUC(g));
+         if ~GROUND then { L0:=COMP(f^,L0); if ~NTSEXT(f^,F,L''') then
+           { NTSGRD(f^) := UNEXT; L1 := COMP(f^,L1) } }
+         else NTSMCA(g) := 1
+     } }.
+(5)  [Eliminate ground reducible types.] if G = () then return;
+     [First element.] g := FIRST(G); if NTSSUC(g) = () then
+     { NTSLAB(g):=(); G':=RED(G); 
+       NPTSDT(G',g,L0,(),(L1); G,L'0,DUMMY,L'); 
+       L0 := L'0; L1 := FIRST(L'); goto 5 }. 
+(6)  [Central elements in G.] G':=G; G'':=RED(G');
+      while G'' # () do
+     { ADV(G''; g,G''); if NTSSUC(g) = () then
+       { NTSLAB(g):=(); RED(G'):=G''; NPTSDT(G,g,L0,(L1); G0,L'0,L');
+         L0 := L'0; L1 := FIRST(L'); G := G0 }
+       else G':=RED(G')
+     }||

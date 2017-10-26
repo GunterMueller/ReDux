@@ -1,0 +1,7 @@
+The files 
+   backwalk.gdb
+   backwalk1.gdb
+can be used instead of 
+   backwalk
+   backwalk1
+to enable the backwalk facility with gdb instead of adb.

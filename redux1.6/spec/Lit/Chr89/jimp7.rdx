@@ -1,0 +1,81 @@
+%% 
+DATATYPE JIMP7;
+%%  AUTHOR Jim Christian
+%%  STATUS uncompleted
+%%  ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+%%  DESCRIPTION Problem P7
+SORT
+	NAT;
+VAR
+	x, y, z: NAT;
+OPERATOR
+	f: NAT, NAT -> NAT;
+	E1:  -> NAT;
+	E2:  -> NAT;
+	E3:  -> NAT;
+	E4:  -> NAT;
+	E5:  -> NAT;
+	E6:  -> NAT;
+	E7:  -> NAT;
+	E8:  -> NAT;
+	E9:  -> NAT;
+	E10:  -> NAT;
+	E11:  -> NAT;
+	E12:  -> NAT;
+	E13:  -> NAT;
+	E14:  -> NAT;
+	E15:  -> NAT;
+	E16:  -> NAT;
+	I1: NAT -> NAT;
+	I2: NAT -> NAT;
+	I3: NAT -> NAT;
+	I4: NAT -> NAT;
+	I5: NAT -> NAT;
+	I6: NAT -> NAT;
+	I7: NAT -> NAT;
+	I8: NAT -> NAT;
+	I9: NAT -> NAT;
+	I10: NAT -> NAT;
+	I11: NAT -> NAT;
+	I12: NAT -> NAT;
+	I13: NAT -> NAT;
+	I14: NAT -> NAT;
+	I15: NAT -> NAT;
+	I16: NAT -> NAT;
+NOTATION
+	f, I1, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13, I14, I15, I16: FUNCTION;
+AXIOM
+[1]  f(f(x,y),z) == f(x,f(y,z));
+[2]  f(E1,x)     == x;
+[3]  f(E2,x)     == x;
+[4]  f(E3,x)     == x;
+[5]  f(E4,x)     == x;
+[6]  f(E5,x)     == x;
+[7]  f(E6,x)     == x;
+[8]  f(E7,x)     == x;
+[9]  f(E8,x)     == x;
+[10] f(E9,x)     == x;
+[11] f(E10,x)    == x;
+[12] f(E11,x)    == x;
+[13] f(E12,x)    == x;
+[14] f(E13,x)    == x;
+[15] f(E14,x)    == x;
+[16] f(E15,x)    == x;
+[17] f(E16,x)    == x;
+[18] f(x,I1(x))  == E1;
+[19] f(x,I2(x))  == E2;
+[20] f(x,I3(x))  == E3;
+[21] f(x,I4(x))  == E4;
+[22] f(x,I5(x))  == E5;
+[23] f(x,I6(x))  == E6;
+[24] f(x,I7(x))  == E7;
+[25] f(x,I8(x))  == E8;
+[26] f(x,I9(x))  == E9;
+[27] f(x,I10(x)) == E10;
+[28] f(x,I11(x)) == E11;
+[29] f(x,I12(x)) == E12;
+[30] f(x,I13(x)) == E13;
+[31] f(x,I14(x)) == E14;
+[32] f(x,I15(x)) == E15;
+[33] f(x,I16(x)) == E16;
+END

@@ -1,0 +1,41 @@
+%%  comment symbol
+%%  AUTHOR Werner Lauterbach
+%%  STATUS canonical
+%%  DESCRIPTION  commutative Ring with unit
+%%  ORIGIN
+DATATYPE CommutativeRingWithUnit;
+SORT
+	Ring;
+EXTERNAL
+        SAC2IP: XREAD=IPRRDE, XWRITE=IPRWRE, XTERM=TFIPRE, XFG=IPRFG;
+CONST
+	0: Ring;
+	1: Ring;
+        A, B, C: Ring;
+VAR
+	a, b, c, d, e: Ring;
+OPERATOR
+	+: Ring, Ring -> Ring;
+	*: Ring, Ring -> Ring;
+	-: Ring -> Ring;
+PREC
+        + < *;
+THEORY
+	+, *: AC;
+PROPERTY
+        -: SAC2IP=IPRNEG;
+        *: SAC2IP=IPRPRO;
+        +: SAC2IP=IPRSUM;
+        1: SAC2IP=IPRONE;
+        0: SAC2IP=PRZERO;
+AXIOM
+    [1]   0 + a == a;
+    [2]   0 * a == 0;
+    [3]   1 * a == a;
+    [4]   -0 == 0;
+    [5]   --a == a;
+    [6]   a + -a == 0;
+    [7]   -(a + b) == -a + -b;
+    [8]   a * -b == -(a * b);
+    [9]   a * (b + c) == a * b + a * c;
+END

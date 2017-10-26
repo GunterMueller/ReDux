@@ -1,0 +1,66 @@
+DATATYPE RX;
+SORT
+	INDET, KOEF, POLYNOM, POTENZP;
+CONST
+	0, 1: KOEF;
+	X, Y, Z: INDET;
+	I: POTENZP;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: INDET;
+	xx, yy, zz, ww: POTENZP;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	``: INDET -> POTENZP;
+	|: POTENZP, POTENZP -> POTENZP;
+	M: KOEF, POTENZP -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+	eval: POLYNOM, INDET, KOEF -> POLYNOM;
+NOTATION
+	+, *, ~, ``, |, M, #, @: FUNCTION;
+THEORY
+	+, *, |, #, @: AC;
+AXIOM
+[1] +(0,a) == a;
+[2] *(0,a) == 0;
+[3] *(1,a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] +(a,~(a)) == 0;
+[7] ~(+(a,b)) == +(~(a),~(b));
+[8] *(a,~(b)) == ~(*(a,b));
+[9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+
+[10] |(xx,I) == xx ;
+
+[11] M(0,xx) == O;
+[12] #(M(a,xx),M(b,xx)) == M(+(a,b),xx);
+[13] @(M(a,xx),M(b,yy)) == M(*(a,b),|(xx,yy));
+
+[14] #(p,O) == p;
+[15] @(p,O) == O;
+[16] @(p,M(1,I)) == p;
+[17] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[18] #(@(p,M(a,xx)),@(p,M(b,xx))) == @(p,M(+(a,b),xx));
+[19] @(p,M(+(1,b),I)) == #(p,@(p,M(b,I)));
+[20] #(p,@(p,M(~(1),I))) == O;
+[21] #(p,@(p,M(+(~(1),a),I))) == @(p,M(a,I));
+
+[22] eval(O,x,c) == O;
+[23] eval(#(M(a,xx),p),x,c) == #(eval(M(a,xx),x,c),eval(p,x,c));
+[24] eval(M(a,I),x,c) == M(a,I);
+[25] eval(M(a,|(xx,yy)),x,c) == @(eval(M(1,xx),x,c),eval(M(a,yy),x,c));
+[26] eval(M(a,`(x)),x,c) == M(*(a,c),I);
+[27] eval(M(a,`(X)),Y,c) == M(a,`(X));
+[28] eval(M(a,`(X)),Z,c) == M(a,`(X));
+[29] eval(M(a,`(Y)),X,c) == M(a,`(Y));
+[30] eval(M(a,`(Y)),Z,c) == M(a,`(Y));
+[31] eval(M(a,`(Z)),X,c) == M(a,`(Z));
+[32] eval(M(a,`(Z)),Y,c) == M(a,`(Z));
+END
+; This file is eval.typ 

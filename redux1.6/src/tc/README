@@ -1,0 +1,47 @@
+Verzeichnis tc
+==============
+
+Quellen der Algorithmen fuer Vervollstaendigung (term completion).
+
+Inhalt:
+  TOC:               Algothmenverzeichnis (table of contents)
+  tcint.ald:         Interactive Module - interaktive Proczeduren
+  tckbq:             K-B queues - Verwaltung von Warteschlangen in der
+                     Vervollstaendigung
+  tcr.ald:           Reduction Module - Reductionsalgorithmen
+
+ Unterverzeichnisse:
+  CPC:   Crit. Pair Comp. - Krit. Paar Berechnung mit verschieden Kriterien:
+     tccpc.ald:          ohne Kriterien
+     tccpc-s.ald:        mit `subconnectedness' Kriterium
+     tccpc-t.ald:        mit Transformations Kriterium
+     tccpc-st.ald:       mit `subconnectedness'- und Transformations Kriterium
+   INT:  Interactive procedures specific for TC-System
+     mexit.ald           Message on exit
+     qct.ald             Query concerning trace
+   KB:   Knuth-Bendix Completion - Vervollstaendigungs Algorithmus
+     tcct-s.ald          Konfluenztest mit `subcon.' Krit.
+     tckb0.ald:          Vervollst. ohne Krit.
+     tckb-s.ald:         Vervollst. mit `subcon.' Krit.
+     tckb-t.ald:         Vervollst. mit Transf. Krit.
+     tckb-st.ald:        Vervollst. mit `subcon.'- und Transf. Krit.
+   MAIN: Hauptprogramme die Prozeduren in KB aufrufen
+     tc0.ald:            Vervollst. ohne Krit.
+     tc-s.ald:           Vervollst. mit `subcon.' Krit.
+     tc-t.ald:           Vervollst. mit Transf. Krit.
+     tc-st.ald:          Vervollst. mit `subcon.'- und Transf. Krit.
+
+Format von TOC
+    <Funktions-/Procedurkopf> : <Herkunftsmodul>
+
+Die Quellen werden mit dem Versionskontrollsystem RCS verwalted.
+   *.ald:    read only Datei der neusteten version [% co *.ald]
+   *.ald,v:  Datei, die alle Versionen enthaelt.
+
+Aendern einer Version von xxx.ald:
+  % co -l xxx.ald         [ generieren der neustern Version in aenderbarer ]
+                          [ Form. `locken' von xx.ald,v.                   ]
+  % vi xxx.ald            [ aendere xxx.ald.]
+    ...
+  % ci xxx.ald            [ einloggen der neuen Version ]
+  % co xx.ald             [ generieren read only Datei der neusteten version ]

@@ -1,0 +1,30 @@
+The implementation of the FDDs was written by Joerg Bullmann,
+(all copyrights are by him).
+
+It is programmed in C++. Not all versions of g++ allow to compile and link
+this package. I was successfull with versions 2.7.1/2.7.2 and if I
+remember right with 2.5.8. Note that compiling this package results in tons
+of warnings.
+
+I decided not to install the FDD partial evaluation domain automatically.
+
+If you want to install  the FDD-partial evaluation domain anyway do the 
+following:
+
+  1) install ReDuX
+  2) % cd src/it/PRESRC
+     % make clean
+     edit the Makefile according to the comments concerning FDDs
+     % make all
+     % cd ../../..
+  3) % cd mak
+     % make fdd 
+     % cd ..
+  4) % cd demo
+     edit the Makefile according to the comments concerning FDDs
+     % make ev
+
+ 
+
+
+

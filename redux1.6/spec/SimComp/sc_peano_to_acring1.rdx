@@ -1,0 +1,44 @@
+DATATYPE PEANOXRING;
+SORT
+	EXTERN, PEANO;
+CONST
+	0, 1: EXTERN;
+VAR
+	a, b, c, d, e: PEANO;
+	A, B, C: EXTERN;
+OPERATOR
+	o:  -> PEANO;
+	s: PEANO -> PEANO;
+	+: PEANO, PEANO -> PEANO;
+	*: PEANO, PEANO -> PEANO;
+	": EXTERN -> PEANO;
+	#: EXTERN, EXTERN -> EXTERN;
+	@: EXTERN, EXTERN -> EXTERN;
+	!: EXTERN -> EXTERN;
+NOTATION
+	s, !: FUNCTION;
+	+, *, #, @: INFIX;
+	": ROUNDFIX ";
+THEORY
+	#, @: AC;
+AXIOM
+  [1]  (o + a) == a;
+  [2]  (s(a) + b) == s((a + b));
+  [3]  (o * a) == o;
+  [4]  (s(a) * b) == ((a * b) + b);
+
+  [10] (0 # A) == A;
+  [11] (0 @ A) == 0;
+  [12] (1 @ A) == A;
+  [13] !(0) == 0;
+  [14] !(!(A)) == A;
+  [15] (A # !(A)) == 0;
+  [16] !((A # B)) == (!(A) # !(B));
+  [17] (A @ !(B)) == !((A @ B));
+  [18] (A @ (B # C)) == ((A @ B) # (A @ C));
+
+  [19] o == " 0 ";
+  [20] s(" A") == "(A # 1)";
+  [22] (" A " + " B ") == " (A # B) ";
+  [23] (" A " * " B ") == " (A @ B) ";
+END

@@ -1,0 +1,859 @@
+#---------------------------------------------------------------------
+# Declarations
+#---------------------------------------------------------------------
+
+#---------
+# Paths
+#---------
+
+ RDX = RDX
+#^^^^^^^^^        Only to be modified by the ReDuX
+#                 installation make file!
+
+MDIR = $(RDX)/mak
+SDIR = $(RDX)/src
+
+ACDIR = $(SDIR)/ac
+ACMDIR = $(ACDIR)/MAIN
+ACNDIR = $(SDIR)/acn
+ACNMDIR = $(SDIR)/acn/MAIN
+AXDIR = $(SDIR)/ax
+CLSDIR = $(EFDIR)/fdd
+CODIR = $(SDIR)/co
+EVDIR = $(SDIR)/ev
+EDDIR = $(SDIR)/ev/ED
+EFDIR = $(EDDIR)/fddev
+ICDIR = $(SDIR)/ic
+ICMDIR = $(ICDIR)/MAIN
+INIDIR = $(SDIR)/ini
+IODIR = $(SDIR)/io
+ITDIR = $(SDIR)/it
+ITSDIR = $(ITDIR)/PRESRC
+RDDIR = $(SDIR)/rd
+RDMDIR = $(SDIR)/rd/MAIN
+TCDIR = $(SDIR)/tc
+TCMDIR = $(TCDIR)/MAIN
+TIODIR = $(SDIR)/tio
+TODIR = $(SDIR)/to
+TOMDIR = $(TODIR)/MAIN
+TPDIR = $(SDIR)/tp
+TPODIR = $(SDIR)/tpo
+UCDIR = $(SDIR)/uc
+UCMDIR = $(UCDIR)/MAIN
+UCODIR = $(UCDIR)/INT
+
+INCDIR = $(SDIR)/include
+
+BINDIR = $(RDX)/bin
+DEMDIR = $(RDX)/demo
+LIBDIR = $(RDX)/lib
+OBJDIR = $(RDX)/obj
+#--------
+# Tools
+#--------
+
+# Backend Specification
+
+# Backend Compiler
+ BE = BE
+#^^^^^^^          Only to be modified by the ReDuX
+#                 installation make file!
+# Backend extension
+BX = c
+# Save Backend extension
+SBX = C
+
+OPTIMIZE = OPTIMIZE
+#^^^^^^^^^^^^^^^^^^   Only to be modified by the ReDuX
+#                     installation make file!
+CFLAGS = $(OPTIMIZE) -I$(MDIR)
+
+# C++ compier
+CXX = g++
+# flags for g++ 2.7.2 (2.7.1)
+# same optimization as for C-compiler
+CXXFLAGSFDD = $(OPTIMIZE) -fomit-frame-pointer -I$(CLSDIR) -Wimplicit -Wformat -Wparentheses -Wswitch
+
+
+LEX = LEX
+#^^^^^^^^             Only to be modified by the ReDuX
+#                     installation make file!
+LEXFLAGS =
+YACC = YACC
+#^^^^^^^^^^           Only to be modified by the ReDuX
+#                     installation make file!
+YACCFLAGS = -d -y
+#^^^^^^^^^^^^^^^^^^^^ The previous line was modified by the ReDuX
+#                     installation make file!
+# RANLIB_NEEDED indicates if calls to ranlib are needed:
+# RANLIB_NEEDED = 1 means that the ranlib command is needed
+# RANLIB_NEEDED = 0 means that it is not needed
+RANLIB_NEEDED = RANLIB_NEEDED
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Only to be modified by the ReDuX
+#                             installation make file!
+
+# Avoids trouble on systems where the `SHELL' variable might be
+# inherited from the environment:
+SHELL = /bin/sh
+
+# Activities
+
+PRINT = enscript -2r $1
+#PRINT = enscript
+
+#====================================================================
+#  Files
+#====================================================================
+
+ACLFILES = $(ACDIR)/accsc.ald $(ACDIR)/accp.ald $(ACDIR)/acde.ald \
+   $(ACDIR)/acm.ald  $(ACDIR)/acr.ald $(ACDIR)/actto.ald \
+   $(ACDIR)/acu.ald $(ACDIR)/acu1.ald $(ACDIR)/acx.ald \
+   $(ACDIR)/CMP/acf.ald $(ACDIR)/CMP/accmp.ald
+ACMFILES = $(ACMDIR)/ac.front $(ACMDIR)/ac.end $(ACMDIR)/acsub.ald
+
+ACNLFILES = $(ACNDIR)/accmp.ald $(ACNDIR)/accp.ald $(ACNDIR)/accsc.ald \
+    $(ACNDIR)/acde.ald $(ACNDIR)/acf.ald $(ACNDIR)/achr.ald \
+    $(ACNDIR)/acm.ald  $(ACNDIR)/acr.ald $(ACNDIR)/actto.ald \
+    $(ACNDIR)/acu.ald $(ACNDIR)/acu1.ald $(ACNDIR)/acx.ald 
+ACNMFILES = $(ACNMDIR)/ev.front $(ACNMDIR)/ev.end $(ACNMDIR)/evsub.ald \
+    $(ACNMDIR)/evmenu.ald
+
+AXFILES = $(AXDIR)/*.ald
+
+COFILES = $(CODIR)/coms.ald $(CODIR)/gglinc.ald $(CODIR)/incgl.ald
+
+EDFILES  = $(EDDIR)/evag.ald $(EDDIR)/evbp.ald $(EDDIR)/bpoly.ald \
+   $(EDDIR)/evip.ald $(EDDIR)/evfg.ald $(EDDIR)/evfdd.ald \
+   $(EFDIR)/redux.C $(EFDIR)/wfdd.C
+
+EVFILES  = $(EVDIR)/tedi.ald $(EVDIR)/teev.ald $(EVDIR)/teini.ald
+
+ICLFILES = $(ICDIR)/iccov.ald $(ICDIR)/iccpc.ald $(ICDIR)/icgm.ald \
+   $(ICDIR)/icgnfa.ald $(ICDIR)/icgnf1.ald $(ICDIR)/icgnfc.ald \
+   $(ICDIR)/icgnfd.ald $(ICDIR)/icgnfx.ald $(ICDIR)/icgnf2.ald \
+   $(ICDIR)/icgr.ald $(ICDIR)/icic.ald $(ICDIR)/icint.ald \
+   $(ICDIR)/icip.ald  $(ICDIR)/icpc.ald $(ICDIR)/icts.ald
+ICMFILES = $(ICMDIR)/ic.front $(ICMDIR)/ic.end $(ICMDIR)/icsub.ald
+INI0FILES = $(INIDIR)/tpbgn.ald  $(INIDIR)/pinit.ald $(INIDIR)/scons.ald \
+    $(INIDIR)/itdummy.ald
+INI1FILES = $(INIDIR)/tpbgn.ald  $(INIDIR)/pinit.ald $(INIDIR)/scons.ald \
+    $(INIDIR)/istini.ald
+ITFILES  = $(ITDIR)/istini.ald $(ITDIR)/sgcall.ald $(ITDIR)/algdis.ald \
+   $(ITDIR)/it.h \
+   $(ITSDIR)/fcall.front  $(ITSDIR)/pcall.front \
+   $(ITSDIR)/fcall0.front $(ITSDIR)/pcall0.front \
+   $(ITSDIR)/fcall1.front $(ITSDIR)/pcall1.front \
+   $(ITSDIR)/fcall2.front $(ITSDIR)/pcall2.front \
+   $(ITSDIR)/fcall3.front $(ITSDIR)/pcall3.front \
+   $(ITSDIR)/fcall.end  $(ITSDIR)/pcall.end \
+   $(ITSDIR)/fcall0.end $(ITSDIR)/pcall0.end \
+   $(ITSDIR)/fcall1.end $(ITSDIR)/pcall1.end \
+   $(ITSDIR)/fcall2.end $(ITSDIR)/pcall2.end \
+   $(ITSDIR)/fcall3.end $(ITSDIR)/pcall3.front \
+   $(ITSDIR)/algos.lex  $(ITSDIR)/Makefile
+
+RDFILES =  $(RDDIR)/trand.ald
+RDMFILES = $(RDMDIR)/trd.front $(RDMDIR)/trd.end $(RDMDIR)/trdsub.ald
+TCLFILES = $(TCDIR)/tckbq.ald $(TCDIR)/tcr.ald $(TCDIR)/tcint.ald \
+   $(TCDIR)/tcsrt1.ald $(TCDIR)/CPC/*.ald $(TCDIR)/KB/*.ald
+TCMFILES = $(TCMDIR)/tc.front $(TCMDIR)/tc.end $(TCMDIR)/tcsub.ald
+
+TOLFILES = $(TODIR)/tppo.ald $(TODIR)/tokb.ald $(TODIR)/toint.ald \
+   $(TODIR)/torm.ald $(TODIR)/PO/tosqol.ald $(TODIR)/PO/toknsl.ald \
+   $(TODIR)/PO/toknsli.ald $(TODIR)/PI/tospi.ald \
+   $(TODIR)/PI/topit.ald $(TODIR)/PI/topiti.ald $(TODIR)/PI/tobcl.ald 
+TOMFILES = $(TOMDIR)/to.front $(TOMDIR)/to.end
+
+TPOFILES = $(TPODIR)/tpax.ald $(TPODIR)/tpcp.ald \
+   $(TPODIR)/tpct.ald $(TPODIR)/tpcy.ald $(TPODIR)/tpdd.ald \
+   $(TPODIR)/tperr.ald $(TPODIR)/tpprs.ald $(TPODIR)/tpprs2.ald \
+   $(TPODIR)/tpsb.ald  $(TPODIR)/tpsc.ald  $(TPODIR)/tptm.ald \
+   $(TPODIR)/tpu.ald  $(TPODIR)/tpwrt.ald  $(TPODIR)/tpxt.ald
+
+TIOFILES  = $(TIODIR)/tpdd.ald \
+   $(TIODIR)/tperr.ald $(TIODIR)/tpprs2.ald \
+   $(TIODIR)/ambig.ald $(TIODIR)/check.ald $(TIODIR)/dtax.ald \
+   $(TIODIR)/extern.ald $(TIODIR)/fxpras.ald $(TIODIR)/insert.ald \
+   $(TIODIR)/objparse.ald $(TIODIR)/parsax.ald \
+   $(TIODIR)/parse.y $(TIODIR)/pinit.ald $(TIODIR)/query.ald \
+   $(TIODIR)/scan.l $(TIODIR)/semerr.ald $(TIODIR)/symlist.ald \
+   $(TIODIR)/type.ald $(TIODIR)/write.ald 
+
+TPFILES = $(TPDIR)/tpsb.ald $(TPDIR)/tpcp.ald $(TPDIR)/tpax.ald \
+   $(TPDIR)/tptm.ald $(TPDIR)/tpu.ald \
+   $(TPDIR)/tpct.ald $(TPDIR)/tpcy.ald 
+
+TSMFILES = $(ICMDIR)/ts.front $(ICMDIR)/ts.end $(ICMDIR)/tssub.ald
+
+UCLFILES = $(UCDIR)/ecp.ald $(UCDIR)/tonorm.ald $(UCDIR)/ucax.ald \
+   $(UCDIR)/ufcmpt.ald
+UCMFILES = $(UCMDIR)/uc.front $(UCMDIR)/uc.end $(UCMDIR)/ucsub.ald
+UCOFILES = $(UCODIR)/ufcmptq.ald
+
+MAINSRC = $(TCMDIR)/tc.ald $(ICMDIR)/ic.ald $(ICMDIR)/ts.ald \
+          $(ACMDIR)/ac.ald  $(ACNMDIR)/ev.ald $(RDMDIR)/trd.ald
+
+#------------------------------------------------------------------------------
+#  CLS package: C/C++ Files
+#------------------------------------------------------------------------------
+
+#standard headers of CLS FDD package
+FDDHD = $(CLSDIR)/logfile.h $(CLSDIR)/AVL.h $(CLSDIR)/AVL.c $(CLSDIR)/tree.h \
+$(CLSDIR)/fdd.h $(CLSDIR)/bdd.h $(CLSDIR)/edd.h $(CLSDIR)/cls_types.h
+
+FDDFILES = $(CLSDIR)/statics.C $(CLSDIR)/tree.C $(CLSDIR)/tree_count.C \
+   $(CLSDIR)/fdd.C $(CLSDIR)/logfile.C $(CLSDIR)/sim_group.C \
+   $(CLSDIR)/tree_output.C
+
+FDDOBJ = logfile.o sim_group.o statics.o tree.o tree_count.o tree_output.o \
+ fdd.o
+
+#------------------------------------------------------------------------
+#  Header Files
+#------------------------------------------------------------------------
+
+#global variables
+GLOBS = $(INCDIR)/globs.h
+#standard header
+TPHD = $(INCDIR)/tp.h $(GLOBS)
+#standard header if interpreter routines are called
+TPIHD = $(INCDIR)/tp.h $(INCDIR)/it.h $(INCDIR)/globs.h 
+#standard header if interpreter routines are called for new parser
+TP2IHD = $(INCDIR)/tp.h $(INCDIR)/it.h $(GLOBS)
+#header for special parser files
+TIOHD = $(INCDIR)/tp.h $(INCDIR)/parse.h $(GLOBS)
+#standard header if term ordering routines are called
+TOHD = $(INCDIR)/tp.h $(INCDIR)/to.h $(GLOBS)
+#standard header if top set trees are to be manipulated
+ICHD = $(TPHD) $(INCDIR)/ic.h
+#standard header if random term generator is used
+RDHD = $(TPIHD)  $(INCDIR)/rd.h
+#standard header if unfailing completion is used
+UCHD = $(TPHD) $(INCDIR)/uc.h
+#special header for some modules in AC package
+ACHD = $(TPHD) $(INCDIR)/ac.h
+#special header for evaluation domains
+EVHD = $(INCDIR)/tp.h $(INCDIR)/ev.h $(INCDIR)/it.h $(GLOBS)
+#special header for evaluation domains and AC macors
+EVACHD = $(INCDIR)/tp.h $(INCDIR)/ev.h $(INCDIR)/ac.h $(GLOBS)
+#special header for evmain
+EVMHD = $(INCDIR)/tp.h $(INCDIR)/ev.h $(INCDIR)/evmenu.h
+
+#====================================================================
+# Targets
+#====================================================================
+
+#--------------------------------------------------------------------
+#       Clean up make directory
+#--------------------------------------------------------------------
+
+cleanmak:
+	rm -f liblocal.a    *.$(BX)   *.o
+	rm -f *.c *.h
+
+#--------------------------------------------------------------------
+#       Clean up lib and obj directory
+#--------------------------------------------------------------------
+
+clean:
+	rm -f .a[cx]* .co* .e* .fdd* .i[cnot]* .sacrlib .t[ciops]* .r* .uc*
+	rm -f $(LIBDIR)/*.a $(OBJDIR)/*/*.o
+	rm -f $(SDIR)/*/TOC $(EDDIR)/TOC
+	cd $(ITSDIR); make clean
+	rm -f $(MAINSRC)
+
+#--------------------------------------------------------------------
+#       Make everything from scratch
+#--------------------------------------------------------------------
+
+new: cleanmak clean
+	make  all
+
+#-------------------------------------------------------------------- 
+#       Make subsystem from scratch
+#-------------------------------------------------------------------- 
+ 
+acnew:
+	rm -f .ac .aclib .acmain
+	make  ac
+acnnew:
+	rm -f .acn*
+	make acn
+axnew:
+	rm -f .ax*
+	make  ax
+conew:
+	rm -f .co*
+	make  co
+icnew:
+	rm -f .ic*
+	make  ic
+ednew:
+	rm -f .ed
+	make ed
+evnew:
+	rm -f .ev
+	make ev
+fddnew:
+	rm -f .fdd
+	make fdd
+ini0new:
+	rm -f .ini0
+	make ini0
+ini1new:
+	rm -f .ini1
+	make ini1
+ionew:
+	rm -f .io*
+	make  io
+itnew:
+	rm -f .it*
+	make  it
+rdnew:
+	rm -f .rd*
+	make  rd
+tcnew:
+	rm -f .tc*
+	make  tc
+tionew:
+	rm -f .tio*
+	make  tio
+tonew:
+	rm -f .to*
+	make  to
+tpnew:
+	rm -f .tp
+	make  tp
+tponew:
+	rm -f .tpo*
+	make  tpo
+tp2new:
+	rm -f .tp2*
+	make  tp2
+ucnew:
+	rm -f .uc*
+	make uc
+
+#--------------------------------------------------------------------
+#       Make everything 
+#--------------------------------------------------------------------
+
+all: .ac .acn .ax .co .ed .ev .ic .ini0 .ini1 .io .rd .tc .to .tp .tio .tpo .it .uc
+# .fdd is missing in goal all
+
+#--------------------------------------------------------------------
+#       AC completion
+#--------------------------------------------------------------------
+
+ac: .ac
+
+.ac: .aclib .acmain 
+	cd $(ACDIR); csh $(BINDIR)/toc *.ald CMP/*.ald MAIN/*.ald > TOC
+	chmod og+r $(ACDIR)/TOC
+	echo > .ac
+
+aclib: .aclib
+.aclib: $(ACLFILES)
+	make cleanmak
+	$(BINDIR)/ald  -A $(ACHD) $(ACDIR)/accsc.ald
+	$(BINDIR)/ald  -A $(ACHD) $(ACDIR)/accp.ald
+	$(BINDIR)/ald  -A $(TPHD) $(ACDIR)/acde.ald
+	$(BINDIR)/ald  -A $(TPHD) $(ACDIR)/acm.ald
+	$(BINDIR)/ald  -A $(TPHD) $(ACDIR)/acr.ald
+	$(BINDIR)/ald  -A $(TPIHD) $(ACDIR)/actto.ald
+	$(BINDIR)/ald  -A $(TPHD) $(ACDIR)/acu.ald
+	$(BINDIR)/ald  -A $(TPHD) $(ACDIR)/acu1.ald
+	$(BINDIR)/ald  -A $(TPIHD) $(ACDIR)/acx.ald
+	$(BINDIR)/ald -S -A $(ACHD) $(ACDIR)/CMP/accmp.ald
+	$(BINDIR)/ald -S -A $(TPHD) $(ACDIR)/CMP/acf.ald
+	mv liblocal.a $(LIBDIR)/libac.a
+	chmod og+r $(LIBDIR)/libac.a
+	echo > .aclib
+
+acmain: .acmain
+.acmain: $(ACMFILES) $(GLOBS)
+	make cleanmak
+	cat $(ACMDIR)/ac.front $(GLOBS) $(ACMDIR)/ac.end > $(ACMDIR)/ac.ald
+	$(BINDIR)/ald -S -A $(TPHD) $(ACMDIR)/ac.ald
+	$(BINDIR)/ald -S -A $(TPHD) $(ACMDIR)/acsub.ald
+	mv liblocal.a $(LIBDIR)/libacmain.a
+	chmod go+r $(LIBDIR)/libacmain.a
+	echo > .acmain
+
+#--------------------------------------------------------------------
+#       AC completion - New
+#--------------------------------------------------------------------
+
+acn: .acn
+
+.acn: .acnlib .acnmain 
+	cd $(ACNDIR); csh $(BINDIR)/toc *.ald MAIN/*.ald > TOC
+	chmod og+r $(ACNDIR)/TOC
+	echo > .acn
+
+acnlib: .aclib
+.acnlib: $(ACNLFILES)
+	make cleanmak
+	$(BINDIR)/ald -S -A $(EVACHD) $(ACNDIR)/accmp.ald
+	$(BINDIR)/ald    -A $(EVACHD) $(ACNDIR)/accp.ald
+	$(BINDIR)/ald    -A $(ACHD) $(ACNDIR)/accsc.ald
+	$(BINDIR)/ald    -A $(TPHD) $(ACNDIR)/acde.ald
+	$(BINDIR)/ald -S -A $(EVHD) $(ACNDIR)/acf.ald
+	$(BINDIR)/ald    -A $(EVHD) $(ACNDIR)/achr.ald
+	$(BINDIR)/ald    -A $(TPHD) $(ACNDIR)/acm.ald
+	$(BINDIR)/ald    -A $(TPHD) $(ACNDIR)/acr.ald
+	$(BINDIR)/ald    -A $(TPIHD) $(ACNDIR)/actto.ald
+	$(BINDIR)/ald    -A $(TPHD) $(ACNDIR)/acu.ald
+	$(BINDIR)/ald    -A $(TPHD) $(ACNDIR)/acu1.ald
+	$(BINDIR)/ald    -A $(TPIHD) $(ACNDIR)/acx.ald
+	mv liblocal.a $(LIBDIR)/libacn.a
+	chmod og+r $(LIBDIR)/libacn.a
+	echo > .acnlib
+
+acnmain: .acnmain
+.acnmain: $(ACNMFILES) $(GLOBS)
+	make cleanmak
+	cat $(ACNMDIR)/ev.front $(GLOBS) $(ACNMDIR)/ev.end > $(ACNMDIR)/ev.ald
+	$(BINDIR)/ald -S -A $(EVMHD) $(ACNMDIR)/ev.ald
+	$(BINDIR)/ald -S -A $(EVHD) $(ACNMDIR)/evsub.ald
+	$(BINDIR)/ald -S -A $(EVMHD) $(ACNMDIR)/evmenu.ald
+	mv liblocal.a $(LIBDIR)/libacnmain.a
+	chmod go+r $(LIBDIR)/libacnmain.a
+	echo > .acnmain
+
+#--------------------------------------------------------------------
+#       Auxiliary Algorithms
+#--------------------------------------------------------------------
+
+ax: .ax
+.ax: $(AXFILES)
+	make cleanmak
+	$(BINDIR)/ald -A $(AXDIR)/*.ald
+	mv liblocal.a $(LIBDIR)/libax.a
+	cd $(AXDIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod og+r $(LIBDIR)/libax.a $(AXDIR)/TOC
+	echo > .ax
+
+#--------------------------------------------------------------------
+#       Combinatorial Algorithms
+#--------------------------------------------------------------------
+
+co: .co
+.co: $(COFILES)
+	make cleanmak
+	$(BINDIR)/ald -A $(CODIR)/coms.ald
+	$(BINDIR)/ald -A $(CODIR)/gglinc.ald
+	$(BINDIR)/ald -A $(CODIR)/incgl.ald
+	mv liblocal.a $(LIBDIR)/libco.a
+	cd $(CODIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod og+r $(LIBDIR)/libco.a $(CODIR)/TOC
+	echo > .co
+
+#--------------------------------------------------------------------
+#       Evaluation domains
+#--------------------------------------------------------------------
+
+ed: .ed
+.ed: $(EDFILES)
+	make cleanmak
+	$(BINDIR)/ald  -O -S $(EVHD) $(EDDIR)/evag.ald
+	$(BINDIR)/ald  -O -S $(EVHD) $(EDDIR)/evbp.ald
+	$(BINDIR)/ald  -O -S $(EVHD) $(EDDIR)/bpoly.ald
+	$(BINDIR)/ald  -O -S $(EVHD) $(EDDIR)/evip.ald
+	$(BINDIR)/ald  -O -S $(EVHD) $(EDDIR)/evfg.ald
+	$(BINDIR)/ald  -O -S $(EVHD) $(EDDIR)/evfdd.ald
+	mv evag.o evbp.o bpoly.o evip.o evfg.o evfdd.o $(OBJDIR)/ev
+	cd $(EDDIR); csh $(BINDIR)/toc *.ald > TOC
+#	chmod go+r $(LIBDIR)/libed.a $(EDDIR)/TOC
+	chmod go+r $(OBJDIR)/ev/*.o
+	echo > .ed
+        
+#--------------------------------------------------------------------
+#       Evaluation support for normalization
+#--------------------------------------------------------------------
+
+ev: .ev
+.ev:  $(EVDIR)
+	make cleanmak
+	$(BINDIR)/ald  -A -S $(TPIHD) $(EVDIR)/teini.ald
+	$(BINDIR)/ald  -A -S $(EVHD) $(EVDIR)/tedi.ald
+	$(BINDIR)/ald  -A -S $(EVHD) $(EVDIR)/teev.ald
+	mv liblocal.a $(LIBDIR)/libev.a
+	cd $(EVDIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod go+r $(LIBDIR)/libev.a $(EVDIR)/TOC
+	echo > .ev
+
+fdd: .fdd
+.fdd: $(FDDHD) $(FDDFILES)
+	make cleanmak
+	$(CXX) -c $(CXXFLAGSFDD) $(CLSDIR)/statics.C     -o statics.o
+	$(CXX) -c $(CXXFLAGSFDD) $(CLSDIR)/tree.C        -o tree.o
+	$(CXX) -c $(CXXFLAGSFDD) $(CLSDIR)/tree_count.C  -o tree_count.o
+	$(CXX) -c $(CXXFLAGSFDD) $(CLSDIR)/fdd.C         -o fdd.o
+	$(CXX) -c $(CXXFLAGSFDD) $(CLSDIR)/logfile.C     -o logfile.o
+	$(CXX) -c $(CXXFLAGSFDD) $(CLSDIR)/sim_group.C   -o sim_group.o
+	$(CXX) -c $(CXXFLAGSFDD) $(CLSDIR)/tree_output.C -o tree_output.o
+	$(CXX) -O3 -fomit-frame-pointer -c $(EFDIR)/redux.C
+	$(CXX) -O3 -fomit-frame-pointer -c $(EFDIR)/wfdd.C
+	ar cr $(LIBDIR)/libfdd.a $(FDDOBJ) redux.o wfdd.o
+	chmod go+r $(LIBDIR)/libfdd.a
+	if [ $(RANLIB_NEEDED) = 1 ]; then ranlib $(LIBDIR)/libfdd.a; fi
+	echo > .fdd
+        
+#--------------------------------------------------------------------
+#       Inductive Completion
+#--------------------------------------------------------------------
+
+ic: .ic
+.ic: .iclib .icint .icmain .tsmain
+	cd $(ICDIR); csh $(BINDIR)/toc *.ald INT/*.ald MAIN/*.ald  > TOC
+	chmod go+r $(ICDIR)/TOC
+	echo > .ic
+iclib: .iclib
+.iclib: $(ICLFILES)
+	make cleanmak
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/iccov.ald
+	$(BINDIR)/ald -A $(TPHD) $(ICDIR)/iccpc.ald
+	$(BINDIR)/ald -A $(TPHD) $(ICDIR)/icint.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgm.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgnfa.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgnf1.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgnf2.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgnfc.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgnfd.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgnfx.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icgr.ald
+	$(BINDIR)/ald -A $(TPHD) $(ICDIR)/icip.ald
+	$(BINDIR)/ald -A $(ICHD) $(ICDIR)/icpc.ald
+	$(BINDIR)/ald -A $(TPHD) $(ICDIR)/icic.ald
+	$(BINDIR)/ald -A $(TPHD) $(ICDIR)/icts.ald
+	mv liblocal.a $(LIBDIR)/libic.a
+	chmod go+r $(LIBDIR)/libic.a
+	echo > .iclib
+icint: .icint
+.icint: $(ICDIR)/INT/ictsi.ald $(ICDIR)/INT/icici.ald
+	make cleanmak
+	$(BINDIR)/ald -S -O $(TPHD) $(ICDIR)/INT/ictsi.ald
+	$(BINDIR)/ald -S -O $(TPHD) $(ICDIR)/INT/icici.ald
+	mv ic*i.o $(OBJDIR)/ic
+	chmod go+r $(OBJDIR)/ic/ic*i.o
+	echo > .icint
+icmain: .icmain
+.icmain: $(ICMFILES) $(GLOBS)
+	make cleanmak
+	cat $(ICMDIR)/ic.front $(GLOBS) $(ICMDIR)/ic.end > $(ICMDIR)/ic.ald
+	$(BINDIR)/ald -A $(ICMDIR)/ic.ald
+	$(BINDIR)/ald -S -A $(TPHD) $(ICMDIR)/icsub.ald
+	mv liblocal.a $(LIBDIR)/libicmain.a
+	chmod go+r $(LIBDIR)/libicmain.a
+	echo > .icmain
+tsmain: .tsmain
+.tsmain: $(TSMFILES) $(GLOBS)
+	make cleanmak
+	cat $(ICMDIR)/ts.front $(GLOBS) $(ICMDIR)/ts.end > $(ICMDIR)/ts.ald
+	$(BINDIR)/ald -A $(ICMDIR)/ts.ald
+	$(BINDIR)/ald -S -A $(TPHD) $(ICMDIR)/tssub.ald
+	mv liblocal.a $(LIBDIR)/libtsmain.a
+	chmod go+r $(LIBDIR)/libtsmain.a
+	echo > .tsmain
+
+#--------------------------------------------------------------------
+#       Algorithms for the initialization of ReDuX
+#--------------------------------------------------------------------
+
+ini: .ini0 .ini1
+
+#--- without interpreter ---
+ini0: .ini0
+.ini0: $(INI0FILES)
+	$(BINDIR)/ald -A $(TIOHD) $(INI0FILES)
+	mv liblocal.a $(LIBDIR)/libini0.a
+	cd $(INIDIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod og+r $(LIBDIR)/libini0.a $(AXDIR)/TOC
+	echo > .ini0
+
+#--- with interpreter ---
+ini1: .ini1
+.ini1: $(INI1FILES)
+	$(BINDIR)/ald -A $(TIOHD) $(INI1FILES)
+	mv liblocal.a $(LIBDIR)/libini1.a
+	cd $(INIDIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod og+r $(LIBDIR)/libini1.a $(AXDIR)/TOC
+	echo > .ini1
+
+#--------------------------------------------------------------------
+#       Input/Output Algorithms
+#--------------------------------------------------------------------
+
+io: .io
+.io: $(IODIR)/io.$(SBX) 
+	make cleanmak
+	cp $(IODIR)/io.$(SBX) io.$(BX)
+	$(BINDIR)/ald -O io.$(BX) io.$(BX)
+	mv io.o $(OBJDIR)/io
+	chmod og+r $(OBJDIR)/io/io.o
+	echo > .io
+
+#--------------------------------------------------------------------
+#       Interpreter
+#--------------------------------------------------------------------
+
+it: .it
+.it: $(ITFILES)
+	cd $(ITSDIR); make all
+	cd $(ITDIR); csh $(BINDIR)/toc *.ald  > TOC
+	chmod og+r $(ITDIR)/TOC
+	chmod og+r $(ITDIR)/*.ald $(ITDIR)/SAC2/*.ald $(ITDIR)/EV/*.ald
+	echo > .it 
+
+#--------------------------------------------------------------------
+#       Random Term Generation
+#--------------------------------------------------------------------
+
+rd: .rd
+.rd: .rdlib .rdmain
+	cd $(RDDIR); csh $(BINDIR)/toc *.ald MAIN/*.ald > TOC
+	chmod go+r $(RDDIR)/TOC
+	echo > .rd
+rdlib: .rdlib
+.rdlib: $(RDFILES) $(RDHD)
+	make cleanmak
+	$(BINDIR)/ald  -A $(RDHD) $(RDDIR)/trand.ald
+	mv liblocal.a $(LIBDIR)/librd.a
+	chmod go+r $(LIBDIR)/librd.a
+	echo > .rdlib
+rdmain: .rdmain
+.rdmain: $(RDMFILES) $(RDHD)
+	make cleanmak
+	cat $(RDMDIR)/trd.front $(GLOBS) $(INCDIR)/rd.h $(RDMDIR)/trd.end > $(RDMDIR)/trd.ald
+	$(BINDIR)/ald -A  $(TPHD) $(RDMDIR)/trd.ald
+	$(BINDIR)/ald -S -A $(RDHD) $(RDMDIR)/trdsub.ald
+	mv liblocal.a $(LIBDIR)/librdmain.a
+	chmod go+r $(LIBDIR)/librdmain.a
+	echo > .rdmain
+
+
+#--------------------------------------------------------------------
+#       Term Completion
+#--------------------------------------------------------------------
+
+tc: .tc
+.tc: .tclib .tcint .tcmain
+	cd $(TCDIR); csh $(BINDIR)/toc *.ald CPC/*.ald INT/*.ald KB/*.ald MAIN/*.ald > TOC
+	chmod go+r $(TCDIR)/TOC
+	echo > .tc
+tclib: .tclib
+.tclib: $(TCLFILES)
+	make cleanmak
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/tckbq.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/tcr.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/tcint.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/tcsrt1.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/CPC/tccpc.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/CPC/tccpc-s.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/CPC/tccpc-t.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/CPC/tccpc-st.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/KB/tckb0.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/KB/tckb-s.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/KB/tckb-t.ald
+	$(BINDIR)/ald  -A $(TPHD) $(TCDIR)/KB/tckb-st.ald
+	mv liblocal.a $(LIBDIR)/libtc.a
+	chmod go+r $(LIBDIR)/libtc.a
+	echo > .tclib
+tcint: .tcint
+.tcint: $(TCDIR)/INT/*.ald
+	make cleanmak
+	$(BINDIR)/ald -S -O $(TPHD) $(TCDIR)/INT/mexit.ald
+	$(BINDIR)/ald -S -O $(TPHD) $(TCDIR)/INT/qct.ald
+	mv mexit.o qct.o $(OBJDIR)/tc
+	cd $(OBJDIR)/tc; chmod go+r mexit.o qct.o
+	echo > .tcint
+tcmain: .tcmain
+.tcmain: $(TCMFILES) $(GLOBS)
+	make cleanmak
+	cat $(TCMDIR)/tc.front $(GLOBS) $(TCMDIR)/tc.end > $(TCMDIR)/tc.ald
+	$(BINDIR)/ald -A $(TCMDIR)/tc.ald
+	$(BINDIR)/ald -S -A $(TPHD) $(TCMDIR)/tcsub.ald
+	mv liblocal.a $(LIBDIR)/libtcmain.a
+	chmod go+r $(LIBDIR)/libtcmain.a
+	echo > .tcmain
+
+#--------------------------------------------------------------------
+#       Term Orderings
+#--------------------------------------------------------------------
+
+to: .to
+.to: .tolib .sacrlib .tomain
+	cd $(TODIR); csh $(BINDIR)/toc *.ald PO/*.ald PI/*.ald MAIN/*.ald > TOC
+	chmod go+r $(TODIR)/TOC
+	echo > .to
+tomain: .tomain
+.tomain: $(TOMFILES) $(GLOBS)
+	make cleanmak
+	cat $(TOMDIR)/to.front $(GLOBS) $(TOMDIR)/to.end > $(TOMDIR)/to.ald
+	$(BINDIR)/ald -S -A $(TOMDIR)/to.ald
+	mv liblocal.a $(LIBDIR)/libtomain.a
+	chmod go+r $(LIBDIR)/libtomain.a
+	echo > .tomain
+tolib: .tolib
+.tolib: $(TOLFILES)
+	make cleanmak
+	$(BINDIR)/ald -A $(TOHD) $(TODIR)/tppo.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/tokb.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/toint.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/torm.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/PO/tosqol.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/PO/toknsl.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/PO/toknsli.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/PI/tospi.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/PI/topit.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/PI/topiti.ald
+	$(BINDIR)/ald  -A $(TOHD) $(TODIR)/PI/tobcl.ald
+	mv liblocal.a $(LIBDIR)/libto.a
+	chmod go+r $(LIBDIR)/libto.a
+	echo > .tolib
+sacrlib: .sacrlib
+.sacrlib: $(TODIR)/SACR/*.ald
+	make cleanmak
+	$(BINDIR)/ald -A $(TODIR)/SACR/fcomp.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/fdec.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/fvars.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/infviv.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/ipconv.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/pcomp.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/pdec.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/pfcv.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/pnt.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/romin.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/rpexp.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/rpfcv.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/rpffml.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/tread1.ald
+	$(BINDIR)/ald -A $(TODIR)/SACR/vrd.ald
+	mv liblocal.a $(LIBDIR)/libsacr.a
+	echo > .sacrlib
+
+#--------------------------------------------------------------------
+#       Term Primitives
+#--------------------------------------------------------------------
+
+tpo: .tpo
+.tpo: $(TPOFILES)
+	make cleanmak
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpax.ald
+	#$(BINDIR)/ald -A $(TPHD) $(TPDIR)/tpbgn.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpcp.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpct.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpcy.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpdd.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tperr.ald
+	$(BINDIR)/ald -A $(TPIHD) $(TPODIR)/tpprs.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpprs2.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpsb.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpsc.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tptm.ald
+	$(BINDIR)/ald -A $(TPIHD) $(TPODIR)/tpu.ald
+	$(BINDIR)/ald -A $(TPIHD) $(TPODIR)/tpwrt.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPODIR)/tpxt.ald
+	mv liblocal.a $(LIBDIR)/libtpo.a
+	cd $(TPDIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod og+r $(LIBDIR)/libtpo.a $(TPDIR)/TOC
+	echo > .tpo
+
+#--------------------------------------------------------------------
+#       Term Primitives (new parser)
+#--------------------------------------------------------------------
+
+tio: .tio
+.tio: $(TIOFILES)
+	make cleanmak
+	#$(BINDIR)/ald -A $(TIOHD) $(TIODIR)/tpbgn.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/tpdd.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/tperr.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/tpprs2.ald
+	$(BINDIR)/ald -A $(TIOHD) $(TIODIR)/ambig.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/check.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/dtax.ald
+	$(BINDIR)/ald -A $(TP2IHD) $(TIODIR)/extern.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/fxpras.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/insert.ald
+	$(BINDIR)/ald -A $(TIOHD) $(TIODIR)/objparse.ald
+	$(BINDIR)/ald -A $(TIOHD) $(TIODIR)/parsax.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/pinit.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/query.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/semerr.ald
+	$(BINDIR)/ald -A $(TIOHD) $(TIODIR)/symlist.ald
+	$(BINDIR)/ald -A $(TPHD) $(TIODIR)/type.ald
+	$(BINDIR)/ald -A $(TIOHD) $(TIODIR)/write.ald
+	$(YACC) $(YACCFLAGS) $(TIODIR)/parse.y
+	$(LEX) -t $(LEXFLAGS)  $(TIODIR)/scan.l > scan.c
+	$(BE) $(CFLAGS) -c scan.c
+	$(BE) -o parse.o $(CFLAGS) -c y.tab.c
+	ar r liblocal.a scan.o parse.o
+	if [ $(RANLIB_NEEDED) = 1 ]; then ranlib liblocal.a; fi
+	mv liblocal.a $(LIBDIR)/libtio.a
+	cd $(TIODIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod og+r $(LIBDIR)/libtio.a $(TIODIR)/TOC
+	echo > .tio
+tp: .tp
+.tp: $(TPFILES)
+	make cleanmak
+	$(BINDIR)/ald -A $(TPHD) $(TPDIR)/tpax.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPDIR)/tpcp.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPDIR)/tpct.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPDIR)/tpcy.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPDIR)/tpsb.ald
+	$(BINDIR)/ald -A $(TPHD) $(TPDIR)/tptm.ald
+	$(BINDIR)/ald -A $(TPIHD) $(TPDIR)/tpu.ald
+	if [ $(RANLIB_NEEDED) = 1 ]; then ranlib liblocal.a; fi
+	mv liblocal.a $(LIBDIR)/libtp.a
+	cd $(TPDIR); csh $(BINDIR)/toc *.ald > TOC
+	chmod og+r $(LIBDIR)/libtp.a $(TPDIR)/TOC
+	echo > .tp
+
+#--------------------------------------------------------------------
+#      Unfailing Completion
+#--------------------------------------------------------------------
+uc: .uc
+.uc: .uclib .ucint .ucmain
+	cd $(UCDIR); csh $(BINDIR)/toc *.ald INT/*.ald MAIN/*.ald > TOC
+	chmod go+r $(UCDIR)/TOC
+	echo > .uc
+uclib: .uclib
+.uclib: $(UCHD) $(UCLFILES)
+	make cleanmak
+	$(BINDIR)/ald  -A $(UCHD) $(UCLFILES)
+	mv liblocal.a $(LIBDIR)/libuc.a
+	chmod go+r $(LIBDIR)/libuc.a
+	echo > .uclib
+ucint: .ucint
+.ucint: $(UCHD) $(UCOFILES)
+	make cleanmak
+	$(BINDIR)/ald -S -O $(UCHD) $(UCOFILES)
+	mv *.o $(OBJDIR)/uc
+	cd $(OBJDIR)/uc; chmod go+r *.o
+	echo > .ucint
+ucmain: .ucmain
+.ucmain: $(UCHD) $(UCMFILES)
+	make cleanmak
+	cat $(UCMDIR)/uc.front $(UCHD) $(UCMDIR)/uc.end > $(UCMDIR)/uc.ald
+	chmod go+r $(UCMDIR)/uc.ald
+	$(BINDIR)/ald -A $(UCMDIR)/uc.ald
+	$(BINDIR)/ald -S -A $(UCHD) $(UCMDIR)/ucsub.ald
+	mv liblocal.a $(LIBDIR)/libucmain.a
+	chmod go+r $(LIBDIR)/libucmain.a
+	echo > .ucmain
+
+#--------------------------------------------------------------------
+#       Print Sources
+#--------------------------------------------------------------------
+ 
+print: .print
+	cd $(RDX); find src -name "*.ald" -newer $(MDIR)/.print -exec $(PRINT) {} \;
+	touch .print
+.print:
+	cd $(RDX); find src -name "*.ald" -exec $(PRINT) {} \;
+	echo > .print
+
+printall:
+	cd $(RDX); find src -name "*.ald" -exec $(PRINT) {} \;

@@ -1,0 +1,11 @@
+[ $Author: buendgen $
+  $Date: 1993/10/08 10:30:03 $
+  $Revision: 1.1 $
+]
+                    PDEC(A;e,c,B)
+[Polynomial decomposition. 
+A is a polynomial in r variables, r>0.  A=x_r^e\cdot c+B.]
+     safe PDEC.
+(1)  [A=0?] if A=0 then {e:=0; c:=0; B:=0; return}.
+(2)  [Decompose.] ADV2(A; e,c,B); if B=() then B:=0 ||
+     

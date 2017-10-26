@@ -1,0 +1,20 @@
+%%  comment symbol
+DATATYPE T;
+%% AUTHOR Albrecht Fortenacher
+%% ORIGIN Unification under Associativity and Commutativity, JSC (1987) 3
+%% DESCRIPTION Unification test
+SORT
+	T;
+CONST
+	A, B, C: T;
+VAR
+	v, w, x, y, z, V, W, X, Y, Z, V1, W1, X1, Y1, Z1: T;
+OPERATOR
+	F: T, T -> T;
+	+: T, T -> T;
+	G: T -> T;
+NOTATION
+	F, +, G: FUNCTION;
+THEORY
+	F, +: AC;
+END

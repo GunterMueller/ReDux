@@ -1,0 +1,21 @@
+DATATYPE Z6p;
+SORT
+	Z6p;
+CONST
+	0, a, b: Z6p;
+VAR
+	A, B, C: Z6p;
+OPERATOR
+	+: Z6p, Z6p -> Z6p;
+	I: Z6p -> Z6p;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+[1] +(0,A)==A;
+[2] +(I(A),A)==0;
+[3] +(+(A,B),C)==+(A,+(B,C));
+[4] +(a,+(a,a))==0;
+[5] +(b,b)==0;
+[6] +(b,a)==+(a,b);
+END
+; This file is Z6p.typ 

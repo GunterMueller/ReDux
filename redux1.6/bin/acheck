@@ -1,0 +1,32 @@
+#!/usr/local/bin/perl
+#
+# NAME: Check ALDES files
+# SYNOPSIS: acheck [ -b ] [ -t ] [ filename ... ]
+# DESCRIPTION: Reads the files (stdin if no filename is given)
+#              and prints a message for each incomplete line,
+#              each line with more than 72 characters and each line that
+#              contains any non-printable ASCII-characters.
+#              Option -t: Considers TABs to be visible characters.
+#              Option -b: Removes trailing blanks before line lengths
+#              are checked.
+
+require 'getopts.pl';
+&Getopts('bt');
+if ( ! $opt_t ) {
+   $strangechars='[^ -~\x09]'
+} else {
+   $strangechars='[^ -~]'
+};
+$in_rec_sep=$/;
+
+while (<>) {
+   print "File $ARGV: incomplete last line\n" if chomp == 0;
+   if ( ! $opt_b ) {
+      $/=' ';
+      chomp;
+      $/=$in_rec_sep;
+   };
+   print "File $ARGV, line $.: Line too long:\n$_\n" if length > 72;
+   print "File $ARGV, line $.: Line contains strange characters:\n$_\n" if s/$strangechars/[]/go;
+   close (ARGV) if eof(ARGV);
+}

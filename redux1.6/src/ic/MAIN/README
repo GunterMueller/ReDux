@@ -1,0 +1,19 @@
+Directory ic/MAIN
+=================
+
+Contents:
+  
+IC main program: inductive completion laboratory
+  ic.ald            auxilliary source: a catenation of
+                        ic.front, globs.h and ic.end
+  ic.end            end part of the ic main program
+  ic.front          front part of the ic main program
+  icsub.ald         Subalgorithms for differnt menu point of ic
+
+TS main program: ground normal form analysis by (pruned) top set computation
+  ts.ald            auxilliary source: a catenation of
+                        ts.front, globs.h and ts.end
+  ts.end            end part of the ts main program
+  ts.front          front part of the ts main program
+  tssub.ald         Subalgorithms for differnt menu point of ts
+  

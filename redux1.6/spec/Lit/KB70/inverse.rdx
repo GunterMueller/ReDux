@@ -1,0 +1,18 @@
+%%  comment symbol
+DATATYPE INVERSE;
+%% AUTHOR Knuth and Bendix
+%% DESCRIPTION Inverse property
+%% STATUS uncompleted
+SORT
+	S;
+VAR
+	x, y, z: S;
+OPERATOR
+	*: S, S -> S;
+	~: S -> S;
+NOTATION
+	~: FUNCTION;
+	*: INFIX;
+AXIOM
+   [1] (~(x) * (x * y)) == y;
+END

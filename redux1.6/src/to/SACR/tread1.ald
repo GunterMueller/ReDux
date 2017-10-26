@@ -1,0 +1,49 @@
+                       T:=TREAD1(p) 
+[Term read, 1.  p is an arithmetical operator. 
+T is the longest term as specified for TREAD on input which has as top 
+operator p or an operator of higher precedence than p.] 
+    const PLUS=20, MINUS=21, DIFF=22, TIMES=23, QUOTIENT=24, 
+          EXP=25, NUM=26, VAR=27. 
+(1) [Branch on operator.] 
+    if p<PLUS \/ VAR<p then goto 2; 
+    case p of {
+       PLUS,DIFF,MINUS do {
+          s:=SCHAR('-');
+          if ~s then T:=SCHAR('+'); 
+          T:=TREAD1(TIMES);
+          if s then T:=FCOMP(0,MINUS,T); 
+          repeat
+             s:=T; 
+             if SCHAR('+') then T:=FCOMP(T,PLUS,TREAD1(TIMES)) 
+             else if SCHAR('-') then T:=FCOMP(T,DIFF,TREAD1(TIMES)) 
+          until s=T
+       }; 
+       TIMES,QUOTIENT do {
+          T:=TREAD1(EXP);  
+          repeat 
+             s:=T; 
+             if SCHAR('*') then T:=FCOMP(T,TIMES,TREAD1(EXP)) 
+             else if SCHAR('/') then T:=FCOMP(T,QUOTIENT,TREAD1(EXP)) 
+          until s=T
+       };
+       EXP do {
+          T:=TREAD1(NUM);  
+          if SCHAR('^') then T:=FCOMP(T,EXP,TREAD1(NUM))
+       };    
+       NUM do {
+          if SCHAR('(') then {
+             T:=TREAD1(PLUS); if ~SCHAR(')') then goto 2
+          } else {
+             T:=CREADB(); BKSP;
+             if LETTER(T) then T:=TREAD1(VAR)  
+             else 
+               if DIGIT(T) then T:=FCOMP(0,NUM,IREAD())
+               else goto 2
+          };
+       };
+       VAR do {
+          T:=FCOMP(0,VAR,VRD())
+       }
+    }; 
+    return. 
+(2) [Error] print "Illegal term in TREAD1."; WRITE; DIBUFF; stop || 

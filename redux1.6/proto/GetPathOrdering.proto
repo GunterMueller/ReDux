@@ -1,0 +1,20 @@
+#!/bin/sh
+
+ AWK=AWK
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+
+if [ $# -eq 0 ] 
+   then
+      echo "usage: GetPathOrdering file"
+      exit
+   fi
+if [ $# -eq 1 ]
+   then
+      fname=$1.mklong
+      ($AWK -f mklong.awk $1 > $fname;
+      $AWK -f pathOrdering1.awk $fname > pathOrdering.tmp;
+      $AWK -f pathOrdering2.awk $fname >> pathOrdering.tmp;
+      sed -f pathOrdering.sed pathOrdering.tmp > $1.PathOrdering)
+      rm $fname pathOrdering.sed pathOrdering.tmp
+   fi

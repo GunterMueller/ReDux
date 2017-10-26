@@ -1,0 +1,461 @@
+\section{The Term Completion Program}
+\subsection{Introduction}
+The {\tt tc}-program is used to experiment with the term completion algorithms
+\cite{KnuthBendix:67}
+implemented in the \redux\ system:
+
+\begin{itemize}
+\item The Knuth-Bendix procedure
+\item The Knuth-Bendix procedure with subconnectedness criterion
+\item The Knuth-Bendix procedure with transformation criterion
+\item The Knuth-Bendix procedure with subconnectedness and
+transformation criterion
+\end{itemize}
+
+The function of the completion procedures is to transform a set of
+equations  into a canonical set of rules.
+While this process is executed, critical pairs 
+are computed. 
+The canonical set of rules is constructed by orienting equations and critical
+pairs and adding them incrementally to this set.
+All four completion procedures follow roughly the strategy 
+depicted in Figure~\ref{fi:cmpl}.
+\begin{figure}[ht]
+\begin{center}
+\fbox{
+\begin{minipage}{5.5in} %necessary if there is a footnote within the figure
+\begin{quote}
+\begin{center} ${\cal R} \leftarrow$ {\bf COMPLETE}$({\cal E},\succ)$
+\end{center}
+[Completion procedure. \\
+$\cal E$ is a set of equations and $\succ$ is a terminating term ordering.
+Then ${\cal R}$ is a canonical term rewriting system with
+\( =_{\cal R} \; = \; =_{\cal E} \).]
+\begin{description}
+ \item[{(1) [Initialize.]}] \(  {\cal R} := \emptyset \).
+ \item[{(2) [Simplify.]}] {\bf while} the {\em simplify}-inference rule
+   applies {\bf do} \\
+  \( ({\cal E};{\cal R}) := Simplify(({\cal E};{\cal R})). \)
+ \item[{(3) [Delete.]}] {\bf while} the {\em delete}-inference rule
+   applies {\bf do} \\
+  \( ({\cal E};{\cal R}) := Delete(({\cal E};{\cal R})). \)
+ \item[{(4) [Stop?]}] {\bf if} \(  {\cal E} = \emptyset \) {\bf then return}
+      ${\cal R}$ and {\bf stop}.
+ \item[{(5) [Orient.]}] Let \( a \leftrightarrow b \in {\cal E} \) then
+      \( {\cal E} := {\cal E} \setminus \{ a \leftrightarrow b \} \); \\
+      {\bf if} \( a \succ b \) {\bf then} \(  \bgn l := a; r  := b \nd \) \\
+      {\bf elsif} \( b \succ a \) {\bf then} \(  \bgn l := b; r  := a \nd \) \\
+      {\bf else stop} with failure; \\
+      \( {\cal R} := {\cal R} \cup \{ l \rightarrow r \} \).
+ \item[{(6) [Collapse.]}] {\bf while} the {\em collapse}-inference rule
+     applies {\bf do} \\
+    \( ({\cal E};{\cal R}) := Collapse(({\cal E};{\cal R})). \)
+ \item[{(6') [Subconnectedness criterion.]}]
+    \( {\cal E} := {\cal E} \setminus \{ \mbox{Equations originating from a
+    collapsed rule} \} \).
+ \item[{(7) [Compose.]}] {\bf while} the {\em compose}-inference rule
+   applies {\bf do} \\
+   \( ({\cal E};{\cal R}) := Compose(({\cal E};{\cal R})). \)
+ \item[{(8) [Deduce.]}] Compute all critical pairs ${\cal P}$ of
+    $l \rightarrow r$ and rules
+    in $\cal R$. \( {\cal E} := {\cal E} \cup {\cal P} \)\footnote{Here we
+                                             identify pairs and equations.};
+    \\ {\bf continue} with step 2. \hfill $\Box$
+\end{description}
+\end{quote}
+\end{minipage}
+}
+\end{center}
+\caption{Algorithm {\em COMPLETE}} \label{fi:cmpl}
+\end{figure}
+The {\em simplify}-, {\em delete}-, {\em collapse}-, and {\em compose}
+inference rules are those presented in \cite{Dershowitz:89}.
+The equation set $\cal E$ is realized as two queues.
+A queue of {\em old axioms} containing the initial equations of the 
+input data type and collapsed rules (step~6), and a second queue of 
+{\em theorems} which contains the critical pairs deduced in step~8.
+The rule set $\cal R$ is implemented as a list of {\em (new) axioms}.
+The equation selection strategy in step~5 gives old axioms priority 
+over theorems and selects the equations in the same queue according to
+their size.
+
+When the program {\tt tc} is started, it prints a start message and 
+the time needed for the program initialization.
+Then it reads a data type and prints the time 
+for the acception of the data type. After that, the data type is output,
+again with the time needed for this procedure.
+
+\subsection{The Main Menu}
+After that the program's main menu is displayed:
+\begin{quote}
+\begin{verbatim}
+You have following choices: 
+  u - unify two terms 
+  m - match two terms 
+  e - test equality of two terms 
+  p - prove equational theorem
+  n - normalize term 
+  k - run Knuth-Bendix completion procedure
+  i - de/install term ordering
+  s - select term ordering
+  o - order axiom
+  O - order axioms of data type
+  d - display data type
+  S - show times and counters
+  r - reset times and counters
+  h - help, print menu
+  q - quit
+Go on [u/m/e/n/k/i/s/o/O/d/S/r/h/q]?  *
+\end{verbatim}
+\end{quote}
+
+\label{ShortMainMenu}
+After one of the above menu items has been processed, the program
+prints the main menu in its short version:
+\begin{quote}
+\begin{verbatim}
+Go on [u/m/e/n/k/i/s/o/O/d/S/r/h/q]?  *
+\end{verbatim}
+\end{quote}
+The letters have the same meaning as in the long form of the menu.
+The long form can be called by selecting {\tt h} or by striking
+the $\langle$return$\rangle$ key.
+
+If one of the menu items ``unify'', ``match'', ``test equality of two terms''
+or ``prove equational theorem''
+have been chosen previously, for each of the former three items an additional
+item indicated by an upper case letter is displayed. These
+items perform the same task as the original menu items, but they 
+do not read two terms from the keyboard but use the previously
+entered terms. Again, a long 
+version of the menu can be called with {\tt h} or $<$return$>$.
+
+\begin{itemize}
+\item {\bf Unify Two Terms (u})\\
+The user is prompted to enter two terms.
+If the terms are unifiable, the program prints the
+most general common instance (mgci) of the two terms:
+\begin{quote}
+\begin{verbatim}
+1 * 1/1 = mgci( 1 * 1/1 , x * y )
+\end{verbatim}
+\end{quote}
+
+If the terms are not unifiable, this is printed explicitly.
+
+\item {\bf Match Two Terms (m)}\\
+This item allows the user to match two terms, i.\,e.\  the program attempts
+to find an instance of the first term which equals the second term.
+
+\item {\bf Prove Equational Theorem (p)}\\
+This item allows to prove a equational theorem w.\,r.\,t.\  the
+current algebraic specification. The algebraic specification must be
+canonical.
+
+\item {\bf Test Equality of Two Terms (e)}\\
+The user is prompted to enter two terms $t_1$ and $t_2$. Then the program 
+prints a message like $t_1$ \verb/=/ $t_2$ if the terms are equal
+or $t_1$ \verb/#/ $t_2$ if the terms are not equal.
+
+\item {\bf Normalize a Term (n)}\\
+The user must enter a term. Then the program 
+computes the corresponding normal form w.\,r.\,t.\  to the current data 
+type. The normal form can be equal to the entered term if no axiom in
+the data type can be applied to the term.
+
+\item {\bf Run Knuth-Bendix completion procedure (k)}\\
+See Section~\ref{KBCompletion} for a description of the
+Knuth-Bendix procedure. A term ordering must be installed and selected
+if the Knuth-Bendix algorithm shall be used in automatic mode.
+
+\item{\bf (De-)Install Term Ordering (i)}\\
+This item allows the user to install or de-install a term ordering. See 
+Section~\ref{InitializationOfOrderings} for more information
+on term orderings.
+
+\item{\bf Select Term Ordering (s)}\\
+The user can select a lexicographical combination of the initialized
+term orderings and the straight and reverse pseudo orderings.
+To initialize a term ordering use the previous menu item.
+
+\item{\bf Order Axioms (o)}\\
+This item allows to order an arbitrary axiom that is entered by the user.
+The axiom must be entered in the form $l${\tt ==}$r$, where $l$ and $r$
+are the left-hand side and the right-hand side of the axiom. $l$ and $r$
+are two arbitrary terms built of the constants, variables and operators
+that have been defined in the data type.
+
+\item{\bf Order Axioms of Data Type (O)}\\
+This item allows the user to order the axioms of the data type according
+to the selected ordering.
+
+\item {\bf Display Data Type (d)}\\
+The program displays the current data type. If the Knuth-Bendix
+completion procedure has been applied, the current data type may be
+different from the initial data type that was fed in at the program
+start.
+
+\item {\bf Show Times and Counters (S)}\\
+The counters (number of matches, reductions and unifications) and the 
+the timers (cpu-time used so far, cpu-time spent for matching,
+reduction and unification) are displayed.
+
+\item {\bf Reset Times and Counters (r)}\\
+The counters and timers are reset, either altogether or selectively.
+
+\item {\bf Help, Print Menu (h)}\\
+This item prints the main menu. It can be useful if the program
+displays the short form  of the main menu. The same action is performed
+if only $\langle$return$\rangle$ is struck.
+
+\item {\bf Quit (q)}\\
+The program can be aborted by selecting this menu item.
+\end{itemize}
+
+\subsection{The Knuth-Bendix Completion}
+\label{KBCompletion}
+
+If the Knuth-Bendix completion procedure is selected in the main
+menu, the user is prompted to choose one of the available variants 
+of the Knuth-Bendix algorithm:
+\begin{quote}
+\begin{verbatim}
+Which kind of completion procedure do you want to run?
+  p - plain completion
+  s - completion with subconnectedness criterion
+  t - completion with transformation criterion
+  c - completion with both criteria
+  q - quit completion
+Choose one of [p/s/t/c/q] *
+\end{verbatim}
+\end{quote}
+
+\begin{itemize}
+\item {\bf Plain Completion}\\
+The basic Knuth-Bendix completion presented in Figure~\ref{fi:cmpl}  is run.
+
+\item {\bf Completion with Subconnectedness Criterion}\\
+In addition to step 6', 
+the subconnectedness criterion is also applied in the Deduce step (8)
+as described in \cite{Kuechlin:86}.
+
+\item {\bf Completion with Transformation Criterion}\\
+The transformation criterion as given in \cite{Buendgen:91,Buendgen:91b}
+is used.
+The procedure tries to orient all computed critical pairs (theorems) 
+during the critical pair computation step.
+The program prints the number of orientable and non-orientable critical pairs
+it has computed after a new axiom is taken to the set of new axioms:
+\begin{quote}
+\begin{verbatim}
+4 orientable critical pairs and 0 non-orientable critical 
+                                                  pairs have been derived.
+\end{verbatim}
+\end{quote}
+In this message only unproved theorems are considered.
+
+Furthermore, the program prints a message each time  the transformation
+criterion has been applied.
+
+If this completion procedure  is used in step mode, the user must orient
+the proposed new axioms {\em and} all computed 
+theorems (critical pairs). The program displays a message like the following:
+\begin{quote}
+\begin{verbatim}
+ Theorem
+z == (1/x) * (x * z)
+ (from 2 and 3) has been computed.
+Orient [S/R/N]  *
+\end{verbatim}
+\end{quote}
+The theorem is ordered straight (reverse) if the user enters {\tt s}
+({\tt r}). If {\tt n} is entered, the theorem will be considered as
+non-orientable. If the user only strikes the $<$return$>$-key, the program
+will display a help menu:
+\begin{quote}
+\begin{verbatim}
+ Your input options are -
+     (S)traight / (R)everse
+    (T)race  / Do (N)ot orient
+  auto(M)atic ordering proposal
+         (P)rompt input
+Orient [S/R/N]  *
+\end{verbatim}
+\end{quote}
+The other options (T, M and P) are the same as described in
+Section~\ref{StepMode}.
+
+\item {\bf Completion with both Criteria}\\
+In this completion procedure, the subconnectedness criterion and the
+transformation criterion are combined.
+\end{itemize}
+
+After choosing an completion algorithm,  the user can select if trace
+information shall be displayed.
+An arbitrary combination of the 
+six built-in traces, namely the theorem derivation trace, the proved theorems
+trace, the formula reduction trace, the general ordering trace, the polynomial 
+ordering trace and the path ordering trace can be chosen. Each of the traces
+is turned on by typing {\tt 1} or off by typing {\tt 0}.
+The trace options are described in Appendix~\ref{Traces}.
+
+Then the program asks if the user wants to work in step mode or automatic mode. 
+(The step mode will be described in the Section~\ref{StepMode}.)
+
+Subsequently, the programs starts with the completion. For each rule added
+into the set of new axioms some lines of information are displayed:
+                                                                               
+\begin{quote} 
+\begin{verbatim}
+ Old axiom no 1,
+1 * x == x,
+ considered Proposing old axiom no 1,
+1 * x == x,
+ as new axiom no 1.
+1 * x   >   x
+ No axiom can be reduced by new axiom no 1.
+
+ No theorems derived so far.
+\end{verbatim}
+\end{quote}
+This means that the set of new axioms has now one element, namely the
+first axiom of the set of old axioms, ordered straight.
+ 
+After putting a theorem/old axiom to the set of new axioms, it is checked
+if an earlier axiom can be reduced with the new axiom. In our example,
+this is not possible. Furthermore, we can see that the system was not
+able to derive any theorems.
+ 
+Another possible output is:
+\begin{quote}
+\begin{verbatim} 
+ Proposing theorem
+1/x == y * 1/(x * y)
+ (from 12 and 4) as new axiom no 13.
+1/x   <   y * 1/(x * y)
+ 1 axiom can be reduced by new axiom no 13.
+ 13 new theorems can be derived by new axiom no 13.
+  6 of them must be retained unproved.
+
+ 79 theorems derived in total,
+  8 of them still unproved.
+
+ Old axiom no 12,
+x * (y * 1/(x * y)) == 1,
+ considered and proved.
+\end{verbatim}
+\end{quote} 
+
+In this example, one of the derived theorems (i.\,e.\  critical pairs) is put
+into the set of new axioms. It was derived from the new axioms twelve and
+four and is the thirteenth new axiom. With the new axiom, one of the earlier
+new axioms can be proved. In this case, it is axiom 12 as is indicated some
+lines below.
+
+Thirteen new theorems could be derived by computing critical pairs between
+new axiom 13 and the remaining new axioms,
+but only six must  be retained
+unproved. Together with these theorems, 79 theorems have been derived so far,
+eight of them must be kept unproved.
+
+If the chosen ordering cannot order an old axiom or theorem, a message
+of the following form is output:
+\begin{quote}
+\begin{verbatim}
+ Proposing theorem
+1 == x * 1/x
+ (from 2 and 6) as new axiom no 8. The automatic ordering failed.  *
+\end{verbatim}
+\end{quote}
+Now the user can manually orient the axiom or theorem straight by typing 
+{\tt s} or
+reverse by typing {\tt r}. If the user just types $\langle$return$\rangle$,
+a menu of the
+available functions is displayed. This menu is described in 
+Section~\ref{StepMode}. If the user orients an axiom or theorem 
+manually the termination 
+property of the resulting term rewriting system may be violated. The system 
+has no way to check this\footnote{As a matter of fact, the problem to 
+decide whether a term rewriting system has the termination property is
+undecidable.}.
+
+If the term completion algorithm succeeds, the new data type is
+displayed together with some statistical information, including a
+histogram of the length of the theorem queue (the set of all 
+unproved theorems).
+The axioms in the displayed data type are rules, although they are
+printed as equations ({\tt ==} separates the both sides of each axiom).
+Therefore {\tt ==} must be read as $\rightarrow$.
+
+Finally, the user is asked if the old or the new data type shall
+be used in further computations.
+
+\subsection{Working in Step Mode}
+\label{StepMode}
+If the completion procedure runs in step mode, old axioms and theorems
+are not oriented automatically. The user is prompted with the
+old axiom or theorem to be oriented and entered into the set of new axioms.
+There are several options that can be chosen. If the $<$return$>$-key is struck,
+a menu of the possible actions is displayed:
+\begin{quote}
+\begin{verbatim}
+ Your input options are -
+     (S)traight / (R)everse
+      (T)race  / (D)isplay
+  auto(M)atic ordering proposal
+  (I)ntroduction of new operator
+    (P)rompt input / (F)ertilize
+         (Q)ueue / (E)nd
+  *
+\end{verbatim}
+\end{quote}
+
+\begin{itemize}
+\item {\bf Straight (S)}\\
+If this item is chosen, then the proposed new axiom is ordered straight
+i.\,e.\  the left-hand side of the displayed axiom or theorem will become the
+left-hand side of the rule in the set of new axioms.
+\item {\bf Reverse (R)}\\
+By typing {\tt R} (or {\tt r}) the proposed new axiom is ordered
+reverse, i.\,e.\  the left-hand side of the displayed equation will be the
+right-hand side of the new axiom.
+\item {\bf Trace (T)}\\
+This item allows to select the six built-in traces. The possibilities 
+to change the traces are exactly the same as at the program start.
+\item {\bf Display (D)}\\
+If `Display' has been selected, the program shows a menu:
+\begin{quote}
+\begin{verbatim} 
+ Your options for display are -
+         (U)nproved theorems
+      (C)onsts / (V)ars / (O)ps
+     old (A)xioms / new a(X)ioms
+  *
+\end{verbatim}
+\end{quote}
+{\tt U} shows the queue of unproved theorems, each theorem is displayed together
+with  its weight and the new axiom it is derived from.
+
+With {\tt C}, {\tt V}, {\tt O} and {\tt A}, the user can choose the constants, 
+variables, operators and axioms of the read-in data type to be displayed.
+
+The option {\tt X} allows the set of new axioms at the current state to
+be displayed. Again, {\tt ==} must be read as $\rightarrow$.
+\item {\bf Automatic Ordering proposal (M)}\\
+The program shows how the installed and selected ordering orients the proposed
+axiom.
+\item {\bf Introduction of new operator (I)}\\
+This feature is not implemented yet.
+\item {\bf Prompt Input (P)}\\
+The considered old axiom or theorem is shown again.
+\item {\bf Fertilize (F)}\\
+This feature is not implemented yet.
+\item {\bf Queue (Q)}\\
+The queue of unproved theorems is cyclically permuted, i.\,e.\  the proposed
+theorem is appended to the end of the queue and its the former first entry is
+proposed as new axiom.
+\item {\bf End (E)}\\
+This item allows to terminate the program. The data type with the new
+axioms at the current state is displayed, together with some statistical
+information.
+\end{itemize}

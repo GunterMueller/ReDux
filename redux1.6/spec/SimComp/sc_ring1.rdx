@@ -1,0 +1,62 @@
+%% 
+DATATYPE XRING;
+SORT
+	EXTERN, RING;
+CONST
+	0, 1: EXTERN;
+VAR
+	v, x, y, z: RING;
+	V, X, Y, Z: EXTERN;
+OPERATOR
+	o:  -> RING;
+	i:  -> RING;
+	+: RING, RING -> RING;
+	*: RING, RING -> RING;
+	~: RING -> RING;
+	": EXTERN -> RING;
+	#: EXTERN, EXTERN -> EXTERN;
+	@: EXTERN, EXTERN -> EXTERN;
+	!: EXTERN -> EXTERN;
+NOTATION
+	~, !: FUNCTION;
+	+, *, #, @: INFIX;
+	": ROUNDFIX ";
+THEORY
+	+, #: AC;
+AXIOM
+   [1] (o + x) == x;
+   [2] (o * z) == o;
+   [3] (x * o) == o;
+   [4] (i * x) == x;
+   [5] (x * i) == x;
+   [6] ~(o) == o;
+   [7] ~(~(v)) == v;
+   [8] (~(x) + x) == o;
+   [9] (x * (y + z)) == ((x * y) + (x * z));
+  [10] ((x + y) * z) == ((x * z) + (y * z));
+  [11] ~((v + x)) == (~(x) + ~(v));
+  [12] (x * ~(v)) == ~((x * v));
+  [13] (~(v) * z) == ~((v * z));
+  [14] ((x * y) * z) == (x * (y * z));
+
+  [15] (0 # X) == X;
+  [16] (0 @ Z) == 0;
+  [17] (X @ 0) == 0;
+  [17] (1 @ X) == X;
+  [19] (X @ 1) == X;
+  [20] !(0) == 0;
+  [21] !(!(V)) == V;
+  [22] (!(X) # X) == 0;
+  [23] (X @ (Y # Z)) == ((X @ Y) # (X @ Z));
+  [24] ((X # Y) @ Z) == ((X @ Z) # (Y @ Z));
+  [25] !((V # X)) == (!(X) # !(V));
+  [26] (X @ !(V)) == !((X @ V));
+  [27] (!(V) @ Z) == !((V @ Z));
+  [28] ((X @ Y) @ Z) == (X @ (Y @ Z));
+
+  [29] o == " 0 ";
+  [30] i == " 1 ";
+  [31] ~(" X ") == " !(X) ";
+  [32] (" X " + " Y ") == " (X # Y) ";
+  [33] (" X " * " Y ") == " (X @ Y) ";
+END

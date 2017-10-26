@@ -1,0 +1,147 @@
+\begin{thebibliography}{B{\"u}n94b}
+
+\bibitem[BCL87]{BenCherifaLescanne:87}
+Ahlem Ben~Cherifa and Pierre Lescanne.
+\newblock Termination of rewriting systems by polynomial interpretations and
+  its implementation.
+\newblock {\em Science of Computer Programming}, 9:137--159, 1987.
+
+\bibitem[BE92]{BuendgenEckhardt:92}
+Reinhard B{\"u}ndgen and Hasko Eckhardt.
+\newblock A fast algorithm for ground normal form analysis.
+\newblock In H.~Kirchner and G.~Levi, editors, {\em Algebraic and Logic
+  Programming (LNCS 632)}, pages 291 -- 305. Springer-Verlag, 1992.
+\newblock (Proc. ALP'92, Volterra, Italy, September 1992).
+
+\bibitem[BK89]{BuendgenKuechlin:89}
+Reinhard B{\"u}ndgen and Wolfgang K\"{u}chlin.
+\newblock Computing ground reducibility and inductively complete positions.
+\newblock In Nachum Dershowitz, editor, {\em Rewriting Techniques and
+  Applications (LNCS 355)}, pages 59--75. Springer-Verlag, 1989.
+\newblock (Proc. RTA'89, Chapel Hill, NC, USA, April 1989).
+
+\bibitem[BL96]{BuendgenLauterbach:96a}
+Reinhard B{\"u}ndgen and Werner Lauterbach.
+\newblock Experiments with partial evaluation domains for rewrite
+  specifications.
+\newblock In Magne Haveraaen, Olaf Owe, and Ole-Johan Dahl, editors, {\em
+  Recent Trends in Data Type Specifications (LNCS 1130)}, pages 125--142.
+  Springer Verlag, 1996.
+\newblock (WADT'95, Oslo, Norway, September 1995, selected papers).
+
+\bibitem[B{\"u}n87]{Buendgen:87}
+Reinhard B{\"u}ndgen.
+\newblock Design, implementation, and application of an extended
+  ground-reducibility test.
+\newblock Master's thesis, Computer and Information Sciences, University of
+  Delaware, Newark, DE 19716, 1987.
+
+\bibitem[B{\"u}n91a]{Buendgen:91}
+Reinhard B{\"u}ndgen.
+\newblock Simulating {B}uchberger's algorithm by {K}nuth-{B}endix completion.
+\newblock In Ronald~V. Book, editor, {\em Rewriting Techniques and Applications
+  (LNCS 488)}, pages 386--397. Springer-Verlag, 1991.
+\newblock (Proc. RTA'91, Como, Italy, April 1991).
+
+\bibitem[B{\"u}n91b]{Buendgen:91b}
+Reinhard B{\"u}ndgen.
+\newblock {\em Term Completion Versus Algebraic Completion}.
+\newblock PhD thesis, Universit\"{a}t T\"{u}bingen, D-7400 T\"{u}bingen,
+  Germany, May 1991.
+\newblock (Reprinted as report WSI 91--3).
+
+\bibitem[B{\"u}n93]{Buendgen:93}
+Reinhard B{\"u}ndgen.
+\newblock Reduce the redex $\rightarrow$ {ReDuX}.
+\newblock In Claude Kirchner, editor, {\em Rewriting Techniques and
+  Applications (LNCS 690)}, pages 446--450. Springer-Verlag, 1993.
+\newblock (Proc. RTA'93, Montreal, Canada, June 1993).
+
+\bibitem[B{\"u}n94a]{Buendgen:94}
+Reinhard B{\"u}ndgen.
+\newblock On pots, pans and pudding or how to discover generalized critical
+  pairs.
+\newblock In Alan Bundy, editor, {\em 12th International Conference on
+  Automated Deduction, (LNCS 814)}, pages 693--707. Springer-Verlag, 1994.
+\newblock (Proc. CADE'94, Nancy, France, July 1994).
+
+\bibitem[B{\"u}n94b]{RSD1.4}
+Reinhard B{\"u}ndgen.
+\newblock {\em The {R}e{D}u{X} System Documentation (Version 1.4)}.
+\newblock D-72076 T\"{u}bingen, 1994.
+\newblock (Part of ReDuX distribution).
+
+\bibitem[Col80]{Collins:80}
+G.~E. Collins.
+\newblock {ALDES} and {SAC--2} now available.
+\newblock {\em SIGSAM Bull.}, 12(2):19, 1980.
+
+\bibitem[Der89]{Dershowitz:89}
+Nachum Dershowitz.
+\newblock Completion and its applications.
+\newblock In H.~A\"{\i}t-Kaci and M.~Nivat, editors, {\em Rewriting
+  Techniques}, volume~2 of {\em Resolution of Equations in Algebraic
+  Structures}, chapter~2. Academic Press, 1989.
+
+\bibitem[Eck91]{Eckhardt:91}
+Hasko Eckhardt.
+\newblock Grundterm-analyse: Algorithmen und erweiterungen.
+\newblock Master's thesis, Universit\"{a}t T\"{u}bingen, 1991.
+
+\bibitem[KB70]{KnuthBendix:67}
+Donald~E. Knuth and Peter~B. Bendix.
+\newblock Simple word problems in universal algebra.
+\newblock In J.~Leech, editor, {\em Computational Problems in Abstract
+  Algebra}. Pergamon Press, 1970.
+\newblock (Proc. of a conference held in Oxford, England, 1967).
+
+\bibitem[KNS85]{KapurNarendranSivakumar:85}
+D.~Kapur, P.~Narendran, and G.~Sivakumar.
+\newblock A path ordering for proving termination of term rewriting systems.
+\newblock In {\em Mathematical Foundation of Software Developement (LNCS 185)},
+  pages 173--187. Springer-Verlag, 1985.
+
+\bibitem[K{\"u}c82]{Kuechlin:82a}
+Wolfgang K{\"u}chlin.
+\newblock An implementation and investigation of the {K}nuth-{B}endix
+  completion algorithm.
+\newblock Master's thesis, Informatik I, Universit\"{a}t Karlsruhe, D-7500
+  Karlsruhe, W-Germany, 1982.
+\newblock (Reprinted as Report 17/82.).
+
+\bibitem[K{\"u}c86]{Kuechlin:86}
+Wolfgang K{\"u}chlin.
+\newblock A generalized {K}nuth-{B}endix algorithm.
+\newblock Technical Report 86-01, Mathematics, Swiss Federal Institute of
+  Technology (ETH), CH-8092 Z\"{u}rich, Switzerland, January 1986.
+
+\bibitem[K{\"u}c89]{Kuechlin:89}
+Wolfgang K{\"u}chlin.
+\newblock Inductive completion by ground proof transformation.
+\newblock In H.~A\"{\i}t-Kaci and M.~Nivat, editors, {\em Rewriting
+  Techniques}, volume~2 of {\em Resolution of Equations in Algebraic
+  Structures}, chapter~7. Academic Press, 1989.
+
+\bibitem[LC92]{LoosCollins:92}
+R{\"u}diger G.~K. Loos and George~E. Collins.
+\newblock Revised report on the algorithm description language {ALDES}.
+\newblock Technical Report 92--14, Wilhelm-Schickard-Institut f\"{u}r
+  Informatik, T\"{u}bingen, 1992.
+
+\bibitem[Loo76]{Loos:76}
+R\"{u}diger Loos.
+\newblock The algorithm description language {ALDES} ({R}eport).
+\newblock {\em ACM SIGSAM Bull.}, 10(1):15--39, 1976.
+
+\bibitem[PS81]{PetersonStickel:81}
+G.~Peterson and M.~Stickel.
+\newblock Complete sets of reductions for some equational theories.
+\newblock {\em Journal of the ACM}, 28:223--264, 1981.
+
+\bibitem[WB91]{WalterBuendgen:91}
+Jochen Walter and Reinhard B{\"u}ndgen.
+\newblock The {R}e{D}u{X} user guide.
+\newblock Technical Report 91--9, Wilhelm-Schickard-Institut, Universit\"{a}t
+  T\"{u}bingen, D-7400 T\"{u}bingen, 1991.
+
+\end{thebibliography}

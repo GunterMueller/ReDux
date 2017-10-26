@@ -1,0 +1,1255 @@
+                    AADV(L;a,L')
+[Arithmetic advance.  L is a list.  If L#() then a=first(L) and
+L'=red(L).  Otherwise a=0 and L'=().]
+     safe AADV.
+(1)  if L # () then ADV(L;a,L') else { a:=0;  L':=() } ||
+                    BEGIN2()
+[Begin 2.  BEGIN2 calls BEGIN1, then initializes the system globals of
+the arithmetic system.]
+     safe i,m,t.
+(1)  [Call BEGIN1.]  BEGIN1.
+(2)  [Compute ZETA, ETA, THETA, DELTA, EPSIL and TABP2 elements.]
+     i:=1;  t:=1;  while t < BETA do { TABP2[i]:=t;  i:=i+1;
+     t:=t+t };  ZETA:=i-1;  ETA:=0;  t:=BETA; repeat { t:=t/10;
+     ETA:=ETA+1 } until t < 10;  THETA:=1;  for i=1,...,ETA do
+     THETA:=10 * THETA;  DELTA:=TABP2[ZETA/2+1];  EPSIL:=BETA/DELTA.
+(3)  [Compute RMULT, RINC and RTERM.]
+     L:=CONC(LIST10(3,1,4,1,5,9,2,6,5,3),LIST10(5,8,9,7,9,3,2,3,8,4));
+     m:=0;  while m < BETA/10 do { ADV(L;t,L);  m:=10 * m+t };
+     m:=m/8;  RMULT:=8 * m+5;
+     L:=CONC(LIST10(2,1,1,3,2,4,8,6,5,4),LIST10(0,5,1,8,7,1,0,0,0,0));
+     m:=0;  for i=1,...,ETA do { ADV(L;t,L);  m:=10 * m+t };
+     DQR(m,0,THETA;RINC,t);  if EVEN(RINC) then RINC:=RINC+1;
+     L:=CONC(LIST10(5,7,7,2,1,5,6,6,4,9),LIST10(0,1,5,3,2,8,6,0,6,0));
+     m:=0;  for i=1,...,ETA do { ADV(L;t,L);  m:=10 * m+t };
+     RTERM:=m.
+(4)  [Compute small prime list.]  SMPRM:=DPGEN(1,500).
+(5)  [Compute units of z_210.]  UZ210:=();
+     for i=209,207,...,1 do if DGCD(210,i) = 1 then
+     UZ210:=COMP(i,UZ210)||
+                    b:=BITRAN()
+[Bit, random.  b is a random bit, 0 or 1.]
+     safe BITRAN.
+(1)  a:=DRANN();  a:=a+a;  if a >= BETA then b:=1 else b:=0 ||
+                    DEGCD(a,b;c,u,v)
+[Digit extended greatest common divisor.  a  and b are beta-integers,
+a>=b>=0.  c=gcd(a,b), a beta-integer.  a*u+b*v=c, with |u| <=(b/2*c),
+|v| <=a/(2*c).]
+     safe DEGCD.
+(1)  a1:=a;  a2:=b;  u1:=1;  u2:=0;  v1:=0;  v2:=1;  while a2 # 0
+     do { QREM(a1,a2;q,a3);  a1:=a2;  a2:=a3;  u3:=u1-q * u2;
+     u1:=u2;  u2:=u3;  v3:=v1-q * v2;  v1:=v2;  v2:=v3 };
+     c:=a1;  u:=u1;  v:=v1 ||
+                    c:=DGCD(a,b)
+[Digit greatest common divisor.  a  and b are beta-integers, a>=b>=0.
+c=gcd(a,b), a beta-integer.]
+     safe DGCD.
+(1)  a1:=a;  a2:=b;  while a2 # 0 do { a3:=REM(a1,a2);
+     a1:=a2;  a2:=a3 };  c:=a1 ||
+                    n:=DLOG2(a)
+[Digit logarithm, base 2.  a  is a beta-digit.  If a=0 then n=0.
+Otherwise n=\lfloor\log_2|a|\rfloor+1.]
+     safe DLOG2.
+(1)  [a <= 0.]  if a=0 then { n:=0;  return };  a_:=ABS(a).
+(2)  [Binary search.]  i:=1;  j:=ZETA+1;  repeat { n:=(i+j)/2;
+     if a_ >= TABP2[n] then i:=n else j:=n } until j-i=1;
+     n:=i ||
+                    DPCC(a1,a2;u,u',v,v')
+[Digit partial cosequence calculation.  a1 and a2 are beta-integers,
+a1>=a2>0.  u, u', v and v' are the last cosequence elements
+of a1 and a2 which can be guaranteed to correspond to correct quotient
+digits.]
+     safe DPCC.
+(1)  a:=a1;  a':=a2;  u:=1;  u':=0;  v:=0;  v':=1;  repeat
+     { q:=a/a';  a'':=a-q * a';  u'':=u-q * u';  v'':=v-q * v';
+     if a'' < ABS(v'') \/ a'-a'' < ABS(v'-v'') then return;
+     a:=a';  a':=a'';  u:=u';  u':=u'';  v:=v';  v':=v'' }||
+                    L:=DPGEN(m,k)
+[Digit prime generator.  k and m are positive beta-integers.  L
+is the list (p_1,...,p_r) of all prime numbers p such that
+m<=p<m+2*k, with p_1<p_2<...<p_r.]
+     safe d,h,i,m1,m2,p,q,r,s.
+     array A[k].
+(1)  [Initialize.]  m1:=m+EVEN(m);  h:=2 * k-2;  m2:=m1+h;
+     for i=1,...,k do A[i]:=0.
+(2)  [Mark proper odd multiples of d for d=3 and d=6*n+1 or
+     d=6*n-1 with d**2 <= m2.]  d:=3;  s:=0;  repeat {   q:=m2/d;
+     if q < d then go to  3;  r:=REM(m1,d);  if r+h >= d \/ r=0
+     then {  if r=0 then i:=1 else if EVEN(r) then i:=d-r/2+1
+     else i:=(d-r)/2+1;  if m1 <= d then i:=i+d;  while i <= k
+     do { A[i]:=1;  i:=i+d }  };  if s=1 then { d:=d+4;  s:=2 }
+     else if s=2 then { d:=d+2;  s:=1 } else { d:=5;  s:=2 }   }.
+(3)  [Construct prime list.]  L:=();  p:=m2;  i:=k;  repeat
+     { if A[i]=0 then L:=COMP(p,L);  p:=p-2;  i:=i-1 } until i=0;
+     if m=1 then SFIRST(L,2);  if m=2 then L:=COMP(2,L) ||
+                    DPR(a,b;c,d)
+[Digit product.  a  and b are beta-digits.  c and d are the unique
+beta-digits such that a*b=c*beta+d and c*d>=0.]
+     safe DPR.
+(1)  a1:=a/EPSIL;  a0:=a-a1 * EPSIL;  b1:=b/EPSIL;  b0:=b-b1 * EPSIL.
+(2)  c0:=a0 * b0;  c1:=a1 * b0+a0 * b1;  c2:=a1 * b1.
+(3)  if c0 >= BETA then { c01:=1;  c00:=c0-BETA } else if c0 <= -BETA
+      then { c01:=-1;  c00:=c0+BETA } else { c01:=0;  c00:=c0 };
+     c11:=c1/DELTA;  c10:=c1-c11 * DELTA.
+(4)  c':=c2+c01+c11;  if DELTA # EPSIL then c':=c'+c2;
+     d':=c10 * EPSIL+c00.
+(5)  if d' >= BETA then { c:=c'+1;  d:=d'-BETA } else if d' <= -BETA
+      then { c:=c'-1;  d:=d'+BETA } else { c:=c';  d:=d' } ||
+                    DQR(a1,a0,b;q,r)
+[Digit quotient and remainder.  a1, a0 and b are beta-integers with
+a1*a0>=0 and |b|>|a1|.  q is the integral part of (a1*beta+a0)/b and
+r=(a1*beta+a0)-b*q.  q and r are beta-integers.]
+    safe DQR.
+(1) [a1=0.]  if a1 = 0 then { QREM(a0,b;q,r); return }.
+(2) [Compute absolute values.]  a'1:=ABS(a1);  a'0:=ABS(a0);
+    b':=ABS(b).
+(3) [Shift and subtract.]  q':=0;  for i=1,...,ZETA do
+    {  a'1:=a'1+a'1;  a'0:=a'0+a'0;
+    if a'0 >= BETA then { a'0:=a'0-BETA;  a'1:=a'1+1 };
+    q':=q'+q';  if a'1 >= b' then { a'1:=a'1-b';  q':=q'+1 }  }.
+(4) [Compute signs.]  if a1 < 0 then { q':=-q';  a'1:=-a'1 };
+    if b < 0 then q':=-q';
+    q:=q';  r:=a'1 ||
+
+                    a:=DRAN()
+[Digit, random.  a  is a random beta-digit.]
+     safe DRAN.
+(1)  a1:=DRANN();  s:=0;  a1:=a1+a1;  if a1 >= BETA then { s:=1;
+     a1:=a1-BETA };  a1:=a1/DELTA;  a2:=DRANN();  a2:=a2/EPSIL;
+     a:=a1 * DELTA+a2;  if s=1 then a:=-a ||
+                    a:=DRANN()
+[Digit, random non-negative.  a  is a random non-negative beta-digit.
+Caution, the low-order bits of a  are not very random.]
+     safe DRANN.
+(1)  DPR(RTERM,RMULT;t,a);  a:=a+RINC;  if a >= BETA then
+     a:=a-BETA;  RTERM:=a ||
+                    DSQRTF(a;b,t)
+[Digit square root function.  a  is a non-negative beta-integer.
+b=\lfloor a^{1/2}\rfloor and t is the sign(a-b^2).]
+     safe DSQRTF.
+(1)  [a=0.]  if a=0 then { b:=0;  t:=0;  return }.
+(2)  [Compute first approximation.]  k:=DLOG2(a);  h:=(k+1)/2;
+     b:=TABP2[h+1].
+(3)  [Iterate modified Newton method.]  repeat {  QREM(a,b;c,r);
+     if b <= c then { t:=SIGN(a-b * b);  return };  b:=(b+c)/2  } ||
+                    FRESL(n;m,L)
+[Fermat residue list.  n is a positive integer with no prime divisors
+less than 17.  m is a positive beta-integer and L is an ordered list
+of the elements of Z_m such that if x^2-n is a square then x is
+congruent to a  (modulo m) for some a  in L.]
+     safe a1,a2,a3,a4,b1,h,k,k1,m,m1.
+(1)  [Modulus 2**5.]  a1:=IDREM(n,32);  a2:=REM(a1,16);
+     a3:=REM(a2,8);  a4:=REM(a3,4);  if a4=3 then { m:=4;  if a3=3
+     then b1:=2 else b1:=0 } else if a3=1 then { m:=8;  if a2=1 then
+     b1:=1 else b1:=3 } else {  m:=16;  case a1/8 of { 0 do b1:=3;
+     1 do b1:=7;  2 do b1:=5;  3 do b1:=1 }  };  if m=4 then
+     L:=LIST1(b1) else L:=LIST2(b1,m-b1);  k:=LENGTH(L).
+(2)  [Modulus 3**3.]  a1:=IDREM(n,27);  a2:=REM(a1,3);  if a2=2
+     then { m1:=3;  k1:=1;  L1:=LIST1(0) } else { m1:=27;  k1:=4;
+     L1:=FRLSM(m1,a1) }.
+(3)  [Combine.]  L:=MDLCRA(m,m1,L,L1);  m:=m * m1;  k:=k * k1.
+(4)  [Modulus 5**2.]  a1:=IDREM(n,25);  a2:=REM(a1,5);  if a2=2
+     \/ a2=3 then { m1:=5;  L1:=LIST2(a2-1,6-a2);  k1:=2 } else
+     { m1:=25;  L1:=FRLSM(m1,a1);  k1:=7 }.
+(5)  [Combine.]  if m1 >= BETA/m then return;  k:=k * k1;
+     L:=MDLCRA(m,m1,L,L1);  m:=m * m1.
+(6)  [Moduli 7,11,13.]  M:=LIST3(7,11,13);  H:=LIST3(64,48,0);
+     repeat { ADV(M;m1,M);  if m1 >= BETA/m then return;
+     a1:=IDREM(n,m1);  L1:=FRLSM(m1,a1);  k1:=LENGTH(L1);
+     L:=MDLCRA(m,m1,L,L1);  m:=m * m1;  k:=k * k1;  ADV(H;h,H);
+     if k > h then return }||
+                    L:=FRLSM(m,a)
+[Fermat residue list, single modulus.  m is a positive beta-integer.
+a  belongs to Z_m.  L is a list of the distinct b in Z_m such
+that b^2-a  is a square in Z_m.]
+     safe i,i',j,m',s,s',S'.
+(1)  [Compute list of squares of Z_m.]  m':=m/2;  S:=();
+     for i=0,...,m' do { s:=MDPROD(m,i,i);  S:=COMP(s,S) }.
+(2)  [Compute L.]  L:=();  S':=S;  for i=m',m'-1,...,0 do
+     {  ADV(S';s,S');  s':=MDDIF(m,s,a);  j:=LSRCH(s',S);
+     if j # 0 then { L:=COMP(i,L);  i':=MDNEG(m,i);  if i' # i
+     then L:=COMP(i',L) }  } ||
+                    L:=GDPGEN(m,k)
+[Gaussian digit prime generator.  m and k are positive beta-integers.
+L is the list (p_1,...,p_r) of all prime numbers p such that m<=p, 
+p<m+4*k and p is congruent to 3 mod 4, with p_1<p_2<...<p_r.  An
+unsafe local array of k elements is used.]
+     array A[k].
+     safe d,j,m1,m2,m_,m*,p,q,q_,r,r4,r6.
+(1)  [Initialize.]  r:=REM(m,4);  m1:=m+3-r;  m2:=m1+4 * k-4;
+     for i=1,...,k do A[i]:=0.
+(2)  [Mark proper multiples of d=3, d=6*n+1 and d=6*n-1 with
+     d**2 <= m2.]  d:=3;  r4:=3;  r6:=3; repeat {  q_:=m2/d;
+     if d > q_ then go to  3;  m_:=q_ * d;  r:=REM(m_,4);  if r=3
+     then j:=0 else if r4=1 then j:=r+1 else j:=3-r;  m*:=m_-j * d;
+     i:=(m*-m1)/4+1;  q:=q_-j;  while i > 0 /\ q > 1 do
+     { A[i]:=1;  i:=i-d;  q:=q-4 };  if r6=1 then { d:=d+4;
+     r6:=5 } else { d:=d+2;  if r4=3 then r4:=1 else r4:=3;
+     if r6=5 then r6:=1 else r6:=r6+2 }  }.
+(3)  [Construct prime list.]  L:=();  p:=m2;  for i=k,k-1,...,1 do
+     { if A[i]=0 then L:=COMP(p,L);  p:=p-4 } ||
+                    B:=IABSF(A)
+[Integer absolute value function.  A  is an integer.  B=|A|.]
+     safe IABSF.
+(1)  s:=ISIGNF(A);  if s >= 0 then B:=A else B:=INEG(A) ||
+                    s:=ICOMP(A,B)
+[Integer comparison.  A  and B are integers.  s=sign(A-B).]
+     safe ICOMP.
+(1)  [A and B single-precision.]  if BDIGIT(A) /\ BDIGIT(B) then
+     { s:=SIGN(A-B);  return }.
+(2)  [A single-precision.]  if BDIGIT(A) then { s:=-ISIGNF(B);
+     return }.
+(3)  [B single-precision.]  if BDIGIT(B) then { s:=ISIGNF(A);
+     return }.
+(4)  [Compare corresponding digits.]  s:=0;  A':=A;  B':=B;  repeat
+     {  ADV(A';a,A');  ADV(B';b,B');  u:=SIGN(a);  v:=SIGN(b);
+     if u * v=-1 then { s:=u;  return };  d:=a-b;  if d # 0 then
+     s:=SIGN(d)  } until A'=() \/ B'=().
+(5)  [Same length.]  if A'=() /\ B'=() then return.
+(6)  [Use sign of longer input.]  if A'=() then s:=-ISIGNF(B') else
+     s:=ISIGNF(A') ||
+                    IDEGCD(a,b;c,u1,v1,u2,v2)
+[Integer doubly extended greatest common divisor algorithm.  a  and b
+are integers.  c=gcd(a,b).  a*u1+b*v1=c and a*u2+b*v2=0.  If a#0 and
+b#0 then |u1| <= |b|/(2*c), |v1| <= |a|/(2*c), u2=-b/c and v2=a/c.  
+Otherwise u1=v2=sign(a), v1=sign(b) and u2=-sign(b).]
+(1)  IEGCD(a,b;c,u1,v1);  if c=0 then { u2:=0;  v2:=0 } else
+     { u2:=INEG(IQ(b,c));  v2:=IQ(a,c) } ||
+                    C:=IDIF(A,B)
+[Integer difference.  A  and B are integers.  C=A-B.]
+(1)  B':=INEG(B);  C:=ISUM(A,B') ||
+                    C:=IDIPR2(A,B,a,b)
+[Integer-digit inner product, length 2.  A  and B are integers.  a 
+and b are beta-integers.  C=A*a+B*b.]
+(1)  C:=ISUM(IDPR(A,a),IDPR(B,b)) ||
+                    B:=IDP2(A,k)
+[Integer division by power of 2.  A  is an integer.  k is a
+non-negative beta-digit.  B=[A/2^k].]
+     safe IDP2.
+(1)  [A=0 or k=0.]  if A=0 \/ k=0 then { B:=A;  return }.
+(2)  [General case.]  q:=k/ZETA;  r:=k-q * ZETA;  B:=A;  if B < BETA
+     then B:=LIST1(B);  while q > 0 /\ B # () do { B:=RED(B);
+     q:=q-1 };  if B=() then { B:=0;  return };  if RED(B)=() then
+     B:=FIRST(B);  B:=IDQ(B,TABP2[r+1]) ||
+                    C:=IDPR(A,b)
+[Integer-digit product.  A  is an integer.  b is a beta-digit.
+C=A*b.]
+     safe a,c,c',e,f,A'.
+(1)  [A or b zero.]  if A=0 \/ b=0 then { C:=0;  return }.
+(2)  [A single-precision.]  if BDIGIT(A) then { DPR(A,b;e,f);
+     if e=0 then C:=f else C:=LIST2(f,e);  return }.
+(3)  [A multiple-precision.]  A':=A;  C:=();  c':=0;  repeat
+     {  ADV(A';a,A');  DPR(a,b;e,f);  c:=f+c';  c':=e;
+     if c >= BETA then { c:=c-BETA;  c':=c'+1 } else if c <= -BETA
+     then { c:=c+BETA;  c':=c'-1 };  C:=COMP(c,C)  } until A'=();
+     if c' # 0 then C:=COMP(c',C);  C:=INV(C) ||
+                    C:=IDQ(A,b)
+[Integer-digit quotient.  A  is an integer.  b is a non-zero
+beta-digit.  C=[A/b].]
+     safe IDQ.
+(1)  IDQR(A,b;C,r) ||
+                    IDQR(A,b;Q,r)
+[Integer-digit quotient and remainder.  A  is an integer.  b is a
+non-zero beta-digit.  Q=[A/b] and r=A-b*Q.]
+     safe a0,q,r.
+(1)  [A single-precision.]  if BDIGIT(A) then { Q:=A/b;  r:=A-b * Q;
+     return }.
+(2)  [A multiple-precision.]  A':=CINV(A);  Q:=();  r:=0;  repeat
+     { ADV(A';a0,A');  DQR(r,a0,b;q,r);  if q # 0 \/ Q # ()
+     then Q:=COMP(q,Q) } until A'=();  if RED(Q)=() then Q:=FIRST(Q) ||
+                    r:=IDQR1(A,n,b)
+[Integer-digit quotient and remainder.  A  is an integer.  b is a
+non-zero beta-digit.  Q=[A/b] and r=A-b*Q.]
+     safe A[n].
+     safe a0,q,r.
+(1)  [A single-precision.]  if n=1 then { Q:=A[1]/b;  r:=A[1]-b * Q;
+     A[1]:=Q; return }.
+(2)  [A multi-precision.] r:=0; for i=n,n-1,...,1 do
+     {DQR(r,A[i],b;q,r); A[i]:=q}||
+                    r:=IDREM(A,b)
+[Integer-digit remainder.  A  is an integer.  b is a non-zero
+beta-digit.  r=A-b*[A/b].]
+     safe IDREM.
+(1)  IDQR(A,b;Q,r) ||
+                    IEGCD(a,b;c,u1,v1)
+[Integer extended greatest common divisor algorithm.  a  and b are
+integers.  c=gcd(a,b).  a*u1+b*v1=c.  If a#0 and b#0 then |u1| <=
+|b|/(2*c) and |v1| <= |a|/(2*c).  Otherwise u1=sign(a) and v1=sign(b).]
+(1)  IHEGCD(a,b;c,v1);  if a=0 then u1:=0 else
+     u1:=IQ(IDIF(c,IPROD(b,v1)),a) ||
+                    t:=IEVEN(A)
+[Integer even.  A  is an integer.  If A  is even then t=TRUE and 
+otherwise t=FALSE.]
+     safe IEVEN.
+(1)  if BDIGIT(A) then t:=EVEN(A) else t:=EVEN(FIRST(A)) ||
+                    B:=IEXP(A,n)
+[Integer exponentiation.  A  is an integer.  n is a non-negative
+beta-integer.  B=A^n.]
+(1)  [n <= 1.]  if n=0 then { B:=1;  return };
+     if n=1 then { B:=A;  return }.
+(2)  [Recursion.]  k:=n/2;  B:=IEXP(A,k);  B:=IPROD(B,B);
+     if n > 2 * k then B:=IPROD(B,A) ||
+                    F:=IFACT(n)
+[Integer factorization.  n is a positive integer.  F is a list 
+(q_1,q_2,...,q_h) of the prime factors of n, 
+q_1<=q_2<= ... <=q_h, with n=prod_{i=1}^{h} q_i.]
+     safe s,t.
+(1)  [Find small factors of n.]  ISPD(n;F,m);  if m=1 then
+     return;  F:=INV(F);  a:=1000.
+(2)  [Test for primality.]  if BDIGIT(m) then { m':=m-1;
+     r:=MDEXP(m,3,m') } else { m':=IDIF(m,1);  r:=MIEXP(m,3,m') };
+     if r=1 then go to  5.
+(3)  [Search for a medium divisor.]  ISQRT(m;c,t);
+     b:=IMAX(5000,IDQ(c,3));  if ICOMP(a,b) > 0 then go to  4;
+     IMPDS(m,a,b;p,m);  if p # 1 then { a:=p;
+     F:=COMP(p,F);  go to  2 };  a:=b.
+(4)  [Search for large divisor.]  b:=c;  ILPDS(m,a,b;p,m);
+     if p # 1 then F:=COMP(p,F);  F:=COMP(m,F);  F:=INV(F);  return.
+(5)  [Selfridge primality test.]  F':=IFACT(m');
+     s:=ISPT(m,m',F');  if s=1 then { F:=COMP(m,F);  F:=INV(F);
+     return };  go to  3||
+                    IFCL2(a;m,n)
+[Integer, floor and ceiling, logarithm, base 2.  a  is a non-zero
+integer.  m and n, gamma-integers, are the floor and ceiling of
+log_2|a| respectively.]
+     safe IFCL2.
+(1)  [Process beta-digits.]  t:=0;  if BDIGIT(a) then { a1:=a;
+     m:=0 } else {  a':=a;  m:=-ZETA;  repeat { ADV(a';a1,a');
+     m:=m+ZETA;  if a' # () /\ a1 # 0 then t:=1 } until a'=()  }.
+(2)  [Process leading digits.]  if a1 < 0 then a1:=-a1;
+     while a1 # 1 do { QREM(a1,2;a1,r);  if r # 0 then t:=1;
+     m:=m+1 }.
+(3)  [Finish.]  n:=m+t ||
+                    C:=IGCD(A,B)
+[Integer greatest common divisor.  A  and B are integers.  C=gcd(A,B).]
+     safe a,b,C,h,m1,m2,u1,u2,v1,v2.
+(1)  [Compute absolute values and compare.]  A1:=IABSF(A);  
+     A2:=IABSF(B); if ICOMP(A1,A2) < 0 then { A3:=A1;  A1:=A2;  
+     A2:=A3 }.
+(2)  [Compute remainders.]  while A2 # 0 do {   if BDIGIT(A1) then
+     { C:=DGCD(A1,A2);  return };  m1:=ILOG2(A1);  m2:=ILOG2(A2);
+     if m1-m2 >= ZETA/2 then { A4:=IREM(A1,A2);  A3:=A2 } else
+     {  h:=m1-ZETA;  a:=ITRUNC(A1,h);  b:=ITRUNC(A2,h);
+     DPCC(a,b;u1,u2,v1,v2);  if v1=0 then { A4:=IREM(A1,A2);
+     A3:=A2 } else { A3:=ILCOMB(A1,A2,u1,v1);
+     A4:=ILCOMB(A1,A2,u2,v2) }  };  A1:=A3;  A2:=A4   };  C:=A1 ||
+                    IGCDCF(A,B;C,A_,B_)
+[Integer greatest common divisor and cofactors.  A  and B are integers.
+C = gcd(A,B).  If C=0 then A_=B_=0 and otherwise A_=A/C, B_=B/C.]
+(1)  C:=IGCD(A,B);  if C = 0 \/ C = 1 then { A_:=A; B_:=B } else
+     { A_:=IQ(A,C);  B_:=IQ(B,C) } ||
+                    IHEGCD(A,B;C,V)
+[Integer half-extended greatest common divisor.  A  and B are integers.
+C=gcd(A,B).  If A#0 then B*V is congruent to C(mod A), with 
+|V| <= |A|/(2*C).  Otherwise V=sign(B).]
+     safe C,V,a,b,h,m1,m2,s,u1,u2,v1,v2.
+(1)  [Compute absolute values and compare, and prepare V1, V2.]
+     A1:=IABSF(A);  s:=ISIGNF(B);  if s < 0 then A2:=INEG(B) else A2:=B;
+     if ICOMP(A1,A2) < 0 then { A3:=A1;  A1:=A2;  A2:=A3;  V1:=s;  
+     V2:=0 } else { V1:=0;  V2:=s }.
+(2)  [Compute remainder and cosequence.]  while A2 # 0 do
+     {   if BDIGIT(A1) then { DEGCD(A1,A2;C,u1,v1);  V:=IDIPR2(V1,V2,
+     u1,v1);  return };  m1:=ILOG2(A1);  m2:=ILOG2(A2);  if m1-m2
+     >= ZETA/2 then { IQR(A1,A2;Q,A4);  A3:=A2;  V3:=V2;  V4:=IDIF(V1,
+     IPROD(V2,Q)) } else {  h:=m1-ZETA;  a:=ITRUNC(A1,h);
+     b:=ITRUNC(A2,h);  DPCC(a,b;u1,u2,v1,v2);  if v1=0 then
+     { IQR(A1,A2;Q,A4);  A3:=A2;  V3:=V2;  V4:=IDIF(V1,IPROD(V2,Q)) }
+     else { A3:=ILCOMB(A1,A2,u1,v1);  A4:=ILCOMB(A1,A2,u2,v2);
+     V3:=IDIPR2(V1,V2,u1,v1);  V4:=IDIPR2(V1,V2,u2,v2) }  };  A1:=A3;
+     A2:=A4;  V1:=V3;  V2:=V4   };  C:=A1;  V:=V1 ||
+                    C:=ILCM(A,B)
+[Integer least common multiple.  A  and B are integers.  C=lcm(A,B),
+a non-negative integer.]
+(1)  [A or B equal zero.]  A':=IABSF(A);  B':=IABSF(B);
+     if A' = 0 then { C:=B';  return} else if B' = 0 then
+     { C:=A';  return}.
+(2)  [A and B nonzero.]  C':=IGCD(A',B');  A'':=IQ(A',C');
+     C:=IPROD(A'',B') ||
+                    C:=ILCOMB(A,B,u,v)
+[Integer linear combination.  A  and B are non-negative integers.
+u and v are beta-integers such that A*u+B*v>=0.  C=A*u+B*v.]
+     safe a,a0,a1,b,b0,b1,c0,c1.
+(1)  [Convert to lists.]  if ~BDIGIT(A) then A_:=A else A_:=LIST1(A);
+     if ~BDIGIT(B) then B_:=B else B_:=LIST1(B).
+(2)  [Multiply and add.]  C:=();  c1:=0;  repeat {  AADV(A_;a,A_);
+     AADV(B_;b,B_);  DPR(a,u;a1,a0);  DPR(b,v;b1,b0);
+     c0:=a0+b0;  c0:=c0+c1;  c1:=a1+b1;  while c0 < 0 do
+     { c0:=c0+BETA;  c1:=c1-1 };  if c0 >= BETA then { c0:=c0-BETA;
+     c1:=c1+1 };  C:=COMP(c0,C)  } until A_=() /\ B_=();  if c1 # 0
+     then C:=COMP(c1,C).
+(3)  [Normalize.]  while C # () /\ FIRST(C)=0 do C:=RED(C);  if C=()
+     then C:=0 else
+     if RED(C)=() then C:=FIRST(C) else C:=INV(C) ||
+                    n:=ILOG2(A)
+[Integer logarithm, base 2.  A  is an integer.  If A=0 then n=0.
+Otherwise n=\lfloor\log_2|A|\rfloor+1, a beta-integer.]
+     safe ILOG2.
+(1)  [A single-precision.]  if BDIGIT(A) then { n:=DLOG2(A);  return }.
+(2)  [A multiple-precision.]  A':=A;  n:=0;  while RED(A')  # () do
+     { A':=RED(A');  n:=n+ZETA };  n:=n+DLOG2(FIRST(A')) ||
+                    ILPDS(n,a,b;p,n')
+[Integer large prime divisor search.  n is a positive integer with no
+prime divisors less than 17.  1<=a<=b<=n.  A search is made for 
+a prime divisor p of the integer n, with a<=p<=b.  If such a p is found then
+n'=n/p, otherwise p=1 and n'=n.  A modular version of Fermat's method
+is used, and the search goes from a  to b.]
+     safe L',m,r1,r2,s,t.
+(1)  [Compute boundary values of x.]  IQR(n,b;q,r);
+     x1:=ISUM(b,q);  IDQR(x1,2;x1,s);  if r # 0 \/ s # 0 then
+     x1:=ISUM(x1,1);  q:=IQ(n,a);  x2:=ISUM(a,q);  x2:=IDQ(x2,2).
+(2)  [Compute and sort residue list.]  FRESL(n;m,L);  L:=LBIBMS(L);
+     L:=INV(L).
+(3)  [Find starting residue.]  r:=IDREM(x2,m);  L':=L;  while L' # ()
+     /\ r < FIRST(L') do L':=RED(L');  if L'=() then { L':=L;  s:=m }
+     else s:=0;  ADV(L';r1,L');  s:=s+r-r1;  x:=IDIF(x2,s).
+(4)  [Test successive values of x.]  while ICOMP(x,x1) >= 0 do
+     {  y':=IDIF(IPROD(x,x),n);  ISQRT(y';y,t);  if t=0 then
+     { p:=IDIF(x,y);  n':=ISUM(x,y);  return };  if L' # () then
+     { ADV(L';r2,L');  s:=r1-r2 } else { ADV(L;r2,L');
+     s:=m+r1-r2 };  r1:=r2;  x:=IDIF(x,s)  }.
+(5)  [No divisor found.]  p:=1;  n':=n ||
+                    ILWRIT(L)
+[Integer list write.  L is a list of integers.  The list L is written
+in the output stream.]
+     safe ILWRIT.
+(1)  L':=L;  CWRITE('(');  while L' # () do { ADV(L';a,L');
+     IWRITE(a);  if L' # () then CWRITE(',') };  CWRITE(')') ||
+                    c:=IMAX(a,b)
+[Integer maximum.  a  and b are integers. c is the maximum of a  and b.]
+     safe IMAX.
+(1)  s:=ICOMP(a,b);  if s >= 0 then c:=a else c:=b ||
+                    c:=IMIN(a,b)
+[Integer minimum.  a  and b are integers. c is the minimum of a  and b.]
+     safe IMIN.
+(1)  s:=ICOMP(a,b);  if s <= 0 then c:=a else c:=b ||
+                    B:=IMP2(A,h)
+[Integer multiplication by power of 2.  A  is an integer.  h is a
+non-negative beta-integer.  B=A*2^h.]
+     safe i,q,r.
+(1)  [A=0 or h=0.]  if A=0 \/ h=0 then { B:=A;  return }.
+(2)  [General case.]  q:=h/ZETA;  r:=h-q * ZETA;  B:=IDPR(A,TABP2[r+1]);
+     if q # 0 then { if B < BETA then B:=LIST1(B); for i=1,...,q do 
+     B:=COMP(0,B) } ||
+                    IMPDS(n,a,b;p,q)
+[Integer medium prime divisor search.  n, a  and b are positive
+integers such that a<=b<=n and n has no positive divisors less 
+than a.  If n has a prime divisor in the closed interval from a  to b 
+then p is the least such prime and q=n/p.  Otherwise p=1 and q=n.]
+     safe L',p',r,r1,r2.
+(1)  [Determine first divisor.]  r:=IDREM(a,210);  L':=UZ210;  while
+     r > FIRST(L') do L':=RED(L');  r1:=FIRST(L');  p:=ISUM(a,r1-r).
+(2)  [Repeated trial division.]  while ICOMP(p,b) <= 0 do
+     {  if p < BETA then IDQR(n,p;q,r) else IQR(n,p;q,r);
+     if r=0 then return;  L':=RED(L');  if L'=() then { L':=UZ210;
+     r2:=r1-210 } else r2:=r1;  r1:=FIRST(L');  if p < BETA then
+     { p':=p+r1-r2;  if p' >= BETA then p:=LIST2(p'-BETA,1)
+     else p:=p' } else p:=ISUM(p,r1-r2)  }.
+(3)  [No divisors found.]  p:=1;  q:=n ||
+                    B:=INEG(A)
+[Integer negation.  A  is an integer.  B=-A.]
+     safe A',a,b.
+(1)  [A single-precision.]  if A < BETA then { B:=-A;  return }.
+(2)  [A multiple-precision.]  B:=();  A':=A;  repeat { ADV(A';a,A');
+     b:=-a;  B:=COMP(b,B) } until A'=();  B:=INV(B) ||
+                    t:=IODD(A)
+[Integer odd.  A  is an integer.  If A  is odd then t=TRUE and 
+otherwise t=FALSE.]
+     safe IODD.
+(1)  if A < BETA then t:=ODD(A) else t:=ODD(FIRST(A)) ||
+                    n:=IORD2(a)
+[Integer, order of 2.  a  is a non-zero integer.  n is the largest
+integer such that 2^n divides a.]
+     safe IORD2.
+(1)  [Count low-order beta-digits.]  if a < BETA then { n:=-1;
+     a1:=a } else {  n:=-ZETA-1;  a':=a;  repeat { ADV(a';a1,a');
+     n:=n+ZETA } until a1 # 0  }.
+(2)  [Count low-order bits.]  repeat { QREM(a1,2;q,r);  a1:=q;
+     n:=n+1 } until r # 0 ||
+                    IPOWER(A,L;B,n)
+[Integer power.  A>=3 is an odd positive integer.  L is a list (p_1,
+p_2,...,p_k) of the first k prime numbers, with p_k>=log_3A.  If
+A=B^m for some m>=2 then n is the least such m and B=A^{1/n}. 
+Otherwise B=0 and n=0.]
+     safe L',N,n.
+(1)  [Compute bound on n.]  N:=ILOG2(A);  N:=(7 * N)/11.
+(2)  [Apply iroot.]  L':=L;  while L' # () do { ADV(L';n,L');
+     if n > N then go to  3;  IROOT(A,n;B,t);  if t=0 then return }.
+(3)  [Non-power.]  B:=0;  n:=0 ||
+                    C:=IPROD(A,B)
+[Integer product.  A  and B are integers.  C=A*B.]
+     safe a,b,c,c',e,f,m,n,t,A',A'',B',C',C'',C2.
+(1)  [A or B zero.]  if A=0 \/ B=0 then { C:=0;  return }.
+(2)  [A and B single-precision.]  if A < BETA /\ B < BETA then
+     { DPR(A,B;c',c);  if c'=0 then C:=c else C:=LIST2(c,c');
+     return }.
+(3)  [A or B single-precision.] if A < BETA then { C:=IDPR(B,A);
+     return };  if B < BETA then { C:=IDPR(A,B);  return }.
+(4)  [Interchange if B is longer.]  m:=LENGTH(A);  n:=LENGTH(B);
+     if m >= n then { A':=A;  B':=B } else { A':=B;  B':=A }.
+(5)  [Set product to zero.]  C2:=(0,0);  C:=C2;  for I=1,...,m+n-2
+     do C:=COMP(0,C).
+(6)  [Multiply digits and add products.]  C':=C;  repeat {   A'':=A';
+     ADV(B';b,B');  if b # 0 then {  C'':=C';  c':=0;  repeat
+     { ADV(A'';a,A'');  DPR(a,b;e,f);  c:=FIRST(C'');
+     c:=c+f;  c:=c+c';  c':=c/BETA;  t:=c' * BETA;  c:=c-t;
+     SFIRST(C'',c);  c':=e+c';  C'':=RED(C'') } until A''=();
+     SFIRST(C'',c')  };  C':=RED(C')   } until B'=().
+(7)  [Leading digit zero.]  if c'=0 then SRED(C2,()) ||
+                    C:=IPRODK(A,B)
+[Integer product, Karatsuba algorithm.  A  and B are integers.  C=A*B.]
+(1)  [A or B single-precision.]  if A < BETA \/ B < BETA then
+     { C:=IPROD(A,B);  return }.
+(2)  [Compute lengths, m and n, m >= n.]  m:=LENGTH(A);
+     n:=LENGTH(B);  if m >= n then { A':=A;  B':=B } else { A':=B;
+     B':=A;  t:=m;  m:=n;  n:=t }.
+(3)  [Use classical algorithm if n is small.]  if n < 16 then
+     { C:=IPROD(A',B');  return }.
+(4)  [m >= 2*n.]  if m >= 2 * n then {  L:=();  repeat
+     ISEG(A',n;A',A0);  C0:=IPRODK(A0,B');  L:=COMP(C0,L) until A'=0;
+     L:=INV(L);  C:=ISSUM(n,L);  return  }.
+(5)  [n <= m < 2*n.]  k:=m/2;  if m > k+k then k:=k+1;
+     ISEG(A',k;A1,A0);  ISEG(B',k;B1,B0);  A*:=ISUM(A1,A0);
+     B*:=ISUM(B1,B0);  C2:=IPRODK(A1,B1);  C0:=IPRODK(A0,B0);
+     C*:=IPRODK(A*,B*);  C^:=ISUM(C0,C2);  C1:=IDIF(C*,C^);
+     L:=(C0,C1,C2);  C:=ISSUM(k,L) ||
+                    C:=IQ(A,B)
+[Integer quotient.  A  and B are integers, B#0.  C=[A/B].]
+     safe IQ.
+(1)  IQR(A,B;C,R) ||
+                    IQR(A,B;Q,R)
+[Integer quotient and remainder.  A  and B are integers, B#0.  Q is
+the quotient [A/B], and R is the remainder A-B*Q.]
+     safe a,a0,a1,a2,A*,b,b0,b1,B'',B*,c0,c1,c'1,c2.
+     safe d,m,n,q,r,s,t,T,u.
+(1)  [B single-precision.]  if BDIGIT(B) then { IDQR(A,B;Q,R);
+     return }.
+(2)  [A single-precision.]  if BDIGIT(A) then { Q:=0;  R:=A;  return }.
+(3)  [Compare lengths.]  m:=LENGTH(A);  n:=LENGTH(B);  if m < n
+     then { Q:=0;  R:=A;  return }.
+(4)  [Compute signs and normalize.]  s:=ISIGNF(A);  T:=LAST(B);
+     b:=FIRST(T);  t:=SIGN(b);  b:=ABS(b);  d:=BETA/(b+1);
+     A':=IDPR(A,s * d);  B':=IDPR(B,t * d).
+(5)  [Compute A'' and A'''.]  A'':=A';  A''':=();  for i=1,...,m-n do
+     { ADV(A'';a,A'');  A''':=COMP(a,A''') }.
+(6)  [Obtain leading digits of divisor.]  B'':=B';  for i=1,...,n-2
+     do B'':=RED(B'');  ADV2(B'';b0,b1,B'').
+(7)  [Initialize quotient.]  Q:=().
+(8)  [Beginning of loop executed for each quotient digit.]
+     [Obtain high-order digits of dividend.]  A*:=A'';  for i=1,...,
+     n-2 do A*:=RED(A*);  ADV2(A*;a0,a1,A*);  if A*=() then a2:=0
+     else a2:=FIRST(A*).
+(9)  [Compute quotient digit approximation q.]  if a2=b1 then
+     q:=BETA-1 else DQR(a2,a1,b1;q,r);  repeat
+     {  DPR(b0,q;c1,c0);  DPR(b1,q;c2,c'1);  c1:=c1+c'1;
+     if c1 >= BETA then { c1:=c1-BETA;  c2:=c2+1 };  u:=a2-c2;
+     if u=0 then u:=a1-c1;  if u=0 then u:=a0-c0;  q:=q-1  }
+     until u >= 0;  q:=q+1.
+(10) [Subtract q*B' from A''.]  A*:=A'';  B*:=B';  A^:=();  c:=0;
+     for i=1,...,n do {  ADV(B*;b,B*);  DPR(b,q;c2,c1);
+     ADV(A*;a,A*);  a:=a-c;  a:=a-c1;  c:=c2;  while a < 0 do
+     { a:=a+BETA;  c:=c+1 };  A^:=COMP(a,A^)  };  if A*=() then a:=0
+     else a:=FIRST(A*);  a:=a-c.
+(11) [Adjust q if necessary.]  if a < 0 then { q:=q-1;  go to  10 }
+     else A'':=INV(A^).
+(12) [Put q in list.]  if Q # () \/ q # 0 then Q:=COMP(q,Q).
+(13) [return for next quotient digit, if any.]  if A''' # () then
+     { ADV(A''';a,A''');  A'':=COMP(a,A'');  go to  8 }.
+     [End of loop.]
+(14) [Normalize quotient and remainder.]  if Q=() then Q:=0 else if
+     RED(Q)=() then Q:=FIRST(Q);  T:=0;  A*:=A'';  repeat
+     {  a:=FIRST(A*);  if a # 0 then T:=A*;  A*:=RED(A*) } until
+     A*=();  if T=0 then R:=0 else { SRED(T,());  R:=A'';  if RED(R)=()
+     then R:=FIRST(R) }.
+(15) [Modify quotient and remainder.]  if s * t=-1 then Q:=INEG(Q);
+     IDQR(R,s * d;R,T) ||
+                    A:=IRAND(n)
+[Integer, random.  n is a positive beta-integer.  A  is an integer
+with random sign and random absolute value less than 2^n.]
+     safe a,i,q,r,s.
+(1)  [Compute sign and high-order beta-digit.]  QREM(n,ZETA;q,r);
+     if r=0 then { q:=q-1;  r:=ZETA };  a:=DRAN();  s:=SIGN(a);
+     a:=a/TABP2[ZETA-r+1];  if q=0 then { A:=a;  return };  A:=();
+     if a # 0 then A:=COMP(a,A).
+(2)  [Compute remaining digits.]  for i=1,...,q do
+     { a:=ABS(DRAN());  if s < 0 then a:=-a;  if a # 0 \/ A # ()
+     then A:=COMP(a,A) };  if A=() then A:=0 else if RED(A)=() then
+     A:=FIRST(A) ||
+                    A:=IREAD()
+[Integer read.  The integer A  is read from the input stream.  Any
+preceding blanks are skipped.]
+     safe b,b',C,i,s.
+(1)  [Read sign.]  s:=1;  C:=CREADB();  if C='-' then s:=-1;  if C='+'
+     \/ C='-' then C:=CREAD();  if ~DIGIT(C) then go to  6.
+(2)  [Skip leading zeros.]  while C='0' do C:=CREAD().
+(3)  [Is A=0.]  A:=0;  if ~DIGIT(C) then { BKSP;  return }.
+(4)  [Compute theta-digits.]  B:=();  b:=0;  i:=0;  repeat
+     {  b:=10 * b+C-'0';  i:=i+1;  if i=ETA then { B:=COMP(b,B);
+     b:=0;  i:=0 };  C:=CREAD()  } until ~DIGIT(C).
+(5)  [Convert to base beta.]  B:=INV(B);  while B # () do
+     { A:=IDPR(A,THETA); ADV(B;b',B);  A:=ISUM(A,b') };  if A # 0 then
+     A:=IDPR(A,10 ^ i);  A:=ISUM(A,b);  if s < 0 then A:=INEG(A);
+     BKSP;  return.
+(6)  [Error.]  print "Error found by IREAD.";  DIBUFF;  stop||
+                    C:=IREM(A,B)
+[Integer remainder.  A  and B are integers, B#0. C=A-B*[A/B].]
+     safe IREM.
+(1)  IQR(A,B;Q,C) ||
+                    IROOT(A,n;B,t)
+[Integer root.  A  is a positive integer.  n>=2 is a beta-integer.  
+B=\lfloor A^{1/n}\rfloor and t=sign(A-B^n).]
+     safe h,k,n',r,s,t,u.
+(1)  [Compute first approximation.]  k:=ILOG2(A);  n':=n-1;
+     h:=k/n;  r:=k-h * n;  u:=(4 * r)/n;  if h >= 2 then
+     B:=IMP2(u+5,h-2) else B:=4.
+(2)  [Iterate modified Newton method.]  repeat {  C:=IEXP(B,n');
+     IQR(A,C;D,R);  s:=ICOMP(B,D);  if s <= 0 then go to  3 else
+     { E:=IDPR(B,n');  F:=ISUM(E,D);  B:=IDQ(F,n) }  }.
+(3)  [Test whether result is too small.]  if s=0 then t:=ISIGNF(R)
+     else { B':=ISUM(B,1);  A':=IEXP(B',n);  t:=ICOMP(A,A');  if t >= 0
+     then B:=B' else t:=1 } ||
+                    ISEG(A,n;A1,A0)
+[Integer segmentation.  A  is an integer.  n is a positive
+beta-integer.  A1=[A/beta^n].  A0=A-A1*beta^n.]
+     safe a,i,A1.
+(1)  [A a beta-digit.]  if BDIGIT(A) then { A1:=0;  A0:=A;  return }.
+(2)  [Create lists.]  A1:=A;  A0:=();  i:=0;  repeat { i:=i+1;
+     ADV(A1;a,A1);  A0:=COMP(a,A0) } until i=n \/ A1=().
+(3)  [Normalize A1.]  if A1=() then A1:=0 else if RED(A1)=() then
+     A1:=FIRST(A1).
+(4)  [Normalize A0.]  while A0 # () /\ FIRST(A0)=0 do A0:=RED(A0);
+     A0:=INV(A0);  if A0=() then A0:=0 else if RED(A0)=() then
+     A0:=FIRST(A0) ||
+                    s:=ISIGNF(A)
+[Integer sign function.  A  is an integer. s=sign(A).]
+     safe ISIGNF.
+(1)  [A single-precision.]  if BDIGIT(A) then{ s:=SIGN(A);  return }.
+(2)  [A multiple-precision.]  A':=A;  repeat ADV(A';a,A') until
+     a # 0;  s:=SIGN(a) ||
+                    ISPD(n;F,m)
+[Integer small prime divisors.  n is a positive integer.  F is a list
+of primes (q_1,q_2,...,q_h), h>=0, q_1<=q_2<= ... <=q_h, such that
+n=m*prod_{i=1}^h q_i and m is not divisible by any prime in SMPRM.
+Either m=1 or m>1,000,000.]
+     safe L',p,r.
+(1)  F:=();  m:=n;  L':=SMPRM;  repeat {  p:=FIRST(L');  if BDIGIT(m)
+     then QREM(m,p;q,r) else IDQR(m,p;q,r);  if r=0 then
+     { F:=COMP(p,F);  m:=q } else L':=RED(L')  } until q <= p \/
+     L'=();  if q <= p /\ m # 1 then { F:=COMP(m,F);  m:=1 };
+     F:=INV(F) ||
+                    s:=ISPT(m,m',F)
+[Integer Selfridge primality test.  m>=3 is an integer.  m'=m-1.  F is
+a list (q_1,q_2,...,q_k), q_1<=q_2<= ... <=q_k, of the prime factors of
+m', with m'=prod_{i=1}^k q_i.  An attempt is made to find a root of
+unity modulo m of order m-1.  If the existence of such a root is
+discovered then m is prime and s=1.  If it is discovered that no such
+root exists then m is not a prime and s=-1.  Otherwise the primality
+of m remains uncertain and s=0.]
+     safe F',p,p1,P',s.
+(1)  [Initialize outer loop.]  F':=F;  q1:=1;  p1:=1.
+(2)  [Get next divisor of m', if any.]  repeat {  if F'=() then
+     { s:=1;  return };  ADV(F';q,F')  } until ICOMP(q,q1) > 0;
+     q1:=q.
+(3)  [Try successive small primes.]  P':=SMPRM;
+     repeat {   if P'=() then
+     { s:=0;  return };  ADV(P';p,P');  if p > p1 then {  p1:=p;
+     a:=MIEXP(m,p,m');  if a # 1 then { s:=-1;  return }  };
+     m'':=IQ(m',q);  b:=MIEXP(m,p,m'')   } until b # 1.
+(4)  [Return for next divisor.]  go to  2||
+                    ISQRT(A;B,t)
+[Integer square root.  A  is a non-negative integer.  
+B=\lfloor A^{1/2}\rfloor and t=sign(A-B^2).]
+     safe a,b,h,k,s,t.
+(1)  [A single-precision.]  if BDIGIT(A) then { DSQRTF(A;B,t);
+     return }.
+(2)  [Compute single-precision approximation.]  k:=ILOG2(A);
+     h:=k-ZETA;  h:=h+ODD(h);  a:=IDP2(A,h);  DSQRTF(a;b,t);
+     b:=b+1;  B:=IMP2(b,h/2).
+(3)  [Iterate modified Newton method.]  repeat { IQR(A,B;C,R);
+     s:=ICOMP(B,C);  if s <= 0 then go to  4;  D:=ISUM(B,C);
+     B:=IDQ(D,2) }.
+(4)  [Compute t.]  t:=ICOMP(A,IPROD(B,B)) ||
+                    C:=ISSUM(n,L)
+[Integer shifted sum.  n is a positive integer.  L is a list (C_0,C_1,
+...,C_k), k>=0, of integers C_i with |C_i|<beta^{2*n+1}.  Either each
+C_i is non-negative or each C_i is non-positive. 
+C=\sum_{i=0}^{k} C_i*beta^{i*n}.]
+     safe a,a0,a1,c,c',C0,C1,i,L'.
+(1)  [Initialize.]  C:=();  c:=0;  ADV(L;C0,L');  if BDIGIT(C0) then
+     C0:=(C0);  for i=1,...,n do { AADV(C0;a0,C0);
+     C:=COMP(a0,C) }.
+(2)  [Add.]  while L' # () do {   ADV(L';C1,L');  if BDIGIT(C1) then
+     C1:=(C1);  for i=1,...,n do {  AADV(C0;a0,C0);
+     AADV(C1;a1,C1);  a:=a0+a1;  a:=a+c;  c:=a/BETA;  c':=c * BETA;
+     a:=a-c';  C:=COMP(a,C)  };  if C0 # () then c:=c+FIRST(C0);
+     C0:=C1   }.
+(3)  [Finish.]  while C0 # () \/ c # 0 do {  AADV(C0;a0,C0);
+     a:=a0+c;  c:=0;  if a >= BETA then { a:=a-BETA;  c:=1 } else
+     if a <= -BETA then { a:=a+BETA;  c:=-1 };  C:=COMP(a,C)  }.
+(4)  [Normalize.]  while C # () /\ FIRST(C)=0 do C:=RED(C);  C:=INV(C);
+     if C=() then C:=0 else if RED(C)=() then C:=FIRST(C) ||
+                    C:=ISUM(A,B)
+[Integer sum.  A  and B are integers.  C=A+B.]
+     safe a,b,c,c',s,t,u,A',B',C',C'',C*.
+(1)  [A or B zero.]  if A=0 then { C:=B;  return };  if B=0 then
+     { C:=A;  return }.
+(2)  [A and B single-precision.]  if BDIGIT(A) /\ BDIGIT(B) then
+     { c:=A+B;  if c >= BETA then C:=(c-BETA,1) else if
+     c <= -BETA then C:=(c+BETA,-1) else C:=c;  return }.
+(3)  [Determine signs of inputs.]  s:=ISIGNF(A);  t:=ISIGNF(B);  C:=().
+(4)  [A or B single-precision.]  if BDIGIT(A) then A':=LIST1(A) else
+     A':=A;  if BDIGIT(B) then B':=(B) else B':=B.
+(5)  [Branch on signs.]  if s # t then go to  8.
+(6)  [Same signs, add with carry.]  c':=0;  repeat {  if A' # () then
+     ADV(A';a,A') else a:=0;  if B' # () then ADV(B';b,B') else b:=0;
+     c:=a+b;  c:=c+c';  c':=0;  if c >= BETA then { c:=c-BETA;
+     c':=1 } else if c <= -BETA then { c:=c+BETA;  c':=-1 };
+     C:=COMP(c,C)  } until c'=0 /\ ( A'=() \/ B'=() );  if A'=() then
+     A':=B'.
+(7)  [Invert and concatenate.]  C':=INV(C);  SRED(C,A'); C:=C'; return.
+(8)  [Opposite signs, add without carry.]  u:=0;  repeat
+     { ADV(A';a,A');  ADV(B';b,B');  c:=a+b;  if c # 0 then u:=c;
+     C:=COMP(c,C) } until A'=() \/ B'=();  if A'=() then { A':=B';
+     s:=t }.
+(9)  [Sum zero.]  if u=0 /\ A'=() then { C:=0;  return }.
+(10) [Continue with longer input.]  if u=0 \/ A' # () /\
+     s # SIGN(u) then repeat { ADV(A';a,A');  C:=COMP(a,C);
+     u:=a } until a # 0.
+(11) [Invert and normalize.]  C':=INV(C);  C'':=C';  c':=0;  repeat
+     {  c:=FIRST(C'');  c:=c+c';  c':=0;  if u > 0 /\ c < 0 then
+     { c:=c+BETA;  c':=-1 } else if u < 0 /\ c > 0 then
+     { c:=c-BETA;  c':=+1 };  if c # 0 then C*:=C'';  SFIRST(C'',c);
+     C'':=RED(C'')  } until C''=().
+(12) [Concatenate or delete leading zeros.]  if A'=() then SRED(C*,())
+     else SRED(C,A');  C:=C';  if RED(C)=() then C:=FIRST(C) ||
+                    B:=ITRUNC(A,n)
+[Integer truncation.  A  is an integer.  n is a beta-integer.
+B=[A/2^n].]
+     safe a,i,m,q,r.
+(1)  [A=0 or n=0.]  B:=A;  if A=0 \/ n=0 then return.
+(2)  [Let ABS(n)=q*zeta+r, a=2**r.]  m:=ABS(n);  q:=m/ZETA;
+     r:=m-q * ZETA;  a:=TABP2[r+1].
+(3)  [n > 0.]  if n > 0 then {  i:=0; if BDIGIT(B) then B:=LIST1(B);
+     while B # () /\ i # q do { B:=RED(B);  i:=i+1 }; if B=() then
+     { B:=0;  return };  if RED(B)=() then B:=FIRST(B);  if r # 0 then
+     IDQR(B,a;B,r);  return  }.
+(4)  [n < 0.]  if r # 0 then B:=IDPR(B,a);  if q=0 then return;
+     if BDIGIT(B) then B:=(B);  for i=1,...,q do B:=COMP(0,B) ||
+                    IWRITE(A)
+[Integer write.  The integer A  is converted to decimal and written 
+in the output stream.]
+     safe h,q,B[20].
+(1)  [A single-precision.]  if BDIGIT(A) then { AWRITE(A);  return }.
+(2)  [Compute list of theta-digits.]  A':=A;  H:=();  repeat
+     { IDQR(A',THETA;A',h);  H:=COMP(h,H) } until A'=0.
+(3)  [Write first theta-digit.]  ADV(H;h,H);  AWRITE(h).
+(4)  [Write remaining digits.]  while H # () do {  ADV(H;h,H);
+     h:=ABS(h);  for i=1,...,ETA do { q:=h/10;  B[i]:=h-10 * q;
+     h:=q };  for i=ETA,ETA-1,...,1 do CWRITE(B[i]+'0')  } ||
+                    a:=MDCRA(m1,m2,m'1,a1,a2)
+[Modular digit Chinese remainder algorithm.  m1 and m2 are positive
+beta-integers, with gcd(m1,m2)=1 and m=m1*m2<beta.  m'1 is the inverse
+of m1 in Z_{m_2}.  a1 and a2 are elements of Z_{m_1} and Z_{m_2}
+respectively.  a  is the unique element of Z_m such that a  is
+congruent to a1 modulo m1 and a  is congruent to a2 modulo m2.]
+     safe MDCRA.
+(1)  [a=a1.]  a_:=REM(a1,m2);  d:=MDDIF(m2,a2,a_);  if d=0
+     then { a:=a1;  return }.
+(2)  [General case.]  b:=REM(d * m'1,m2);  a:=m1 * b+a1 ||
+                    c:=MDDIF(m,a,b)
+[Modular digit difference.  m is a positive beta-integer.  a  and b
+belong to Z_m.  c=a-b.]
+     safe MDDIF.
+(1)  c:=a-b;  if c < 0 then c:=c+m ||
+                    b:=MDEXP(m,a,n)
+[Modular digit exponentiation.  m is a positive beta-integer.
+a  belongs to Z_m.  n>=0 is a beta-integer.  b=a^n.]
+     safe MDEXP.
+(1)  [b = 0.]  if a=0 /\ n > 0 then { b:=0;  return }.
+(2)  [b # 0.]  b:=1;  c:=a;  n':=n;  while n' # 0 do {
+     if ODD(n') then b:=MDPROD(m,b,c);  c:=MDPROD(m,c,c);
+     n':=n'/2 } ||
+                    b:=MDHOM(m,A)
+[Modular digit homomorphism.  m is a positive beta-integer.  A  is an
+integer.  b is the image of A  under the homomorphism H_m.]
+     safe MDHOM.
+(1)  IDQR(A,m;Q,b);  if b < 0 then b:=b+m ||
+                    b:=MDINV(m,a)
+[Modular digit inverse.  m is a positive beta-integer.  a  is a unit
+of Z_m.  b=a^{-1}.]
+     safe MDINV.
+(1)  a1:=m;  a2:=a;  v1:=0;  v2:=1;  while a2 # 1 do { q:=a1/a2;
+     a3:=a1-q * a2;  v3:=v1-q * v2;  a1:=a2;  a2:=a3;  v1:=v2;
+     v2:=v3 };  if v2 >= 0 then b:=v2 else b:=v2+m ||
+                    L:=MDLCRA(m1,m2,L1,L2)
+[Modular digit list Chinese remainder algorithm.  m1 and m2 are
+positive beta-integers, with gcd(m1,m2) =1 and m=m1*m2<beta.  L1 and
+L2 are lists of elements of Z_{m_1} and Z_{m_2} respectively.  L is a
+list of all a in Z_m such that a is congruent to a1 modulo m1 and a
+is congruent to a2 modulo m2 for some a1 in L1 and some a2 in L2.]
+     safe a,a1,a2,L'1,L'2.
+(1)  m'1:=MDINV(m2,m1);  L:=();  L'1:=L1;  while L'1 # () do
+     {  ADV(L'1;a1,L'1);  L'2:=L2;  while L'2 # () do
+     { ADV(L'2;a2,L'2);  a:=MDCRA(m1,m2,m'1,a1,a2);
+     L:=COMP(a,L) }  } ||
+                    b:=MDNEG(m,a)
+[Modular digit negative.  m is a positive beta-integer.  a  belongs
+to Z_m.  b=-a.]
+     safe MDNEG.
+(1)  if a=0 then b:=0 else b:=m-a ||
+                    c:=MDPROD(m,a,b)
+[Modular digit product.  m is a positive beta-integer.  a  and b
+belong to Z_m.  c=a*b.]
+     safe MDPROD.
+(1)  DPR(a,b;c1,c0);  DQR(c1,c0,m;q,c) ||
+                    c:=MDQ(m,a,b)
+[Modular digit quotient.  m is a positive beta-integer.  a  and b
+belong to Z_m.  b is a unit.  c=a/b.]
+     safe MDQ.
+(1)  c:=MDPROD(m,a,MDINV(m,b)) ||
+                    a:=MDRAN(m)
+[Modular digit, random.  m is a positive beta-digit.  a  is a random
+element of Z_m.]
+     safe MDRAN.
+(1)  d1:=ABS(DRAN());  DPR(d1,m;a,t);  if m <= DELTA then return;
+     a1:=a;  d2:=ABS(DRAN());  DPR(d2,m;a,a2);
+     if a1+a2 >= BETA then a:=a+1 ||
+                    c:=MDSUM(m,a,b)
+[Modular digit sum.  m is a positive beta-integer.  a  and b belong
+to Z_m.  c=a+b.]
+     safe MDSUM.
+(1)  c:=a+b;  c':=c-m;  if c' >= 0 then c:=c' ||
+                    A*:=MIDCRA(M,m,m',A,a)
+[Modular integer-digit Chinese remainder algorithm.  M is a positive
+integer.  m is an odd positive beta-integer.  gcd(M,m)=1.  m' is the
+inverse of the image of M under the homomorphism H_m.  A  and a  are
+elements of Z'_M and Z_m respectively.  A* is the unique element of
+Z'_{M*} which is congruent to A  modulo M and congruent to a  modulo m,
+where M*=M*m.]
+     safe a_,b,d,A*.
+(1)  [A*=A.]  a_:=MDHOM(m,A);  d:=MDDIF(m,a,a_);  if d=0 then
+     { A*:=A;  return }.
+(2)  [General case.]  b:=MDPROD(m,d,m');  if b+b > m then
+     b:=b-m;  A*:=ISUM(IDPR(M,b),A) ||
+                    C:=MIDIF(M,A,B)
+[Modular integer difference.  M is a positive integer.  A  and B
+belong to Z_M.  C=A-B.]
+(1)  C:=IDIF(A,B);  if ISIGNF(C) < 0 then C:=ISUM(M,C) ||
+                    B:=MIEXP(M,A,N)
+[Modular integer exponentiation.  M is a positive integer.  A  is an
+element of Z_M.  N is a non-negative integer.  B=A^N in Z_M.]
+(1)  [Single precision.]  if BDIGIT(M) /\ BDIGIT(N) then
+     { B:=MDEXP(M,A,N);  return }.
+(2)  [N <= 1.]  if N=0 then { B:=1;  return };
+     if N=1 then { B:=A;  return }.
+(3)  [A=0.]  if A=0 then { B:=0;  return }.
+(4)  [Recursion.]  IDQR(N,2;N',t);  B:=MIEXP(M,A,N');
+     B:=MIPROD(M,B,B);  if t=1 then B:=MIPROD(M,B,A) ||
+                    A*:=MIHOM(M,A)
+[Modular integer homomorphism.  M is a positive integer.  A  is an
+integer.  A*=H_M(A).]
+(1)  A*:=IREM(A,M);  if ISIGNF(A*) < 0 then A*:=ISUM(M,A*) ||
+                    B:=MIINV(M,A)
+[Modular integer inverse.  M is a positive integer.  A  is a unit of
+Z_M.  B=A^{-1}.]
+     safe C,u.
+(1)  if BDIGIT(M) then DEGCD(M,A;C,u,B) else IHEGCD(M,A;C,B);
+     if ISIGNF(B) < 0 then B:=ISUM(M,B) ||
+                    B:=MINEG(M,A)
+[Modular integer negation.  M is a positive integer.  A  belongs to
+Z_M.  B=-A.]
+(1)  if A=0 then B:=0 else B:=IDIF(M,A) ||
+                    C:=MIPROD(M,A,B)
+[Modular integer product.  M is a positive integer.  A  and B belong to
+Z_M.  C=A*B in Z_M.]
+(1)  C:=IREM(IPROD(A,B),M) ||
+                    C:=MIQ(M,A,B)
+[Modular integer quotient.  M is a positive integer.  A  and B belong
+to Z_M.  B is a unit of Z_M.  C=A/B.]
+(1)  C:=MIPROD(M,A,MIINV(M,B)) ||
+                    R:=MIRAN(M)
+[Modular integer, random.  M is a positive integer.  R is a random 
+element of Z_M.]
+(1)  R:=MIHOM(M,IRAND(ILOG2(M)+ZETA)) ||
+                    C:=MISUM(M,A,B)
+[Modular integer sum.  M is a positive integer.  A  and B belong to
+Z_M.  C=A+B.]
+(1)  C:=ISUM(A,B);  C':=IDIF(C,M);  if ISIGNF(C') >= 0 then C:=C' ||
+                    J:=RIRNP(I,c)
+[Rational interval by rational number product.  I is an interval with
+rational endpoints.  c is a rational number.  J is the interval I*c.]
+     safe a,b.
+(1)  FIRST2(I;a,b);  a':=RNPROD(a,c);  b':=RNPROD(b,c);
+     if RNSIGN(c) >= 0 then J:=LIST2(a',b') else J:=LIST2(b',a') ||
+                    S:=RNABS(R)
+[Rational number absolute value.  R is a rational number.  S=|R|.]
+     safe RNABS.
+(1)  if RNSIGN(R) >= 0 then S:=R else S:=RNNEG(R) ||
+
+                    a:=RNCEIL(R)
+[Rational number, ceiling of.  R is a rational number.  
+a=\lceil R\rceil, an integer.]
+     safe b,r1,r2,s.
+(1)  [R=0.]  if R=0 then { a:=0;  return }.
+(2)  [R#0.]  FIRST2(R;r1,r2);  IQR(r1,r2;a,b);
+     s:=ISIGNF(b);  if s > 0 then a:=ISUM(a,s) ||
+                    t:=RNCOMP(R,S)
+[Rational number comparison.  R and S are rational numbers. 
+t=sign(R-S).]
+     safe r,s,t,R1,R2,S1,S2.
+(1)  [R or S zero.]  if R=0 then { t:=-RNSIGN(S);  return };  if S=0
+     then { t:=RNSIGN(R);  return }.
+(2)  [Opposite signs.]  FIRST2(R;R1,R2);  FIRST2(S;S1,S2);
+     r:=ISIGNF(R1);  s:=ISIGNF(S1);  t:=(r-s)/2;  if t # 0
+     then return.
+(3)  [Same sign.]  t:=ICOMP(IPROD(R1,S2),IPROD(R2,S1)) ||
+                    b:=RNDEN(R)
+[Rational number denominator.  R is a rational number.  b is the
+denominator of R, a positive integer.]
+     safe RNDEN.
+(1)  if R=0 then b:=1 else b:=SECOND(R) ||
+                    T:=RNDIF(R,S)
+[Rational number difference.  R and S are rational numbers.  T=R-S.]
+     safe T.
+(1)  T:=RNSUM(R,RNNEG(S)) ||
+                    RNDWR(R,n)
+[Rational number decimal write.  R is a rational number.  n is a
+non-negative integer.  R is approximated by a decimal fraction D with
+n decimal digits following the decimal point and D is written in the
+output stream.  The inaccuracy of the approximation is at most
+(1/2)*10^{-n}.  If |D|>|R| then the last digit is followed by a minus
+sign, if |D|<|R| then by a plus sign.]
+     safe B,d,i,s,t.
+(1)  [Compute approximation.]  if R=0 then { A:=0;  B:=1 } else
+     FIRST2(R;A,B);  s:=ISIGNF(A);  if s < 0 then A:=INEG(A);
+     M:=IEXP(10,n);  A:=IPROD(A,M);  IQR(A,B;D,F);  F:=IDPR(F,2);
+     if F=0 then t:=0 else { t:=ICOMP(B,F);  if t=0 then t:=1 else
+     if t < 0 then D:=ISUM(D,1) }.
+(2)  [Convert and write.]  if s < 0 then CWRITE('-');
+     IQR(D,M;D,F);  IWRITE(D);  CWRITE('.');  for i=1,...,n do
+     { F:=IDPR(F,10);  IQR(F,M;d,F);  CWRITE(d+'0') };  if t > 0 then
+     CWRITE('+') else if t < 0 then CWRITE('-') ||
+                    RNFCL2(R;m,n)
+[Rational number floor and ceiling of logarithm, base 2.  R  is 
+a non-zero rational number.  m=\lfloor\log_2|R|\rfloor and 
+n=\lceil\log_2|R|\rceil are gamma-integers.]
+     safe a1,a2,d,m,m1,m2,n,n1,n2,s.
+(1)  [Apply IFCL2 to numerator and denominator.]  FIRST2(R;a1,a2);
+     IFCL2(a1;m1,n1);  IFCL2(a2;m2,n2);  m:=m1-n2;
+     n:=n1-m2.
+(2)  [n <= m+1.]  if n <= m+1 then return.
+(3)  [Resolve uncertainty.]  a'1:=IABSF(a1);  if m+1 >= 0 then
+     { c:=a'1;  d:=IMP2(a2,m+1) } else { c:=IMP2(a'1,-m-1);
+     d:=a2 };  s:=ICOMP(c,d);  if s < 0 then
+     n:=n-1 else m:=m+1 ||
+                    a:=RNFLOR(R)
+[Rational number, floor of.  R is a rational number.  a=\lfloor 
+R\rfloor, an integer.]
+     safe r1,r2,s.
+(1)  [R=0.]  if R=0 then { a:=0;  return }.
+(2)  [R # 0.]  FIRST2(R;r1,r2);  IQR(r1,r2;a,b);
+     s:=ISIGNF(b);  if s < 0 then a:=ISUM(a,s) ||
+                    R:=RNINT(A)
+[Rational number from integer.  A  is an integer.  R is the rational
+number A/1.]
+     safe RNINT.
+(1)  if A=0 then R:=0 else R:=LIST2(A,1) ||
+                    S:=RNINV(R)
+[Rational number inverse.  R is a non-zero rational number.  S=R^{-1}.]
+     safe S.
+(1)  FIRST2(R;R1,R2);  if ISIGNF(R1) > 0 then { S1:=R2;  S2:=R1 } else
+     { S1:=INEG(R2);  S2:=INEG(R1) };  S:=LIST2(S1,S2) ||
+                    S:=RNNEG(R)
+[Rational number negative.  R is a rational number.  S=-R.]
+     safe R1,R',S.
+(1)  if R=0 then S:=0 else { ADV(R;R1,R');  R'1:=INEG(R1);
+     S:=COMP(R'1,R') } ||
+                    a:=RNNUM(R)
+[Rational number numerator.  R is a rational number.  a  is the
+numerator of R, an integer.]
+     safe RNNUM.
+(1)  if R=0 then a:=0 else a:=FIRST(R) ||
+                    R:=RNP2(k)
+[Rational number power of 2.  k is a gamma-integer.  R=2^k, a
+rational number.]
+     safe h,R.
+(1)  h:=ABS(k);  a:=IMP2(1,h);  if k >= 0 then R:=LIST2(a,1)
+     else R:=LIST2(1,a) ||
+                    T:=RNPROD(R,S)
+[Rational number product.  R and S are rational numbers.  T=R*S.]
+     safe R1,R2,S1,S2,T.
+(1)  [R=0 or S=0.]  if R=0 \/ S=0 then { T:=0;  return }.
+(2)  [Obtain numerators and denominators.]  FIRST2(R;R1,R2);
+     FIRST2(S;S1,S2).
+(3)  [R and S integers.]  if R2=1 /\ S2=1 then { T1:=IPROD(R1,S1);
+     T:=LIST2(T1,1);  return }.
+(4)  [R or S an integer.]  if R2=1 then { IGCDCF(R1,S2;D1,R_1,S_2);
+     T1:=IPROD(R_1,S1);  T:=LIST2(T1,S_2);  return  };  if S2=1 then
+     { IGCDCF(S1,R2;D2,S_1,R_2);  T1:=IPROD(S_1,R1);  T:=LIST2(T1,R_2);
+     return }.
+(5)  [General case.]  IGCDCF(R1,S2;D1,R_1,S_2);
+     IGCDCF(S1,R2;D2,S_1,R_2);  T1:=IPROD(R_1,S_1);  T2:=IPROD(R_2,S_2);
+     T:=LIST2(T1,T2) ||
+                    T:=RNQ(R,S)
+[Rational number quotient.  R and S are rational numbers, S#0.  T=R/S.]
+     safe T.
+(1)  if R=0 then T:=0 else T:=RNPROD(R,RNINV(S)) ||
+                    R:=RNRAND(n)
+[Rational number, random.  n is a positive beta-integer.  Random
+integers A  and B are generated using IRAND(n).  Then R=A/(|B|+1),
+reduced to lowest terms.]
+(1)  A:=IRAND(n);  B:=IRAND(n);  B:=IABSF(B);  B:=ISUM(B,1);
+     R:=RNRED(A,B) ||
+                    R:=RNREAD()
+[Rational number read.  The rational number R is read from the input
+stream.  Any preceding blanks are skipped.]
+     safe C,R.
+(1)  R1:=IREAD();  C:=CREADB();  if C='/' then R2:=IREAD() else { R2:=1;
+     BKSP };  if R1=0 then R:=0 else R:=LIST2(R1,R2) ||
+                    R:=RNRED(A,B)
+[Rational number reduction to lowest terms.  A  and B are integers,
+B#0.  R is the rational number A/B in canonical form.]
+     safe R.
+(1)  if A=0 then { R:=0 ;  return };  C:=IGCD(A,B);  A_:=IQ(A,C);
+     B_:=IQ(B,C);  if ISIGNF(B) < 0 then { A_:=INEG(A_);  B_:=INEG(B_) }
+;
+     R:=LIST2(A_,B_) ||
+                    s:=RNSIGN(R)
+[Rational number sign.  R is a rational number.  s=sign(R).]
+     safe RNSIGN.
+(1)  if R=0 then s:=0 else s:=ISIGNF(FIRST(R)) ||
+                    T:=RNSUM(R,S)
+[Rational number sum.  R and S are rational numbers.  T=R+S.]
+     safe R1,S1,S2,T.
+(1)  [R=0 or S=0.]  if R=0 then { T:=S;  return };  if S=0 then
+     { T:=R;  return }.
+(2)  [Obtain numerators and denominators.]  FIRST2(R;R1,R2);
+     FIRST2(S;S1,S2).
+(3)  [R and S integers.]  if R2=1 /\ S2=1 then { T1:=ISUM(R1,S1);
+     if T1=0 then T:=0 else T:=LIST2(T1,1);  return }.
+(4)  [R or S an integer.]  if R2=1 then { T1:=IPROD(R1,S2);
+     T1:=ISUM(T1,S1);  T:=LIST2(T1,S2);  return };  if S2=1 then
+     { T1:=IPROD(R2,S1);  T1:=ISUM(T1,R1);  T:=LIST2(T1,R2);  return }.
+(5)  [General case.]  IGCDCF(R2,S2;D,R_2,S_2);
+     T1:=ISUM(IPROD(R1,S_2),IPROD(R_2,S1));  if T1 = 0 then
+     { T:=0;  return };  if D # 1 then {  E:=IGCD(T1,D);
+     if E # 1 then { T1:=IQ(T1,E);  R2:=IQ(R2,E) }  };
+     T2:=IPROD(R2,S_2);  T:=LIST2(T1,T2) ||
+                    RNWRIT(R)
+[R is a rational number.  R is converted to decimal and written in the
+output stream.]
+     safe RNWRIT.
+(1)  if R=0 then AWRITE(R) else {  FIRST2(R;R1,R2);  IWRITE(R1);
+     if R2 # 1 then { CWRITE('/');  IWRITE(R2) }  } ||
+                    v:=SFCCON(u)
+[Single-precision floating-point complex conjugation.  u is a single
+precision floating-point complex number.  v is the complex conjugate of
+u.]
+     safe u1,u2,v.
+(1)  [u=0.]  if u=0 then { v:=0;  return }.
+(2)  [u#0.]  FIRST2(u;u1,u2);  v2:=SFRNEG(u2);  v:=LIST2(u1,
+     v2) ||
+                    w:=SFCDIF(u,v)
+[Single-precision floating-point complex difference.  u and v are
+single-precision ploating-point complex numbers.  w is a 
+single-precision floating-point complex approximation to u-v.]
+(1)  v':=SFCNEG(v);  w:=SFCSUM(u,v') ||
+                    v:=SFCFR(u)
+[Single-precision floating-point complex from real.  u is a 
+single-precision floating-point real number.  v is the single-precision
+floating-point complex representation of u.]
+(1)  if u=0 then v:=0 else v:=LIST2(u,0) ||
+                    v:=SFCIP(u)
+[Single-precision floating-point complex, imaginary part.  u is a
+single-precision floating-point complex number.  v is the imaginary 
+part of u, a single-precision floating-point real number.]
+(1)  if u=0 then v:=0 else v:=SECOND(u) ||
+                    v:=SFCMSQ(u)
+[Single-precision floating-point complex modulus squared.  u is a
+single-precision floating-point complex number.  v is a
+single-precision floating point real approximation to the square of
+the modulus of u.]
+     safe u1,u2,v.
+(1)  [u=0.]  if u=0 then { v:=0;  return }.
+(2)  [u#0.]  FIRST2(u;u1,u2);  a:=SFRPR(u1,u1);  b:=SFRPR(u2,
+     u2);  v:=SFRSUM(a,b) ||
+                    v:=SFCNEG(u)
+[Single-precision floating-point complex negation.  u is a 
+single-precision floating-point complex number.  v=-u.]
+     safe u1,u2,v.
+(1)  [u=0.]  if u=0 then { v:=0;  return }.
+(2)  [u#0.]  FIRST2(u;u1,u2);  v1:=SFRNEG(u1);  v2:=SFRNEG(
+     u2);  v:=LIST2(v1,v2) ||
+                    w:=SFCPR(u,v)
+[Single-precision floating-point complex product.  u and v are
+single-precision floating-point complex numbers.  w is a 
+single-precision floating-point complex approximation to u*v.]
+     safe u1,u2,v1,v2,w.
+(1)  [u or v zero.]  if u=0 \/ v=0 then { w:=0;  return }.
+(2)  [General case.]  FIRST2(u;u1,u2);  FIRST2(v;v1,v2);
+     w'1:=SFRPR(u1,v1);  w''1:=SFRPR(u2,v2);
+     w1:=SFRDIF(w'1,w''1);  w'2:=SFRPR(u1,v2);
+     w''2:=SFRPR(u2,v1);  w2:=SFRSUM(w'2,w''2);  if w1=0 /\ w2=0
+     then w:=0 else w:=LIST2(w1,w2) ||
+                    w:=SFCQ(u,v)
+[Single-precision floating-point complex quotient.  u and v are
+single-precision floating-point complex numbers, v#0.  w is a
+single-precision floating-point complex approximation to u/v.]
+     safe w,z1,z2.
+(1)  v_:=SFCCON(v);  z:=SFCPR(u,v_);  if z=0 then { w:=0;  return };
+     d:=SFCMSQ(v);  FIRST2(z;z1,z2);  w1:=SFRQ(z1,d);  w2:=SFRQ(
+     z2,d);  if w1=0 /\ w2=0 then w:=0 else w:=LIST2(w1,w2) ||
+                    v:=SFCRP(u)
+[Single-precision floating-point complex, real part.  u is a 
+single-precision floating-point complex number.  v is the real part 
+of u, a single-precision floating-point real number.]
+(1)  if u=0 then v:=0 else v:=FIRST(u) ||
+                    w:=SFCSUM(u,v)
+[Single-precision floating-point complex sum.  u and v are 
+single-precision floating-point complex numbers.  w is a 
+single-precision floating-point complex approximation to u+v.]
+     safe u1,u2,v1,v2,w.
+(1)  [u or v zero.]  if u=0 then { w:=v;  return };  if v=0 then
+     { w:=u;  return }.
+(2)  [General case.]  FIRST2(u;u1,u2);  FIRST2(v;v1,v2);
+     w1:=SFRSUM(u1,v1);  w2:=SFRSUM(u2,v2);  if w1=0 /\ w2=0
+     then w:=0 else w:=LIST2(w1,w2) ||
+                    I:=SFIFI(a)
+[Single-precision floating-point interval from integer.  a  is an
+integer.  I is the smallest single-precision floating-point interval
+containing a.]
+     safe a1,a2,a',a'',a''',d,d0,d1,e1,e2,h,m,r.
+(1)  [a=0.]  if a=0 then { I:=LIST2(0,0);  return }.
+(2)  [a single-precision.]  r:=0;  if a < BETA then { d0:=a;
+     d1:=0;  e1:=0;  go to  4 }.
+(3)  [a multiple-precision.]  a':=a;  a'':=RED(a');
+     a''':=RED(a'');  e1:=ZETA;  while a''' # () do { e1:=e1+ZETA;
+     if FIRST(a') # 0 then r:=1;  a':=a'';  a'':=a''';
+     a''':=RED(a'') };  d0:=FIRST(a'');  d1:=FIRST(a').
+(4)  [Normalize.]  d:=ABS(d0);  h:=ZETA;  while d < TABP2[h]
+     do h:=h-1;  h:=ZETA-h;  m:=TABP2[h+1];  e1:=e1-h;
+     d0:=d0 * m;  DPR(d1,m;d1,m);  a1:=d0+d1;  a2:=a1;
+     e2:=e1;  if r=1 \/ m # 0 then {   if a1 > 0 then
+     {  a2:=a1+1;  if a2=BETA then { a2:=BETA/2;  e2:=e2+1 }  }
+     else {  a1:=a1-1;  if a1=-BETA then { a1:=-BETA/2;
+     e1:=e1+1 }  }   }.
+(5)  [Assemble output.]  I:=LIST2(LIST2(e1,a1),LIST2(e2,a2)) ||
+                    w:=SFRABS(u)
+[Single-precision floating-point real absolute value.  u is a 
+single-precision floating-point real number.  w=|u|.]
+     safe SFRABS.
+(1)  [u=0.]  if u=0 then { w:=0;  return }.
+(2)  [u#0.]  FIRST2(u;e,a);  a':=ABS(a);  w:=LIST2(e,a') ||
+                    w:=SFRDIF(u,v)
+[Single-precision floating-point real difference.  u and v are
+single-precision floating-point real numbers.  w is a single-precision
+floating-point approximation to u-v.]
+(1)  w:=SFRSUM(u,SFRNEG(v)) ||
+                    w:=SFRLS(u,v)
+[Single-precision floating-point real number lower sum.  u and v are
+single-precision floating-point real numbers.  w is the largest
+single-precision floating-point real number such that w<=u+v.]
+     safe SFRLS.
+(1)  [u or v zero.]  if u=0 then { w:=v;  return };  if v=0 then
+     { w:=u;  return }.
+(2)  [Obtain fractions and exponents.]  FIRST2(u;e1,a1);
+     FIRST2(v;e2,a2).
+(3)  [Interchange.]  if e1 >= e2 then { a'1:=a1;  e'1:=e1;
+     a'2:=a2;  e'2:=e2 } else { a'1:=a2;  e'1:=e2;  a'2:=a1;
+     e'2:=e1 };  d:=e'1-e'2;  b:=TABP2[ZETA].
+(4)  [d >= zeta.]  if d < ZETA then go to  5;  a:=a'1;  e:=e'1;
+     if a'2 > 0 then {  if d=ZETA /\ a=-b then { a:=BETA+1;
+     e:=e-1 };  go to  8  };  if a=-BETA+1 then { a:=-b;  e:=e+1;
+     go to  7 };  if a=b then { e:=e-1;  if d=ZETA /\ a'2 # -b
+     then a:=BETA-2 else a:=BETA-1; go to  8 };  a:=a-1;  go to  8.
+(5)  [d<=1.]  if d > 1 then go to  6;  a:=a'1+a'1+a'2;
+     if d=0 then a:=a+a'2;  if a=0 then { e:=0;  go to  8 };
+     e:=e'1-1;  if a > 0 then {  if a >= BETA+BETA then { a:=a/4;
+     e:=e+2;  go to  7 };  if a >= BETA then { a:=a/2;  e:=e+1;
+     go to  8 };  while a < b do { a:=a+a;  e:=e-1 };  go to  7  };
+     if a <= -BETA-BETA then { q:=a/4;  r:=a-4 * q;  a:=q;  e:=e+2;
+     if r < 0 then a:=a-1;  go to  7 };  if a <= -BETA then
+     { q:=a/2;  r:=a-q-q;  a:=q;  e:=e+1;  if r=0 then go to  8;
+     a:=a-1;  if a # -BETA then go to  8;  a:=-b;  e:=e+1;
+     go to  7 };  while a > -b do { a:=a+a;  e:=e-1 };  go to  7.
+(6)  [1 < d < zeta.]  p:=TABP2[d];  q:=a'2/p;  r:=a'2-p * q;
+     a:=a'1+a'1+q;  e:=e'1-1;  if a > 0 then {  if a >= BETA+BETA
+      then { a:=a/4;  e:=e+2;  go to  7 };  if a >= BETA then
+     { q:=a/2;  r':=a-q-q;  a:=q;  e:=e+1 } else r':=0;
+     if r' > 0 \/ r >= 0 then go to  8;  if a=b then { a:=BETA-1;
+     e:=e-1;  go to  7 };  a:=a-1;  go to  8  };  if a <= -BETA-BETA
+     then { q:=a/4;  r':=a-4 * q;  a:=q;  e:=e+2;  if r'=0 /\
+     r >= 0 then go to  7;  a:=a-1;  if a # -BETA then go to  7;
+     a:=-b;  e:=e+1;  go to  7 };  if a <= -BETA then { q:=a/2;
+     r':=a-q-q;  a:=q;  e:=e+1;  if r'=0 /\ r >= 0 then
+     go to  8;  a:=a-1;  if a # -BETA then go to  8;  a:=-b;
+     e:=e+1 }.
+(7)  [Overflow or underflow.]  if e <= -BETA then {  if a > 0 then
+     { a:=0;  e:=0 } else { a:=-b;  e:=-BETA+1 };  go to  8  };
+     if e < BETA then go to  8;  if a > 0 then { a:=BETA-1;
+     e:=BETA-1 } else { print "Overflow in SFRLS";  stop }.
+(8)  [Assemble output.]  if a=0 then w:=0 else w:=LIST2(e,a) ||
+                    w:=SFRNEG(u)
+[Single-precision floating-point real negation.  u is a 
+single-precision floating-point real number.  w=-u.]
+     safe SFRNEG.
+(1)  [u=0.]  if u=0 then { w:=0;  return }.
+(2)  [u#0.]  FIRST2(u;e,a);  w:=LIST2(e,-a) ||
+                    w:=SFRPR(u,v)
+[Single-precision floating-point real product.  u and v are 
+single-precision floating-point real numbers.  w is a single-precision
+floating-point real approximation to u*v.]
+     safe SFRPR.
+(1)  [u or v zero.]  if u=0 \/ v=0 then { w:=0;  return }.
+(2)  [Multiply.]  FIRST2(u;e,a);  FIRST2(v;f,b);
+     DPR(a,b;c,d);  g:=e+f+ZETA.
+(3)  [Normalize.]  B:=TABP2[ZETA];  if ABS(c) < B then { c:=c+c;
+     if d >= B then c:=c+1 else if d <= -B then c:=c-1;  g:=g-1 }.
+(4)  [Test for overflow.]  if g >= BETA then { print
+     "Overflow in SFRPR.";  stop }.
+(5)  [Form list.]  if g <= -BETA then w:=0 else w:=LIST2(g,c) ||
+                    w:=SFRQ(u,v)
+[Single-precision floating-point real quotient.  u and v are 
+single-precision floating-point real numbers, v#0.  w is a 
+single-precision floating-point real approximation to u/v.]
+     safe SFRQ.
+(1)  [u=0.]  if u=0 then { w:=0;  return }.
+(2)  [Set up for quotient.]  FIRST2(u;e,a);  FIRST2(v;f,b);  if
+     ABS(a) < ABS(b) then { a':=a;  a'':=0;  g:=e-f-ZETA } else
+     { QREM(a,2;a',c);  a'':=c * TABP2[ZETA];  g:=e-f-ZETA+1 }.
+(3)  [Divide.]  DQR(a',a'',b;d,r).
+(4)  [Test for overflow.]  if g >= BETA then
+     { print "Overflow in SFRQ.";  stop }.
+(5)  [Form list.]  if g <= -BETA then w:=0 else w:=LIST2(g,d) ||
+                    w:=SFRSUM(u,v)
+[Single-precision floating-point real sum.  u and v are 
+single-precision floating-point real numbers.  w is a 
+single-precision floating-point real approximation to u+v.]
+     safe SFRSUM.
+(1)  [u=0 or v=0.]  if u=0 then { w:=v;  return };  if v=0 then
+     { w:=u;  return }.
+(2)  [Get fractions and exponents.]  FIRST2(u;e,a);
+     FIRST2(v;f,b).
+(3)  [u or v small.]  d:=e-f;  if d >= ZETA then { w:=u;
+     return };  if d <= -ZETA then { w:=v;  return }.
+(4)  [Interchange.]  if d < 0 then { t:=e;  e:=f;  f:=t;  t:=a;
+     a:=b;  b:=t;  d:=-d }.
+(5)  [Obtain beta/2 and 2**d.]  B:=TABP2[ZETA];  D:=TABP2[d+1];  g:=e.
+(6)  [Same signs.]  if a > 0 /\ b > 0 \/ a < 0 /\ b < 0 then
+     {   c:=a+b/D;  if ABS(c) >= BETA then {  c:=c/2;  g:=g+1;
+     if g=BETA then { print "Overflow in SFRSUM.";  stop }  };
+     w:=LIST2(g,c);  return   }.
+(7)  [Opposite signs, d=0.]  if d=0 then {  c:=a+b;  if c=0 then
+     { w:=0;  return };  go to  10  }.
+(8)  [Opposite signs, d=1.]  if d=1 then {  b':=b/2;  c:=a+b';
+     r:=b-b'-b';  if ABS(c) < B then { c:=c+c+r;  g:=g-1 };
+     go to  10  }.
+(9)  [Opposite signs, d > 1.]  b':=b/D;  c:=a+b';  if ABS(c) < B
+      then { r:=b-b' * D;  r:=r+r;  if r >= D then r:=1 else
+     if r <= -D then r:=-1 else r:=0;  c:=c+c+r;  g:=g-1 }.
+(10) [Normalize.]  while ABS(c) < B do { c:=c+c;  g:=g-1 };
+     if g <= -BETA then w:=0 else w:=LIST2(g,c) ||
+                    B:=SMFMI(M,A)
+[Symmetric modular from modular integer.  M is a positive integer.
+A  belongs to Z_M.  B belongs to Z'_M and B is congruent to 
+A (modulo M).]
+(1)  B:=IDIF(A,M);  if ICOMP(A,INEG(B)) <= 0 then B:=A ||

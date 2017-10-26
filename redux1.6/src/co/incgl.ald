@@ -1,0 +1,52 @@
+[Project: ReDuX Combinatorics
+   module name        : INCGL
+   modulespecification: Problem: compute the set Ck of all possible 
+                           k-tupels whose elements stem from a list C, 
+                           one by one.
+                        Solution:
+                           start with lists C and G=(C,...,C) where G
+                           has length k.
+                           while G # () do
+                            {  [(First(G1),...,FIRST(Gk)) is in Ck.]
+                               G:=INCGL(C,G);
+                            }
+                        Taken from ica as of 15.2.91.
+   programmer         : Reinhard Buendgen                               
+   last change        : $Date: 91/09/04 16:31:37 $
+   version            : $Revision: 1.2 $
+   status             : safe's added 15.7.88
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+                        ic/icd                                          
+]                                                                      
+
+[---------------------------------------------------------------------.
+     Section 0.                                                         
+     System initialization.                                             
+-----------------------------------------------------------------------]
+     const TRUE=1, FALSE=0.
+     const                                                             
+     RED(L)   =SPACE[L-BETA],                                          
+     FIRST(L) =SPACE[L-BETA1].                                         
+ 
+[--------------------------------------------------------------------  
+     section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+                                                                       
+                    G':=INCGL(G,C)                                     
+[Increment generator list. 
+C=(c1,..., c sub n) is a list of operators and constants and 
+G=(g1,..., g sub k) is a list with elements g sub j which are
+i-th reductums of C (0 <= i < n). Assume the order 
+(c1,..., c sub n) < (c2,..., c sub n) < ... < (c sub n). Then G' 
+is the successor list of G with regard to the reverse lexicographic 
+extension of the above order (i.e. the left-most element of G is the 
+least significant one). If no increment is possible G' is NIL.
+G is destroyed.] 
+     safe INCGL.
+(1)  [Initialize.]   G^':=G.
+(2)  [Overflow ?]    if G^'=() then {G':=(); return};
+     [Increment 1st element of G^'.] C^':=RED(FIRST(G^')).
+(3)  [Carry ?] if C^'=() then { FIRST(G^'):=C; G^':=RED(G^'); goto 2 } 
+                else FIRST(G^'):=C^';
+     G':=G ||                                                           

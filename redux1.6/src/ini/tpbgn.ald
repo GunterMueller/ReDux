@@ -1,0 +1,156 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPBGN -- redux BeGiN
+   modulespecification: ReDuX system initialization.
+                        derived from tpdd Revision: 1.12 
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : 7.3.90 12.11.89 10.08.89 30.09.91
+                        $Date: 1996/11/16 18:19:50 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.4 $
+   bugs               : none known
+   modules needed     : SAC-2: low/bs, low/sy, low/lp
+
+]
+
+[ #include "tp.h" ]
+[ #include "parse.h" ]
+[ #include "globs.h" ]
+
+                                                                       
+                    BGNRWD(l)                                           
+[Begin rewrite system on definition level.                             
+l is a beta-integer determining which SAC2 subsystems shall be 
+initialized:
+  l = 1 :  list - and symbol system
+  l = 2 :  arithmetic and symbol system
+  l = 3 :  polynomial and symbol system
+  l = 4 :  polynomial factorization and symbol system.
+  l = 5 :  polynomial factorization, symbol system and
+           interpreter system.
+Initializations for higher values of l subsume those for lower values.
+The rewrite system is completely initialized at definition level.
+This procedure may be called only _once_.]     
+     
+(1)  [Initialize SAC2 non-symbol systems.] case l of
+      { 1 do  BEGIN1;  2 do  BEGIN2;  3 do  BEGIN3;  4,5 do  BEGIN4 }.
+(2)  [Initialize symbol system.] BEGINU.
+(3)  [Initialize standard files. Only needed for ALDES V3.7.] 
+     [----------------------------------------------------------------
+      SYNOPSIS (l<5): 
+        program [data-type-file [log-file [input-file]]]
+      SYNOPSIS (l=5): 
+        program [data-type-file [algos-file [log-file [input-file]]]]
+     ----------------------------------------------------------------]
+     [Get base name of program file.] N:=INV(ARGGET(0));
+     I:=LSRCH('/',N);
+     if      I > 1 then SRED(REDUCT(N,I-2),())
+     else if I = 1 then N:=();
+     N:=INV(N);
+     [Initialize data type file.]
+     if ARGNO() >= 2 then I:=ARGGET(1) else I:=CCONC(N,".in");
+     FOPENR(4,I);
+     [Initialize log file.] if l < 5 then 
+         if ARGNO() >= 3 then 
+         { L:=ARGGET(2); if ARGNO() >= 4 then [Read stdin from file.]
+           { FOPENR(8,ARGGET(3)); IUCHNG(8) }
+         } else L:=CCONC(N,".log")
+     else if l = 5 /\ ARGNO() >= 4 then 
+          { L:=ARGGET(3); if ARGNO() >= 5 then [Read stdin from file.]
+           { FOPENR(8,ARGGET(4)); IUCHNG(8) }
+          } else L:=CCONC(N,".log");     FOPENW(9,L).
+(4)  [Initialize interpreter system.] if l = 5 then
+      { if ARGNO() >= 3 then A:=ARGGET(2) else A:=CCONC(N,".algos"); 
+        ISTINI(3,A) 
+      }.
+(5)  [Initialize ReDuX symbols: The  ReDuX symbols are initialized and
+      entered into SYMTB.]
+     GRSYM:=ENTER("GRSYM"); KIND:=ENTER("KIND"); IDENT:=ENTER("IDENT");
+     FLAT:=ENTER("FLAT"); XIDNT:=ENTER("XIDNT"); INT:=ENTER("INT").
+(6)     [Definition of AC status symbol.]
+     DAC:=SCONS("AC");      PUT(DAC,KIND,GRSYM);
+        [Definition of axiom symbol]
+     DAS:=SCONS("AXIOMS");  PUT(DAS,KIND,GRSYM);
+        [Definition of argument variable symbol] 
+     DAV:=SCONS("ARGVAR");  PUT(DAV,KIND,GRSYM);
+        [Definition of closing bracket]
+     DCB:=SCONS(LIST1(')')); PUT(DCB,KIND,GRSYM);
+        [Definition of comment symbol, initially not defined]       
+     DCM:=();
+        [Definition of COM status symbol.]
+     DCO:=SCONS("COM");      PUT(DCO,KIND,GRSYM);
+        [Definition of Closing Roundfix Property Symbol]
+     DCR:=SCONS("ROUND"); PUT(DCR,KIND,GRSYM);
+        [Definition of comment symbol]                                     
+     DCS:=SCONS("CONSTS");  PUT(DCS,KIND,GRSYM);
+        [Definition of Prefix Symbol]
+     DEF:=SCONS("PREFIX"); PUT(DEF,KIND,GRSYM);
+        [Definition of constant symbol]                                
+     DES:=SCONS("END");     PUT(DES,KIND,GRSYM);
+        [Definition of FIX symbol]                                
+     DFS:=SCONS("FIX");    PUT(DFS,KIND,GRSYM);
+        [Definition of infix symbol]
+     DIF:=SCONS("INFIX"); PUT(DIF,KIND,GRSYM);
+        [Definition of symbol for associated polynomial interpretation]
+     DIS:=SCONS("POLY");  PUT(DIS,KIND,GRSYM);
+        [Definition of Lisp notation symbol]
+     DLF:=SCONS("LISP"); PUT(DLF,KIND,GRSYM);
+        [Definition of link symbol]                                    
+     DLS:=SCONS("-");       PUT(DLS,KIND,GRSYM);
+        [Definition of enumeration symbol]
+     DNS:=SCONS(":");       PUT(DNS,KIND,GRSYM);
+        [Definition of opening bracket]                                
+     DOB:=SCONS(LIST1('(')); PUT(DOB,KIND,GRSYM);
+        [Definition of operator symbol]                                
+     DOS:=SCONS("OPS");     PUT(DOS,KIND,GRSYM);
+        [Definition of postfix symbol]
+     DPF:=SCONS("POSTFIX"); PUT (DPF,KIND,GRSYM);
+        [Definition of production symbol]                              
+     DPS:=SCONS("==");      PUT(DPS,KIND,GRSYM);
+        [Definition of ROUNDFIX symbol]
+     DRF:=SCONS("ROUNDFIX"); PUT(DRF,KIND,GRSYM);
+        [Definition of repeater symbol]                                
+     DRS:=SCONS(",");       PUT(DRS,KIND,GRSYM);
+        [Definition of suitable-for-hashing symbol]
+     DSH:=SCONS("HASH");    PUT(DSH,KIND,GRSYM);
+        [Definition of separator symbol]                               
+     DSS:=SCONS(".");       PUT(DSS,KIND,GRSYM);
+        [Definition of constrained subterm symbol]
+     DST:=SCONS("CSBTERM"); PUT(DST,KIND,GRSYM);
+        [Definition of type symbol]                                    
+     DTS:=SCONS("TYPE");    PUT(DTS,KIND,GRSYM);
+        [Definition of unification status symbol]
+     DUS:=SCONS("USTAT");   PUT(DUS,KIND,GRSYM);
+        [Definition of variable symbol]                                
+     DVS:=SCONS("VARS");    PUT(DVS,KIND,GRSYM);                     
+        [Definition of extension rule symbol]                                
+     DXR:=SCONS("EXT.RULE");    PUT(DXR,KIND,GRSYM).
+[* external *]
+(7)  [Symbols for external types.]
+     [Definition of external type symbol.]
+     DXT:=SCONS("EXTERNAL");  PUT(DXT,KIND,GRSYM);
+     [Definition of external type read algorithm symbol]
+     DXRA:=SCONS("XREAD");  PUT(DXRA,KIND,GRSYM);
+     [Definition of external type write algorithm symbol]
+     DXWA:=SCONS("XWRITE");  PUT(DXWA,KIND,GRSYM);
+     [Definition of external type equal algorithm symbol]
+     DXQA:=SCONS("XEQ");  PUT(DXQA,KIND,GRSYM);
+     [Definition of external type less-than-algorithm symbol]
+     DXLA:=SCONS("XLT");  PUT(DXLA,KIND,GRSYM);
+     [Definition of external type decomposition algorithm symbol]
+     DXDA:=SCONS("XDEC");   PUT(DXDA,KIND,GRSYM);
+     [Definition of external-type-to-operator symbol]
+     DXOP:=SCONS("XTOO");   PUT(DXOP,KIND,GRSYM);
+     [Definition of external type interpretation algorithm symbol]
+     DXIA:=SCONS("XINT");  PUT(DXIA,KIND,GRSYM);
+     [Definition of external type coercion operator]
+     DXCO:=SCONS("COERC");  PUT(DXCO,KIND,GRSYM);
+     [Definition of external type term-from-external algorithm symbol]
+     DXTA:=SCONS("XTERM");  PUT(DXTA,KIND,GRSYM);
+     [Definition of external type free generator algorithm symbol]
+     DXFG:=SCONS("XFG");  PUT(DXFG,KIND,GRSYM);
+     [Definition of external constructor symbols]
+     DXCN:=SCONS("XCONSTRUCTORS"); PUT(DXFG,KIND,GRSYM).
+[----- new parser !!! -----]
+(8) [init symbols for new parser] ITGLPR().
+(9) [set output mode] OTMODE:=OMNORMAL ||

@@ -1,0 +1,22 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/lp2odd
+   modulespecification: extract elements at odd positions from list
+                        of period 2
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : $Date: 91/05/13 11:48:21 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   status             : 
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+] 
+
+                    L*:=LP2ODD(L)
+[List of period 2, odd positions.
+L=(s1, t1, ..., sn, tn) is a list of period 2. 
+Then L*=(s1, s2,... ,sn).] 
+
+(1)  [Initialize.] L':=L; L*:=().
+(2)  [Compose.] while L' # () do { ADV2(L'; s,t,L'); L*:=COMP(s,L*) };
+     L*:=INV(L*) ||

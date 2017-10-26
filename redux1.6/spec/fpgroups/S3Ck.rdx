@@ -1,0 +1,70 @@
+DATATYPE S3;
+SORT
+	S3;
+CONST
+	0, R, T: S3;
+VAR
+	A, B, C: S3;
+OPERATOR
+	+: S3, S3 -> S3;
+	I: S3 -> S3;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+ [1] +(0,A) == A;
+ [2] +(I(A),A) == 0;
+ [3] +(+(A,B),C) == +(A,+(B,C));
+ [4] +(T,T) == 0;
+ [5] +(I(A),+(A,C)) == C;
+ [6] +(A,I(A)) == 0;
+ [7] I(0) == 0;
+ [8] +(A,0) == A;
+ [9] I(I(A)) == A;
+[10] I(T) == T;
+[11] +(A,+(I(A),C)) == C;
+[12] +(T,+(T,C)) == C;
+[13] +(R,R) == I(R);
+[14] +(T,I(R)) == +(R,T);
+[15] I(+(A,B)) == +(I(B),I(A));
+[16] +(R,+(R,C)) == +(I(R),C);
+[17] +(I(R),I(R)) == R;
+[18] +(T,+(I(R),C)) == +(R,+(T,C));
+[19] +(T,R) == +(I(R),T);
+[20] +(T,+(R,C)) == +(I(R),+(T,C));
+[21] +(I(R),+(I(R),C)) == +(R,C);
+END
+; S3 completed with ordering:
+Select orderings:
+K
+for defining a Knuth-Bendix ordering on type S3
+
+give non-negative indexes and weights for constants (weights all positive)
+0 - S3
+  index *
+0
+ weight *
+1
+R - S3
+  index *
+1
+ weight *
+2
+T - S3
+  index *
+2
+ weight *
+3
+ 
+give non-negative indexes and weights for operators
+(weights for unary operators all positive, with the
+possible exception of the operator with largest index.)
++(S3,S3) - S3
+  index *
+3
+ weight *
+4
+I(S3) - S3
+  index *
+4
+ weight *
+0

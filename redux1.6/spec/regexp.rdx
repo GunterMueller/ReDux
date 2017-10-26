@@ -1,0 +1,15 @@
+DATATYPE REGEXPR;
+SORT S;
+OPERATOR
+  .: S, S -> S;
+  *: S    -> S;
+NOTATION
+  *: POSTFIX;
+
+VAR
+  r,s,t : S;
+
+AXIOM
+  [1] (r.s).t == r.(s.t);
+  [2] (r.s)*.r == r.(s.r)*;
+END

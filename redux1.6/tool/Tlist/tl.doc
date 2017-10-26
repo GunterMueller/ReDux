@@ -1,0 +1,72 @@
+Stefan Bachert                              30.3.92
+
+tl is designed to extract addition information of .typ
+files. However, it is easy to use it for other text files.
+
+tl prints each line which contains a valid tl-keyword.
+Text before the keyword will be omitted.
+Actually the following list of keyword is supported
+
+  AUTHOR BIBTEX DESCRIPTION KEYWORDS ORIGIN
+
+Warning this word must be written in upper case letters.
+This list can easily expanded. There is a special keyword STATUS.
+Everything after this keyword will be print after the filename.
+
+
+Usage
+=====
+
+USAGE tl [options] [dir]
+  Options
+  -a  AUTHOR
+  -b  BIBTEX
+  -d  DESCRIPTION [default]
+  -k  KEYWORDS
+  -o  ORIGIN
+  -A  all above
+
+
+Examples:
+========
+
+The source 'group.typ':
+
+# Intro of comment symbol #
+TYPE GRP1.
+CONSTS 0-GRP1
+# AUTHOR unknown
+# STATUS completed
+# DESCRIPTION1 very easy examples of nonabel group
+# DESCRIPTION2 it is possible to use multiple line
+# DESCRIPTION3 but since the output will be sorted line numberng should be used 
+# BIBTEX THE ENTRY IS WRONG
+# ORIGIN from heaven
+VARS A,B,C-GRP1
+OPS +(GRP1,GRP1)-GRP1.I(GRP1)-GRP1
+AXIOMS
+1) +(0,A)==A
+2) +(I(A),A)==0
+3) +(+(A,B),C)==+(A,+(B,C))
+END
+
+
+Now the result of 'tl'
+
+FILE: [./group.typ]  completed
+DESCRIPTION1 very easy examples of nonabel group
+DESCRIPTION2 it is possible to use multiple line
+DESCRIPTION3 but since the output will be sorted line numberng should be used 
+
+
+And with all infos 'tl -A'
+
+FILE: [./group.typ]  completed
+AUTHOR unknown
+BIBTEX THE ENTRY IS WRONG
+DESCRIPTION1 very easy examples of nonabel group
+DESCRIPTION2 it is possible to use multiple line
+DESCRIPTION3 but since the output will be sorted line numberng should be used 
+ORIGIN from heaven
+
+

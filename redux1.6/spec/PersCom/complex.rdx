@@ -1,0 +1,24 @@
+DATATYPE T;
+SORT
+	T;
+CONST
+	INT: T;
+VAR
+	X, Y, Z: T;
+OPERATOR
+	PolarComplex:  -> T;
+	CartesianComplex:  -> T;
+	LIST: T -> T;
+	VECT: T -> T;
+	[: T, T -> T;
+NOTATION
+	LIST, VECT: FUNCTION;
+	PolarComplex, CartesianComplex: CONSTANT;
+	[: ROUNDFIX ];
+THEORY
+	[: AC;
+AXIOM
+ [1] LIST([ X,Y ]) == [ LIST(X),LIST(Y) ];
+ [2] PolarComplex == CartesianComplex;
+ [3] VECT(X) == LIST(X);
+END

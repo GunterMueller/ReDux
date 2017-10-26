@@ -1,0 +1,39 @@
+Copyright notice for ReDuX
+==========================
+
+ReDuX may be used and redistributed without charge under the following
+preconditions:
+  - the ReDuX-system itself, modified versions of it, parts of it, and
+    systems relying on it may only be used and distributed further on a 
+    no-profit base.
+  - binairies may only be redistributed together with the corresponding
+    sources.
+  - all bugs found are to be reported to Reinhard Buendgen 
+  - all changes to the sources must be documented (preferably using
+    a revision control systemlike rcs or cvs).
+  - credit should be given to the authors of the programs
+  - this file is not to be modified.
+
+   Reinhard Buendgen  
+   Kirchnerweg 2
+   D-72076 Tuebingen 
+   Germany
+   e-mail: <buendgen@de.ibm.com>
+
+Copyright notice for the ALDES compiler
+=======================================
+
+All rights to the ALDES compiler are to 
+
+  Prof. Ruediger Loos        | Tel.: x7071/292899
+  Sand 13                    | Fax:  x7071/295958
+  Wilhelm-Schickard-Institut | email:
+  D-72076 Tuebingen          | <loos@informatik.uni-tuebingen.de>
+  Germany
+
+Prof. Loos granted permission to use and distribute the ALDES compiler as
+basis for the ReDuX system.
+
+Please ask Prof. Loos for permission to redistribute and modify the compiler
+(appart from the modifications performed by the installation scripts).
+

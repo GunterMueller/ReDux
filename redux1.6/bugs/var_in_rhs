@@ -1,0 +1,35 @@
+From sinz@rocknroll.informatik.uni-tuebingen.de Wed Jan 24 16:48:57 1996
+Return-Path: <sinz@rocknroll.informatik.uni-tuebingen.de>
+Received: from rocknroll.informatik.uni-tuebingen.de by orgel.informatik.uni-tuebingen.de (4.1/SMI-4.1)
+	id AA03003; Wed, 24 Jan 96 16:48:56 +0100
+Received: by rocknroll.informatik.uni-tuebingen.de (4.1/SMI-4.1)
+	id AA01918; Wed, 24 Jan 96 16:49:04 +0100
+Date: Wed, 24 Jan 96 16:49:04 +0100
+From: sinz@rocknroll.informatik.uni-tuebingen.de (Carsten Sinz)
+Message-Id: <9601241549.AA01918@rocknroll.informatik.uni-tuebingen.de>
+To: buendgen@rocknroll.informatik.uni-tuebingen.de
+Subject: Redux-parser: neue Vars in  RHS
+Status: RO
+
+Hallo Reinhard!
+
+Beim Einfuehren neuer Variablen auf der rechten Regelseite tritt
+beim Normalisieren der genannte Fehler in TNCMAC auf. Mit gdb:
+#0  0x23ad4 in TNCMAC ()
+#1  0x23aa4 in TNCMAC ()
+#2  0x23aa4 in TNCMAC ()
+#3  0x238b0 in TBCMAC ()
+#4  0x23650 in TAPPLE ()
+#5  0x13d9c in TNRISE ()
+#6  0x13ad0 in TNRISE ()
+#7  0x13ad0 in TNRISE ()
+#8  0x13338 in TIRDSE ()
+#9  0x9f00 in NORMAL ()
+#10 0x4660 in main ()
+
+Tschuess
+   Carsten
+
+P.S.: Program received signal SIGSEGV, Segmentation fault.
+0x23ad4 in TNCMAC ()
+

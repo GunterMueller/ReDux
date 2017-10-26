@@ -1,0 +1,399 @@
+[Stack-size:]
+    pragma TMU=700000.
+[Heap-size:]
+    pragma TNU=2560000.
+
+[ #include tp.h ]
+
+                    TRDEMO.
+[Main, random term generation demo program.]
+
+[ #include globs.h ]
+[ #include trandglobs.h ]
+[ *** Global Safe Variables ***]
+
+[ ******************************************************************** ]
+[ ***                       Important Note                         *** ] 
+[ ***                       ==============                         *** ]
+[ *** Do not use the following local variables:                    *** ]
+[ ***                                           d*     (= DLS)     *** ]
+[ ***                                           D'*    (= DPS)     *** ]
+[ ***                                           D**    (= DSS)     *** ]
+[ ***                                           D~*    (= DTS)     *** ]
+[ *** The following choices of local variables may cause future    *** ]
+[ *** clashes:                                                     *** ]
+[ ***          d', d^, d~, d_, and                                 *** ]
+[ ***          Dxy where x,y in {',*,^,~,_}                        *** ]
+[ ******************************************************************** ]
+
+[Symbols:]
+      [Name:   Ext Name:    Kind:        Meaning/Mnemonic:             ]
+      [=====   =========    =====        =================             ]
+global DAC.  
+safe   DAC.  [ "AC"        property     AC-status: unification status  ]
+global DAK.
+safe   DAK.  [             indicator    Algorithm key (interpreter)    ]
+global DAS.
+safe   DAS.  [ "AXIOMS"    grammarsym.  axiom symbol                   ]
+global DAV.
+safe   DAV.  [ "ARGVAR"    indicator    variable of argument type      ]
+global DCB.
+safe   DCB.  [ ")"         grammarsym.  closing bracket                ]
+global DCM.
+safe   DCM.  [ user        grammarsym.  comment symbol                 ]
+global DCO.
+safe   DCO.  [ "COM"       property     comutative: unification status ]
+global DCR.
+safe   DCR.  [ "ROUND"     indicator.   2nd ROUNDFIX Operator Symbol   ]
+global DCS.
+safe   DCS.  [ "CONST"     grammarsym.  constant symbol                ]
+global DEF.
+safe   DEF.  [ "PREFIX"    grammarsym.  Prefix symbol                  ]
+global DES.
+safe   DES.  [ "END"       grammarsym.  end symbol                     ]
+global DFS.
+safe   DFS.  [ "FIX"       indicator    Operator Fixing                ]
+global DIF.
+safe   DIF.  [ "INFIX"     grammarsym.  Infix Symbol                   ]
+global DIS.
+safe   DIS.  [ "POLY"      indicator    polynomial interpretation      ]
+global DLF.
+safe   DLF.  [ "LISP"      grammarsym.  Lisp notation symbol           ]
+global DLS.
+safe   DLS.  [ "-"         grammarsym.  link symbol                    ]
+global DNS.
+safe   DNS.  [ ":"         grammarsym.  enumeration symbol             ]
+global DOB.
+safe   DOB.  [ "("         grammarsym.  opening bracket                ]
+global DOS.
+safe   DOS.  [ "OPS"       grammarsym.  operator symbol                ]
+global DPF.
+safe   DPF.  [ "POSTFIX"   grammarsym.  Postfix symbol                 ]
+global DPS.
+safe   DPS.  [ "=="        grammarsym.  prooduction symbol             ]
+global DRF.
+safe   DRF.  [ "ROUNDDFIX" grammarsym.  Roundfix Symbol                ]
+global DRS.
+safe   DRS.  [ ","         grammarsym.  repeater symbol                ]
+global DSH.
+safe   DSH.  [ "HASH"      indicator    suitable for hashing           ]
+global DSS.
+safe   DSS.  [ "."         grammarsym.  seperator symbol               ]
+global DST.
+safe   DST.  [ "CSBTERM"   indicatol    constrained subterms           ]
+global DTS.
+safe   DTS.  [ "TYPE"      grammarsym.  type symbol                    ]
+global DUS.
+safe   DUS.  [ "USTAT"     indicator    unification status             ]
+global DVS.
+safe   DVS.  [ "VARS"      grammarsym.  variable symbol                ]
+global DXR.
+safe   DXR.  [ "EXT.RULE"  indicator    extension rule                 ]
+global KIND.
+safe   KIND. [             indicator    kind indicator                 ]
+global IDENT.
+safe   IDENT.[             property     identifyer: kind               ]
+global XIDNT.
+safe   XIDNT.[             property     extraordinary identifyer: kind ]
+global INT.
+safe   INT.  [             property     integer: kind                  ]
+global GRSYM.
+safe   GRSYM.[             property     grammar symbol: kind           ]
+global FLAT.
+safe   FLAT. [             indicator    external name                  ]
+[* external *]
+global DXT.
+safe   DXT.  [ "EXTERNAL"  grammarsym.  external term symbol           ]
+global DXDA.
+safe   DXDA. [ "XDEC"      indicator    external type decompose algo   ]
+global DXIA.
+safe   DXIA. [ "XINT"      indicator    external type interpretation   ]
+global DXLA.
+safe   DXLA. [ "XLT"       indicator    external type less-than-algo   ]
+global DXQA.
+safe   DXQA. [ "XEQ"       indicator    external type equal algorithm  ]
+global DXRA.
+safe   DXRA. [ "XREAD"     indicator    external type read algorithm   ]
+global DXWA.
+safe   DXWA. [ "XWRITE"    indicator    external type write algorithm  ]
+global DXOP.
+safe   DXOP. [ "XTOO"      indicator    external type to operator      ]
+global DXCO.
+safe   DXCO. [ "COERC"     indicator    external type coercion operator]
+global DXTA.
+safe   DXTA. [ "XTERM"     indicator    external type
+                                        term-from-external algorithm   ]
+global DXFG.
+safe   DXFG. [ "XFG"       indicator    external type free generator   ]
+global DXCN.
+safe   DXCN. [ "XCONSTRUCTORS" indicator external type constructors
+                                        needed vor de-evaluation.]
+
+
+
+[Variables used by parser.]
+global SYM. safe SYM. [ Symbol scanned last. ]
+
+[Symbols for term orderings.]
+global KBOI.  safe KBOI.        [Knuth-Bendix ordering: operator index.]
+global KBOW.  safe KBOW.       [Knuth-Bendix ordering: operator weight.]
+global POASK. safe POASK. [Path-Ordering: undetermined relations.]
+global POGEQ. safe POGEQ. [Path-Ordering: greater operators.]
+global POLEQ. safe POLEQ. [Path-Ordering: smaller operators.]
+global POSTS. safe POSTS. [Path-Ordering: lexicographical status.]
+
+[Trace flags:]
+global AATRC. safe AATRC. [Axiom application trace.]
+global CETRC. safe CETRC. [Counter example trace.]
+global CPTRC. safe CPTRC. [Critical pair trace.]
+global DLTRC. safe DLTRC. [Top set tree node deletion trace. ]
+global EXTRC. safe EXTRC. [Node extension trace.]
+global IETRC. safe IETRC. [Inessential critical pair trace.]
+global PITRC. safe PITRC. [Polynomial interpretation ordering trace.]
+global PNTRC. safe PNTRC. [Procedure name trace.]
+global POTRC. safe POTRC. [Path ordering trace.]
+global STRC.  safe STRC.         [Substitution trace.]
+global TOTRC. safe TOTRC. [Term ordering trace.]
+global TRC1. safe TRC1.   [Formula reduction trace.]
+global TRC2. safe TRC2.   [Theorem derivation trace.]
+global TRC3. safe TRC3.   [Proved  theorems  trace.]
+global AUTOM. safe AUTOM.       [Automatic mode flag.]
+global TETRC. safe TETRC. [Term evaluation trace.]
+
+[Global time accumultators.]
+global CTI. safe CTI.  [Copy time.]
+global ETI. safe ETI.  [Evaluation time.]
+global GTI. safe GTI.  [Ground reducibitilty test time.]
+global MTI. safe MTI.  [Matching time.]
+global OTI. safe OTI.  [Orientation time.]
+global PTI. safe PTI.  [Preconditioning time.]
+global RTI. safe RTI.  [Reduction time.]
+global STI. safe STI.  [Scheduling time.]
+global STPWT. safe STPWT. [Stop watch.]
+global UTI. safe UTI.  [Unification time.]
+
+[Global counters.]
+global CC. safe CC.  [Connected pair counter.]
+global MC. safe MC.  [Match counter.]
+global NC. safe NC.  [term/node counter.]
+global OC. safe OC.  [Orientation counter.]
+global RC. safe RC.  [Redution counter.]
+global UC. safe UC.  [Unification counter.]
+
+[!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
+
+[--- global variables for parser ---]
+
+[global variables for operator properties
+ DOA: operator associativity; DNA: none, DLA: left, DRA: right
+ DOP: operator precedence]
+global DOA. safe DOA.
+global DOP. safe DOP.
+global DNA. safe DNA.
+global DLA. safe DLA.  
+global DRA. safe DRA.
+
+global DFF. safe DFF.    [fixity: function, i.e. prefix with braces]
+
+[terms t in braces (safe terms) are terms with TCONT t and TSIGN
+ DBS, where DBS is the bracket signature object.]
+global DBS.              [bracket signature object]
+global DBN. safe DBN.    [bracket object name]
+
+[operator default indicator properties]
+global DDF. safe DDF.    [default fixity; 1: default]
+
+[external: tokens returned from scanner]
+global DXRF. safe DXRF.  [roundfix]
+global DXEF. safe DXEF.  [prefix]
+
+[global variable containing start symbol]
+global STSYMB. safe STSYMB.
+[parse variable dictionary for exchange: parser - ALDES]
+global PDXVRS.
+
+[ambiguity list property]
+global DAM. safe DAM.    [ambiguity list]
+
+[global variable containing output mode]
+global OTMODE. safe OTMODE.
+
+[Global variable containing information about normalization ]
+[strategy.                                                  ]
+
+global NSTR. safe NSTR.
+
+[This file contains some constant declarations and definitions
+of global variables for the ReDuX random term generator.
+
+The ReDuX random term generator needs version 3.7 (or above) of the
+ALDES compiler to compile properly:
+
+Due to a bug in the ALDES translator before version 3.7, multiply
+indexed global unsafe arrays can't be used with these versions of the
+translator. To avoid their usage, singly indexed arrays can be defined
+which are accessed via macros that map the n-tuple of indices to an
+index in the singly indexed array.  In the macro invocations,
+parentheses have to be used instead of the square brackets which select
+array components.
+
+To translate the random term generator with an ALDES version prior to
+3.7, comment out the declarations of multiply indexed arrays and
+uncomment the declarations of  the corresponding singly indexed array
+and the appropriate macro declaration. Replace every occurence of one
+of the multiply indexed array by the corresponding macro, i.e.
+parantheses have to be replaced by square brackets.]
+
+[The following constant declarations are used to determine the
+dimension of global arrays.]
+
+const MAXPOS=2000,    [Max. # of positions in NT2TE, i,e, if MAXPOS is
+                       set to 100, terms with extents from 0 to 100 can
+                       be generated.
+                       MAXPOS must set to a positive value.]
+      MAXDEPTH1=100, [Max. depth plus 1 in NT2TD, i.e. if MAXDEPTH1 is
+                      set to 100, terms with depths from 0 to 99 can be
+                      generated.
+                      MAXDEPTH1 must be set to a non-negative value.]
+      MAXSORTS=10,   [Max. # of sorts.]
+      MAXDOMS=10,    [Max. # of domains.]
+      MAXOPPS=10,    [Max. # of non-nullary operators per sort.]
+      MAXARITY=5,    [Max. arity of all operators.]
+      MAXATOM=30,    [Max. # of atomic terms per sort.]
+      MAXPOSINSTATS=10000.
+                     [Max. # of positions which are considered
+                      in the statistics routine TRGSPD.]
+
+
+[The following definitions of global variables and macro-declarations
+are used to handle information about the signature of the ReDuX data
+type.  They start all with the prefix SD which is an abbreviation for
+``signature descriptor''.]
+
+global SDNAM. safe SDNAM.
+          [Name of ReDuX data type.]
+
+global SDSRT[MAXSORTS+1].
+          [Sorts, last component contains actual # of sorts.]
+
+global SDDOM[MAXDOMS+1].
+          [Domains, last component contains actual # of domains.]
+
+global SDOPS[MAXSORTS,MAXOPPS+1].
+[global SDOSP[MAXSORTS*(MAXOPPS+1)].
+const  SDOPS(s,o) = SDOSP[(s-1)*(MAXOPPS+1) + o].]
+          [Non-nullary operators separated according to rtyp.
+           The components SDOPS(s,MAXOPPS+1) contain the actual
+           # of operators of rtyp s.]
+
+global SDATM[MAXSORTS,2,MAXATOM+1].
+[global SDATP[MAXSORTS*2*(MAXATOM+1)].
+const  SDATM(s,d,a) = SDATP[((s-1)*2+(d-1))*(MAXATOM+1)+a].]
+	       [Atomic terms (constants, variables, nullary operators
+		     and external operators (with fixed TCONT-field))
+		     separated according to sort and depth (0 or 1).
+		     The components SDATM(s,d,MAXATOM+1) contain the
+		     actual # of atomic terms of sort s and depth d+1.]
+
+ 
+[The following variable definitions and macro-declarations
+represent $\bar{N}_i$ (i=1,2,3).]
+
+global NB1[MAXPOS].
+
+global NB2[MAXPOS,MAXSORTS].
+[global NB2P[MAXPOS*MAXSORTS].
+const  NB2(p,s) =  NB2P[(p-1)*MAXSORTS + s].]
+
+global NB3[MAXPOS,MAXSORTS,MAXOPPS].
+[global NB3P[MAXPOS*MAXSORTS*MAXOPPS].
+const  NB3(p,s,f) = NB3P[((p-1)*MAXSORTS+s-1)*MAXOPPS+f].]
+
+
+[The following variable definitions and macro-declarations
+represent $\bar{M}_i$ (i=1,2,3).]
+
+global MB1[MAXDEPTH1].
+
+global MB2[MAXDEPTH1,MAXSORTS].
+[ --- no multi-dimensional arrays available:
+ global MB2P[MAXDEPTH1*MAXSORTS].
+ const  MB2(d,s) =  MB2P[(d-1)*MAXSORTS + s].
+]
+
+global MB3[MAXDEPTH1,MAXSORTS,MAXOPPS].
+[--- no multi-dimensional arrays available:
+ global MB3P[MAXDEPTH1*MAXSORTS*MAXOPPS].
+ const  MB3(d,s,f) = MB3P[((d-1)*MAXSORTS+s-1)*MAXOPPS+f].
+]
+
+
+global DIPOS. safe DIPOS.
+   [Data initialized for number of positions.  The global data arrays
+    NB1, NB2, NB3 are initialized for terms with up to DIPOS
+    positions.  DIPOS=0: The global arrays NB1, NB2, NB3 are
+    un-initialized.]
+
+global DIDPT. safe DIDPT.
+   [Data initialized for depth.  The global data arrays MB1, MB2, MB3
+    are initialized for terms with depth up to DIDPT.
+    DIDPT=-1: The global arrays MB1, MB2, MB3 are un-initialized.]
+
+global TGTRC. safe TGTRC.
+   [Term generation trace.
+    TGTRC=1: Some trace information is displayed while the terms
+    are constructed.]
+
+[ *** end of global safe variables *** ]
+
+     safe DUNIT,CRT.    [i/o units.]
+     safe C^, c, c'.    [user input.]
+
+(1)  [Initialize ReDuX system.] BGNRWD(5).
+(2)  [Output breadth: 80 characters.] RMARG:=79.
+(3)  [Term generation trace off.] TGTRC:=0.
+(4)  [Use file.4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.] 
+     STOUTL("-><--><--><--><--><--><--><--><--><--><--><--><-");
+     STOUTL("|                                              |");
+     STOUTL("|    ReDuX - random term generation program    |");
+     STOUTL("V                                              V");
+     STOUTL("->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-");
+     BLINES(1); STOUTL("           [$Revision: 1.2 $]  ");
+     BLINES(1).
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=-CLOCK(); DT:=DTPRS(); t:=t+CLOCK();
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.").
+(8)  [Set input unit back to keyboard.] IUCHNG(CRT); ISIZE:=80.
+(9)  [Write data type.] BLINES(1); t:=-CLOCK(); DTWRT(DT); t:=t+CLOCK();
+     STROUT("Display time: "); GWRITE(t); STOUTL(" ms."); BLINES(1);
+     STOUTL("Ready? *"); READ; C^:=CREAD().
+(10) [Initialize menu variables.] c:=0; c':=0;
+     [Initialize signature descriptor.] SDINIT(DT); DIPOS:=0; DIDPT:=-1.
+(11) [Main menu.] BLINES(1); case c of
+       { 0 do { BLINES(1); c:=TRMENU(); BLINES(1); goto 11 };
+         1 do SDWRIT;
+         2 do GDWRTI;
+         3 do { GDINII() };
+         4 do { TENUM };
+         5 do { TRGENI() };
+         6 do { TRGNIH() };
+         7 do { TRSTAT() };
+         8 do { STROUT("The term generation trace is turned ");
+                if TGTRC then {
+                   TGTRC:=0; STOUTL("off.") }
+                else {
+                   TGTRC:=1; STOUTL("on.") }
+              };
+         9 do { STROUT("The garbage collection messages are turned ");
+                if GCM then {
+                   GCM:=0; STOUTL("off.") }
+                else {
+                   GCM:=1; STOUTL("on.") }
+              };
+         10 do QOPMOD;
+         11 do [Quit.] goto 99;
+        }; c':=c; c:=TRSMEN(); goto 11.
+(99) [Finish up.] ENDS ||
+

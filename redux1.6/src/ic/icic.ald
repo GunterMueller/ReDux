@@ -1,0 +1,247 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICIC -- Inductive Completion
+   modulespecification: algorithms for inductive completion
+                        section 2 is the same as in TCKB6
+                        Variables are represented in a unique way.
+   programmer         : Wolfgang Kuechlin/Reinhard Buendgen             
+   language           : aldes                                           
+   last change        : 17.05.88  02.08.88 08.02.91
+                        bug concerning Huet's test fixed in ICP
+                        steps 5 and 7. [RB]
+                        $Date: 1995/07/25 10:08:21 $
+                        by $Author: buendgen $
+   version            : 7 without labels                                
+                        inessential critical pairs may reduce           
+                        essential critical pairs                        
+                        `context free' critical pair generation
+                        formerly icpic1
+                        uses ICPR based on [BK89]
+                        $Revision: 1.2.1.8 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp,                      
+                        ic/icd, ic/icr, ic/iccp,                        
+                        ic/ica, ic/icip, ic/icpi                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+
+     const                                                             
+     TNORM(T,A)=TIREDS(T,A),                                           
+               [TNORM computes a normal form of term T under           
+                 the set of axioms A.]                                 
+     STRATV(CP)=CPMSIZ(CP).                                            
+               [STRATV computes the value of critical pair CP          
+                according to the current strategy.]                    
+                                                                       
+[--------------------------------------------------------------------- 
+     section 1.                                                         
+     The inductive completion algorithm.                                
+-----------------------------------------------------------------------]
+ 
+                    D*:=EKBIC(T,DT,A_,C*,G,O) 
+[Extended Knuth-Bendix procedure for inductive completion.             
+T is a set of axioms the first of which is assumed to be the theorem to 
+proved and the remaining are additional lemmas to be proved in parallel.
+DT is a data type. A_ is a subset of the axioms in DT which is the basic 
+axiom set with regard to which inductive reducibility is tested. C* is 
+the set of constructors in the data type and G is a top set tree for the 
+algebra T(C*). O is a string. It determines which orderings will be used 
+during the completion process automatically.  Empty string means no 
+automatic ordering.
+Then, if the algorithm terminates and D*  not equal nil,  then T is an 
+inductive theorem of DT  and the term-rewrite system of D* is such that 
+all critical pairs are connected  below  their superpositions  with 
+respect to the reduction relation. DT is destroyed.  The Knuth-Bendix 
+ordering is accessible. If it is used for  ordering of the axioms in D*, 
+then, upon termination, the rewrite system of D* is  confluent. 
+If D* = nil then T is not valid in DT.
+ local variables:
+ (1) queues: Q1: old axioms, Q2: essential crit. pairs,
+             Q3 delayed ess. crit. pairs
+             Q4 inessential crit. pairs
+ (2) statistics: s1 = |Q1|, s2 = |Q2|, s3 = |Q3|,
+                 S0 statistic list of s1+s2+s3 for every loop.
+ (3) Ind. complete positions: I is a list of IC-lists, i is an IC-list.]
+
+     safe N~*,C~*,V~*,F~*,M,V,N,n,n1,n2,C^.                   
+     safe FREE, OK.
+     safe s0,s'0,s1,s2,s3.                                         
+(1)  [Initialize.] DTDIS(DT; N~*,C~*,V~*,F~*,A); ICMINT(N~*);
+     [Init rules.] A*:=A; 
+     [Next rule number.] A':=A; n:=1; while A' # () do
+     { ADV(A'; a',A'); n:=MAX(ANUM(a'),n) }; n:=n+1; 
+     T':=T; while T' # () do  { ADV(T'; t,T'); ANUM(t):=0 };
+     [Init global timers.] UTI:=0; RTI:=0; MTI:=0; CTI:=0; STI:=0; 
+     OTI:=0; [Init global counters.] UC:=0; MC:=0; RC:=0; CC:=0; OC:=0;
+     [Init queues.] Q1:=T; Q2:=(); Q3:=(); Q4:=();
+     [Init statistics.] S0:=(); s1:=0; s2:=0;s3:=0.
+(2)  [Set trace options and step mode.] AUTOM:=QCTS0().
+(3)  [Compute free constructors.] C**:=FREECS(C*,A_).
+(4)  [Terminate successfully.] if Q1=() /\ Q2=() /\ Q3=() then       
+     { MPROOF(A_,A*,FIRST(T),N~*); MEXIT(N~*,(),S0); 
+       D*:=DT; DTAX(D*):=A*; return 
+     }.
+(5)  [Select M=N.] if Q1 # () then                                    
+     {ADV(Q1;a,Q1); ADIS(a;n2,M,V,N,n1); a:=CPCONS(M,N,0,n2,())}   
+     else if Q2 # () then                                              
+      if HYPSEL(Q2,Q4) = ESS then [Treat essential crit. pair next.]
+       {ADV(Q2; a,Q2); M_:=CPLHS(a); N_:=CPRHS(a); s2:=s2-1; goto  7} 
+      else [Treat inessential crit. pair next.] ADV(Q4; a,Q4)
+     else {ADV(Q3; a,Q3); s3:=s3-1}.
+(6)  [Normal forms.] MCPC(a); M:=CPLHS(a); N:=CPRHS(a);
+     M_:=TNORM(M,A*); N_:=TNORM(N,A*);
+     [Huet's test or equality.] if TSIGN(M_) = TSIGN(N_) then
+      if TEQU(M_,N_) then { MCPDEL(a); goto  4 }
+      else if TSOOCC(M_,C**) # () then 
+       { CPLHS(a):=M_; CPRHS(a):=N_; CP:=LIST1(a); IP:=(); goto 10 };
+     CPLHS(a):=M_; CPRHS(a):=N_.
+(7)  [New axiom.] C^:=QCA(n,a,DT,A*,Q2,O);
+     if C^='S' then TRPCVS(M_,N_; L,R,V*);
+     if C^='R' then TRPCVS(N_,M_; L,R,V*);
+     if C^='B' then {s3:=s3+1; Q3:=SUFFIX(Q3,a); goto  5};
+     if C^='Q' then {s2:=s2+1; Q2:=SUFFIX(Q2,a); goto  5};
+     if C^='F' then { MSSUIF; goto 7 };
+     if C^='E' then                                                    
+     {D*:=DT; DTAX(D*):=A*; STAPRT(INV(S0)); return}.
+(8)  [Test for ground reducibility]                                  
+      [Huet's test - negative case.] 
+      if TSIGN(L) # TSIGN(R) /\ TSOOCC(L,C**) # () /\ TSOOCC(R,C**) # ()
+      then { D*:=(); MDISPR(T); return };
+      [Test if variable of ground reducible type in L.]
+      V_:=V*; OK:=TRUE; while V_ # () /\ OK do
+      {ADV(V_; v_,V_); v^:=TTYPE(v_); C_:=C*; OK:=FALSE;
+       repeat ADV(C_; c_,C_); if ORTYPE(c_)=v^ then OK:=TRUE 
+       until OK \/ C_=() 
+      }; if ~ OK then { i:=((), ()); goto 9 };
+      [Extended ground rducibility test.] 
+      GTI:=GTI-CLOCK(); I:=ICPR(L,A_,C*,G); GTI:=GTI+CLOCK();
+      if I=() then {D*:=(); MDISPR(T); return}                        
+      else [Choose ind. compl. position set] i:=QCPS(L,I);
+      a:=ACONS(n,L,V*,R).
+(9)  [Reduce old pairs.] s2:=s2+CC;
+      CPLCLR(Q2,a; Q2,C^); s2:=s2-CC; A*:=COMP(a,A*); 
+      CPOLNF(C^,A*; CP,s0,s'0); Q2:=LOISE(Q2,CP,s'0);s2:=s2-s0+s'0;
+     [Reduce inessential pairs.] CPLCLR(Q4,a; Q4,C^); 
+      CPOLNF(C^,A*; CP,s0,s'0); Q4:=LOISE(Q4,CP,s'0);
+     [New unconnected pairs.] A*:=RED(A*); ASCPUI(A*,a,i; EP,IP);
+      A*:=ALINS(A*,a);  MCCPC(EP,IP);
+     [TRACE] if IETRC=1 then MCIECP(IP);
+     [Immediate reduction.] C^:=EP; CP:=(); CPNLNF(C^,A*; CP,s0,s'0);
+      C^:=IP; IP:=(); CPNLNF(C^,A*; IP,s4,s'4).
+(10) [Decompose crit. pairs with common free top constructors. 
+      For c in CP => not TEQU(LHS(c),RHS(c))!] 
+     if C** # () then
+     { C^ := CP; CP := CPDFTC(C^,C**); C^ := IP; IP := CPDFTC(C^,C**);
+       s'0 := LENGTH(CP); s'4 := LENGTH(IP) };
+     [Statistics.] if s0 > 0 then {MCPSC(s0,n); s1:=s1+s0;
+      MCSCLR(s'0); s2:=s2+s'0}; s0:=s2+s3; S0:=COMP(s0,S0);
+      MSTAT(s1,s0);
+     [Add new essential pairs.] Q2:=LOISE(Q2,CP,s'0);
+     [Add new inessential pairs.] Q4:=LOISE(Q4,IP,s'4);
+     CP:=(); n:=n+1; goto  4 ||                                       
+ 
+[--------------------------------------------------------------------  
+     Section 2.                                                         
+     Subalgorithms: equation splitting a la [HH80].
+----------------------------------------------------------------------]
+ 
+ 
+                    C:=CPDFTC(CP,O*)
+[Decomposition of critical pairs with (common) free top constructors.
+CP is a list of critical pairs consisting of non-equal terms each,
+O* is a list of operators  and constants (free constructors). 
+Then C is is a list of critical pairs s.th. cp=(t',t'') is in C iff 
+1. the top operarators of t' and of t'' are either not the same or 
+   are not in O* and 
+2. cp is in CP or there is a critical pair P=(T',T'') in CP and a 
+   position p s.th. t'=T'/p and t''=T''/p and for all prefixes u of p, 
+   T'(u) = T''(u) in O*.]
+     safe c,LHS,RHS,n1,n2,E.
+(1)  [Initialize.] C'' := CP; C := ().
+(2)  [For each c in CP, cut off common free top operators.]
+      while C'' # () do {
+        ADV(C''; c,C''); CPDIS(c; LHS, RHS, n1, n2, E);
+        if (TSIGN(LHS) = TSIGN(RHS)) /\ (TSOOCC(LHS,O*) # ()) 
+          then {C* := CPLNAL(c); C_ := C''; C'' := CONC(C*,C_)}
+          else {C := COMP(c,C)}  } ||
+
+                    C:=CPLNAL(c)
+[New critical pair list from argument lists.
+c=(t1,t2) is a critical pair where both terms t1, t2 have the same top 
+operator.
+Then C = (c1,...,ck) is a list of critical pairs ci=(ti sub 1, ti sub 2)
+s.th. ti sub 1 not equal to ti sub 2 and ti sub 1 = t1/lambda.i,
+and ti sub 2 = t2/lambda.i.]
+     safe LHS,RHS,n1,n2,E,A1,A2,a1,a2.
+(1)  [Initialize.] CPDIS(c; LHS,RHS,n1,n2,E); 
+     A1 :=OARGLST(LHS); A2 := OARGLST(RHS); C := ().
+(2)  [Assert equal arity.] if LENGTH(A1) # LENGTH(A2) then
+      STOUTL(" *** impossible situation in CPLNAL_2!").
+(3)  [Create critical pair list.] while A1 # () do
+      { ADV(A1; a1,A1); ADV(A2; a2,A2);
+        if ~ TEQU(a1,a2) then 
+        { TRPCVS(a1,a2; a'1,a'2,V);
+          c' := CPCONS(a'1,a'2,-ABS(n1),-ABS(n2),E);
+          CPW8(c') := STRATV(c'); C := COMP(c',C)
+      } }  ||
+
+[----------------------------------------------------------------------
+    Section 3 
+    algorithms to determine whether to consider an inessential critical 
+    pair to be proven ground subconnected                               
+-----------------------------------------------------------------------]
+
+                    s:=HYPSEL(EP,IP)                                   
+[Hypothesis selection.                                                 
+EP and IP are  lists of  critical pairs.  Then s = "ESS"  if the first 
+element of EP shall be proven ground subconnected first. s ="INESS" if 
+the first element of IP shall be proven ground subconnected first.]    
+                                                                       
+(1)  [Initialize.] s:=ESS.
+(2)  [Triv. Case.] if IP=() then return;
+     e':=FIRST(EP); i':=FIRST(IP).
+(3)  [Does i' reduce e'?] d:=CPRCP(e',i');
+     if d # 0 then s:=QCIH(e',i',d) ||                                
+ 
+                    d:=CPRCP(C1,C2)                                   
+[Critical pair reduces critical pair.                                  
+C1  and  C2  are  critical pairs.  Then  d = 0  if  the  rewrite rules 
+associated with C2 do not reduce C1. d = 1 if the rewrite rule derived 
+from straight ordering of C2 can reduce C1.  d = 2 if the rewrite rule 
+derived from  reverse ordering of  C2 can reduce  C1 and d = 3  if the 
+rewrite rules derived from either ordering reduce C1.]                 
+(1)  [Initialize.] d:=0; L2:=CPLHS(C2); R2:=CPRHS(C2);
+     TBVSLI(L2; V2,l_2); TBVSLI(R2; v2,L_2).
+(2)  [Straight reduction.] if INTSBS(v2,V2)=TRUE then                   
+       if TRCP(L2,V2,C1)=TRUE then d := 1.
+(3)  [Reverse reduction.] if INTSBS(V2,v2)=TRUE then                    
+       if TRCP(R2,v2,C1)=TRUE then d:=d+2||                           
+ 
+                    b:=TRCP(t,V,C')                                    
+[Term reduces critical pair.                                           
+t is A term. V is the set of free variables in t. C' is a             
+critical pair.  Then  b = TRUE  if t is non-atomic and t             
+reduces A term in C'.]                                                 
+(1)  [Initialize.] t':=t; b:=FALSE.
+(2)  [Triv. Case.] k:=TKIND(t'); if k=DCS then return;
+     if k=DVS then                                                     
+      { C:=VARBIND(t'); if C=() then return else {t':=C; goto 2} }.
+(3)  [Non-atomic t.] b:=TSMTH(t',V,CPLHS(CP));
+     if b=TRUE then return                                             
+     else b:=TSMTH(t',V,CPRHS(CP))||                                   
+
+[---------------------------------------------------------------------
+     Section 4.
+     Message handling.
+----------------------------------------------------------------------]
+
+                    ICMINT(N)
+[Message on initialization.]
+(1)  BLINES(1); 
+     STROUT("Extended Knuth-Bendix algorithm for inductive ");
+     STOUTL("completion.");
+     STOUTL("[$Revision: 1.2.1.8 $]"); 
+     WRITE; STROUT("Beginning completion of "); SWRT(N);
+     STOUTL("-data-type."); BLINES(1) ||

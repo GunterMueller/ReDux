@@ -1,0 +1,244 @@
+[ #include tp.h ]
+[ #include it.h ]
+[ #include ev.h ]
+[ #include globs.h ]
+
+[----------------------------------------------------------------------]
+[ Algorithms for export.                                               ]
+[----------------------------------------------------------------------]
+
+                    t*:=TNMEVI(t)
+[Term normalized by inner-most evaluation strategy.
+t is a free term.
+Then t* is computed from t by repeatedly evaluating and 
+de-evaluating its inner-most evaluation candidates.
+t* is normalized wrt. to the built-in partial evaluation domains
+if no two of these evaluation domains evaluate a common operator
+or constant. t is destroied.
+Bound variables are used to mark normalized subterms. These marks
+are set in the evaluation/de-evaluation phase and they are removed 
+during the pre-dictionary computation.]
+
+(1)  [Search inner-most evaluation candidates.] E:=TRPIEC((),t,());
+     if TETRC then { STROUT("TNMEVI (1): "); EVCLWR(E) }.
+(2)  [No evaluation candidates.] if E = () then
+     { [Remove marks.] TCMPRS(t; t*,V); return }.
+(3)  [Compute evaluation dictionaries.] D:=EVCLGD(E);
+     if TETRC then { STROUT("TNMEVI (3): "); LXSDCW(D) }.
+(4)  [Evaluate and de-evaluate evaluation candidates.] t*:=EVCLEV(E,D).
+(5)  if t* = () then
+     { if TETRC then { STROUT("TNMEVI (5): "); TWRT(t); WRITE };
+       goto 1
+     } ||
+
+[----------------------------------------------------------------------]
+[ Algorithms for interna use only.                                     ]
+[----------------------------------------------------------------------]
+
+                    EVCDIS(e; t,r,x)
+[Evalauation candidate, display.
+e=(t,r,x) is an evaluation candidate.]
+
+(1)  FIRST3(e; t,r,x) ||
+
+                    D*:=EVCLGD(E)
+[List of evaluation candidates, get common dictionary.
+E is a list of evaluation candidates.
+Then D* = (x1,D1, ...,xn,Dn) is a list of period 2 where the xi
+are external sorts and Di is the evaluation dictionary containing
+maximal alien terms of those terms of E that can be evaluated to
+external objects of sort xi.
+Terms bound to variables will not be considered. The terms in E
+may by structurally be modified.]
+
+(1)  [Initialize.] E':=E; D*:=().
+(2)  [Compute pre-dictionaries.] while E' # () do
+     { ADV(E'; e,E'); EVCDIS(e; t,r,x); 
+       [Get dictionary for x.] D':=ASSOC(x,D*);
+       if D' = () then 
+       { d:=EMPTYPDC; D':=COMP(d,D*); D*:=COMP(x,D') }
+       else d:=FIRST(D');
+       d':=TEGDIC(t,d,x); FIRST(D'):=d';
+       if TETRC then 
+       { STROUT("EVCLGD (2): "); TWRT(t); STROUT("  "); DCWRT(d') }
+     }.
+(3)  [Compute dictionaries from pre-dictionaries.] D':=D*;
+     if TETRC then { STROUT("EVCLGD (3): "); LXSDCW(D*) };
+     while D' # () do { ADV2(D'; x,d,D'); PDC2DC(d,x) } ||
+
+                    t*:=EVCLEV(E,D)
+[List of evaluation candidates, evaluate.
+E is a list of evaluation candidates and D = (x1,D1, ...,xn,Dn) is a 
+list of period 2 where the xi are external sorts and Di is the 
+evaluation dictionary containing maximal alien terms of those terms 
+of E that can be evaluated to external objects of sort xi.
+Then for each evaluation candidate e in E:
+if the replacement position r of i is not () then FIRST(r) will be
+set to the evaluation normalized term of e.
+If there is an evaluation candidate e in E whose replacement position
+is () then then t* is the evaluation normalized term of e otherwise
+t* = ().]
+
+(1)  [Initialize.] E':=E; t*:=().
+(2)  [For each evaluation candidate.] while E' # () do
+     { ADV(E'; e,E'); EVCDIS(e; t,r,x); 
+       [Get dictionary of external sort x.] D':=ASSOC(x,D); 
+       if D' = () then{ STOUTL("*** unexpected case in EVCLEV!"); HALT }
+       else d:=FIRST(D'); 
+       if TETRC then 
+        { STROUT("EVCLEV (2) evaluating "); TWRT(t); WRITE };
+       [Evaluate.] o:=TEVDIC(t,d,x); 
+       if TETRC then 
+        { STROUT("                      "); UWRITE(o); 
+          STROUT("dict after eval:      "); DCWRT(d);};
+       [De-evaluate.] t':=XO2TRM(o,x,d);
+       if TETRC then 
+        { STROUT("             yielding "); TWRT(t'); WRITE;
+          STROUT("dict after de-eval:   "); DCWRT(d);};
+       if r = () then t*:=t' else 
+       { v':=GET(TTYPE(t'),DVS); v:=TCONS(t',v'); FIRST(r):=v }
+     } ||
+
+                    t*:=TCMRS1(t)
+[Term, compress 1st level.
+t is a semi-bound term.
+t* is t where the outermost substitutions are performed.
+t is modified.]
+
+(1)  [Initialize.] t*:=t; k:=TKIND(t*).
+(2)  [Variable.] if k = DVS then 
+     { c:=VARBIND(t*); if c # () then t*:=c; return }.
+(3)  [Atomic term.] if k # DOS then return.
+(4)  [Non-atomic term.] A:=OARGLST(t*); while A # () do
+     { t':=FIRST(A); FIRST(A):=TCMRS1(t'); A:=RED(A) } ||
+
+                    D*:=TEGDIC(t,D,x)
+[Evaluable term, get dictionary.
+t is an evaluable term and D is a (pre-)dictionary. x is the
+external sort to which the top operator of t can be evaluated.
+Then D* is D augmented by new entries for all maximal alien terms
+in t. Terms bound to variables will not be considered. t will be
+modified such that equal (maximal) alien subterms are represented
+uniquely. Substitutions are performed.]
+
+(1)  [Initialize.] D*:=D.
+[     if TETRC then { STROUT("TEGDIC (1): "); TWRT(t); WRITE;
+                     STROUT("dictionary: "); DCWRT(D); 
+                     STROUT("Extenal sort: "); SWRT(x); WRITE
+                   }.
+]
+(2)  [Constant.] k:=TKIND(t); if k = DCS then return;
+     if k = DVS \/ k = DXT then
+      { STOUTL("*** unexpected case in TEGDIC ! "); return }.
+(3)  [Non-atomic term.] A:=OARGLST(t).
+(4)  [For all arguments ...] if A = () then return.		
+(5)  [Process first argument.] a:=FIRST(A).
+(6)  [a marked?] if TKIND(a) = DVS then
+     { a':=VARBIND(a); if a' # () then { FIRST(A):=a'; goto 5 } }.
+(7)  [Non-evaluabe.] if TGET(a,x) = () then
+     { s:=TDILUP(a,D*); if s # () then FIRST(A):=DCETERM(s)
+       else 
+       { a*:=TCMRS1(a); e:=DCECONS((),a*,STRFT(a*)); D*:=PDCINSE(e,D*) }
+     } else D*:=TEGDIC(a,D*,x);
+     A:=RED(A); goto 4 ||
+
+                    o:=TEVDIC(t,D,x)
+[Term evaluate wrt dictionary.
+t is a free term. D is a dictionary containing all maximal alien terms of 
+t. x is an external sort.
+Then t is evaluated to the external object o such that all non-evaluable
+subterms of t are evaluated according to D.]
+
+(1)  [Initialize.] k:=TKIND(t); F:=TGET(t,x);
+     if TETRC then { STROUT("TEVDIC (1):         "); TWRT(t); WRITE;
+                     STROUT("    dictionary:     "); DCWRT(D); 
+                     STROUT("    external sort:  "); SWRT(x); WRITE;
+                     STROUT("    interpretation: "); UWRIT1(F); WRITE
+                   }.
+(2)  [External object.] if k = DXT /\ FIRST(ODTYPE(t)) = x then
+     { O:=XOBJECT(t); if XOBJDIC(O) = D then { o:=XOBJINT(O); return } 
+       else { STOUTL("*** external object exception in TEVDIC!"); HALT}
+     }.
+(3)  [Non-evaluable.] if F = () then { o:=TDIVAL(t,D); return }.
+(4)  [Constant.] if k = DCS then 
+     { f:=ALGIDNT(GET(F,DAK)); o:=FCALL1(f,D); return }.
+(5)  [Non-atomic term.] U:=TUSTAT(t); A:=OARGLST(t).
+(6)  [Non-AC case.] if U # DAC then
+     { O:=(); while A # () do { ADV(A; a,A); O:=COMP(TEVDIC(a,D,x),O) };
+       O:=INV(O); [Tag dictionary onto argument list.] O*:=COMP(D,O);
+       o:=SGCALL(F,O*); return
+     }.
+(7)  [AC-case.] f:=ALGIDNT(GET(F,DAK)); ADV(A; a,A); o:=TEVDIC(a,D,x);
+      while A # () do
+      { ADV(A; a,A); o1:=o; o:=FCALL3(f,D,o1,TEVDIC(a,D,x)) } ||
+
+
+                    E:=TRPIEC(r,t,x)
+[Term and replacement position, get inner-most evaluation candidates.
+t is a term and r is its replacement position. x is an external sort or
+().
+The E is the list of the innermost evaluation candidates of t where
+terms bound to variables are assumed to be inevaluable. t may be a
+the term of an evaluation candidate only if the top symbol of t is
+evaluable to an extenal sort other than x.]
+
+(1)  [Initialize.] E:=().
+(2)  [Variable.] k:=TKIND(t); if k = DVS then return.
+(3)  [External object.] if k = DXT then return.
+(4)  [Possibly evaluable.] x':=TGET(t,DXT).
+(5)  [Non-atomic term.] if k = DOS then 
+     { A:=OARGLST(t); E':=(); L':=(); while A # () do
+       { a:=FIRST(A); E'':=TRPIEC(A,a,x'); if E'' # () then
+         { L'':=LAST(E''); if E' = () then  E':=E'' else RED(L'):=E'';
+           L':=L''
+         }; A:=RED(A)
+       }; if E' # () then { E:=E'; return }
+     }.
+(6)  [No inner evaluation candidates / t constant.]
+     if x' # () /\  x # x' then E:=LIST1(EVCCONS(t,r,x')) ||
+   
+                    t:=XO2TRM(o,x,D)
+[External object to term.
+o is an external object of external sort x. D is the evaluation
+dictionary associated with o.
+Then the term t is the result of de-evaluating o wrt. D.]
+     safe F,C,K,f.
+(1)  [Initialize.] F:=GET(x,DXTA); C:=GET(x,DXCN);
+     if F = () then 
+     { STOUTL("*** de-evaluation function missing in XO2TRM!"); HALT}.
+(2)  [De-evaluate.] K:=GET(F,DAK); f:=ALGIDNT(K);
+     if ALGIPAR(K) # 3 then
+     { STROUT(" *** Warning, unexpected arity in the term form ");
+       STOUTL("external term algorithm! ") 
+     } else t:=FCALL3(f,C,D,o) ||
+
+
+[----------------------------------------------------------------------]
+[ Algorithms for trace.                                                ]
+[----------------------------------------------------------------------]
+
+                    EVCWRT(e,N; N*)
+[Evaluation candidate write.
+e is an evaluation candidate. N is a variable dictionary. 
+Then N* is the update of N.]
+(1)  EVCDIS(e; t,r,x).
+(2)  CWRITE('('); TDIWRT(t,N;N*); CWRITE('/'); GWRITE(r-BETA);
+     CWRITE('/'); SWRT(x); CWRITE(')') ||
+
+                    EVCLWR(E)
+[Evaluation candidate list, write.
+E a list of evaluation candidates is written.]
+
+(1)  E':=E; N:=(); CWRITE('['); while E' # () do
+     { ADV(E'; e,E'); EVCWRT(e,N; N); if E' # () then CWRITE(',') 
+     }; CWRITE(']'); WRITE ||
+
+                    LXSDCW(D)
+[List of external sorts and evalaution dictionaries write.
+D=(x1,d1,...,xn,dn) where the xi are extenal sorts and the di are
+evaluation dictionaries.]
+
+(1)  D':=D; STROUT("--- start sorted dictionary list ---"); WRITE;
+     while D' # () do
+     { ADV2(D'; x,d,D'); SWRT(x); STROUT(":  "); DCWRT(d) };
+     STROUT("---- end sorted dictionary list ----"); WRITE ||

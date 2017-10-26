@@ -1,0 +1,31 @@
+#!/bin/csh
+
+set RDX=/home/buendgen/ReDuX
+#   ^^^^^^^           The previous line was modified by the ReDuX 
+#                     installation make file!
+set AMODULES="ac ax co ic it rd tc to tp" # trc uc"
+#   ^^^^^^^^          The previous line was modified by the ReDuX 
+#                     installation make file!
+set BIN="$RDX/bin"
+set SED="$RDX/tool/Kwic"
+
+
+foreach m ( $AMODULES )
+   $BIN/rhead $m
+   echo "removing "$m".mhd"
+   /bin/rm -f $m.mhd
+   sed -e "s/^/$m /" -e "/UNDOKUMENTED/d" -e "/BAD_SPECIFICATION/d" $m.hd >$m.mhd
+end
+
+set files=""
+foreach m ( $AMODULES )
+   set files=($files $m.mhd)
+end
+
+echo "removing redux.kwic"
+rm -f redux.kwic
+cat $files |kwic -W -Q > redux.kwic
+
+echo "removing rk.tex"
+rm -f rk.tex
+sed -f $SED/k2t.sed redux.kwic  > rk.tex

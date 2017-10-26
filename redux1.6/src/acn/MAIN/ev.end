@@ -1,0 +1,72 @@
+
+[ *** End of Global Safe Variables ***]
+
+     safe CRT, DUNIT.     [i/o units.]
+     safe t.              [time.]
+     safe N, C, V, A, A'. [components of data type.]
+     safe C^, c, c'.      [user input.]
+
+(1)  [Initialize ReDuX system.] BGNRWD(5).
+(2)  [Output breadth: 80 characters.] RMARG:=79.
+(3)  [Garbage collector messages on.] GCM:=1;
+     [ [ALDES trace settings.] TRMAX:=500; COUNT:=1 ]
+     [Reset timers.] RTI:=0; MTI:=0; CTI:=0; UTI:=0; OTI:=0; STI:=0;
+     ETI:=0; STPWT:=-CLOCK();
+     [Reset counters.] UC:=0; MC:=0; RC:=0;
+     [ReDuX traces off.] PNTRC:=0; CPTRC:=0; AATRC:=0; POTRC:=0; 
+     TOTRC:=0; TETRC:=0.
+(4)  [Use input stream 4 as input file for data type.] DUNIT:=4.
+(5)  [Welcome message.] 
+     STOUTL("-><--><--><--><--><--><--><--><--><--><--><--><-");
+     STOUTL("|                                              |");
+     STOUTL("|            ReDuX rewrite laboratory          |");
+     STOUTL("V                                              V");
+     STOUTL("->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-");
+     BLINES(1); STOUTL("           [$Revision: 1.1 $] "); 
+     BLINES(1).
+(6)  [Set input unit to stream 4.] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [Load data type.] STOUTL("Loading your data type ...");
+     t:=CLOCK(); DT:=DTPRS(); t:=CLOCK()-t; 
+     STROUT("Acception time: "); GWRITE(t); STOUTL(" ms.");
+     [Initialize built-in evaluations.] DTEVIN(DT).
+(8)  [Set input unit back to keybord.] IUCHNG(CRT); ISIZE:=80.
+(9)  [Write data type.] BLINES(1); t:=CLOCK(); DTWRT(DT); t:=CLOCK()-t;
+     STROUT("Display time: "); GWRITE(t); STOUTL(" ms."); BLINES(1);
+     STOUTL("Ready? *"); READ; C^:=CREAD().
+(10) DTDIS(DT; N,C,V,F,A); A*:=A.
+     [ [Create AC-extension rules.] DTDIS(DT; N,C,V,F,A); A':=A; 
+       STOUTL("Computing extension rules ..."); 
+       while A' # () do { ADV(A'; a,A'); a^:=APUTXR(a,A) }.
+     ]
+(11) [Initialize menu variables.] c:=0; c':=0;
+     [Initialize automatic orderings.] O0:=(); O*:=();
+     [Initialize normalization mode.] NSTR:=purenorm;
+     [??? Initialize hashed rewrites.] HRINIT(F).
+[     [??? Compute non-built-in rules.] A*:=RWOBIR(A);
+                          STOUTL("Non-built-in rules:"); ASWRT(A*).
+]
+(12) [Main menu.] CDT:=DT; BLINES(1); case c of 
+     {  choice0 do { BLINES(1); c:=ACMENU(c'); BLINES(1); goto 12 };
+        choicee do EQUALE(DT; t1,t2);
+        choicem do MATCHE(DT; t1,t2);
+        choiceu do UNIFYE(DT; t1,t2);
+        choiceE do EQUAL1(t1,t2);
+        choiceM do MATCH1(t1,t2);
+        choiceU do UNIFY1(t1,t2);
+        choicei do QCTOID(DT,O*; O0,O*);
+        choices do O*:=TORDSE(DT,O0);
+        choiceo do ORDAX(O*,DT);
+        choiceO do OADT(O*,DT);
+        choiceN do A*:=ININOR(DT);
+        choicen do NORMAL(DT,A*);
+        choicep do PROVE(DT, A*; t1,t2);
+        choicec do CRITP(DT);
+        choiceC do { D*:=COMPLT(DT,O*); DT:=D* };
+        choicew do DTWRT(DT);
+        choiceW do DTWRTF(DT);
+        choicer do CTRSET();
+        choiced do CTSHOW();
+        choicet do QCT0();
+        choiceq do [Quit.] goto 99;
+     }; c':=c; c:=SMENU(c'); goto 12.
+(99) [Finish up.] ENDS ||                                               

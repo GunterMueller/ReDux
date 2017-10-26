@@ -1,0 +1,37 @@
+[Project: ReDuX  AC-completion
+   module name        : AC
+   modulespecification: main algorithm to perform AC-unifications,
+                        -matches, -equality tests and -normalizations.
+                        external terms and commutative operators added.
+   programmer         : Reinhard Buendgen
+   language           : aldes
+   last change        : 24.08.89
+                        $Date: 1995/08/02 09:41:36 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   bugs               : non known
+   modules needed     : sac2 / ReDuX
+]
+
+[ #include evmenu.h ]
+[ #include ev.h ]
+
+ pragma TMU=512000.
+ [pragma TMU=1024000.]
+ [pragma TMU=1536000.]
+ [pragma TMU=2048000.]
+ [pragma TMU=3072000.]
+ [pragma TNU=512000.]
+ [pragma TNU=1024000.]
+ pragma TNU=2048000.
+ [pragma TNU=4096000.]
+ [pragma TNU=6524000.]
+ [pragma TNU=3584000.]
+ 
+                    EV.
+     [Rewrite laboratory.
+     Program to perform unifications, matches, equality tests,
+     normalizations and completions in algebras allowing for 
+     associative and commutative operators and built-in evaluation
+     domains.]
+

@@ -1,0 +1,24 @@
+GetPathOrdering (l)	- produce a path-ordering from a ReDuX specification file produced by blif2rdx
+GetPathOrdering (l)	- produce a path-ordering from a ReDuX specification file produced by blif2typ
+ReDuX_demo_scripts, AC, IC, TC, TO, TRD, TS, UC (l) - shell scripts to simplify usage of the ReDuX demo programs
+ReDuX_programs, ac, ic, tc, to, trd, ts, uc (l) - the ReDuX demo programs
+acheck (l)		- check ALDES source code
+ald (l)			- translate and link ALDES, C and object files
+aldr (l)		- translate and link ALDES, C and object files with ReDuX libraries
+asplit (l)		- split an ALDES file into a separate file for each algorithm
+blif2rdx (l)		- translates file in BLIF format into an algebraic specification for ReDuX 
+blif2typ (l)		- translates file in BLIF format into an algebraic specification for ReDuX 
+ccsplit (l)		- split an C file into a separate file for each function
+choosetype (l)		- copy ReDuX data type from type-directory to ./file.4
+dtcv (l)		- convert old ReDuX data types (*.typ) to new syntax (*.rdx)
+fald (l)		- find ALDES files recursively
+headers (l)		- extract algorithm headers from ALDES source text
+kwic (l)		- generate KWIC (keyword in context) index
+rgrep, regrep (l)	- recursive grep in ReDuX source code
+rhead (l)		- collect headers of ReDuX algorithms
+rincl (l)		- perform non-recursive includes in ALDES programs
+scat (l)		- find and display ALDES source text of a SAC-2 algorithm
+sgrep, segrep (l)	- recursive grep in SAC-2 source code
+start_redux (l)		- initialize shell variables to work with the ReDuX system
+tl (l)			- extract information from ReDuX data type files
+typ2rdx, typ2rdxdir (l) - convert old ReDuX data types to new syntax

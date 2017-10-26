@@ -1,0 +1,284 @@
+                    LDSMKB(A,b;x*,N)
+[Linear Diophantine system solution, modified Kannan Bachem algorithm.
+A  is an m by n integral matrix.  A  is represented column-wise.  b is
+an integral m-vector.  If the Diophantine system A*x=b is consistent,
+then x* is a particular solution and N is a list of basis vectors of
+the solution module of A*x=0.  Otherwise, x* and N are null lists.
+A  and b are modified.]
+     safe c,C1,C',C'1,C*,h,i,j,k,m,N,n,r,R',x*.
+(1)  [Adjoin identity matrix to A and zero vector to -b.]
+     n:=LENGTH(A);  C:=MIAIM(A);  B:=VIAZ(VINEG(b),n).
+(2)  [Initialize.]  m:=LENGTH(b);  C1:=FIRST(C);  j:=0;
+     repeat { j:=j+1;  ADV(C1;c,C1) } until c # 0;
+     R:=LIST1(j);  if j <= m then r:=1 else r:=0;  k:=1;
+     if n=1 then go to  5.
+(3)  [Eliminate column k+1 and augment row-sequence.]
+     C*:=REDUCT(C,k);  C*1:=FIRST(C*);  C':=C;  R':=R;
+     for h=1,...,k+1 do {   if h <= k then ADV(R';i,R')
+     else i:=m+n+1;  C'1:=C*1;  j:=0;  repeat { j:=j+1;
+     ADV(C'1;c,C'1) } until c # 0;  if j >= i then
+     {  if j=i then { C1:=FIRST(C');  VIUT(C1,C*1,i;C1,C*1);
+     SFIRST(C',C1) };  C':=RED(C')  } else { SFIRST(C*,C*1);
+     C:=LEROT(C,h,k+1);  R:=LEINST(R,h-1,j);  if j <= m then
+     r:=r+1;  go to  4 }   }.
+(4)  [Normalize off-diagonal elements.]  for j=h,h-1,...,1 do
+     {  C*:=REDUCT(C,j-1);  ADV(C*;T,C');  R':=REDUCT(R,j);
+     while R' # () do { ADV(C';C'1,C');  ADV(R';i,R');
+     T:=VIERED(T,C'1,i) };  SFIRST(C*,T)  };  k:=k+1;
+     if k < n then go to  3.
+(5)  [Check consistency of the system.]  for j=1,...,r do {
+       ADV(C;T,C);  ADV(R;i,R);  B:=VIERED(B,T,i) };  j:=0;
+     repeat { j:=j+1;  ADV(B;c,B) } until j=m \/ c # 0.
+(6)  [System consistent.]  if c=0 then {  C':=C;  while C' # () do
+     { C'1:=FIRST(C');  C'1:=REDUCT(C'1,m);  SFIRST(C',C'1);
+     C':=RED(C') };  x*:=B;  N:=C;  return  }.
+(7)  [System inconsistent.]  x*:=();  N:=() ||
+                    LDSSBR(A,b;x*,N)
+[Linear Diophantine system solution, based on Rosser's ideas.  A  is
+an m by n integral matrix.  A  is represented column-wise.  b is an
+integral m-vector.  If the Diophantine system A*x=b is consistent,
+then x* is a particular solution and N is a list of basis vectors of
+the solution module of A*x=0.  Otherwise, x* and N are null lists.  A
+and b are modified.]
+     safe b1,C',C2,m,N,n,s,x*.
+(1)  [Initialize.]  n:=LENGTH(A);  m:=LENGTH(b).
+(2)  [Adjoin identity matrix to A and zero vector to -b.]
+     C:=MIAIM(A);  B:=VIAZ(VINEG(b),n).
+(3)  [Sort columns of c.]  C:=MINNCT(C);  C:=MICS(C).
+(4)  [Pivot row zero.]  C1:=FIRST(C);  if FIRST(C1)=0 then go to  6.
+(5)  [Eliminate Pivot row.]  repeat {   B:=VIERED(B,C1,1);
+     C:=RED(C);  if C=() then s:=0 else {  C2:=FIRST(C);  s:=FIRST(C2);
+     if s # 0 then { C1:=VIERED(C1,C2,1);  C:=MICINS(C,C1);
+     C1:=C2 }  }   } until s=0;  n:=n-1.
+(6)  [System inconsistent.]  ADV(B;b1,B);  if b1 # 0 then
+     { x*:=();  N:=();  return }.
+(7)  [Remove Pivot row.]  C':=C;  while C' # () do { C1:=FIRST(C');
+     C1:=RED(C1);  SFIRST(C',C1);  C':=RED(C') };  m:=m-1.
+(8)  [Finished.]  if m > 0 then { if n > 0 then go to  3
+     else go to  6 };  x*:=B;  N:=C ||
+                    D:=MAIPDE(r,M)
+[Matrix of integral polynomials determinant, exact division algorithm.
+M is a square matrix of integral polynomials in r variables, r>=0,
+represented as a list.  D is the determinant of M.]
+     safe D,i,j,M'1,R2,R',t.
+(1)  [Initialize.]  M1:=M;  P:=0;  t:=1.
+(2)  [Matrix of order 1.]  if RED(M1)=() then { D:=FIRST(FIRST(M1));
+     if t < 0 then D:=IPNEG(r,D);  return }.
+(3)  [Find Pivot row, if possible.]  M'1:=M1;  i:=0;  repeat { i:=i+1;
+     ADV(M'1;R,M'1) } until FIRST(R) # 0 \/ M'1=().
+(4)  [No Pivot row.]  if FIRST(R)=0 then { D:=0;  return }.
+(5)  [Update sign.]  if EVEN(i) then t:=-t.
+(6)  [Compute M2.]  ADV(R;R1,R);  M2:=();  j:=0;  repeat {   j:=j+1;
+     ADV(M1;S,M1);  if j # i then {  ADV(S;S1,S);  S*:=();  R':=R;
+     repeat { ADV(R';R2,R');  ADV(S;S2,S);
+     S*2:=IPDIF(r,IPPROD(r,R1,S2),IPPROD(r,S1,R2));  if P # 0 then
+     S*2:=IPQ(r,S*2,P);  S*:=COMP(S*2,S*) } until R'=();
+     M2:=COMP(S*,M2)  }   } until M1=().
+(7)  [Prepare for next Pivot step.]  P:=R1;  M1:=M2;  go to  2||
+                    D:=MAIPDM(r,M)
+[Matrix of integral polynomials determinant, modular algorithm.  M is a
+square matrix of integral polynomials in r variables, r>=0.  D is the
+determinant of M.]
+     safe b,b',k,M',M1,M11,n,P,p,p',X.
+(1)  [Matrix of order 1.]  if RED(M)=() then { D:=FIRST(FIRST(M));
+     return }.
+(2)  [Compute norm bound.]  M':=M;  N:=();  repeat {  ADV(M';M1,M');
+     N1:=();  repeat { ADV(M1;M11,M1);  N11:=IPSUMN(r,M11);
+     N11:=ILOG2(N11);  N1:=COMP(N11,N1) } until M1=();  N:=COMP(N1,N)  }
+
+     until M'=();  ASSPR(N;X,b);  n:=LENGTH(M);  k:=DLOG2(n);
+     b:=n * k+b.
+(3)  [Apply chinese remainder theorem.]  P:=PRIME;  Q:=1;  b':=0;  D:=0;
+     repeat {  if P=() then { print "PRIME list exhausted in MAIPDM.";
+     stop };  ADV(P;p,P);  M*:=MAIPHM(r,p,M);  D*:=MMPDMA(r,p,M*);
+     p':=MDINV(p,MDHOM(p,Q));  D:=IPCRA(Q,p,p',r,D,D*);
+     Q:=IDPR(Q,p);  b':=b'+DLOG2(p)  } until b' >= b ||
+                    B:=MAIPHM(r,m,A)
+[Matrix of integral polynomials homomorphism.  A  is a matrix of
+integral polynomials in r variables, r>=0.  m is a positive
+beta-integer.  B is the matrix B_{ij} of polynomials in r variables
+over Z_m such that B_{ij}=H_m(A_{ij}).]
+     safe A',A1,A11.
+(1)  A':=A;  B:=();  repeat {  ADV(A';A1,A');  B1:=();  repeat
+     { ADV(A1;A11,A1);  B11:=MPHOM(r,m,A11);  B1:=COMP(B11,B1) }
+     until A1=();  B1:=INV(B1);  B:=COMP(B1,B)  } until A'=();
+     B:=INV(B) ||
+                    C:=MAIPP(r,A,B)
+[Matrix of integral polynomials product.  A  and B are matrices of
+integral polynomials in r variables, r>=0, for which the matrix
+product A*B is defined.  C=A*B.]
+     safe A',A'1,A1,A11,B1,B11.
+(1)  C:=();  A':=A;  repeat {   ADV(A';A1,A');  B':=B;  C1:=();
+     repeat {  C11:=0;  B*:=();  A'1:=A1;  repeat { ADV(A'1;A11,A'1);
+     ADV(B';B1,B');  ADV(B1;B11,B1);  C11:=IPSUM(r,C11,
+     IPPROD(r,A11,B11));  B*:=COMP(B1,B*) } until B'=();
+     B':=INV(B*);  C1:=COMP(C11,C1)  } until FIRST(B')=();
+     C1:=INV(C1);  C:=COMP(C1,C)   } until A'=();  C:=INV(C) ||
+                    B:=MIAIM(A)
+[Matrix of integers, adjoin identity matrix.  A  is an m by n matrix
+of integers.  A  is represented column-wise.  B is the matrix obtained
+by adjoining an n by n identity matrix to the bottom of A.  A  is
+modified.]
+     safe i,j,n.
+(1)  n:=LENGTH(A);  A':=INV(A);  B:=();  for i=1,...,n do
+     { ADV(A';A1,A');  T:=();  for j=1,...,n do if i=j
+     then T:=COMP(1,T) else T:=COMP(0,T);  A1:=CONC(A1,T);
+     B:=COMP(A1,B) } ||
+                    B:=MICINS(A,V)
+[Matrix of integers column insertion.  A  is an m by n integral matrix
+represented by the list (A_1,A_2,...,A_n), where A_i is the list
+(a_{1i}, ...,a_{mi}) representing column i of A  and a_{11}>=a_{12}>=
+ ... >=a_{1m}.  V=(v_1,...,v_m) is an integral vector with v_1<a_{11}. 
+Let i be the largest integer such that a_{1i}>=v_i.  Then B is the
+matrix represented by the list (A_1,...,A_i,V,A_{i+1},...,A_n).  A  is
+modified.]
+     safe MICINS.
+(1)  [Initialize.]  A':=A;  A'':=RED(A');  v:=FIRST(V).
+(2)  [Loop.]  while A'' # () /\ ICOMP(FIRST(FIRST(A'')),v) >= 0
+     do { A':=A'';  A'':=RED(A'') }.
+(3)  [Finish.]  B:=COMP(V,A'');  SRED(A',B);  B:=A ||
+                    B:=MICS(A)
+[Matrix of integers column sort.  A  is an integral matrix with 
+non-negative elements in first row.  A  is represented column-wise.  
+B is an integral matrix obtained by sorting columns of A  such that 
+elements of the first row are in descending order.  A  is modified.]
+     safe MICS.
+(1)  [Bubble sort columns.]  repeat {   A':=A;  s:=0;  while
+     RED(A') # () do {  ADV(A';A1,A'');  A2:=FIRST(A'');
+     a1:=FIRST(A1);  a2:=FIRST(A2);  if ICOMP(a1,a2) < 0 then
+     { SFIRST(A',A2);  SFIRST(A'',A1);  s:=1 };  A':=A''  }   }
+     until s=0;  B:=A ||
+                    B:=MINNCT(A)
+[Matrix of integers, non-negative column transformation.  A=(a_{ij})
+is an m by n integral matrix.  A  is represented column-wise.
+B=(b_{ij}) is the m by n integral matrix with b_{ij}=a_{ij} if
+a_{1j}>=0 and b_{ij}=-a_{ij} if a_{1j}<0.  A  is modified.]
+     safe MINNCT.
+(1)  B:=A;  A':=A;  repeat {  A1:=FIRST(A');  a:=FIRST(A1);
+     if ISIGNF(a) < 0 then { A1:=VINEG(A1);  SFIRST(A',A1) };
+     A':=RED(A')  } until A'=() ||
+                    d:=MMDDET(p,M)
+[Matrix of modular digits determinant.  p is a prime beta-integer.
+M is a square matrix over GF(p), represented as a list.  d is the
+determinant of M.]
+     safe a,a',d,i,j,M'1,R',R2,S1,S2.
+(1)  [Initialize.]  M1:=M;  d:=1.
+(2)  [Matrix of order 1.]  if RED(M1)=() then { a:=FIRST(FIRST(M1));
+     d:=MDPROD(p,d,a);  return }.
+(3)  [Find Pivot row, if possible.]  M'1:=M1;  i:=0;  repeat { i:=i+1;
+     ADV(M'1;R,M'1) } until FIRST(R) # 0 \/ M'1=().
+(4)  [No Pivot row.]  if FIRST(R)=0 then { d:=0;  return }.
+(5)  [Transform Pivot row.]  ADV(R;a,R);  d:=MDPROD(p,d,a);
+     if EVEN(i) then d:=MDNEG(p,d);  a':=MDINV(p,a);  R*:=();
+     repeat { ADV(R;R1,R);  R1:=MDPROD(p,R1,a');  R*:=COMP(R1,R*) }
+     until R=();  R:=INV(R*).
+(6)  [Compute M2.]  M2:=();  j:=0;  repeat{   j:=j+1;  ADV(M1;S,M1);
+     if j # i then {  ADV(S;S1,S);  S*:=();  R':=R;  repeat
+     { ADV(R';R2,R');  ADV(S;S2,S);  S2:=MDDIF(p,S2,MDPROD(p,S1,R2));
+     S*:=COMP(S2,S*) } until R'=();  M2:=COMP(S*,M2)  }   } until M1=().
+(7)  [Prepare for next Pivot step.]  M1:=M2;  go to  2||
+                    B:=MMDNSB(p,M)
+[Matrix of modular digits null space basis.  p is a prime beta-integer.
+M is an m by n matrix over Z_p.  B is a list (B_1,..., B_r)
+representing a basis for the null space of M, consisting of all x such
+that M*x=0.  r is the dimension of the null space.  B=() if the null
+space of M is 0.  Each B_i is a list representing an m-vector.  M is
+modified.  Alternatively, if M represents a matrix by columns, then
+B is a basis for the null space consisting of all x such that x*M=0.]
+     safe a,c,C,C',i,k,m,M'2,v,V'.
+(1)  [Initialize.]  M1:=M;  M2:=();  B:=();  k:=1;  m:=
+     LENGTH(FIRST(M)).
+(2)  [Search for a Pivot column.]  M'1:=M1;  M1:=();
+     while M'1 # () do { ADV(M'1;C,M'1);  ADV(C;a,C);
+     if a # 0 then go to  4;  M1:=COMP(C,M1) }.
+(3)  [Generate a basis vector.]  V:=();  for i=1,...,m-k do
+     V:=COMP(0,V);  V:=COMP(1,V);  M'2:=M2;  while M'2 # () do
+     { ADV(M'2;C,M'2);  a:=VMPIP(0,p,C,V);  V:=COMP(a,V) };
+     B:=COMP(V,B);  M2:=COMP(0,M2);  go to  5.
+(4)  [Perform Pivot operations.]  M2:=COMP(C,M2);  a:=p-
+     MDINV(p,a);  C':=C;  while C' # () do { c:=MDPROD(p,
+     FIRST(C'),a);  SFIRST(C',c);  C':=RED(C') };  while M'1 # ()
+     do {   ADV(M'1;V',M'1);  ADV(V';v,V');  M1:=COMP(V',M1);
+     if v # 0 then {  C':=C;  while C' # () do { ADV(C';c,C');
+     a:=MDPROD(p,c,v);  a:=MDSUM(p,FIRST(V'),a);  SFIRST(V',a);
+     V':=RED(V') }  }   }.
+(5)  [Finish.]  if k < m then { k:=k+1;  go to  2 } ||
+                    D:=MMPDMA(r,p,M)
+[Matrix of modular polynomials determinant, modular algorithm.  M is a
+square matrix of modular polynomials in r variables over Z_p, r>=0, p
+a prime beta-integer.  D is the determinant of M.]
+     safe b,b',M1,M11,M',N11.
+(1)  [Matrix of order 1.]  if RED(M)=() then { D:=FIRST(FIRST(M));
+     return }.
+(2)  [r=0.]  if r=0 then { D:=MMDDET(p,M);  return }.
+(3)  [Compute degree bound.]  M':=M;  N:=();  repeat {  ADV(M';M1,M');
+     N1:=();  repeat { ADV(M1;M11,M1);  N11:=PDEGSV(r,M11,1);
+     N1:=COMP(N11,N1) } until M1=();  N:=COMP(N1,N)  } until M'=();
+     ASSPR(N;X,d).
+(4)  [Apply evaluation and interpolation.]  a:=0;  r':=r-1;
+     B:=PINV(0,1,1);  repeat {  if a=p then { print
+     "Elements of finite field exhausted in MMPDMA.";  stop };
+     M*:=MMPEV(r,p,M,1,a);  D*:=MMPDMA(r',p,M*);
+     b:=MPEMV(1,p,B,a);  b':=MDINV(p,b);
+     D:=MPINT(p,B,a,b',r,D,D*);  X:=LIST4(1,1,0,MDNEG(p,a));
+     B:=MPPROD(1,p,B,X);  a:=a+1  } until PDEG(B) > d ||
+                    B:=MMPEV(r,m,A,k,a)
+[Matrix of modular polynomials evaluation.  A  is a matrix of
+polynomials in r variables over Z_m, m a positive beta-integer. 
+1<=k<=r and a  is an element of Z_m.  B is the matrix of polynomials
+B_{ij} where B_{ij}(x_1,...,x_{k-1},x_{k+1},..., x_r)=A_{ij}(x_1,...,
+x_{k-1},a,x_{k+1},...,x_r).]
+     safe A',A1,A11.
+(1)  A':=A;  B:=();  repeat {  ADV(A';A1,A');  B1:=();  repeat
+     { ADV(A1;A11,A1);  B11:=MPEVAL(r,m,A11,k,a);  B1:=COMP(B11,B1) }
+     until A1=();  B1:=INV(B1);  B:=COMP(B1,B)  } until A'=();
+     B:=INV(B) ||
+                    B:=VIAZ(A,n)
+[Vector of integers, adjoin zeros.  A  is the vector (a_1,...,a_m).
+n is a non-negative beta-integer.  B is the vector (a_1,...,a_m,
+0,...,0) of m+n components.  A  is modified.]
+     safe k.
+(1)  B:=();  for k=1,...,n do B:=COMP(0,B);  B:=CONC(A,B) ||
+                    C:=VIDIF(A,B)
+[Vector of integers difference.  A  and B are vectors in Z^n.  C=A-B.]
+(1)  C:=VISUM(A,VINEG(B)) ||
+                    W:=VIERED(U,V,i)
+[Vector of integers, element reduction.  U=(u_1,...,u_n) and V=(v_1,
+...,v_n) are integral n-vectors.  1<=i<=n.  v_i#0.  W=U-q*V, where
+q=[u_i/v_i].]
+     safe u,v.
+(1)  u:=LELT(U,i);  v:=LELT(V,i);  q:=IQ(u,v);  if q=0 then
+     W:=U else { q:=INEG(q);  W:=VISPR(q,V);  W:=VISUM(U,W) } ||
+                    C:=VILCOM(a,b,A,B)
+[Vector of integers linear combination.  a  and b are integers.  A  and 
+B are integral vectors in Z^n.  C=a*A+b*B.]
+     safe C.
+(1)  S:=VISPR(a,A);  T:=VISPR(b,B);  C:=VISUM(S,T) ||
+                    B:=VINEG(A)
+[Vector of integers negation.  A  is an integral vector.  B=-A.]
+     safe a,A'.
+(1)  B:=();  A':=A;  repeat { ADV(A';a,A');  b:=INEG(a);
+     B:=COMP(b,B) } until A'=();  B:=INV(B) ||
+                    C:=VISPR(a,A)
+[Vector of integers scalar product.  a  is an integer.  A  is an
+integral vector.  C=a*A.]
+     safe a',A',i,n.
+(1)  [a=0.]  if a=0 then { n:=LENGTH(A);  C:=();  for i=1,...,n
+     do C:=COMP(0,C);  return }.
+(2)  [a=1.]  if a=1 then { C:=A;  return }.
+(3)  [a=-1.]  if a=-1 then { C:=VINEG(A);  return }.
+(4)  [General case.]  C:=();  A':=A;  repeat { ADV(A';a',A');
+     c:=IPROD(a,a');  C:=COMP(c,C) } until A'=();  C:=INV(C) ||
+                    C:=VISUM(A,B)
+[Vector of integers sum.  A  and B are vectors in Z^n.  C=A+B.]
+     safe a,A',b,B'.
+(1)  C:=();  A':=A;  B':=B;  repeat { ADV(A';a,A');  ADV(B';b,B');
+     c:=ISUM(a,b);  C:=COMP(c,C) } until A'=();  C:=INV(C) ||
+                    VIUT(U,V,i;U',V')
+[Vector of integers, unimodular transformation.  U=(u_1,...,u_n)
+and V=(v_1,...,v_n) are vectors in Z^n with u_i#0.  [U',V']=[U,V]*K
+where K is a unimodular matrix, depending on u_i and v_i, whose
+elements are obtained from IDEGCD.]
+     safe c,i,u,v.
+(1)  u:=LELT(U,i);  v:=LELT(V,i);  IDEGCD(u,v;c,p,q,r,s);
+     U':=VILCOM(p,q,U,V);  V':=VILCOM(r,s,U,V) ||

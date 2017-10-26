@@ -1,0 +1,109 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICGNFC -- Ground normal forms - closure 
+                                                        algorithms
+   modulespecification: Algorithms determine whether a pruned 
+                        top set tree may have ground successors
+   programmers        : Reinhard Buendgen, Hasko Eckhardt 
+   language           : aldes                                           
+   last change        : 24.10.88, 11.11.90,
+                        27.2.91 - only changes in specifications -HE-
+                        $Date: 1993/10/08 10:36:29 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.3 $
+   bugs               : none known
+   modules needed     : SAC2/low: fp, bs, lp, sy (low: complete);
+                        ReDuX/tp: dd, cy, wx     (tp:  complete);
+                             /ic: gnfd.
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+[--------------------------------------------------------------------  
+     section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+                    
+                    PTSTGS(G,D,L; G*,D*,L*)
+[Pruned top set tree, terms with ground successors.  - Closure main -
+  G is a top set tree, which is expanded up to level k; D is a list of
+  nodes of level k; and L = (L k, ..., L 0) is a list, where each L i
+  is a list of all unextendable nodes in level k. Then G*, D* and L* are
+ as above, with all nodes deleted, which cannot have ground successors.
+  The marks for the closure algorithm are set by NPTSGI.               ]
+
+(1)  [ Initialize. ] if PNTRC then STOUTL("PTSTGS");
+     L'':=(); X := (); R := D; G* := G; D* := COPY(D); L* := L;
+     [ Note here that L should contain at least one element. ]
+     M := COPY(RED(L)). [ [TRC] NLWRTL(D); BLINES(1); WRITE. ]
+(2)  [ Trivial case R. ] CHANGE := FALSE; if R = () then go to 4.
+(3)  [ First element of R. ] r := FIRST(R); NPTSGI(r,X; b,X'); X := X';
+     if b then { CHANGE := TRUE; R := RED(R); go to 2 };
+     [ Some central element of R. ] R' := R; R'' := RED(R'); 
+     while R'' # () do { ADV(R''; r,R''); NPTSGI(r,X; b,X'); X := X';
+       if b then { CHANGE := TRUE; RED(R') := R'' }
+       else R' := RED(R') }.
+(4)  [ Initialize search through M. ] M' := (); M'' := M.
+(5)  [ Walk through M. ] if M'' = () then go to 9; 
+     m := FIRST(M'').
+(6)  [ Trivial case M. ] if m = () then go to 8.
+(7)  [ First element of m. ] m~ := FIRST(m); NPTSGI(m~,X; b,X');X := X';
+     if b then { CHANGE := TRUE; m := RED(m); go to 6 };
+     [ Some central element of m. ] m^ := m; m^' := RED(m^); 
+     while m^' # () do { ADV(m^'; m~,m^'); NPTSGI(m~,X; b,X'); X := X';
+       if b then { CHANGE := TRUE; RED(m^) := m^' }
+       else m^ := RED(m^) }.
+(8)  [ Prepare next step. ] M' := COMP(m,M'); M'' := RED(M''); go to 5.
+(9)  [ Next level of transitivity. ] M := INV(M');
+     if CHANGE then go to 2.
+(10) [ Delete remaining Elements. ] 
+     while R # () do
+     { ADV(R; r,R); NPTSDT(G*,r,D*,(),L*; G',D',DUMMY,L');
+       G* := G'; L* := L'; D* := D' }; 
+     while M # () do
+     { ADV(M; m,M); while m # () do
+       { ADV(m; m',m); NPTSDL(m',G*,D*,(),L*; G',D',DUMMY,L');
+         G* := G'; D* := D'; L* := L' };
+       ADV(L*; l,L*); L'' := COMP(l,L'') }; L* := INV(L'').
+     [ [TRC] NLWRTL(D*); BLINES(1); WRITE. ]
+(11) [ Reset marks. ] while X # () do
+     { ADV(X; x,X); NTSMCA(x) := 0 } ||
+
+[--------------------------------------------------------------------
+     section 2   algorithms for internal use
+---------------------------------------------------------------------]
+
+                    NPTSGI(n,L; b,L*)
+[ Node of pruned top set tree has ground instance.
+Sub-algorithm of PTSTGS. n is a node of the top set tree.
+Then b = TRUE, iff n can have ground successors. L is a list of nodes
+with mark '2'; all nodes in this list must get a 0 at the end of the
+closure algorithm! L* is an update of L. This algorithm is part of the
+closure algorithm PTSTGS and uses the marks set during closure
+computation. ]
+
+(1)  [ Trivial Case. ] if PNTRC then STOUTL("NPTSGI"); 
+     b := TRUE; L* := L; if NTSMCA(n) > 0 then return.
+(2)  [ Scan Subterm List. Note that no recursion is needed, because marks
+       are ALWAYS ``pulled up'' towards the root (see step 3). ]
+     D := NTSPSL(n); all1 := FALSE;
+     if NTSURL(n) = () then
+     { all1 := TRUE; while D # () do
+       { ADV(D; d,D); if NTSMCA(d) = 0 then { b := FALSE; return }
+         else if NTSMCA(d) = 2 then all1 := FALSE } }
+     else
+     { while D # () do { ADV(D; d,D); if NTSMCA(d) = 0 then
+         { b := FALSE; return } } }.
+(3)  [ Finish. ] if all1 then
+     { NTSMCA(n) := 1; n' := NTSFAT(n); e := FALSE;
+       while n' # () /\ ~e do
+       { if NTSMCA(n') # 1 then
+         { if NTSMCA(n') = 2 then L* := DELETE(n',L*);
+           NTSMCA(n') := 1 }
+         else e := TRUE; n' := NTSFAT(n') } }
+     else
+     { NTSMCA(n) := 2; L* := COMP(n,L*); n' := NTSFAT(n); e := FALSE;
+       while n' # () /\ ~e do
+       { if NTSMCA(n') = 0 then
+         { NTSMCA(n') := 2; L* := COMP(n',L*) }
+         else e := TRUE; n' := NTSFAT(n') } } ||

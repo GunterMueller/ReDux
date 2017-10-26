@@ -1,0 +1,31 @@
+/*
+  Fertiges Lex Programm ergibt Filter der fuer jeden ALDES-Algorithmus
+  und jedes ALDES-Programm den jeweiligen Namen gefolgt von der ersten
+  Spezifikationszeile aus gibt.
+*/
+
+/*    Status      Bedeutung:
+      <global>     globale Deklarationen und Leerzeichen
+      <glocom>     globale Kommentar (eingebettete Kommentare moeglich)
+      <exdec>      externe Deklarationen:
+                      const, safe, global, intrinsic, prgma, array
+                   muessen mit Punkt beendet werden.
+      <decom>      Kommentar innerhalb externer Deklarationen
+      <header>     Algorithmen- bzw Programmkopf bis einschliesslich
+                   Algorithmen- bzw Programmname
+                   Annahme: Algorithmen- bzw Programmkopf beginnt in der
+                   fruehestens in der 16.Spalte.
+      <hrest>      Rest des Algorithmen- bzw Programmkopfes
+                   (Punkt, Argumentliste, Leerzeichen bis Zeilenende)
+      <headcom>    Zeile nach Kopf, Spezifikationskommentar erwartet,
+                   Leerzeichen, und -Zeilen werden unterdrueckt
+      <firsts>     Erster Satz im Spezifikationskommentar
+                   (endet mit ".  ", ".]", ". ]", "."\n oder ". "\n)
+      <firstc>     Kommentar im ersten Satz des Spezifikationskommentars
+      <algo>       Algoritmus `body' ohne Strings und Kommentare
+                     '.'   ist Charkterkonstante
+                     '     kann Ornamentierung sein
+                     ||    Algoritmusendezeichen
+      <comm>       Kommentare im Alogrithmus
+      <instring>   Strings im Algorithmus
+*/

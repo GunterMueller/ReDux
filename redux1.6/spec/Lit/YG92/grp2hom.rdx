@@ -1,0 +1,29 @@
+%%  comment symbol
+DATATYPE grp2hom;
+%% AUTHOR K. A. Yelick & S. J. Garland
+%% ORIGIN CADE'92: A parallel Completion Procedure for Term Rewriting Systems
+%% 
+SORT
+	S;
+CONST
+	e: S;
+VAR
+	x, y, z: S;
+OPERATOR
+	ea:  -> S;
+	g: S, S -> S;
+	ga: S, S -> S;
+	i: S -> S;
+	ia: S -> S;
+	b: S -> S;
+NOTATION
+	g, ga, i, ia, b: FUNCTION;
+AXIOM
+[1]  g(g(x, y), z) == g(x, g(y, z));
+[2]  g(e, x) == x;
+[3]  g(i(x), x) == e;
+[4]  ga(ga(x, y), z) == ga(x, ga(y, z));
+[5]  ga(ea, x) == x;
+[6]  ga(ia(x), x) == ea;
+[7]  b(g(x, y)) == ga(b(x), b(y));
+END

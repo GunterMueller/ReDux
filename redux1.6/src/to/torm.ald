@@ -1,0 +1,138 @@
+[Project: Term Orderings
+   module name        : TORM  -- ReMove ordering
+   modulespecification: algorithms to remove and get list of term orderings 
+   programmer         : Juergen Wendel           
+   language           : aldes 
+   last change        : $Date: 1994/11/24 15:47:20 $ 
+   version            : $Revision: 1.11 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+
+[---------------------------------------------------------------------
+     Section 1.
+     External Algorithms 
+---------------------------------------------------------------------]
+
+                    O:=TORDGT(DT)
+[Term ordering, list.
+DT is a data type. O is a list of characters denoting abbreviations for 
+the installed term ordering. 'K' stands for Knuth-Bendix, '1',...,'9'
+for Polynomial, and 'P' for Path ordering. [modified by WL]]
+     safe N,C,V,F,A.
+(1)  [initialize] DTDIS(DT; N,C,V,F,A); p:=FALSE; k:=FALSE.
+(2)  [Constants or Operators.] if C # () then C':=C else C':=F; 
+     while C' # () /\ p = FALSE /\ k = FALSE do
+     { ADV(C'; c,C');
+       if TGET(c,KBOI) # () \/ TGET(c,KBOW) # ()  then k:=TRUE;
+       if TGET(c,POSTS) # () \/ TGET(c,POASK) # () then p:=TRUE;
+       if TGET(c,POLEQ) # () \/ TGET(c,POGEQ) # () then p:=TRUE
+     }.
+(3)  [Create return String] O:=();
+     for i=1,...,9 do
+       if ISNPYO(DT,i) then O:=COMP(FIRST(STRFBI(i)),O);
+     if p = TRUE then O:=COMP('P',O); 
+     if k = TRUE then O:=COMP('K',O)  ||
+
+                    b:=ISKBO(DT)
+[Is Knuth Bendix Ordering installed.
+Test for keywords in property list of Datatype DT
+returns TRUE if successful, FALSE if not]
+
+(1)  [init] DTDIS(DT; N,C,V,F,A); b:=FALSE;
+      if C # () then X:=C else
+        if F # () then X:=F else
+          if V # () then X:=V else return;
+      x:=FIRST(X).
+(2)   [test] if (TGET(x,KBOI) # () \/ TGET(x,KBOW) # ())
+        then b:=TRUE ||
+
+                    b:=ISPYO(DT)
+[Is Polynomial Ordering installed.
+b is TRUE if at least one polynomial ordering is installed else FALSE.
+[WL]]
+(1)  [Init.] DTDIS(DT; DUM1,DUM2,DUM3,O,DUM4); b:=FALSE; e:=();
+     for i=1,...,9 do e:=COMP((),e).
+(2)  [Test.] P:=TGET(FIRST(O),DIS); if P # e /\ P # () then b:=TRUE ||
+
+                    b:=ISNPYO(DT,n)
+[Is n-th. Polynomial Ordering installed.
+b is TRUE if the n-th. polynomial ordering is installed else FALSE.
+[WL]]
+(1)  [Init.] DTDIS(DT; DUM1,DUM2,DUM3,O,DUM4);
+     P:=TGET(FIRST(O),DIS); p':=(); P':=P; b:=FALSE.
+(2)  [Test.] if P' # () then for i=1,...,n do ADV(P'; p',P');
+     if p' # () then b:=TRUE ||
+
+                    b:=ISPO(DT)
+[Is Path Ordering installed.
+Test for keywords in property list of Datatype DT
+returns TRUE if successful, FALSE if  not]
+
+(1)  [init] DTDIS(DT; N,C,V,F,A); b:=FALSE;
+      if C # () then X:=C else
+        if F # () then X:=F else return;
+      x:=FIRST(X).
+(2)   [test] if (TGET(x,POSTS) # () \/ TGET(x,POLEQ) # () \/
+                 TGET(x,POGEQ) # () \/ TGET(x,POASK) # () )
+              then b:=TRUE ||
+
+                    O^:=TORDRM(DT)
+[Term orderings, remove interactively.
+DT is a data type. O^ is a string denoting installed ordering with
+length(O^)<=Number of Orderings installed so far. [modified by WL]]
+(1)  [Init.] O':=().
+(2)  [Menu.  Implemented: polYnomial Knuth-bendix Path ordering.]
+     BLINES(1); STOUTL("Remove term orderings.");
+     STOUTL("The following term orderings are installed:");
+     if ISKBO(DT) then {
+        STOUTL("  K -- Knuth-Bendix ordering"); O':=COMP2('K',',',O')
+     };
+     if ISPO(DT) then {
+        STOUTL("  P -- Path ordering (with l-r and r-l status)");
+        O':=COMP2('P',',',O')
+     };
+     for i=1,...,9 do {
+        if ISNPYO(DT,i) then {
+           STROUT("  "); IWRITE(i); STROUT(" -- "); IWRITE(i);
+           STOUTL(". polynomial ordering");
+           O':=COMP2(FIRST(STRFBI(i)),',',O')
+        }
+     };
+     if O' #  () then { O':=INV(O'); O':=RED(O') };
+     [STOUTL("  S -- Straight (pseudo) ordering");]
+     [STOUTL("  R -- Reverse (pseudo) ordering");]
+     BLINES(1).
+(3)  STOUTL("Which of these orderings shall be removed ?");
+     STROUT(" Input string of {"); CLOUT(O'); STOUTL("} *");
+     READ; C^:='x'; O:=(); y:=FALSE; k:=FALSE; p:=FALSE;
+     while C^ # ' ' do {
+        if MEMBER(C^,O') then O:=COMP(C^,O); C^:=UCASE(CREAD());
+        case C^ of {'1' do y:=TRUE;
+                    '2' do y:=TRUE;
+                    '3' do y:=TRUE;
+                    '4' do y:=TRUE;
+                    '5' do y:=TRUE;
+                    '6' do y:=TRUE;
+                    '7' do y:=TRUE;
+                    '8' do y:=TRUE;
+                    '9' do y:=TRUE;
+                    'K' do k:=TRUE;
+                    'P' do p:=TRUE
+                   }
+     }.
+(4)  [Check] BLINES(1); STROUT("The accepted string is ");
+     CLOUT(O); STOUTL(". Ok [y/n]? *"); WRITE; READ;
+     C^:=UCASE(CREAD()); if C^ = 'N' then goto 2.
+(5)  [remove] O:=INV(O);
+     [POLY] if y then for i=1,...,9 do 
+               if ISNPYO(DT,i) /\ MEMBER(FIRST(STRFBI(i)),O) then
+                  ENDPYO(DT,i);
+     [KBO]  if k /\ ISKBO(DT) then ENDKBO(DT); 
+     [PATH] if p /\ ISPO (DT) then ENDPO(DT).
+(6)  STOUTL("These orderings were left installed:"); O^:=TORDGT(DT);
+     if O^ # () then CLOUT(O^) else STOUTL("none."); BLINES(1)  ||

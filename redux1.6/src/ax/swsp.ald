@@ -1,0 +1,7 @@
+                    b:=SWSP()
+[Scan white space.
+b is true iff a white space character is scanned.]
+     safe SWSP.
+(1)  b:=true; if ~ ENDOLN() then
+     {  c:=CREAD(); BKSP; if c # ' ' then  b:=false; } ||
+

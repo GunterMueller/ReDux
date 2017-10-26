@@ -1,0 +1,56 @@
+%%  comment
+DATATYPE MAXTREE;
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION heigts of binary trees
+%%              maximum, minimum
+SORT
+	BOOL, NAT, TREE;
+CONST
+	L: TREE;	%%  Leaf
+	0: NAT;
+	F, T: BOOL;
+VAR
+	t, u, v: TREE;
+	i, j, k, n: NAT;
+	p, q, r: BOOL;
+OPERATOR
+	N: TREE, TREE -> TREE;	%%  Node
+	maxh: TREE -> NAT;
+	minh: TREE -> NAT;
+	s: NAT -> NAT;
+	max: NAT, NAT -> NAT;
+	min: NAT, NAT -> NAT;
+	>=: NAT, NAT -> BOOL;
+	\/: BOOL, BOOL -> BOOL;
+NOTATION
+	N, maxh, minh, s, max, min: FUNCTION;
+	>=, \/: INFIX;
+AXIOM
+  %%  and
+  [1] (F \/ p) == p;
+  [2] (T \/ p) == T;
+  [3] (p \/ F) == p;
+  [4] (p \/ T) == T;
+ 
+  %%  greater than or equal
+ [10] (0 >= s(i)) == F;
+ [11] (i >= 0) == T;
+ [12] (i >= i)    == T;
+ [13] (s(i) >= s(j)) == (i >= j);
+
+  %%  maximum
+ [20] max(i,i) == i;
+ [21] max(i,0) == i;
+ [22] max(0,i) == i;
+ [23] max(s(i),s(j)) == s(max(i,j));
+
+  %%  minimum
+ [30] min(i,i) == i;
+ [31] min(i,0) == 0;
+ [32] min(0,i) == 0;
+ [33] min(s(i),s(j)) == s(min(i,j));
+  
+ [34] (max(i,j) >= min(k,n)) == ((i >= k) \/ 
+                                ((i >= n) \/ 
+                                 ((j >= k) \/ (j >= n))));
+END

@@ -1,0 +1,41 @@
+\section{User Extensions}
+
+This section describes how to extend the parser to a programmer's
+or user's special need. This is done exemplary for the case of an
+additional property for operators. 
+Other extensions require similar adaptations.
+
+\begin{enumerate}
+\item{\bf Adding new lexemes, tokens and environments to the scanner:}
+ At first, a new environment should be made up, if the scanner demands
+ this\footnote{See also section~\ref{environments} for more information.}.
+ This should be necessary only in case of additional sections.
+ To add new operator properties this is not necessary, as there is already
+ a property section which presumably uses the same environment as this
+ extension. Thus, it is sufficient to add new scanner rules and tokens.
+ New rules have to be inserted in file {\tt scan.l}, whereas new tokens
+ go to the respective section of {\tt parse.y}.
+
+ When adding new rules to the scanner, care should be taken in
+ adapting the look-ahead counter. See section \ref{extparse} for details.
+\item{\bf Adapting the parser:} To parse further properties, new production
+ rules have to be joined to the already declared ones. This is done
+ in the property section of the YACC-parser grammar.
+\item{\bf Semantic actions} have to be adapted accordingly. For operator
+ properties, not even a change in function {\tt FXPROP} of file
+ {\tt parsax.ald} is necessary, as this function already works with arbitrary
+ properties (there is no consistency check!). Other extensions may
+ require insertion of new functions in file {\tt check.ald}. It is recommended
+ to take a look at other parser functions in order to understand
+ what should be done in the files {\tt check.ald} and {\tt parsax.ald}.
+\item{\bf Error checking:} Whenever additional lexemes were added in
+ step one, appropriate syntactical error messages should be set up
+ in file {\tt parse.y}. Semantic error messages must be inserted
+ into file {\tt semerr.ald} and should be called from routines
+ of {\tt check.ald} or {\tt parsax.ald}.
+\end{enumerate}
+
+Though this section tried to give a little help on user extensions,
+it can obviously not be sufficient for all future implementations.
+Examination of source code is still a good (but hard) way to get the
+necessary information, however.

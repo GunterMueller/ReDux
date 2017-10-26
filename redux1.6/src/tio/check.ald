@@ -1,0 +1,264 @@
+[----------------------------------------------------------------------]
+[- This file contains routines to check terms, axioms and data types --]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                  ok:=CHKMCR(orop,crop)
+[Check matching closing roundfix operator.
+ orop and crop are signature obejcts denoting an opening and closing
+ roundfix operator, respectively. It is checked, whether or not
+ crop is a matching closing roundfix symbol for operator orop.
+ If the symbol matches, then ok=TRUE, otherwise ok=FALSE.]
+(1) [init] ccrs:=TGET(orop,DCR); scrs:=TNAME(crop).
+(2) [check] if ccrs=scrs then ok:=TRUE else
+    { SEMERR(20, (ccrs, scrs)); ok:=FALSE } ||
+
+                  ok:=CHKARY(t)
+[Check arity of top operator of term t.
+ If LENGTH(OARGLST(t)) # arity(t) a semantic error is reported.
+ The term t may contain the bracket signature object DBS.]
+(1) [init] ok:=TRUE; t':=t.
+(2) [trivial case] if TSIGN(t')=TSIGN(DBS) then t':=OARGLST(t');
+    if TKIND(t')#DOS then return;
+    f:=TGET(t',DFS); if f#DLF /\ f#DRF /\ f#DFF then return.
+(3) [AC operator] pl:=LENGTH(OARGLST(t'));
+    if TUSTAT(t')=DAC then { if pl<2 then 
+    { SEMERR(0, (t',pl)); ok:=FALSE }; return }.
+(4) [check] ar:=LENGTH(ODTYPE(t'));
+    if pl#ar then { SEMERR(0, (t',pl)); ok:=FALSE } ||
+
+
+                  ok:=CHKTYP(t)
+[Check type. 
+ t is a term. Based on the assumption that the arities
+ of all operators of t's subterms are correct, a type-check 
+ is performed.
+ ok=TRUE: correct term, ok=FALSE: type error in term t.]
+(1) [init] ok:=TRUE; if TKIND(t)#DOS then return;
+    tl:=ODTYPE(t); SL:=OARGLST(t); i:=0.
+(2) [check top operator: AC operator]
+    if TUSTAT(t)=DAC then { ty:=FIRST(tl); i:=0; while SL#() do
+    { ADV(SL; st,SL); stt:=TTYPE(st); i:=i+1; if stt#ty then
+      { SEMERR(1, (t,i,stt)); ok:=FALSE  };
+      if ~CHKTYP(st) then ok:=FALSE }; return }.
+(3) [finished?] if tl=() then return.
+(4) [normal operator]
+    ADV(tl; tt,tl); ADV(SL; st,SL); stt:=TTYPE(st); i:=i+1;
+    if tt#stt then { SEMERR(1, (t,i,stt)); ok:=FALSE }.
+(5) [check subterms] if ~CHKTYP(st) then ok:=FALSE.
+(6) [next subterm] goto 3 ||
+
+
+                  ok:=CHKFIX(op)
+[Check fixity. 
+ op is an operator with fixity property added.
+ It is checked if the operator's fixity is admissable. If this
+ is the case, ok=TRUE, otherwise ok=FALSE.]
+(1) [init] fix:=TGET(op, DFS); ar:=LENGTH(ODTYPE(op));
+    ok:=TRUE.
+(2) [infix] if fix=DIF /\ ar#2 then { SEMERR(4,(op));
+    ok:=FALSE; return }.
+(3) [postfix] if fix=DPF /\ ar#1 then { SEMERR(4,(op));
+    ok:=FALSE; return }.
+(4) [prefix] if fix=DEF /\ ar#1 then { SEMERR(4,(op));
+    ok:=FALSE; return }.
+(5) [roundfix] if fix=DRF /\ ar=0 then { SEMERR(4,(op));
+    ok:=FALSE; return }.
+(6) [constfix] if fix=DCS /\ ar#0 then { SEMERR(4,(op));
+    ok:=FALSE }.
+(7) [coercion function, only pre-, roundfix, lisp or function notation
+     allowed]
+    if TKIND(op)=DXT /\ fix#DEF /\ fix#DRF /\ fix#DFF /\ fix#DLF
+      then { SEMERR(4,(op)); ok:=FALSE }.
+(8) [everything ok] return ||
+
+
+                 ok:=CHKALS(lhs)
+[Check axiom's left hand side.
+ lhs is a term which is to be used as an axiom's left hand
+ side. It is checked whether lhs is a pure constant or
+ variable. A warning is printed and ok=TRUE holds always.
+ This may change in future.]
+(1) [test] ok:=TRUE; if TKIND(lhs)=DCS \/ TKIND(lhs)=DVS then
+    SEMWRN(10,(lhs)) ||
+
+
+                 ok:=CHKAX(ax,VL,VR)
+[Check axiom. 
+ ax is an axiom. VL and VR are variable dictionaries containing
+ the axiom's left resp. right hand side variables. It is checked whether
+ the types of the axiom's left and right hand sides are compatible
+ and whether the RHS variables are a subset of the LHS variables.
+ If the former criterion is fulfilled, then ok=TRUE, otherwise
+ ok=FALSE.]
+(1) [init & get types] ok:=TRUE; lt:=TTYPE(ALHS(ax));
+    rt:=TTYPE(ARHS(ax)).
+(2) [compatible?] if lt#rt then
+    { SEMERR(13,(ax,lt,rt)); ok:=FALSE; return }.
+(3) [variable subset warning]
+    if ~EQUAL(VR,VL) then SEMWRN(11,(ax)) ||
+
+
+                 ok:=CHKVAR(DT, vars)
+[Check variables. 
+ DT is a data type, vars is a list of
+ variables. It is check for all variables in vars, whether
+ the variable's sort is declared properly.
+ If no error occurred, ok is TRUE, otherwise ok=FALSE.]
+(1) [init] v':=vars; ok:=TRUE.
+(2) [finished?] if v'=() then return.
+(3) [get next variable] ADV(v'; var,v').
+(4) [check sort] vsort:=TTYPE(var); sorts:=DTSORTS(DT);
+    if ~MEMBER(vsort,sorts) then { SEMERR(14,(var,vsort));
+      ok:=FALSE; return }.
+(5) [next variable] goto 2 ||
+
+
+                 ok:=CHKCNS(DT, cons)
+[Check constants. 
+ DT is a data type, cons is a list of
+ constants. It is check for all constants in cons, whether
+ the constant's sort is declared properly.
+ If no error occurred, ok is TRUE, otherwise ok=FALSE.]
+(1) [init] c':=cons; ok:=TRUE.
+(2) [finished?] if c'=() then return.
+(3) [get next constant] ADV(c'; con,c').
+(4) [check sort] csort:=TTYPE(con); sorts:=DTSORTS(DT);
+    if ~MEMBER(csort,sorts) then { SEMERR(15,(con,csort));
+      ok:=FALSE; return }.
+(5) [next constant] goto 2 ||
+
+ 
+                 ok:=CHKOPS(DT, ops)
+[Check operators. 
+ DT is a data type, ops is a list of
+ operators. It is checked for all operators in ops, whether:
+ all sorts are declared properly.
+ If no error occurred, ok is TRUE, otherwise ok=FALSE.]
+(1) [init] o':=ops; ok:=TRUE.
+(2) [finished?] if o'=() then return.
+(3) [get next operator] ADV(o'; op,o').
+(4) [check sorts (domain)] doml:=ODTYPE(op);
+    sorts:=DTSORTS(DT); while doml#() do 
+    { ADV(doml; dom,doml); if ~MEMBER(dom,sorts) then
+      { SEMERR(9,(op,dom)); ok:=FALSE; return } }.
+(5) [check sorts (range)] ran:=ORTYPE(op);
+    if ~MEMBER(ran,sorts) then { SEMERR(9,(op,ran));
+      ok:=FALSE; return }.
+(6) [next operator] goto 2 ||
+
+
+                 ok:=CHKOP(DT, op)
+[Check operator. 
+ DT is a data type, op is an operator.
+ It is checked for the operator op, whether:
+  1. all sorts are declared properly
+  2. the operator's name does not start with the comment symbol
+ If no error occurred, ok is TRUE, otherwise ok=FALSE.]
+(1) ok:=CHKOPS(DT, (op)) ||
+
+
+                 ok:=CHKCES(DT, ceps)
+[Check coercion operators. 
+ DT is a data type, ceps is a list
+ of coercion operators. It is checked for all operators in ceps,
+ whether:
+  1. the domain is a properly declared external sort
+  2. the range is a properly declared sort.
+ If no errors occurred, ok is TRUE, otherwise FALSE.]
+(1) [init] c':=ceps; ok:=TRUE.
+(2) [finished?] if c'=() then return.
+(3) [get next operator] ADV(c'; cp,c').
+(4) [check domain] dom:=OXTYPE(cp);
+    xsorts:=DTXSORTS(DT); if ~MEMBER(dom,xsorts) then
+    { SEMERR(11,(cp,dom)); ok:=FALSE; return }.
+(5) [check range] ran:=ORTYPE(cp);
+    sorts:=DTSORTS(DT); if ~MEMBER(ran,sorts) then
+    { SEMERR(12,(cp,ran)); ok:=FALSE; return }.
+(6) [next coercion operator] goto 2 ||
+
+
+                 ok:=CHKEXT(DT,exts)
+[Check externals. 
+ exts is a list of external types, i.e. a 
+ list of symbols denoting external types, which have properties
+ (e.g. XREAD, XWRITE,...) added. It is checked for all external
+ sorts in exts, whether:
+  1. each property is specified only once (this is done in MKEXTL)
+  [2. the properties XREAD and XWRITE are specified]
+  3. the external sort name is not used so far
+ The existence of specified algorithms is not assured.
+ If no errors occurred, ok is TRUE, otherwise FALSE.]
+(1) [init] e':=exts; ok:=TRUE.
+(2) [finished?] if e'=() then return.
+(3) [get next external sort] ADV(e'; ext,e').
+[
+(4) [check properties: XREAD] p:=GET(ext,DXRA);
+    if p=() then { SEMERR(16,(ext,DXRA)); ok:=FALSE; return }.
+(5) [XWRITE] p:=GET(ext,DXWA); if p=() then
+    { SEMERR(16,(ext,DXWA)); ok:=FALSE; return }.
+]
+(6) [check external sort name] xlst:=DTXSORTS(DT);
+    if MEMBER(ext,xlst) then { SEMERR(17,(ext)); ok:=FALSE;
+      return }.
+(7) [next external type] goto 2 ||
+
+
+                 ok:=CHKSRT(DT,sorts)
+[Check sorts. 
+ sorts is a list of sorts. It is checked for all
+ sorts, whether all sort names are not used so far.]
+(1) [init] s':=sorts; ok:=TRUE.
+(2) [finished?] if s'=() then return.
+(3) [get next sort] ADV(s'; sort,s').
+(4) [check sort's name] slst:=DTSORTS(DT);
+    if MEMBER(sort,slst) then { SEMERR(18,(sort));
+      ok:=FALSE; return }.
+(5) [next sort] goto 2 ||
+
+                 CHKUSC(DT)
+[Check for underscore.
+ As variable instances are accessable via '_', the underscore
+ should not be used for an identifier with name 'p_i', if there
+ is a variable with name 'p'. A warning is printed if this
+ ambiguity occurs.]
+(1) [init] vars:=DTVARS(DT); V:=(); idl:=SOTLSO(DTSYMTAB(DT));
+    i':=PFXUSC(idl).
+(2) [underscore in variable list?]
+    v':=vars; while v'#() do { ADV(v'; va,v');
+    vn:=GET(TNAME(va),FLAT); if vn=() then vn:=EXPLOD(TNAME(va));
+    V:=COMP(vn,V); if LSRCH('_',vn)>0 then SEMWRN(7,(vn)) }.
+(3) [finished?] if i'=() then return.
+(4) [next identifier] ADV(i'; sd,i'); idpf:=FIRST(sd).
+(5) [check identifier] v':=V; while v'#() do { ADV(v';vn,v');
+      if EQUAL(vn,idpf) then SEMWRN(6,(vn,idpf,SECOND(sd))) }.
+(6) [next id] goto 3 ||
+
+
+[----- Section 2: algorithms for internal use -------------------------]
+
+                 IL:=PFXUSC(sol)
+[Identifier prefixes.
+ sol is a list of signature objects. IL is a list of lists with
+ length two, i.e. IL=((e_1,p_1),...,(e_n,p_n)), where the e_i
+ and p_i are strings (character lists).
+ (e,p) is in IL, if e_p=TNAME(so) for any signature object so from
+ sol and p is a string of decimal digits.]
+(1) [init] s':=sol; IL:=().
+(2) [finished?] if s'=() then return.
+(3) [next sign.object, variables can be ignored]
+    ADV(s'; so,s'); if TKIND(so)=DVS then goto 2.
+(4) [get name] name:=GET(TNAME(so),FLAT); if name=() then
+      name:=EXPLOD(TNAME(so)).
+(5) [underscore?] pos:=LSRCH('_',name); if pos=0 then goto 2.
+(6) [extract prefix] if pos=1 then goto 2 else
+    { e:=LPREFX(name,pos-1); p:=REDUCT(name,pos) }.
+(7) [is postfix of name a decimal-string?]
+    p':=p; if p'=0 then goto 2; while p'#() do
+    { ADV(p'; c,p'); if ~DIGIT(c) then goto 2 }.
+(8) [insert in IL] if ~MEMBER(name,IL) then IL:=COMP(LIST2(e,p),IL).
+(9) [next sign.object] goto 2 ||

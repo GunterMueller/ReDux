@@ -1,0 +1,239 @@
+\section{The Inductive Completion Programs}
+\subsection{The icp Program}
+The {\tt icp} demo program allows the user to experiment with the
+inductive completion algorithm \cite{Buendgen:87}.
+As all of the ReDuX demo programs, it reads an algebra specification
+from the file {\tt fort.4}. For this program the set of axioms in the 
+algebra specification must be ground confluent and terminating.
+
+After the data type is read, the user must initialize the term orderings.
+(See Section \ref{InitializationOfOrderings} for more information on the
+term orderings.)
+Then he can decide if he wants to trace the program. If tracing has been
+chosen,
+the user can select among the seven traces, namely the 
+theorem derivation trace, the proved theorems trace, the formula reduction 
+trace, the inessential critical pair trace, the procedure name trace, 
+the counter example trace and the substitution trace.
+
+Now the program computes a decomposition of the data type into constructors 
+and defined
+function symbols and a ground reduction test set as is performed in the
+{\tt its}, and {\tt itst} programs (see Sections \ref{ProgramIts} and 
+\ref{ProgramItst}).
+The decomposition and the test set are shown to the user.
+
+After these prerequisites the main menu is displayed:
+\begin{quote}
+\begin{verbatim}
+You have following choices: 
+  R - reduce term,
+  P - prove theorem,
+  B - display basic axioms,
+  C - display current data type,
+  O - select term ordering,
+  E - exit.
+[R/P/B/C/O/E] *
+\end{verbatim}
+\end{quote}
+The user must enter one of the menu items by selecting the corresponding
+letter.
+
+\begin{itemize}
+\item {\bf Reduce Term (R)}\\
+This menu item allows the user to enter a term consisting of the
+constants, variables and functions of the used data type.
+The program tries to reduce the term by the axioms (interpreted as
+rewrite rules) in the current data
+type. The normalized term (which can be the same as the entered term) 
+is printed,
+together with some statistical information concerning the reduction process,
+including the reduction rate (the number of rewrites per second).
+The reduction rate is omitted if 
+the whole reduction process happens between two consecutive clock ticks.
+(For the SunOS 4.0 the period between two clock ticks is $16\frac{2}{3}$ms.)
+
+\item {\bf Prove Theorem (P)}\\
+The user must enter an axiom (consisting of two terms over the used data
+type that are separated by {\tt ==}).
+
+The program checks first if the entered theorem is an equational 
+consequence of the algebra specification (i.e. the terms on both sides of
+the entered theorem can be reduced to the same term by application of the 
+axioms in the algebra). If this is true, a message like
+\begin{quote}
+\begin{verbatim}
+The theorem  0) +(0,A) == A
+is valid in all models of the data type INT.
+Both terms can be reduced to A.
+\end{verbatim}
+\end{quote}
+is displayed.
+
+If the theorem cannot be proved by application of the axioms in the data type,
+the program prints a message like:
+\begin{quote}
+\begin{verbatim}
+The theorem  0) +(+(A,B),C) == +(A,+(B,C))
+ is not an equational consequence, 
+it may however be an inductive consequence of
+INT data type.
+\end{verbatim}
+\end{quote}
+Then the program tries to prove the theorem by applying the extended 
+Knuth-Bendix algorithm for inductive completion given in \cite{Kuechlin:89}.
+The entered 
+theorem is oriented and added to the set of axioms. If the new set of
+axioms  can 
+be completed by the algorithm, the entered theorem is a inductive consequence
+of the initial set of axioms, otherwise it cannot be proved by inductive
+completion.
+
+To start the completion, the user must choose if trace information shall be displayed.
+The same seven traces as at the program start can be selected.
+Then the program asks if the inductive completion shall be done in step 
+mode or in automatic mode. If step mode has been chosen, the user must 
+orient the computed critical pairs manually.
+
+In the completion process terms may be proved to be inductively 
+reducible. In general, a term can be inductively reducible at several
+positions. 
+These inductively reducible terms are displayed, together with the
+positions at which they are reducible and the axioms for which they
+are inductively complete.
+Positions are printed as a sequence of positive numbers
+that are separated by points. The empty position $\lambda$ is displayed 
+as \verb+/\+. The user must choose one of the given positions.
+In the following example the term is reducible only
+at one position, therefore the user has no real choice:
+
+\begin{quote}
+\begin{verbatim} 
+ Old axiom no 14,
++(A,NEG(B)) == NEG(+(NEG(A),B)),
+ considered. Proposing old axiom no 14,
++(A,NEG(B)) == NEG(+(NEG(A),B)),
+ as new axiom no 14.NEG(+(NEG(A),B)) is inductively reducible.
+1. The set of positions: 
+NEG(A) at pos. 1.1
+is inductively complete with rules: 
+ 7) NEG(S(A)) == P(NEG(A))
+ 8) NEG(P(A)) == S(NEG(A))
+ 6) NEG(0) == 0
+ 
+Choose set of positions [1 - 1]. *
+\end{verbatim}
+\end{quote}
+
+Then the number of critical pairs computed with the new axioms are 
+printed. The programs differentiates between essential and inessential
+critical pairs. The inessential critical pairs are not 
+necessary for correctness reasons, but may be helpful to ensure the 
+termination of the completion process.
+If an essential critical pair can be reduced by an inessential critical
+pair, the program asks if the inessential critical pair shall be treated next:
+
+\begin{quote}
+\begin{verbatim}
+The essential critical pair
+( 5 and  8) ( 5)  OPP(SUCC(+(A,SUCC(0)))) == OPP(SUCC(SUCC(A)))
+can be reduced by 
+the inessential critical pair
+( 8 and  2) ( 3)  SUCC(A) == +(A,SUCC(0))
+using Straight and Reverse ordering.
+do you want to treat the inessential critical pair next [Y/N]?
+\end{verbatim}
+\end{quote}
+The user must answer with {\tt Y} or {\tt N}. If he entered {\tt Y}, the
+inessential critical is the next critical pair that is oriented,
+otherwise the essential critical pair is oriented next.
+
+If the the completion succeeds, the program prints the proven theorem
+together with a message that it is an inductive theorem of the data 
+type. Then the program displays the basic axiom set and a list of
+the new theorem and the lemmas that have
+been proved while the completion procedure. Now the program prints 
+some statistics and a menu that allows the user to choose the data 
+type for the following computations:
+
+\begin{quote}
+\begin{verbatim}
+You have following choices: 
+ B - Continue using basic axiom set,
+ L - Continue using last axiom set,
+ N - Continue using new axiom set
+ E - Exit program.
+Enter your choice [B/L/N/E] *
+\end{verbatim}
+\end{quote}
+
+\begin{itemize}
+\item Continue using basic axiom set (B)\\
+The basic axiom set (the algebra specification read-in at the program 
+start) is used for further computations.
+\item Continue using last axiom set (L)\\
+The current data type before the last completion process is used.
+\item Continue using new axiom set (N)\\
+The new data type (including the new theorem and lemmas) is used. Therefore the 
+program must compute a new decomposition into constructors and defined 
+function symbols and a new ground reduction test set.
+\item Exit program (E)\\
+This menu item allows to leave the program after some statistical 
+information concerning the garbage collector has been displayed.
+\end{itemize}
+ 
+If the completion does not succeed, this is told to the user.
+Then he has the choice to use the basic axioms or the last axioms for the
+next computation or to leave the program.
+
+\item {\bf Display Basic Axioms (B)}\\
+The basic axioms, i.e. the axioms read-in at the program start are 
+displayed.
+
+\item {\bf Display current data type (C)}\\
+This item displays the current data type, i.e. the initial data type 
+that has been extended with all inductively proven theorems.
+
+\item {\bf Select term ordering (O)}\\
+The user can select a lexicographical combination of the initialized 
+term orderings and the straight and reverse pseudo orderings.
+
+\item {\bf Exit (E)}\\
+This item allows the user to quit the program.
+\end{itemize}
+
+\subsection{The lab Program}
+The {\tt lab} demo program is also written to allow the user to experiment with 
+the inductive completion algorithm. In contrast to the {\tt icp} program,
+the input data type need not to be canonical. Therefore the program first
+tries to determine if the axioms (oriented from left to right)
+are terminating. There are three cases:
+
+\begin{itemize}
+\item The axioms can be proven to be non-terminating.
+In this case the program prints a message and runs the Knuth-Bendix 
+algorithm (see Section \ref{KBCompletion}).
+
+\item The axioms cannot be proved to be terminating or not terminating. 
+The the programs assumes
+that they are terminating and prints a warning message. Then it does the
+same as if the axioms could be proved to be terminating.
+
+\item If the axioms can be proved to be terminating, the program tests
+the convergence of axioms interpreted as term rewriting system.
+
+\begin{itemize}
+\item 
+If the data type is convergent, the program prints this explicitly and
+continues. 
+
+\item If it is not convergent, the program 
+prints a list of the divergent critical pairs.
+Then the user is given the choice to run the Knuth-Bendix algorithm.
+Otherwise it is assumed that the data type is ground confluent.
+\end{itemize}
+\end{itemize}
+
+After these initial tests have been done, the program does the same as
+the {\tt icp} program, i.e. it continues with the decomposition of the 
+data type and goes to the main menu.

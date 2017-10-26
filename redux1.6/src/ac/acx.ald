@@ -1,0 +1,69 @@
+[PROJECT:  ReDuX  AC-Completion 
+   module name        : ACX -- Xternal terms
+   modulespecification: algorithms to manipulate external terms
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : $Date: 1994/12/22 15:38:31 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include it.h ]
+[ #include globs.h ]
+
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    t*:=TXCMPT(t)
+[Term with external objects, compute.
+t is a free term possibly containing external objects.
+Then all ground subterms of t for which equivalent external terms exist
+are replaced by these external objects. t is modified.]
+
+(1)  [Initialize.] t*:=t; k:=TKIND(t).
+(2)  [Variable.] if k = DVS \/ k = DXT then return.
+(3)  [Recursion.] b:=TRUE; if k = DOS then
+     { E:=TUSTAT(t); C:=OARGLST(t); n:=0; while C # ()  do 
+       { t':=TXCMPT(FIRST(C)); FIRST(C):=t';
+         if TKIND(t') = DXT then  n:=n+1 else b:=FALSE;
+         C:=RED(C)
+       }; if ~b /\ (n <= 1 \/ E # DAC) then return
+     }.
+(4)  [Transform top.] if b then { t*:=TXTCMP(t); return }.
+(5)  [AC-case: collect external arguments.] X:=(); T:=(); C:=OARGLST(t);
+     while C # () do
+     { ADV(C; c,C); if TKIND(c) = DXT then X:=COMP(c,X) 
+                                      else T:=COMP(c,T) 
+     }; x:=TXTCMP(TCONS(X,t)); t*:=TCONS(COMP(x,INV(T)),t) ||
+
+                    t*:=TXTCMP(t)
+[Term with external symbols compute at top.
+t is a free ground term with only external subterms.
+Then t* is an equivalent external term if it exists otherwise t* = t.]
+
+(1)  [Initialize.] t*:=t.
+(2)  [Get initerpretation algorithm.] i:=TGET(t,DXIA); 
+     if i = () then return.
+(3)  [Get coercion operator.] o:=TGET(t,DXCO);
+     if o = () then o:=GET(TTYPE(t),DXCO); 
+     if o = () then
+     { STOUTL(" *** Warning: coercion function missing!"); return }.
+(4)  [Get arguments.] A:=(); if TKIND(t) = DOS then
+     { C:=OARGLST(t);  while C # () do
+      { ADV(C; c,C); A:=COMP(XOBJECT(c),A) }; A:=INV(A)
+     }.
+(5)  [Compute: non-AC-case.] if TUSTAT(t) # DAC then
+     { X:=SGCALL(i,A); t*:=TCONS(X,o); return }.
+(6)  [Compute: AC-case.] ALGDIS(GET(i,DAK); n,p,n1,n2); ADV(A; a1,A'); 
+     if n1 # 2 then
+     { STOUTL(" *** Warning, unexpected arity in TXTCMP!"); HALT };
+     while A' # () do
+     { ADV(A'; a2,A'); case p of
+       { 0  do X:=PCALL2(n,n2,a1,a2);
+         1  do X:=FCALL2(n,a1,a2)
+       }; a1:=X
+     }; t*:= TCONS(X,o) ||

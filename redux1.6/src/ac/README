@@ -1,0 +1,39 @@
+Directory ac
+==============
+
+Sources of the algorithms for AC-completion.
+
+Contents:
+  TOC:               AC algorithm index (table of contents)
+  accp.ald:          algorithms to compute critical pairs
+  acde.ald:          solution fo diophantine equations
+  acm.ald:           matching-algorithms modulo AC
+  acr.ald:           reduction algorithms modulo AC
+  acsrt1.ald:        rule sorting algorithm
+  actto.ald:         total term ordering
+  acu.ald:           unification algorithms modulo AC
+  acx.ald:           computation of external terms
+
+ Subdirectories:
+  CMP
+    accmp.ald:       completion procedure
+    acf.ald:         fertilization procedure (crit. pair transformation)
+  INT
+    qct.ald:         query concerning trace
+  MAIN
+    ac.ald:          main program: AC-rewrite laboratory
+
+Format von TOC
+    <Funktions-/Procedurkopf> : <Herkunftsmodul>
+
+Die Quellen werden mit dem Versionskontrollsystem RCS verwalted.
+   *.ald:    read only Datei der neusteten version [% co *.ald]
+   *.ald,v:  Datei, die alle Versionen enthaelt.
+
+Aendern einer Version von xxx.ald:
+  % co -l xxx.ald         [ generieren der neustern Version in aenderbarer ]
+                          [ Form. `locken' von xx.ald,v.                   ]
+  % vi xxx.ald            [ aendere xxx.ald.]
+    ...
+  % ci -u xxx.ald         [ einloggen der neuen Version und                  ]
+                          [ generieren read only Datei der neusteten version ]

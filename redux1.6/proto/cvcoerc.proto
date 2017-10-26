@@ -1,0 +1,48 @@
+#!AWK -f
+# ^^^                   Only to be modified by the ReDuX 
+#                       installation make file!
+# st = state
+# st=0: before operator section
+# st=1: normal operators
+# st=2: coercion operators
+
+BEGIN {	nx=split(xsorts,xs,"\n");
+        st=0 }
+/OPERATOR/ { st=1 }
+/NOTATION/ { st=0 }
+/THEORY/ { st=0 }
+/PROPERTY/ { st=0 }
+/AXIOM/ { st=0 }
+{ if(st==1)
+   {
+     if($1!="%%")
+       {
+	 extfd=0;
+	 for(j=1; j<=nx; j++)
+	   if(xs[j]==$2) extfd=1;
+	 if(extfd==1)
+	   { print "COERCION";
+	     st=3;
+	   }
+       }
+     print $0
+   }
+}
+{ if(st==2)
+    {
+      if($1!="%%")
+	{ extfd=0;
+	  for(j=1; j<=nx; j++)
+	    if(xs[j]==$2) extfd=1;
+	  if(extfd==0)
+	    {
+	      print "OPERATOR";
+	      st=4;
+	    }
+	}
+      print $0
+    }
+}
+{ if(st==0) print $0 }
+{ if(st==3) st=2 }
+{ if(st==4) st=1 }

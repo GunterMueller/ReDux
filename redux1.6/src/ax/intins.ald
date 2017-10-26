@@ -1,0 +1,19 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/intins
+   modulespecification: insert element in unordered set of gamma 
+                        integers
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : $Date: 91/03/15 16:29:04 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+]                                                                      
+ 
+                    C:=INTINS(a,B)                                      
+[Integer set insert. 
+a is a gamma integer and B is an unsorted set of gamma integers. 
+C is the union of {a} and B.]
+     
+(1)  if INTMEM(a,B) then C:=B else C:=COMP(a,B) ||

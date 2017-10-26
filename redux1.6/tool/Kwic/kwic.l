@@ -1,0 +1,1 @@
+../../man/manl/kwic.l

@@ -1,0 +1,185 @@
+#!/bin/sh
+# kwic -- generate KWIC index
+# Usage: kwic [-w n] [-f n] [-F n] [-s n] [-S n] [-c] [-x filename] [-W] [-Q]
+# Do not modify this file, modify kwic.w instead!
+ AWK=AWK
+#^^^^^^^          Only to be modified by the ReDuX 
+#                 installation make file!
+USAGE="Usage: $0 [-w n] [-f n] [-F n] [-s n] [-S n] [-c] [-x filename] [-W] [-Q]"
+width=80
+skipfocus=2
+skipmodname=1
+printmodname=0
+wrap=0
+sortopt=-f
+
+while getopts w:f:F:s:S:cx:WQ c
+do
+   case $c in
+   w)   width=$OPTARG;;
+   f)   skipfocus=$OPTARG;;
+   F)   focus=$OPTARG;;
+   s)   skipmodname=$OPTARG;;
+   S)   modname=$OPTARG;;
+   c)   sortopt="";;
+   x)   skipwords=$OPTARG;;
+   W)   wrap=1;;
+   Q)   printmodname=1;;
+   \?)  echo $USAGE
+        exit 2;;
+   esac
+done
+shift `expr $OPTIND - 1`
+
+focus=${focus:-`expr $width / 2`}
+modname=${modname:-`expr $width - 1`}
+
+if [ $# -ne 0 ]; then
+   echo "Illegal arguments found:" $* 1>&2
+   echo $USAGE 1>&2
+   exit 2
+fi
+if [ $skipfocus -lt 0 ]; then
+   echo "Number of blanks in front of focus must be non-negative!" 1>&2
+   echo $USAGE 1>&2
+   exit 2
+fi
+if [ $focus -le $skipfocus ]; then
+   echo "Focus column too far to the left!" 1>&2
+   echo $USAGE 1>&2
+   exit 2
+fi
+if [ \( $printmodname -eq 1 \) -a \( $skipmodname -lt 0 \) ]; then
+   echo "Number of blanks in front of module name must be non-negative!" 1>&2
+   echo $USAGE 1>&2
+   exit 2
+fi
+if [ \( $printmodname -eq 1 \) -a \( `expr $focus + $skipmodname` -gt $modname \) ]; then
+   echo "Column for module name too far to the left!" 1>&2
+   echo $USAGE 1>&2
+   exit 2
+fi
+if [ \( $printmodname -eq 1 \) -a \( $modname -gt $width \) ]; then
+   echo "Output width too small!" 1>&2
+   echo $USAGE 1>&2
+   exit 2
+fi
+if [ $focus -gt $width ]; then
+   echo "Output width too small!" 1>&2
+   echo $USAGE 1>&2
+   exit 2
+fi
+
+trap 'rm -f /tmp/kwicdata.$$ /tmp/kwicskipwords.$$
+      ' 1 2 15
+if [ -z "$skipwords" ]; then
+   cp SKIPWORDS  /tmp/kwicskipwords.$$ 2>/dev/null || {
+      echo "Warning: File SKIPWORDS not found." 1>&2
+      cp /dev/null /tmp/kwicskipwords.$$
+   }
+else
+   if [ $skipwords = - ]; then skipwords=/dev/null; fi
+   cp $skipwords /tmp/kwicskipwords.$$ 2>/dev/null || {
+      echo "Error: File $skipwords not found." 1>&2
+      echo $USAGE 1>&2
+      exit 2
+   }
+fi
+tr '\011'  ' ' |
+sed -e 's/^ *//' -e 's/ *$//' -e 's/  */ /g' > /tmp/kwicdata.$$
+
+$AWK 'FILENAME ~ /kwicskipwords/ { skpw[++nosw] = $0 " ";
+                                    }
+     FILENAME ~ /kwicdata/ { if ( PRINTMODNAME == 1) {
+                                modulename = $1;
+                                data = substr($0,length(modulename)+2);
+                             } else {
+                                modulename = "";
+                                data = $0;
+                             }
+                             i=0;
+                             {  lcolumn = substr(data,1,i-1);
+                                rcolumn = substr(data,i+1) " ";
+                                found = 0;
+                                for (j=nosw; 0<j; j--) {
+                                   if ( index(rcolumn,skpw[j])==1 ) {
+                                      found=1;
+                                      break;
+                                   }
+                                }
+                                
+                                if (found == 0)
+                                   print substr(rcolumn,1,length(rcolumn)-1)  "\t" lcolumn "\t" modulename
+                                
+                             }
+                             
+                             
+                             for (i=length(data); i>0; i--) {
+                                if (substr(data,i,1) == " ")
+                                   {  lcolumn = substr(data,1,i-1);
+                                      rcolumn = substr(data,i+1) " ";
+                                      found = 0;
+                                      for (j=nosw; 0<j; j--) {
+                                         if ( index(rcolumn,skpw[j])==1 ) {
+                                            found=1;
+                                            break;
+                                         }
+                                      }
+                                      
+                                      if (found == 0)
+                                         print substr(rcolumn,1,length(rcolumn)-1)  "\t" lcolumn "\t" modulename
+                                      
+                                   }
+                                   
+                             }
+                              }
+    ' PRINTMODNAME=$printmodname /tmp/kwicskipwords.$$ \
+    /tmp/kwicdata.$$  |
+sort $sortopt |
+$AWK '
+   BEGIN { FS="\t"; }
+   { lwidth=FOCUS-SKIPFOCUS-1
+     if ( PRINTMODNAME == 1 )
+        rwidth=(MODNAME-SKIPMODNAME-1)-(FOCUS-1);
+     else
+        rwidth=WIDTH-(FOCUS-1);
+     llength=length($2)
+     rlength=length($1)
+     lexceed=substr($2,1,llength-lwidth)
+     rexceed=substr($1,rwidth+1)
+     if ( llength > lwidth )
+        printf("%s",substr($2,llength-(lwidth-1)));
+     else if ( llength > lwidth-3 || rexceed=="" || WRAP==0 )
+        printf("%" lwidth-llength "s%s","",$2);
+     else
+        if ( length(rexceed)+2 <= lwidth-llength )
+           printf("%s\\ %" lwidth-llength-(length(rexceed)+2) "s%s",rexceed,"",$2);
+        else
+           printf("%s\\ %s",substr(rexceed,1,lwidth-llength-2),$2);
+        
+     
+     printf("%" SKIPFOCUS "s","");
+     if ( rlength > rwidth )
+        printf("%s",substr($1,1,rwidth));
+     else if ( rlength > rwidth-3 || lexceed=="" || WRAP==0 )
+        printf("%s%" rwidth-rlength "s", $1, "")
+     else
+        if ( length(lexceed)+2 <= rwidth-rlength )
+           printf("%s%" rwidth-rlength-length(lexceed)-2 "s \\%s",$1,"",lexceed);
+        else
+           printf("%s \\%s",$1,substr(lexceed,length(lexceed)-(rwidth-rlength-2)+1));
+        
+     
+     if ( PRINTMODNAME == 1 ) {
+        printf("%" SKIPMODNAME "s","");
+        printf("%s",substr($3,1,WIDTH-(MODNAME-1)));
+     }
+     printf("\n");
+     
+      }
+   ' WIDTH=$width FOCUS=$focus SKIPFOCUS=$skipfocus \
+     MODNAME=$modname SKIPMODNAME=$skipmodname \
+     PRINTMODNAME=$printmodname WRAP=$wrap |
+sed 's/ *$//'
+rm -f /tmp/kwicdata.$$ /tmp/kwicskipwords.$$
+

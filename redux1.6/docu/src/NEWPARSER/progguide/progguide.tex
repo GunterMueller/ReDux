@@ -1,0 +1,41 @@
+\documentclass[twoside,titlepage]{article}
+
+\usepackage{epsfig}
+
+\pagestyle{headings}
+
+\input{wide10r}
+
+\title{A New Parser for ReDuX\\Programmer's Guide}
+\author{Carsten Sinz and Reinhard B\"undgen}
+\date{ReDuX Version~1.6}
+
+\newtheorem{xmpl}{Example}[section]
+\newtheorem{note}{Note}[section]
+\input{macros}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\tableofcontents
+\listoffigures
+\listoftables
+\newpage
+
+\input{intro.tex}
+\input{modstruct.tex}
+\input{parseproc.tex}
+\input{parsemisc.tex}
+\input{datastruct.tex}
+\input{exportfunc.tex}
+\input{outputmodes.tex}
+\input{userext.tex}
+
+\appendix
+
+\input{globvar.tex}
+\input{pheader.tex}
+
+\end{document}

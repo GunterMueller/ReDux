@@ -1,0 +1,155 @@
+[-------------------------------------------]
+[ Unfailing Completion auxiliary algorithms ]
+[-------------------------------------------]
+
+[ #include "globs.h" ]
+[ #include "tp.h" ]
+
+[----------------]
+[ EXPORT section ]
+[----------------]
+
+
+
+                    s:=CPXTN(C')
+[Critical pair, extent.
+ C' is a critical pair.
+ Then s is the sum of the extents of the LHS and the RHS of C'.]
+
+(1) STI:=STI-CLOCK();
+    s:=TXTENT(CPLHS(C'))+TXTENT(CPRHS(C'));
+    STI:=STI+CLOCK() ||
+
+
+
+                    n:=CPLSW8(C)
+[Critical pair list, special weights.
+ C is a list of critical pairs.
+ Then n is the length of C and the weight information of all
+ critical pairs in C will be updated using CPXTN.
+ This leads to the following consequence:
+ If there are two CPs s <-> t and s' <-> t' and a substitution
+ sigma s. th. sigma(s) = s' and sigma(t) = t',
+ then CPW8(s <-> t) <= CPW8(s' <-> t').]
+
+(1) [Init]
+    C':=C; n:=0.
+(2) [compute weight for each CP]
+    while C'#() do
+    { ADV(C'; p,C'); CPW8(p):=CPXTN(p); n:=n+1 } ||
+
+
+
+                    b*:=TEQUV(t1,t2,V1,V2)
+[Terms, equality modulo variable renaming.
+ t1 and t2 are free terms with disjoint
+ variable sets V1 and V2.
+ Then b*=TRUE, if t1 and t2 are equal modulo
+ variable renaming, b*=FALSE otherwise.]
+
+(1) [Init]
+    b*:=FALSE;
+    k1:=TKIND(t1); k2:=TKIND(t2).
+(2) [t1 or t2 constant]
+    if k1=DCS \/ k2=DCS then
+    { if TSIGN(t1)=TSIGN(t2) then b*:=TRUE;
+      return
+    }.
+(3) [t1 or t2 variable]
+    if k1=DVS \/ k2=DVS then
+    { if k1=DVS /\ k2=DVS then b*:=TRUE;
+      return
+    }.
+(4) [Does t1 match t2?]
+    I:=TMATCH(t1,t2); UNDO(V1);
+    if I=() then return.
+(5) [Does t2 match t1?]
+    I:=TMATCH(t2,t1); UNDO(V2);
+    if I=() then return.
+(6) [Now t1 and t2 are equal mod variable renaming]
+    b*:=TRUE ||
+
+
+
+                    b:=TRPMCH(m1,m2,t1,t2)
+[Related term pair match.
+ m1 and m2 are non-atomic terms, 
+ t1 and t2 are semi-bound terms,
+ where (X(m1) u X(m2)) n (X(t1) u X(t2)) is empty.
+ Then b=TRUE if there is a substitution sigma s. th.
+ sigma(m1) = t1 and sigma(m2) = t2, otherwise b=FALSE.
+ Variables in m1 and m2 will be bound to terms
+ in t1 and t2 even if b = FALSE.]
+
+(1) [make term m with arguments m1,m2 and term
+     t with arguments t1 and t2.
+     term signature is only dummy.]
+    m:=TCONS(LIST2(m1,m2),m1);
+    t:=TCONS(LIST2(t1,t2),t1).
+(2) [match terms m and t and return result]
+    I:=TNRMCH(m,t);
+    if I=() then b:=FALSE else b:=TRUE ||
+
+
+
+                    I:=TMGCIL(t1,t2,llb1,llb2)
+[Terms, most general common instance, perhaps using linear unification.
+ t1 and t2 are non-external semi-bound terms with disjoint variable sets.
+ llb1=1, if t1 is linear, otherwise llb1=0.
+ llb2=1, if t2 is linear, otherwise llb2=0.
+ Then I is the most general common instance of t1 and t2, if any,
+ I=() otherwise. If I#() then t1 and t2, both are equivalent to I.
+ Variables of both input terms will, in general, be bound, 
+ even when I=(). They may be reset by applying algorithm undo to the 
+ variable sets of t1 and t2.] 
+
+(1) [init] t'1:=t1; t'2:=t2; I:=().
+(2) [type clash?] if TTYPE(t'1)#TTYPE(t'2) then return.
+(3) [t1 var?]
+    k1:=TKIND(t'1);
+    if k1=DVS then
+    { C:=VARBIND(t'1);
+      if C=() then {[bind variable] VARBIND(t'1):=t2; I:=t2; return}
+      else {[t'1 is a bound variable] t'1:=C; goto 3}
+    }.
+(4) [t2 var?]
+    k2:=TKIND(t'2);
+    if k2=DVS then
+    { C:=VARBIND(t'2);
+      if C=() then {[bind variable] VARBIND(t'2):=t1; I:=t1; return}
+      else {[t'2 is a bound variable] t'2:=C; goto 4}
+    }.
+(5) [same terms?] if t'1=t'2 then {I:=t2; return}.
+(6) [constant terms?] if k1=DCS then return.
+(7) [different tops?] if TSIGN(t'1)#TSIGN(t'2) then return.
+(8) [non-atomic terms with common top operator]
+    if llb1=1 then b:=1 else b:=llb2;
+    if b then I:=TNRMIL(t'1,t'2) else I:=TNRMCI(t'1,t'2) ||
+
+
+
+                    b*:=TRRDT(t,a)
+[Term, rule, reducibility test.
+ t is a free term,
+ a = l -> r is a rule.
+ Then b*=TRUE, if t can be reduced by l -> r,
+ b*=FALSE otherwise.]
+
+(1) [Test]
+    b*:=TSMTH(ALHS(a),ALHSV(a),t) ||
+
+
+
+                    b*:=TESRDT(t,E,O)
+[Term, equation set, reducibility test.
+ t is a free term,
+ E is a set of equations and
+ O is a string denoting a term ordering.
+ Then b*=TRUE, if t can be reduced by an equation s <-> t
+ from E w. r. t. the term ordering O, b*=FALSE otherwise.]
+
+(1) [Copy and reduce copy]
+    TGCVS(t; t',V');
+    t':=TONORM(t',(),E,O).
+(2) [Test]
+    if TEQU(t,t') then b*:=FALSE else b*:=TRUE ||

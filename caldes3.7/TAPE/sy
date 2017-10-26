@@ -1,0 +1,418 @@
+                    t:=ACOMP(A,B)
+[Alphabetic comparison.  A and B are symbols.  t=-1,0,+1 according to
+whether A precedes, equals, or follows B alphabetically.]
+     safe ACOMP.
+(1)  t:=ACOMP1(SECOND(A),SECOND(B))||
+                    s:=ACOMP1(A,B)
+[Alphabetic comparison 1.  A and B are packed strings.  s=-1,0,+1
+according to whether A precedes, equals, or succeeds B alphabetically.]
+     safe ACOMP1.
+(1)  [Initialize.] A':=A; B':=B; s:=0.
+(2)  [Compare.] repeat ADV(A';a,A'); ADV(B';b,B'); if a > b then
+     s:=1 else if a < b then s:=-1; if s # 0 then return
+     until A'=() \/ B'=().
+(3)  [End.] if B' # () then s:=-1 else if A' # () then s:=1 ||
+                    P:=ASSOC(a,L)
+[Associate.  L=(al1 bl1, al2 bl2,...,a sub nl bl sub nl), nl ge 0,
+a is an object. If there is an il such that a=a sub il then
+P=(bl sub il,...,a sub nl bl sub nl), otherwise P=().]
+     safe ASSOC.
+(1)  [Initialize.] P:=L.
+(2)  [Search.] while P # () do { ADV(P;a',P); if a=a' then return;
+     ADV(P;a',P) }||
+                    BEGINS()
+[Begin symbolic system.  BEGIN1 is called and then BEGINU.]
+     safe BEGINS.
+(1)  BEGIN1; BEGINU ||
+                    BEGINU()
+[Begin, universal.  The symbolic system is initialized without
+initializing any subsystems. It is assumed that at least begin1
+was called previously.]
+safe BEGINU.
+global SYMTB.                   [Global symbol tree]
+safe CELLS. global CELLS.       [Incremental number of cells used]
+safe COUNT. global COUNT.       [Translator option count]
+safe  NAM. global NAM.          [Name counter in gensym]
+safe SBASE. global SBASE.       [Largest power of chi+1 <= beta]
+safe  TIM.  global TIM.         [Incremental time in ms]
+safe TRMAX. global TRMAX.       [Translator option trace]
+(1)  [Initialize symbolic globals.] SYMTB:=(); TIM:=TAU0; CELLS:=0;
+     n:=0; c:=CHI+1; t:=BETA/c; repeat t:=t/c; n:=n+1 until
+     t=0; SBASE:=c ^ n.
+(2)  [Translator options.] TRMAX:=10; COUNT:=0; NAM:=0 ||
+                    ENDS()
+[End of symbol system.  The number of symbols in symtb and
+the number of their properties is written.]
+     safe S,P.
+global SYMTB.                   [Global symbol tree]
+(1)  [Count symbols and their properties.] BLINES(2);
+     STCNT(SYMTB;S,P); GWRITE(S); CLOUT(" symbols and ");
+     GWRITE(P); CLOUT(" properties.").
+(2)  [Terminate list system.] END1 ||
+                    S:=ENTER(L)
+[Enter into symbol table.  L is a character list, S the pointer
+to the corresponding symbol. If the symbol is not yet in the
+symbol table SYMTB, then a new node is created.]
+     safe S.
+(1)  S:=STINS(PACK(L))||
+                    L:=EXPLOD(S)
+[Explode symbol.  S is a symbol, L its character list.]
+     safe L',d,c,A,Q.
+safe SBASE. global SBASE.       [Largest power of chi+1 le beta]
+(1)  [Get packed character list.] L':=SECOND(S); L:=(); c:=CHI+1.
+(2)  [Unpack characters.] repeat {  d:=SBASE/c; ADV(L';A,L');
+     repeat QREM(A,d;Q,A); L:=COMP(Q-1,L); d:=d/c until A=0  }
+     until L'=().
+(3)  [Exit] L:=INV(L)||
+                    S:=GENSYM()
+[Generate symbol.  S is a newly generated symbol. Nam is advanced.]
+     safe Q.
+safe  NAM. global NAM.          [Name counter in GENSYM]
+(1)  [Increase counter.] NAM:=NAM+1.
+(2)  [Create character list.] S:=('Y'); Q:=NAM;
+     repeat S:=COMP(REM(Q,10)+'0',S); Q:=Q/10 until Q=0.
+(3)  [ENTER in symbol table.] S:=ENTER(COMP('J',S))||
+                    A:=GET(S,a)
+[GET property.  The property list of the symbol S is searched
+under indicator a. A is the property under a, if any, otherwise
+a is set to beta.]
+     safe GET.
+(1)  A:=ASSOC(a,RED2(S)); if A # () then A:=FIRST(A)||
+                    b:=ISORN(S)
+[Is ornamented.  S is a symbol. b is true if S is an ornamented
+symbol.]
+     safe L0, a, b.
+(1)  [Character list] L:=EXPLOD(S); b:=1.
+(2)  [Test letter.] ADV(L;a,L);
+     if L=() then return else ADV(L;a,L).
+(3)  [Lower case.]  if a='L' then
+     if L=() then return else ADV(L;a,L).
+(4)  [Test for hat, bar or tilde.] repeat L0:=L;
+     if a='B' then if L=() then return else ADV(L;a,L);
+     if a='H' then if L=() then return else ADV(L;a,L);
+     if a='T' then if L=() then return else ADV(L;a,L) until L0=L.
+(5)  [Test for star or prime.] repeat L0:=L;
+     if a='S' then if L=() then return else ADV(L;a,L);
+     if a='P' then if L=() then return else ADV(L;a,L) until L0=L.
+(6)  [Test an index.] repeat L0=L; if DIGIT(a) then
+     if L=() then return else ADV(L;a,L) until L0=L.
+(7)  [Negative exit.] b:=0||
+                    B:=PACK(L)
+[Pack character list.  L is a non-empty character list. B is the
+packed list.]
+     safe L',b,A,d,c.
+     safe SBASE. global SBASE.       [Largest power of chi+1 le beta]
+(1)  [Initialize.] L':=L; B:=(); b:=CHI+1; A:=0; d:=1.
+(2)  [Process characters.] repeat ADV(L';c,L'); if d=SBASE then
+     { B:=COMP(A,B); A:=0; d:=1 }; d:=d * b; A:=A * b+c+1 until L'=().
+(3)  [Shift left and invert.] while d < SBASE do { d:=d * b;
+     A:=A * b }; B:=INV(COMP(A,B))||
+                    PUT(S,a,A)
+[Put.  The property A is stored on the property list of
+the symbol S under the indicator a.]
+[     safe PUT.]
+(1)  [Already there.]
+     L:=ASSOC(a,RED2(S)); if L # () then { SFIRST(L,A); return }.
+(2)  [New entry.] SRED(RED(S),COMP2(a,A,RED2(S)))||
+                    REMPRP(S,a)
+[Remove property.  Under indicator a on the property list of
+symbol S the property is removed.]
+     safe REMPRP.
+(1)  [Initialize.] L:=RED(S); L':=RED(L).
+(2)  [Search and remove.] while L' # () do {  ADV(L';b,L'); if a=b
+     then { SRED(L,RED(L')); return }; L:=L'; L':=RED(L')  }||
+                    b:=SMEMB(S,L)
+[Symbol membership.  S is a symbol, L a list possibly also containing
+symbols.  b=1 if S or a copy of S occurs in L, b=0 otherwise.]
+     safe SMEMB.
+(1)  [Initilize.]  L':=L; b:=1; S':=SECOND(S).
+(2)  [Search.]  while L' # () do { ADV(L';l,L');
+     if SYMBOL(l) /\ ACOMP1(SECOND(l),S')=0 then return }.
+(3)  [Exit.]  b:=0||
+                    b:=SMEMBR(S,L)
+[Symbol membership, recursive.  S is a symbol, L a list possibly also
+containing symbols.  b=1 if S or a copy of S occurs in L or a sublist
+of L (where a symbol is not considered a list), b=0 otherwise.]
+(1)  [Initilize.]  L':=L; b:=1; S':=SECOND(S).
+(2)  [Search.]  while L' # () do {  ADV(L';l,L'); if ~(ATOM(l)\/l=())
+     then if SYMBOL(l) then { if ACOMP1(SECOND(l),S')=0 then return }
+     else if SMEMBR(S,l) then return  }.
+(3)  [Exit.]  b:=0||
+                    SOWRT(S)
+[Symbol with ornaments write.  S is a transliterated symbol, i. e. its
+name consists of capital letters encoding ornaments. S is printed in
+Linear Aldes form.]
+(1)  [Get S character lists.]
+     S':=EXPLOD(S); if RED(S')#() /\ SECOND(S')='L' then
+     {SFIRST(S',FIRST(S')+'a'-'A'); SRED(S',RED2(S'))}; L:="T~H^B_S*P'".
+(2)  [Substitute ornaments.] S':=COMP(FIRST(S'),SUBLIS(L,RED(S'))).
+(3)  [Write.] CLOUT(S') ||
+                    SPWRT()
+[Space write.  Assume the only call to GC occurs through COMP.
+Then the first call of SPWRT prints the number of cells used since
+the initialization of the symbol system, the later calls print
+the number of cells used since the previous call to SPWRT. CELLS
+is updated.]
+     safe S.
+safe CELLS. global CELLS.       [Incremental number of cells used]
+(1)  [Count cells.] S:=GCCC+NU/2-LENGTH(AVAIL)-CELLS.
+(2)  [Write.] EMPTOB; CLOUT("cells="); GWRITE(S); WRITE.
+(3)  [Update.] CELLS:=S+CELLS+6||
+                    S:=SREAD()
+[Symbol read.  A symbol S is read from the input stream and entered in
+the symbol table symtb.  Any preceding blanks are skipped.  Note that
+newlines terminate symbols.]
+     safe S.
+(1)  S:=ENTER(SREAD1())||
+                    L:=SREAD1()
+[Symbol read 1.  A symbol is read from the input stream.  L is the
+character list of this symbol, which is not entered in the symbol table.
+Any preceding blanks are skipped.  Note that newlines terminate
+symbols.]
+     safe C.
+(1)  [Skip blanks and read letter.]  C:=CREADB(); if ~ LETTER(C) then
+     { print "Error found by SREAD1."; DIBUFF; stop }.
+(2)  [Read alphanumeric characters, at most up to an eoln.]  L:=();
+     while (LETTER(C) \/ DIGIT(C)) do { L:=COMP(C,L);  C:=CREAD() };
+     if LETTER(C) \/ DIGIT(C) then L:=COMP(C,L) else BKSP; L:=INV(L)||
+                    S:=SREAD2()
+[Symbol read, 2.  SREAD1 followed by an ornament search is performed.
+The global variable IDTYP is set to 1 if an ornamented identifier is
+parsed and to 0 otherwise.]
+     global IDTYP. safe IDTYP.
+     safe L, C.
+(1)  [Normal identifier] S':=SREAD1(); S'0:=S'; IDTYP:=1;
+     ADV(S';L,S'); if 'a' <= L /\ L <= 'z' then S:=('L',L-'a'+'A')
+     else S:=(L).
+(2)  [Get digits.] S*:=S'; while S' # () /\ DIGIT(FIRST(S')) do
+     {ADV(S';L,S'); S:=COMP(L,S)}; if S' # () then
+     {S:=S'0; IDTYP:=0; if EQUAL(S,"return")\/EQUAL(S,"stop") then
+      S:=UCL(S); return}; if S' # S* then {S:=INV(S); return}.
+(3)  [Read top ornaments.] C:=CREAD(); repeat S*:=S; if C='_' then
+     S:=COMP('B',S) else if C='^' then S:=COMP('H',S) else if C='~'
+     then S:=COMP('T',S); if S#S* then C:=CREAD() until S=S*.
+(4)  [Read side ornaments.] repeat S*:=S; if C='*' then
+     S:=COMP('S',S) else if C=''' then S:=COMP('P',S); if S#S* then
+     C:=CREAD() until S*=S.
+(5)  [Read subscripts.] repeat S*:=S; if DIGIT(C) then {S:=COMP(C,S);
+     C:=CREAD()} until S*=S.
+(6)  [Finish.] BKSP; S:=INV(S) ||
+                    C:=SSDIFF(A,B)
+[Symbol set difference.  A and B are sets of symbols. C is the set
+difference of A and B.]
+    safe A',a.
+(1) [Initialize.] A':=A; C:=().
+(2) [Search.] while A'#() do {ADV(A';a,A'); if ~SMEMB(a,B) then
+    C:=COMP(a,C)}; C:=INV(C) ||
+                    S:=STBAL(L,n)
+[Symbol tree balance.  L is an alphabetical list of n symbol-tree
+nodes (n > 0), out of which a balanced binary tree S is constructed.]
+     array A[n].
+     safe L',i,m.
+(1)  L':=L; for i=1,...,n do { A[i]:=FIRST(L'); L':=RED(L') }.
+(2)  m:=STBALS(A,n,1,n); S:=A[m]||
+                    m:=STBALS(A,n,l,r)
+[Symbol tree balance subroutine.  The array A[n] contains
+symbol-tree nodes in alphabetical order.  The binary tree of the symbols
+in A[l..r] is constructed and A[m] is its root.]
+     array A[n].
+(1)  [Basis]  if l=r then { m:=l; SFIRST(A[m],());
+     SRED(RED(A[m]),()); return }.
+(2)  [Recursion]  m:=(l+r)/2; if l=m then SFIRST(A[m],()) else
+     { m1:=STBALS(A,n,l,m-1); SFIRST(A[m],A[m1]) };
+     m2:=STBALS(A,n,m+1,r); SRED(RED(A[m]),A[m2])||
+                    STCNT(T;S,P)
+[Symbol tree count.  T is a symbol tree, S is the number of symbols
+in T, P the number of properties of all symbols of the tree.
+Since every symbol has a name property, P ge S.]
+safe COUNT. global COUNT.       [Translator option count]
+const ICOUNT=20.                [Translator options count and trace]
+(1)  [Basis.] if T=() then { S:=0; P:=0; return }.
+(2)  [Left branch.] ADV2(T;L,K,R); STCNT(L;S,P).
+(3)  [Process symbol.] S:=S+1; P:=P+LENGTH(K)/2;
+     if COUNT >= 1 /\ GET(K,ICOUNT) # ()
+     then { UWRIT1(K); TAB(8); UWRITE(GET(K,ICOUNT)) }.
+(4)  [Right branch.] STCNT(R;S',P'); S:=S+S'; P:=P+P'||
+                    n:=STDPTH(T)
+[Symbol tree depth.  T is a symbol tree.  n is its (maximum) depth.]
+     safe S.
+(1)  [Basis.]  if T=() then { n:=0; return }.
+(2)  [Recursion.]  ADV2(T;L,S,R); n:=MAX(STDPTH(L),STDPTH(R))+1 ||
+                    S:=STINS(B)
+[Symbol table insertion.  B is a packed list of characters. S is a
+pointer to the corresponding symbol in the symbol table SYMTB. If
+it is not yet in, a new node is created.]
+     safe R,L,S',B,s,T,T'.
+     global SYMTB.                   [Global symbol tree]
+(1)  [Symbol table.] T:=SYMTB.
+(2)  [Binary search.] while T # () do {   ADV2(T;L,S',R);
+     s:=ACOMP1(SECOND(S'),B);
+     case s of
+     {  -1 do { T':=T; T:=R };
+         0 do { S:=S'; return };
+        +1 do { T':=T; T:=L }  }   }.
+(3)  [Insert new node.] S:=(-BETA,B); N:=(BETA,S);
+     if SYMTB=() then SYMTB:=N else
+     if s=-1 then SRED(RED(T'),N) else SFIRST(T',N)||
+                    L:=STLST(T)                                        
+[Symbol tree list.  T is a symbol tree. L is the list of its symbols    
+in alphabetic order, that is in in-order. Iterative version.] 
+(1)  [Stack.] S:=(COMP(0,T)); L:=().
+(2)  [Recursion.] repeat ADV(S;T',S);  ADV(T';s,T');
+     L:=COMP(s,L); while T'#() do {ADV(T';l,T'); S:=COMP(T',S); T':=l}
+     until S=();  L:=INV(L); L:=RED(L) || 
+                    L:=STLSTP(T)
+[Symbol tree list, pre-order.  T is a symbol tree. L is a list
+of its symbols, with the root symbol appearing first.]
+(1)  [Basis.] if T=() then { L:=(); return }.
+(2)  [Recursion.] ADV2(T;l,s,r); if l # () then l:=STLSTP(l);
+     if r # () then r:=STLSTP(r); L:=COMP(s,CONC(l,r))||
+                    STNLST(T;L,n)
+[Symbol-tree nodes list.  T is a non-empty symbol tree.  L is the list
+of its nodes in the alphabetic order of the corresponding symbols and n
+the number of nodes.  This algorithm is normally used for creating the
+data as required for STBAL.]
+     safe S.
+(1)  ADV2(T;l,S,r); n1:=0; n2:=0; if l # () then STNLST(l;l,n1);
+     if r # () then STNLST(r;r,n2); n:=n1+1+n2;
+     L:=CONC(l,COMP(T,r))||
+                    S:=STSRCH(T,A')
+[Symbol tree search.  T is a symbol tree, A' is a packed list
+of characters. If the symbol with the name A' occurs already
+ in T, then S points to the entry, otherwise S=().]
+     safe STSRCH.
+(1)  [Initialize.] S:=(); T':=T.
+(2)  [Binary search.] if T' # () then
+     repeat ADV2(T';L,K,R); s:=ACOMP1(SECOND(K),A');
+     case s of {  -1 do T':=R; 0 do { S:=K; return }; +1 do T':=L  }
+     until T'=()||
+                    STSWRT(T)
+[Symbol tree structured write.  The symbol tree T is written in a
+structured way.]
+(1)  [Basis.]  if T=() then return.
+(2)  [Recursion.]  ADV2(T;L,S,R); SLMARG(LMARG+2); STSWRT(R);
+     LMARG:=LMARG-2; OPOS:=OPOS-2; UWRITE(S); SLMARG(LMARG+2);
+     STSWRT(L); LMARG:=LMARG-2; OPOS:=OPOS-2||
+                    STWRT(T)
+[Symbol tree write.  T is a symbol tree. The symbols followed
+by their properties are printed in alphabetic order.]
+(1)  [Initialize.] T':=T.
+(2)  [Symbols in tree.]  while T' # () do {  ADV2(T';L,K,R); STWRT(L);
+     UWRIT2(K); M:=RED2(K); [Properties of symbol.] while M # () do
+     { ADV(M;m,M); UWRIT2(m) }; EMPTOB; T':=R  }||
+                    B:=SUBLIS(L,A)
+[Substitution with list.  L=(x1 e1,...,x sub nl e sub nl),
+A and e sub il are objects. The x sub il are beta-digits
+or pointers to uniquely stored lists like symbols. B is A
+with the x sub il substituted by the e sub il.]
+(1)  [Basis.] B:=ASSOC(A,L); if B # () then { B:=FIRST(B); return };
+     if ATOM(A)\/A=()\/SYMBOL(A) then { B:=A; return }.
+(2)  [Recursion.] ADV(A;C1,C2); B:=COMP(SUBLIS(L,C1),SUBLIS(L,C2))||
+                    SWRITE(S)
+[Symbol write.  The symbol S is written in the output stream.]
+     safe SWRITE.
+     safe A[132].
+safe SBASE. global SBASE.       [Largest power of CHI+1 <= BETA]
+(1)  [Packed character list.]  L:=SECOND(S); c:=CHI+1; n:=0.
+(2)  [Unpack.] repeat d:=SBASE/c; ADV(L;a,L); repeat q:=a/d;
+     n:=n+1; A[n]:=q-1; a:=a-q * d; d:=d/c until a=0 until L=().
+(3)  [Test eoln.]  if OPOS+n > RMARG then WRITE.
+(4)  [Write characters.]  for i=1,...,n do CWRITE(A[i])||
+                    b:=SYMBOL(A')
+[Symbol.  A' is an object. b=true, if it is a SYMBOL, else b=false.]
+     safe SYMBOL.
+(1)  if ATOM(A')\/A'=()\/ FIRST(A') # -BETA then b:=FALSE else
+     b:=TRUE||
+                    TMWRT()
+[Time write.  The first call to TMWRT prints the time since the
+initialization of the basic system, the later calls print the time
+since the previous call of TMWRT. Tim is updated.]
+     safe TMWRT.
+     safe  TIM.  global TIM.         [Incremental time in ms]
+(1)  [Save TIM and OUNIT.] T:=CLOCK()-TIM; O:=OUNIT.
+(2)  [Write.] EMPTOB;  OUNIT:=MUNIT;  CWRIT5('t','i','m','e','=');
+     GWRITE(T); CWRIT3(' ','m','s'); WRITE.
+(3)  [Update TIM and resore OUNIT.] TIM:=CLOCK(); OUNIT:=O ||
+
+                    TRC(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13)
+[Trace entry or exit.  The first 6 arguments are the characters of an
+algorithm name in reverse order.  The seventh argument specifies entry
+or exit tracing and the number of parameters in a8 to a13.]
+     safe A[13],i,S,c,I.
+     safe COUNT. global COUNT.
+     safe TRMAX. global TRMAX. 
+     const ICOUNT=20.           
+     const IINDEX=21.        
+(1)  [Load.]  A[1]:=a1; A[2]:=a2; A[3]:=a3; A[4]:=a4; A[5]:=a5;
+     A[6]:=a6; A[7]:=a7; A[8]:=a8; A[9]:=a9; A[10]:=a10; A[11]:=a11;
+     A[12]:=a12; A[13]:=a13.
+(2)  [Form algorithm name.]  L:=(); i:=1; while i<=6 /\ A[i] # ' '
+     /\ i<'Z'  do { L:=COMP(A[i],L); i:=i+1 }; S:=ENTER(L).
+(3)  [Count.]  c:=GET(S,ICOUNT); if c=() then c:=0;
+     if A[7] < 100 then { I:=1; c:=c+1; PUT(S,ICOUNT,c); if c=TRMAX
+     then PUT(S,IINDEX,INDEX) } else I:=0;
+     if COUNT >= 1 \/ TRMAX=0 then return; EMPTOB.
+(4)  [More than TRMAX calls.]  if c > TRMAX then
+     {  if INDEX <= GET(S,IINDEX) then if I then
+     { PUT(S,IINDEX,INDEX-1); return } else { PUT(S,IINDEX,INDEX);
+     go to 6 } else return  }.
+(5)  [Entry trace.]  if I then {  LMARG:=LMARG+2;
+     if LMARG >= RMARG/2 then {LMARG:=0; OPOS:=0 } else CWRIT2(' ',' ');
+     CWRITE('>'); UWRIT1(S);
+     for i=8,...,A[7]+7 do { GWRITE(i-7); CWRITE(':');
+     UWRIT1(A[i]) }; EMPTOB; return  }.
+(6)  [Exit trace.]  CWRITE('<'); UWRIT1(S);
+     for i=8,...,A[7]-93 do { GWRITE(i-7); CWRITE(':');
+     UWRIT1(A[i]) }; LMARG:=LMARG-2; if LMARG < 0 then
+     LMARG:=RMARG/2-1-EVEN(RMARG/2); WRITE||
+
+                    UOWRT1(L)
+[Universal ornamental write, 1.  L is an atom, a SYMBOL or a list over
+atoms and symbols.  L is written in the output stream, followed
+by a blank. If a symbol is ornamented it is printed in Linear Aldes
+form.]
+(1)  [Atom?] if ATOM(L) then {AWRITE(L); return}.
+(2)  [Empty list?] if L=() then {CWRIT3('(',')',' '); return}.
+(3)  [Symbol?] if SYMBOL(L) then
+      {if ISORN(L) then SOWRT(L) else SWRITE(L); CWRITE(' '); return}.
+(4)  [List] CWRITE('('); L':=L;
+     repeat ADV(L';a,L'); UOWRT1(a) until L'=();
+     if OPOS > LMARG then OPOS:=OPOS-1; CWRIT2(')',' ') ||
+                    L:=UREAD()
+[Universal read.  The next atom, SYMBOL or list over atoms
+and symbols is read and stored under L. Blanks may occur anywhere,
+elements of a list may or may not be separated by a comma.]
+     safe C.
+(1)  [Branch on c.] C:=CREADB(); if DIGIT(C) \/ C='-' \/ C='+' then
+     {BKSP; L:=AREAD(); return} else if LETTER(C) then {BKSP;
+     L:=SREAD(); return} else if C # '(' then { print
+     "atoms, symbols, or lists expected by UREAD, "; DIBUFF; stop }.
+(2)  [Read list.] L:=(); C:=CREADB(); if C=')' then return; BKSP;
+     repeat {  L:=COMP(UREAD(),L); C:=CREADB(); if C=')' then
+     { L:=INV(L); return } else if C # ',' then BKSP  }||
+                    UWRIT1(L)
+[Universal write 1.  L is an atom, a SYMBOL or a list over atoms and
+symbols.  L is written in the output stream, followed by a blank.]
+(1)  [Atom, empty list, symbol or non-empty list.]  if ATOM(L) then
+     AWRITE(L) else if L=() then CWRIT2('(',')') else if SYMBOL(L) then
+     SWRITE(L) else {  CWRITE('('); L':=L; repeat ADV(L';a,L');
+     UWRIT1(a) until L'=(); if OPOS > LMARG then OPOS:=OPOS-1;
+     CWRITE(')')  }.
+(2)  [Add blank.]  CWRITE(' ')||
+                    UWRIT2(L)
+[Universal write 2.  L is an atom, a symbol or a list over atoms and
+symbols.  L is written in the output stream, followed by a blank.
+Atoms are not broken across the line.]
+(1)  [Enough space left?]  if OPOS+10>RMARG then EMPTOB.
+(2)  [Atom, empty list, symbol or non-empty list.]  if ATOM(L) then
+     AWRITE(L) else if L=() then CWRIT2('(',')') else if SYMBOL(L) then
+     SWRITE(L) else {  CWRITE('('); L':=L; repeat ADV(L';a,L');
+     UWRIT2(a) until L'=(); if OPOS > LMARG then OPOS:=OPOS-1;
+     CWRITE(')')  }.
+(3)  [Add blank.]  CWRITE(' ')||
+                    UWRITE(L)
+[Universal write.  L is an atom, a SYMBOL or a list over atoms and
+symbols.  L is written in the output stream, followed by a blank and a
+newline.]
+     safe UWRITE.
+(1)  UWRIT1(L); EMPTOB||

@@ -1,0 +1,29 @@
+C*-*-*INPUT                                                           
+      SUBROUTINE INPUT                                                  
+      IMPLICIT INTEGER (A-Z)                                            
+      COMMON /ZECHO/ECHO                                                
+      COMMON /ZEOF/EOF                                                  
+      COMMON /ZIBUFF/IBUFF(80)                                          
+      COMMON /ZISIZE/ISIZE                                              
+      COMMON /ZIUNIT/IUNIT                                              
+      COMMON /ZMUNIT/MUNIT                                              
+      COMMON /ZPRNTR/PRNTR
+      EOF=0                                                             
+      READ (IUNIT,10,END=30) (IBUFF(I),I=1,ISIZE)                       
+C Next 3 lines on: write on logfile 9 if input from terminal and no echo.
+  2   if (iunit.ne.5) go to 12 
+      if (echo.EQ.1) go to 12
+      write (9,10) (IBUFF(I),I=1,ISIZE)
+ 10   FORMAT (80A1)                                                     
+ 12   IF (ECHO.NE.1) RETURN                                             
+      IF (MUNIT.EQ.PRNTR) GO TO 22
+      WRITE (MUNIT,15) (IBUFF(I),I=1,ISIZE)                             
+ 15   FORMAT (80A1)                                                 
+      RETURN
+ 22   WRITE (MUNIT,20) (IBUFF(I),I=1,ISIZE)                             
+ 20   FORMAT (1H ,80A1)                                                 
+      RETURN                                                            
+ 30   EOF=1                                                             
+      IBUFF(1)=58                                                       
+      RETURN                                                            
+      END                                                                     

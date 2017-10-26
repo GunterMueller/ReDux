@@ -1,0 +1,20 @@
+Data Structure Definitions of the Symbol System
+
+An ALDES character constant  is externally represented by the character surrounded by quotation marks, for example '=', 'Z', ' ' are in turn the character constants for the equal sign, for the letter Z and for blank. The internal representation of a character constant is its ALDES character code, a b-digit between 0 and x-1 (see the SAC-2 Basic System).
+
+An ALDES string constant is externally represented by one or more characters surrounded by double quotation marks. The string must be parenthesis normal, i.e. the total numbers of left and right parentheses are equal and each initial segment of the string contains at least as many left as right parentheses. Examples:"This is a string.", "A=". However, "B("is not a string constant. The internal representation of a string constant is its character list, i.e. it is the list of its character constants, not including the double quotation marks, in the external order. Hence, "A=" is represented as ('A', '=').
+
+Characters and strings can be manipulated without type restrictions just as any other b-digits and lists. In order to save space, character lists can be condensed to packed character lists. Let x be the number of characters of the ALDES character code. Let further SBASE be the largest power of (x+1) less or equal b and set SBASE = (x+1)w.
+
+Then a packed character p consists of d, 1²d²w, character codes c1,...,cd such that
+
+p = (c1+1)(x+1) w-1+ ... + (cd+1)(x+1)w-d.
+
+By incrementing the character codes by 1 the code for '0' is distinguished from trailing zeros of p. By shifting the characters to the left, alphabetic comparison of character lists can be made by integer comparison of the packed characters. A character list (c1,...,cn) is then packed to (d1,...,ds) such that n = qw+r, where q = s-1 for r>0 and q = s for r = 0. d1 contains the first w characters c1,...,cw and so on.
+
+An ALDES symbol is on input represented by an identifier starting with a letter and followed by 0 or more alphanumeric characters to any length. Internally any character list can be represented as a symbol. Within a given symbol table (see below) each symbol is stored uniquely such that equality can be tested by "=". The internal representation of a symbol is an association list of period 2 of indicators and properties, also called attribute names and attribute values of the symbol. Each symbol starts with the NAME attribute, indicated by -b. The value of the name attribute is the packed character list of its external representation. If S is a symbol then NAME(S) gives its packed character list and ATTRIB(S) the remaining property list of S.
+
+Example: Let S be the symbol MAINALGORITHM, let w = 5 and let S have an attribute "level" indicated by the symbol LEV with value 1. Then its internal representation is (-b,(maina,lgori,thm),LEV,1) where the packing is only indicated by grouping.
+
+A symbol table is a binary tree, possibly empty, labelled with symbols in alphabetic order from left to right. If T is a non-empty symbol tree then LLINK(T) gives its left branch, RLINK(T) its right branch and INFO(T) the symbol at the root of the tree.
+

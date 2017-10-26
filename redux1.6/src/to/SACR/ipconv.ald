@@ -1,0 +1,8 @@
+                    IPCONV(P; b,v)
+[Integral polynomial is constant with value.
+r is the rank of the integral polynomial P. Then b is TRUE if P
+is a constant and then v is the value else FALSE and v is 0. [WL]]
+(1)  [Init.] p':=P; b:=TRUE; v:=0.
+(2)  [P an atom.] P':=p'; if P' < BETA then { v:=P'; return }.
+(3)  [P a list.] ADV2(P'; e',p',P');
+     if e' = 0 then goto 2 else { b:=FALSE; return } ||

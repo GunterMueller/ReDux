@@ -1,0 +1,104 @@
+[Project:  ReDuX  AC-completion
+   module name        : ACSRT1 -- Sorting Algorithms
+   modulespecification: sorting algorithms, combined merge and
+                        bubble sort. Basically the algorithms
+                        LBIBS, LBIM and LBIBMS are parametrized using
+                        macro techniques by the less than function.
+                        Sorts lists of rules according their rule number
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 08.06.90
+                        $Date: 1993/08/12 17:13:03 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+
+[----------------------------------------------------------------------
+      Parametrization:
+----------------------------------------------------------------------]
+
+      const
+      LESSTHAN(a,b) =AXNOLT(a,b),
+      LESSEQUAL(a,b)=AXNOLE(a,b),
+      LMERGE(L1,L2) =LAXM(L1,L2),
+      LBSORT(L)     =LAXBS(L).
+      [Seemingly no procedures can be replaced by macros in ALDES  ]
+      [Thus LAXBS had to become a function.                        ]
+ 
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    M:=LAXBMS(L)
+[List of axioms bubble-merge sort. 
+L is an arbitrary list of axioms possibly with repetitions. 
+Then M is the result of sorting L into non-decreasing order. 
+A combination of bubble-sort and merge- sort is used.  
+The list L is modified to produce M.]
+     safe B',i,j,k,L1,L2,L'',m,n,q,q',r,t.
+(1)  [Short list.]  t:=10;  n:=LENGTH(L);  if n < t then
+     { d:=LBSORT(L);  M:=L;  return }.
+(2)  [Prepare for merge.]  k:=0;  m:=1;  q:=n;  repeat { k:=k+1;
+     m:=m+m;  q:=q/2 } until q < t;  r:=n-m * q;  B:=();  L':=L;
+     for i=1,...,m do {  if i <= r then q':=q else q':=q-1;
+     L'':=L';  for j=1,...,q' do L'':=RED(L'');  L''':=RED(L'');
+     SRED(L'',());  d:=LBSORT(L');  B:=COMP(L',B);  L':=L''' }.
+(3)  [Merge.]  for i=1,...,k do {  C:=();  B':=B;  repeat
+       { ADV2(B'; L1,L2,B'); L1:=LMERGE(L1,L2); C:=COMP(L1,C) }
+     until B'=(); B:=C  };  M:=FIRST(B)||
+
+[----------------------------------------------------------------------
+       Section 2 Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    b:=AXNOLT(a1,a2)
+[Axiom number, less.  a1 and a2 are axioms. 
+Then b = TRUE if the axiom number of a1 is less then that of a2 else
+b= FALSE.]
+     safe AXNOLT.
+(1)  if ANUM(a1) < ANUM(a2) then b:=TRUE else b:=FALSE || 
+
+                    b:=AXNOLE(a1,a2)
+[Axiom number, less or equal. 
+Then b = TRUE if the axiom number of a1 is less then or equal to
+that of a2 else b= FALSE.] 
+     safe AXNOLE. 
+(1)  if ANUM(a1) <= ANUM(a2) then b:=TRUE else b:=FALSE ||
+
+                    d:=LAXBS(L)
+[List of axioms bubble sort.  
+L is an arbitrary list, with possible repetitions.  L is sorted into
+non-decreasing order by the bubble-sort method.  The list L, though not
+its location, is modified. d is a dummy result.]
+     [safe LAXBS.]
+(1)  [Trivial case.]  d:=0; if L=() then return.
+(2)  [General case.]  M:=();  repeat {   L':=L;  L'':=RED(L');
+      a':=FIRST(L');  M':=();  while L'' # M do {  a'':=FIRST(L'');
+      if LESSTHAN(a'',a') then 
+       { SFIRST(L',a'');  SFIRST(L'',a');  M':=L'' }
+      else a':=a'';  L':=L'';  L'':=RED(L')  };  M:=M'   } 
+     until M=(); return||
+
+                    L:=LAXM(L1,L2)
+[List of axioms merge.  L1 and L2 are arbitrary lists 
+in non-decreasing order.  L is the merge of L1 and L2.
+L1 and L2 are modified to produce L.]
+     safe LAXM.
+(1)  [L1 or L2 null.]  if L1=() then { L:=L2;  return };  if L2=() then
+     { L:=L1;  return }.
+(2)  [Initialize.]  L'1:=L1;  L'2:=L2;  a1:=FIRST(L1);  a2:=FIRST(L2);
+     if LESSTHAN(a2,a1) then { L:=L2;  L':=L2;  L'2:=RED(L2);  go to 4 } 
+     else { L:=L1;  L':=L1;  L'1:=RED(L1) }.
+(3)  [LAST element from L1.]  if L'1=() then go to 5;  a1:=FIRST(L'1);
+     if LESSEQUAL(a1,a2) then { L':=L'1;  L'1:=RED(L'1);  go to 3 } 
+     else { SRED(L',L'2);  L':=L'2;  L'2:=RED(L'2) }.
+(4)  [LAST element from L2.]  if L'2=() then go to 5;  a2:=FIRST(L'2);
+     if LESSEQUAL(a1,a2) then { SRED(L',L'1);  L':=L'1;  L'1:=RED(L'1);
+     go to 3 } else { L':=L'2;  L'2:=RED(L'2);  go to 4 }.
+(5)  [Left over.]  if L'1=() then SRED(L',L'2) else SRED(L',L'1);
+     return||
+

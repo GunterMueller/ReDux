@@ -1,0 +1,181 @@
+[-----------------------------------]
+[ Extended critical pair algorithms ]
+[-----------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[special macros for unfailing completion]
+[ #include "uc.h" ]
+
+[----------------]
+[ EXPORT section ]
+[----------------]
+
+
+
+                    C*:=EESEPS(C,R,E,O)
+[Equation, equation set, extended critical pairs.
+ C = s <-> t is an equation, R is a term rewriting system,
+ E is a set of equations and O is a string denoting a term
+ ordering > s.th. for all l -> r in R : l > r.
+ Then C* = EP sub >(R U E U {s <-> t}) \ EP sub >(R U E).]
+
+(1) [init] C*:=(); s:=CPLHS(C); t:=CPRHS(C); n:=ENUM(C);
+           TBVSLI(s; Vs,bs); TBVSLI(t; Vt,bt);
+           V:=CONC(Vs,Vt); R':=R; E':=E.
+(2) [compute critical pairs from s <-> t and R]
+    while R'#() do
+    { ADV(R'; A,R');
+      C*:=CONC(REPCPS(A,s,t,V,bs,n,O), C*);
+      C*:=CONC(REPCPS(A,t,s,V,bt,n,O), C*)
+    }.
+(3) [compute critical pairs from s <-> t and E]
+    while E'#() do
+    { ADV(E'; CP,E');
+      s2:=CPLHS(CP); t2:=CPRHS(CP); n2:=ENUM(CP);
+      TBVSLI(s2; Vs,bs2); TBVSLI(t2; Vt,bt2);
+      V2:=CONC(Vs,Vt);
+      C*:=CONC(EEPCPS(s,t,V,bs,n,s2,t2,V2,bs2,n2,O),C*);
+      C*:=CONC(EEPCPS(s,t,V,bs,n,t2,s2,V2,bt2,n2,O),C*);
+      C*:=CONC(EEPCPS(t,s,V,bt,n,s2,t2,V2,bs2,n2,O),C*);
+      C*:=CONC(EEPCPS(t,s,V,bt,n,t2,s2,V2,bt2,n2,O),C*)
+    }.
+(4) [compute intrinsic critical pairs from s <-> t]
+    TRPCVS(s,t; s',t',V');
+    C*:=CONC(EEPCPS(s,t,V,bs,n,s',t',V',bs,n,O),C*);
+    C*:=CONC(EEPCPS(s,t,V,bs,n,t',s',V',bt,n,O),C*);
+    C*:=CONC(EEPCPS(t,s,V,bt,n,t',s',V',bt,n,O),C*) ||
+
+
+
+                    C* := RESEPS(A,R,E,O)
+[Rule, equation set, extended critical pairs.
+ A = l -> r is a rewrite rule, R is a term rewriting system,
+ E is a set of equations and O is a string denoting a term
+ ordering > such that for all l' -> r' in R : l' > r'.
+ Then C* = EP sub >(R U E U {l <-> r}) \ EP sub >(R U E).]
+
+(1) [init] R':=R; E':=E;
+           ADIS(A; n,l,V,r,b).
+(2) [compute intrinsic critical pairs from l -> r]
+    TRPCVS(l,r; l',r',V');
+    C*:=REPCPS(A,l',r',V',b,n,O).
+(3) [compute critical pairs from l -> r and R]
+    while R'#() do
+    { ADV(R'; a,R');
+      C*:=CONC(REPCPS(a,l,r,V,b,n,O),C*)
+    }.
+(4) [compute critical pairs from A = l -> r and E]
+    while E'#() do
+    { ADV(E'; CP,E');
+      s:=CPLHS(CP); t:=CPRHS(CP); n2:=ENUM(CP);
+      TBVSLI(s; Vs,bs); TBVSLI(t; Vt,bt);
+      V:=CONC(Vs,Vt);
+      C*:=CONC(REPCPS(A,s,t,V,bs,n2,O),C*);
+      C*:=CONC(REPCPS(A,t,s,V,bt,n2,O),C*)
+    } ||
+
+[---------------------]
+[ INTERNAL algorithms ]
+[---------------------]
+
+
+
+                    C*:=EEPCPS(s1,t1,V1,b1,n1,s2,t2,V2,b2,n2,O)
+[Equation, equation proper critical pair.
+ s1, t1, s2 and t2 are free terms. ni is the number of the
+ rule si -> ti or equation si <-> ti. Vi = X(si) U X(ti),
+ bi = TRUE iff si is linear else bi = FALSE (i in {1, 2})
+ and V1 n V2 = 0. O is a string denoting a term ordering >.
+ Then C* is the set of all proper critical pairs of
+ s1 -> t1 and s2 -> t2 w. r. t. >.]
+
+(1) [init] C*:=(); s^1:=s1; t^1:=t1; V^1:=V1.
+(2) [critical pair at top position]
+    if TKIND(s^1)#DVS /\ TKIND(s2)#DVS then 
+    { [calculate most general common instance]
+      I:=TMGCIL(s^1,s2,b1,b2);
+      if I#() then
+      { [I = s^1m = s2m]
+        if TPPO(CPCONS(t^1,s^1,0,0,0), O) # 'S' /\
+           TPPO(CPCONS(t2,s^1,0,0,0), O) # 'S' then
+        { [proper critical pair]
+          TRPCVS(t^1,t2; t*1,t*2,V*);
+          C*:=COMP(CPCONS(t*1,t*2,n1,n2,0), ())
+        }
+      };
+      UNDO(V^1);
+      UNDO(V2)
+    }.
+(3) [critical pairs at proper subterms of s^1]
+    C*:=CONC(C*, EPCPS1(s^1,t^1,V^1,b1,n1,s2,t2,V2,b2,n2,O,s^1)).
+(4) [critical pairs at proper subterms of s2]
+    C*:=CONC(C*, EPCPS1(s2,t2,V2,b2,n2,s^1,t^1,V^1,b1,n1,O,s2)) ||
+
+
+
+                    C*:=EPCPS1(s1,t1,V1,b1,n1,s2,t2,V2,b2,n2,O,S1)
+[Equation proper critical pair, subalgorithm.
+ All parameters except S1 correspond to those in EEPCPS.
+ S1 is a subterm of s1.
+ Then C* is the set of those critical pairs which are obtained 
+ by superposing s2 on every proper subterm of S1.]
+
+(1) [init]
+    C*:=().
+(2) [S1 atomic?]
+    if TKIND(S1) # DOS then return.
+(3) [process proper subterms of S1]
+    S':=OARGLST(S1);
+    while S'#() do
+    { t:=FIRST(S');
+      k:=TKIND(t);
+      if k=DOS \/ k=DCS then
+      { [t is non-variable]
+        I:=TMGCIL(t,s2,b1,b2);
+        if I#() then [I = tm = s2m]
+        { [build s1[t<-t2]m]
+          t':=t;
+          FIRST(S'):=t2;
+          [copy s1[t<-t2]m and t1m]
+          TRPCVS(s1,t1; s*1,t*1,V*);
+          [bind free variables of s*1 to their corresponding ones
+           in s1[t<-t2]m]
+          I':=TMATCH(s*1,s1);
+          [bind free variables of t*1 to their corresponding ones
+          in t1; t*1 might be atomic!]
+          k':=TKIND(t*1);
+          if k'=DOS then I':=TMATCH(t*1,t1)
+          else if k'=DVS then TCONT(t*1):=t1;
+          [restore s1m]
+          FIRST(S'):=t';
+          [check whether computed CP is a proper CP]
+          if TPPO(CPCONS(t*1,s1,0,0,0), O) # 'S' /\ 
+             TPPO(CPCONS(s*1,s1,0,0,0), O) # 'S' then
+          { [yeah, we've computed a proper CP!]
+            UNDO(V*);
+            C*:=COMP(CPCONS(t*1,s*1,n1,n2,0), C*)
+          }
+        };
+        UNDO(V1);
+        UNDO(V2);
+        C*:=CONC(C*,EPCPS1(s1,t1,V1,b1,n1,s2,t2,V2,b2,n2,O,t))
+      };
+      S':=RED(S')
+    } ||
+
+
+
+                    C*:=REPCPS(A,s,t,V,b,n2,O)
+[Rule, equation proper critical pair.
+ A = l -> r is a rule, s and t are free terms which may share
+ variables. n2 is the number of the rule s -> t or equation
+ s <-> t. V = X(s) U X(t), b = TRUE iff s is linear else 
+ b = FALSE and X(l) n V = 0. O is a string denoting a term
+ ordering >. Then C* is the set of all critical pairs of A and
+ s -> t w.r.t >.]
+
+(1) [init] C*:=(); ADIS(A; n, lhs, V*, rhs, llb).
+(2) [consider axiom A as oriented equation]
+    C*:=EEPCPS(lhs,rhs,V*,llb,n,s,t,V,b,n2,O) ||

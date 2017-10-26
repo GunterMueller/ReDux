@@ -1,0 +1,23 @@
+%%  comment symbol
+DATATYPE NAT;
+SORT
+	NAT;
+CONST
+	0, A: NAT;
+VAR
+	x, y, z: NAT;
+OPERATOR
+	s: NAT -> NAT;
+	+: NAT, NAT -> NAT;
+	fib: NAT -> NAT;
+NOTATION
+	s, fib: FUNCTION;
+	+: INFIX;
+AXIOM
+[1]  (0 + x) == x;
+[2]  (s(x) + y) == s((x + y));
+[3]  fib(0) == 0;
+[4]  fib(s(0)) == s(0);
+[5]  fib(s(s(x))) == (fib(s(x)) + fib(x));
+[6]  s(s(s(s(s(s(0)))))) == A;
+END

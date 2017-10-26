@@ -1,0 +1,92 @@
+[Project:  ReDuX Term Completion
+   module name        : TCCPC -- Critical Pair Computation
+   modulespecification: Critical pair computation algorithms without 
+                        confluence criteria. 
+                        Variables are uniquely defined by their TCONT.
+                        Formerly tccp0u.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen [RB]
+   language           : aldes
+   last change        : 4.7.90
+                        $Date: 1994/12/21 20:14:42 $ 
+                        by $Author: buendgen $
+   version:           : $Revision: 1.9 $
+   bugs               : none known
+   modules needed     : sac2/ba, sac2/sy, sac2/lp
+                        tp/tpdd, tp/tpcy, tc/tcu
+]
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+
+[---------------------------------------------------------------------
+     Section 1.  Algorithms for Export
+----------------------------------------------------------------------]
+
+                    C*:=ASCPS(A,a)
+[Set of axioms, set of unconnected critical pairs.
+a  is  an axiom. A=(a sub 1, ..., a sub n) is A set of axioms s.th.
+for any two axioms in A all critical pairs are connected. Then C* is the
+set of all unconnected critical pairs of a and a, and of axioms  in  A
+and  a,  where  for  each pair of a and a sub i in A, 1 <= i <= n,
+connectedness may be established by creating a stepping stone  with  the
+help of any a sub j s.th. j < i. ]
+     safe A',a'.
+(1)  [Initialize.] C*:=(); A':=A.
+(2)  [Loop.] while A' # () do
+     {ADV(A'; a',A'); C*:=CONC(ACPS(a',a),C*)}.
+(3)  [Intrinsic critical pairs.] C*:=CONC(AICPS(a),C*) ||
+
+[---------------------------------------------------------------------
+     Section 2.  Algorithms for internal use
+----------------------------------------------------------------------]
+ 
+                    C:=ACPS(a1,a2)                                
+[Axioms, set of unconnected critical pairs.                            
+Both  a1 and a2 are axioms, a1 # a2. 
+Then C is the set of pairs  of  a1  and  a2.]
+     safe n1,L1,V1,R1,n2,L2,V2,R2,U,b1,b2,b.                
+(1)  [Initialize.] C:=(); ADIS(a1; n1,L1,V1,R1,b1);
+     ADIS(a2; n2,L2,V2,R2,b2); if b1=1 then b:=1 else b:=b2.
+(2)  [Critical pair at top position.] U:=TNMGCI(L1,L2,b);
+     if U # () then [ U = L1m =L2m.]
+     { [Copy R2m and R1m.] TRPCVS(R1,R2; c1,c2,V_0);
+       C:=COMP(CPCONS(c1,c2,n1,n2,ESS),C) 
+     }; UNDO(V1); UNDO(V2).
+(3)  [Critical pairs at proper subterms of L2.]                        
+     C:=CONC(C,ACPS1(b,n2,L2,V2,R2,L2,n1,L1,V1,R1)).
+(4)  [Critical pairs at proper subterms of L1.]                        
+     C:=CONC(C,ACPS1(b,n1,L1,V1,R1,L1,n2,L2,V2,R2)) ||           
+
+                    C:=ACPS1(b,N1,L1,V1,R1,l1,n2,l2,v2,r2)    
+[Axioms, set of critical pairs, subalgorithm.              
+Both (N1,L1,V1,R1) and (n2,l2,v2,r2) are axioms. l1 is a non-atomic
+subterm  of L1. b=0 if  none  of the  axioms is left-linear, b=1 
+otherwise. 
+Then C is the set of those critical pairs which are obtained by 
+superposing l2  on  every proper  subterm of l1.]
+     safe b,N1,n2,L1,V1,R1,l2,v2,r2,l',t,t',U,k.
+(1)  [Initialize.] C:=(); l':=TSIGN(l2).
+(2)  [Process subterms of l1.] L':=OARGLST(l1); while L' # () do       
+     { t:=FIRST(L'); k:=TKIND(t); if k=DOS then                    
+      { t':=TSIGN(t); if t'=l' then                                
+       { UTI:=UTI-CLOCK(); U:=TNRMCI(t,l2); UTI:=UTI+CLOCK(); UC:=UC+1;
+        if U # () then [ U = tm =l2m.]
+        { [Copy L1[L'<-r2]m and r1m.] t^:=t; FIRST(L'):=r2;
+          TRPCVS(L1,R1; c2,c1,V_0); FIRST(L'):=t^;
+          t^:=CPCONS(c2,c1,n2,N1,ESS); C:=COMP(t^,C)
+        }; UNDO(V1); UNDO(v2)  
+       }; C:=CONC(C,ACPS1(b,N1,L1,V1,R1,t,n2,l2,v2,r2))   
+      }; L':=RED(L')    } ||                                              
+
+                    C:=AICPS(a)                                   
+[Axiom, set of unconnected intrinsic critical pairs.                   
+a  is  an axiom. 
+Then C is the set  of  those  critical  pairs  which  are
+obtained  by  superposing  the  left-hand-side  of  a  on itself at all
+non-trivial subterms.]
+     safe l,v',r,b,l_,v_,r_,n.                                  
+(1)  [Initialize.] a_:=ACOPY(a);
+     ADIS(a; n,l,v',r,b); ARDIS(a_; l_,v_,r_).
+(2)  [Critical pairs at subterms.]                                     
+     C:=ACPS1(b,n,l,v',r,l,n,l_,v_,r_) ||                 

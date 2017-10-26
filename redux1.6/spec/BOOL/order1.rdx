@@ -1,0 +1,99 @@
+%%  comment symbol
+DATATYPE BRING;
+%%  AUTHOR  R. Buendgen
+%%  STATUS complete
+%%  DESCRIPTION Boolean ring 
+SORT
+	BOOLEAN;
+CONST
+	T, F, a1, a2, a3, a4, a5, a6: BOOLEAN;	%%  true,  false,  a > x,  a < x,  a = x,  a >= x,  a <= x,  a =/= x
+VAR
+	p, q, r: BOOLEAN;
+OPERATOR
+	#: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  exclusive or
+	/\: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  and
+	~: BOOLEAN -> BOOLEAN;	%%  not
+	=>: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  implies
+	\/: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  or
+	<=>: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  equivalent
+	|: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  nand
+NOTATION
+	~: FUNCTION;
+	#, /\, =>, \/, <=>, |: INFIX;
+THEORY
+	#, /\: AC;
+AXIOM
+  [1] (p \/ q) == ((p /\ q) # (p # q));
+  [2] (p => q) == ((p /\ q) # (p # T));
+  [3] (p <=> q) == (p # (q # T));
+  [4] (p | q) == ~((p /\ q)) ;
+  [5] ~(p) == (p # T);
+  [6] (p # F) == p;
+  [7] (p # p) == F;
+  [8] (p /\ T) == p;
+  [9] (p /\ p) == p;
+ [10] (p /\ F) == F;
+ [11] (p /\ (q # r)) == ((p /\ q) # (p /\ r));
+
+ [12] (a1 # a2) == a6;
+ [13] (a1 # a3) == a4;
+ [14] (a1 # a4) == a3;
+ [15] (a1 # a5) == T;
+ [16] (a1 # a6) == a2;
+ [17] (a2 # a3) == a5;
+ [18] (a2 # a4) == T;
+ [19] (a2 # a5) == a3;
+ [20] (a2 # a6) == a1;
+ [21] (a3 # a4) == a1;
+ [22] (a3 # a5) == a2;
+ [23] (a3 # a6) == T;
+ [24] (a4 # a5) == a6;
+ [25] (a4 # a6) == a5;
+ [26] (a5 # a6) == a4;
+
+[27] ((a1 /\ p) # (a2 /\ p)) == (a6 /\ p);
+[28] ((a1 /\ p) # (a3 /\ p)) == (a4 /\ p);
+[29] ((a1 /\ p) # (a4 /\ p)) == (a3 /\ p);
+[30] ((a1 /\ p) # (a5 /\ p)) == p;
+[31] ((a1 /\ p) # (a6 /\ p)) == (a2 /\ p);
+[32] ((a2 /\ p) # (a3 /\ p)) == (a5 /\ p);
+[33] ((a2 /\ p) # (a4 /\ p)) == p;
+[34] ((a2 /\ p) # (a5 /\ p)) == (a3 /\ p);
+[35] ((a2 /\ p) # (a6 /\ p)) == (a1 /\ p);
+[36] ((a3 /\ p) # (a4 /\ p)) == (a1 /\ p);
+[37] ((a3 /\ p) # (a5 /\ p)) == (a2 /\ p);
+[38] ((a3 /\ p) # (a6 /\ p)) == p;
+[39] ((a4 /\ p) # (a5 /\ p)) == (a6 /\ p);
+[40] ((a4 /\ p) # (a6 /\ p)) == (a5 /\ p);
+[41] ((a5 /\ p) # (a6 /\ p)) == (a4 /\ p);
+
+[42] (a1 /\ a2) == F;
+[43] (a1 /\ a3) == F;
+[44] (a1 /\ a4) == a1;
+[45] (a1 /\ a5) == F;
+[46] (a1 /\ a6) == a1;
+[47] (a2 /\ a3) == F;
+[48] (a2 /\ a4) == F;
+[49] (a2 /\ a5) == a2;
+[50] (a2 /\ a6) == a2;
+[51] (a3 /\ a4) == a3;
+[52] (a3 /\ a5) == a3;
+[53] (a3 /\ a6) == F;
+[54] (a4 /\ a5) == a3;
+[55] (a4 /\ a6) == a1;
+[56] (a5 /\ a6) == a2;
+
+[57] (a1 # T) == a5;
+[58] (a2 # T) == a4;
+[59] (a3 # T) == a6;
+[60] (a4 # T) == a2;
+[61] (a5 # T) == a1;
+[62] (a6 # T) == a3;
+
+[63] ((a1 /\ p) # p) == (a5 /\ p);
+[64] ((a2 /\ p) # p) == (a4 /\ p);
+[65] ((a3 /\ p) # p) == (a6 /\ p);
+[66] ((a4 /\ p) # p) == (a2 /\ p);
+[67] ((a5 /\ p) # p) == (a1 /\ p);
+[68] ((a6 /\ p) # p) == (a3 /\ p);
+END

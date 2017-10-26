@@ -1,0 +1,195 @@
+[Project: External Evaluation.
+   module name        : EVIP -- EValuate in Integral Polynomial.
+   modulespecification: Algorithms to evaluate in a ring of integral
+                        polynomials.
+   programmer         : Werner Lauterbach
+   language           : aldes
+   last change        : 28.10.94
+                        $Date: 1995/01/14 19:43:50 $
+                        by $Author: lauterba $
+   version            : $Revision: 1.1 $
+   bugs               : none known
+   modules needed     : tp/tpdd.ald
+                        [if IPWRTV is used: to/topit.ald]
+]
+
+[ #include "ev.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+
+[----------------------------------------------------------------------
+     This algorithms are intended to evaluate in an integer ring:
+     Let (N, +, *, -, 0, 1) the signature:
+         N  <--->  integers
+         +  <--->  IPRSUM               :  +: N x N --> N
+         *  <--->  IPRPRO               :  *: N x N --> N
+         -  <--->  IPRNEG               :  -: N --> N
+         0  <--->  PRZERO               :  constant
+         1  <--->  IPRONE               :  constant
+-----------------------------------------------------------------------
+     External Algorithms:
+     XFG    : IPRFG
+     XREAD  : IPRRDE
+     XWRITE : IPRWRE or IPRWEN
+     XTERM  : TFIPRE
+     XLT    : Not implemented.
+     XEQ    : Not implemented.
+-----------------------------------------------------------------------]
+
+                    z:=PRZERO(DUMMY)
+[Polynomial Ring ZERO. 
+DUMMY is the not used dictionary. Then z is an polynomial representing 
+the zero. [WL]]
+     safe z.
+(1)  [Return 0.] z:=0 ||
+
+                    e:=IPRONE(d)
+[Integral Polynomial Ring ONE. 
+d is the dictionary. Then e is an integral polynomial representing the 
+one with rank LENGTH(d). [WL]]
+     safe i, rank.
+(1)  [Initialize.] e:=1; rank:=LENGTH(d).
+(2)  [Assimilate rank.] for i=1,...,rank do e:=CCONC((0),(e)) ||
+
+                    p:=IPRSUM(d,p1,p2)
+[Integral Polynomial Ring SUM. 
+d is the dictionary, p1 and p2 are integral polynomials of rank 
+LENGTH(d). p=p1+p2. [WL]]
+     safe rank.
+(1)  [Sum.] rank:=LENGTH(d); p:=IPSUM(rank,p1,p2) ||
+
+                    p:=IPRPRO(d,p1,p2)
+[Integral Polynomial Ring PROduct. 
+d is the dictionary, p1 and p2 are integral polynomials of rank 
+LENGTH(d). p=p1*p2. [WL]]
+     safe rank.
+(1)  [Product.] rank:=LENGTH(d); p:=IPPROD(rank,p1,p2) ||
+
+                    p':=IPRNEG(d,p)
+[Integral Polynomial NEGation. 
+d is a dictionary, p is an integral polynomial of rank LENGTH(d). 
+p'=-p. [WL]]
+     safe rank.
+(1)  [Negation.] rank:=LENGTH(d); p':=IPNEG(rank,p) ||
+
+[----------------------------------------------------------------------
+     External Algorithms:
+-----------------------------------------------------------------------]
+
+                    p:=IPRFG(k,d)
+[Integral Polynomial Ring Free Generator. 
+k is the rank of the free generator, k <= LENGTH(d), d the dictionary. 
+Let r:=LENGTH(d). Then p:=1*x_1**delta(1,k),...,1*x_r**delta(r,k) 
+with delta(r,k) = 1 if r = k and delta(r,k) = 0 else, an integral 
+polynomial of rank r. [WL]]
+     safe k, rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [k = 1.] if k:=1 then { p:=(1,1); goto 4 }.
+(3)  [k > 1.] p:=1; for i=1,...,k-1 do p:=CCONC((0),(p));
+     p:=CCONC((1),(p)).
+(4)  [Assimilate rank.] for i=1,...,rank-k do p:=CCONC((0),(p)) ||
+
+                    o:=IPRRDE()
+[Integral Polynomial Ring ReaD Element. 
+The integral polynomial ip is read from the input stream. Then o is an 
+external object with a pseudo dictionary d of length rank of ip. [WL]]
+     safe i, rank.
+(1)  [Read integral polynomial.] IPREAD(;rank,ip,V).
+(2)  [Make pseudo dictionary.] entry:=(); d:=();
+     for i:=1,...,rank do d:=COMP(entry,d).
+(3)  [Make external object.] o:=XOBJCON(d,ip). ||
+
+                    IPRWRE(x)
+[Integral Polynomial Ring WRite Element. 
+x = (d,ip) is an external object. d is the dictionary ip an integral 
+polynomial of rank LENGTH(d). ip is written into the output stream 
+using xi, 1 <= i <= rank, as names of the indeterminates. [WL]]
+     safe d, ip, rank, j.
+(1)  [Initialize.]
+     d:=XOBJDIC(x); ip:=XOBJINT(x); rank:=LENGTH(d); V:=().
+(2)  [Make list of indeterminates.]
+     for j=rank,rank-1,...,1 do {V:=COMP(COMP('x',STRFBI(j)),V)}.
+(3)  [Call.] IPWRIT(rank,ip,V); [IPWRTV(rank,ip,V)] ||
+
+                    IPRWEN(x)
+[Integral Polynomial Ring Write Element with Names. 
+x = (d,ip) is an external object. d is the dictionary ip an integral 
+polynomial of rank LENGTH(d). ip is written into the output stream 
+using the corresponding names of the indeterminates stored in d. [WL]]
+     safe d, ip, rank, entry.
+(1)  [Initialize.]
+     d:=XOBJDIC(x); ip:=XOBJINT(x); rank:=LENGTH(d); V=().
+(2)  [Make list of indeterminates.]
+     while d # () do { ADV(d; entry,d); V:=COMP(DCENAME(entry),V) };
+     V:=CINV(V).
+(3)  [Call.] IPWRIT(rank,ip,V); [or alternative IPWRTV(rank,ip,V)] ||
+
+                    t:=TFIPRE(O,d,p)
+[Term From Integral Polynomial Ring Element. 
+O = ((czero,cone...),(osum,oprod,oneg,...)) is a pair containg the
+constants and the operators corresponding to the constructors of the
+integral polynomials, d the dictionary and p an integral polynomial with 
+coefficients < BETA. Then t is a term representing p ("XTEVL(t)=p", 
+the inverse of the evaluation). ]
+     safe rank.
+(1)  [Change representation.] rank:=LENGTH(d); dip:=DIPFP(rank,p).
+(2)  [Make term from distributive polynomial.] t:=TFDIP(O,d,dip) ||
+
+[---------------------------------------------------------------------
+     Section 2.
+     Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    t:=TFDIP(O,d,p)
+[Term From Distributive Integral Polynomial. 
+O = ((czero,cone...),(osum,oprod,oneg,...)) is a pair containg the 
+constantsand the operators corresponding to the constructors of the
+integral polynomials, d the dictionary and p a distributive integral 
+polynomial with coefficients < BETA. Then t is a term representing p 
+("XTEVL(t)=p", the inverse of the evaluation). This function expects 
+that  osum and oprod are DAC operators.]
+     safe O',coef, exp, entry, l, i.
+(1)  [Extrakt constants and operators] O1:=FIRST(O); O2:=SECOND(O);
+     if LENGTH(O1) + LENGTH(O2) >= 5 then
+     { ADV2(O1;czero,cone,O');  ADV3(O2; osum,oprod,oneg,O') }
+     else
+     {
+         STROUT(" *** Warning, unexpected number ");
+         STOUTL("of operators in TFDIP! "); HALT
+     }.
+(2)  [Initialize.] cont:=(); p':=p.
+(3)  [Trivial cases.]
+     if p = 0 then { t:=TCONS((),czero); return };
+     if p = 1 then { t:=TCONS((),cone); return };
+     if ATOM(p) then { coef:=p; p':=(); t':=TCONS((),cone); goto 6 }.
+(4)  [Skip 0 monoms.] coef:=0;
+     while coef = 0 /\ p' # () do ADV2(p'; coef,explst,p').
+(5)  [Multiplication.] d2:=CINV(d); cont2:=();
+     while d2 # () do
+     {
+         ADV(d2; entry,d2); ADV(explst; exp,explst);
+         if exp >= 1 then for i:=1,...,exp do
+             cont2:=COMP(DCETERM(entry),cont2);
+     };
+     l:=LENGTH(cont2);
+     if l > 1 then t':=TCONS(cont2,oprod) else
+         if l = 1 then t':=FIRST(cont2) else
+             if l = 0 then
+                 if coef # 0 then t':=TCONS((),cone)
+                 else t':=TCONS((),czero).
+(6)  [Addition.]
+     if coef < 0 then { coef:=-coef; neg:=TRUE }
+     else neg:=FALSE;
+     if coef >= 1 then
+         if neg then for i:=1,...,coef do 
+             cont:=COMP(TCONS((t'),oneg),cont)
+         else for i:=1,...,coef do cont:=COMP(t',cont);
+     if p' # () then goto 4;
+     l:=LENGTH(cont);
+     if l > 1 then t:=TCONS(cont,osum) else
+         if l = 1 then t:=FIRST(cont) else
+             if l = 0 then t:=TCONS((),czero) ||

@@ -1,0 +1,80 @@
+[----------------------------------------------------------------------]
+[- This is the main program to test all parser functions. -------------]
+[----------------------------------------------------------------------]
+
+[Stacksize:]
+    pragma TMU=10000.
+[Heapsize:]
+    pragma TNU=32000.
+
+
+                    MAIN.
+[ #include "tp.h" ]
+[ #include "parse.h" ]
+[ #include "globs.h" ]
+
+[parser]
+
+(1)  [initialize ReDuX system and global variables for parser]
+     BGNRWD(5).
+(2)  [output breadth: 80 characters] RMARG=79.
+(3)  [garbage collector messages on] GCM=1. 
+(4)  [use file.4 as input file for data type] DUNIT:=4.
+(5)  [welcome message]
+     STOUTL("/--------\"); STOUTL("| PARSER |"); STOUTL("\--------/").
+(6)  [set input unit to file.4] CRT:=IUNIT; IUCHNG(DUNIT); ISIZE:=80.
+(7)  [load data type (NEW parser!!!)]
+     STOUTL("Loading your data type."); DT:=DTPRS().
+(8)  [set input unit back to keybord] IUCHNG(CRT); ISIZE:=80.
+(9)  [write data type] BLINES(1); DTWRT(DT).
+(10) [query] BLINES(1);
+     STROUT("Do you want to parse a (t)erm, an (a)xiom,");
+     STOUTL(" an (o)perator,");
+     STROUT("term(s), a(x)ioms, (v)ariables, (c)onstants, ");
+     STOUTL("o(p)erators,");
+     STOUTL("a (r)elation list, write the current (d)ata type,");
+     STOUTL("change term (w)rite mode or (q)uit ? *");
+     READ(); c:=UCASE(CREAD()); if c='Q' then goto 13.
+(11) [start parser]
+     case c of
+     { 'T' do { STOUTL("Enter term:"); t:=TEPRS(DT);
+                TWRT(t); WRITE };
+       'A' do { STOUTL("Enter axiom:"); a:=AXPRS(DT); [AXWRT(a); ]
+                INSAXS(DT,(a)); WRITE };
+       'O' do { STOUTL("Enter operator:"); o:=OPRS(DT); 
+                INSOPS(DT,(o); ins,err); if err#() then
+                { STROUT("Operator could not be added to ");
+                  STOUTL("data type!") }
+                else OPWRT(FIRST(ins)); WRITE };
+       'S' do { STOUTL("Enter two terms:"); TPRSC(DT,(); t1,V); 
+                TDIWRT(t1,(); D*); WRITE; TPRSC(DT,V; t2,V);
+                TDIWRT(t2,D*; D*); WRITE };
+       'X' do { STOUTL("Enter axioms:"); as:=ASPRS(DT);
+                INSAXS(DT,as); ASWRT(as); WRITE };
+       'V' do { STOUTL("Enter variables:"); vs:=VSPRS(DT);
+                INSVRS(DT,vs; ins,err); if err#() then
+                { STROUT("Not all variables could be added to");
+                  STOUTL(" data type!") }; VSWRT(ins); WRITE };
+       'C' do { STOUTL("Enter constants:"); cs:=CSPRS(DT);
+                INSCNS(DT,cs; ins,err); if err#() then
+                { STROUT("Not all constants could be added to");
+                  STOUTL(" data type!") }; CSWRT(cs); WRITE };
+       'P' do { STOUTL("Enter operators:"); os:=OSPRS(DT);
+                INSOPS(DT,os; ins,err); if err#() then
+                { STROUT("Not all operators could be added to");
+                  STOUTL(" data type!") }; OSWRT(os); WRITE };
+       'D' do { STOUTL("Current data type:"); DTWRT(DT); WRITE };
+       'W' do QOPMOD();
+       'R' do { STOUTL("Enter operator relation operator list:"); WRITE;
+                repeat OROLRD(;o,r,O,b); if b then
+                { SWRT(o); CWRITE(' '); CLOUT(r); while O#() do
+                  { ADV(O; o,O); CWRITE(' '); SWRT(o) }; WRITE
+                } until ~b
+              }
+     }.
+(12) [repeat] goto 10.
+(13) [finish up] ENDS || 
+
+
+          SWRIT(s)
+(1) SWRT(s) ||

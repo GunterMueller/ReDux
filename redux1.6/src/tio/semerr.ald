@@ -1,0 +1,215 @@
+[----------------------------------------------------------------------]
+[- This file contains routines for semantic error reporting. ----------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                 SEMERR(nr, L)
+[Semantic error.  nr is the number of the semantic error that
+ occurred, L is a list of ALDES objects depending on the error
+ number nr. An error message is printed according to nr:
+  0: operator arity error
+  1: operator sort error
+  2: undeclared operator
+  3: fixity declared twice
+  4: specified fixity not allowed
+  5: associativity declared twice
+  6: precedence declared twice
+  7: unification status declared twice
+  8: inconsistent unification status
+  9: undeclared sort in operator declaration
+ 10: identifier declared twice
+ 11: undeclared external sort in coercion operator declaration
+ 12: undeclared sort in coercion operator declaration
+ 13: incompatible types in axiom
+ 14: undeclared sort in variable declaration
+ 15: undeclared sort in constant declaration
+ 16: missing X(READ|WRITE) in external type declaration
+ 17: external sort declared twice
+ 18: sort declared twice
+ 19: property already set
+ 20: closing roundfix operator mismatch
+ The parser usually terminates after a semantic error.]
+(1) [header line]
+    STROUT("*** Semantic error in line "); IWRITE(ILINE).
+(2) [operator arity]
+    if nr=0 then { FIRST2(L; op,n);
+      STROUT(": Operator "); OPWRT(op); WRITE;
+      STROUT("    was used as "); IWRITE(n); STOUTL("-ary operator.");
+      DIBUFF; return }.
+(3) [operator sort]
+    if nr=1 then { FIRST3(L; op,i,s);
+      STROUT(": "); IWRITE(i); STOUTL(". argument of operator");
+      STROUT("    "); OPWRT(op); STROUT(" had wrong sort "); SWRT(s);
+      STOUTL("."); DIBUFF; return }.
+(4) [undeclared operator]
+    if nr=2 then { on:=FIRST(L);
+      STROUT(": Undeclared operator "); SWRT(on); STOUTL(".");
+      DIBUFF; return }.
+(5) [fixity declared twice]
+    if nr=3 then { on:=FIRST(L);
+      STROUT(": Notation declared twice for operator "); SWRT(on);
+      STOUTL("."); DIBUFF; return }.
+(6) [specified fixity not allowed]
+    if nr=4 then { op:=FIRST(L);
+      STOUTL(": Specified notation not allowed for operator");
+      STROUT("    "); OPWRT(op); STOUTL("."); DIBUFF; return }.
+(7) [associativity declared twice]
+    if nr=5 then { on:=FIRST(L);
+      STROUT(": Associativity declared twice for operator ");
+      SWRT(on); STOUTL("."); DIBUFF; return }.
+(8) [precedence declared twice]
+    if nr=6 then { on:=FIRST(L);
+      STROUT(": Inconsistent precedence for operator "); SWRT(on);
+      STOUTL("."); DIBUFF; return }.
+(9) [unification status declared twice]
+    if nr=7 then { on:=FIRST(L);
+      STROUT(": Theory declared twice for operator ");
+      SWRT(on); STOUTL("."); DIBUFF; return }.
+(10) [inconsistent unification status]
+     if nr=8 then { on:=FIRST(L);
+       STROUT(": Inconsistent theory for operator ");
+       SWRT(on); STOUTL("."); DIBUFF; return }.
+(11) [undeclared sort in operator declaration]
+     if nr=9 then { FIRST2(L; op, sort);
+       STROUT(": Undeclared sort '"); SWRT(sort);
+       STOUTL("' in declaration"); STROUT("    of operator "); 
+       OPWRT(op); STOUTL("."); DIBUFF; return }.
+(12) [identifier used twice]
+     if nr=10 then { name:=FIRST(L);
+       STROUT(": Identifier '"); SWRT(name);
+       STOUTL("' declared twice."); DIBUFF; return }.
+(13) [undeclared external sort in coercion operator declaration]
+     if nr=11 then { FIRST2(L; cp,xsort);
+       STROUT(": Undeclared external sort '"); SWRT(xsort);
+       STOUTL("' in"); STROUT("    declaration of coercion operator ");
+       OPWRT(cp); STOUTL("."); DIBUFF; return }.
+(14) [undeclared sort in coercion operator declaration]
+     if nr=12 then { FIRST2(L; cp,sort);
+       STROUT(": Undeclared sort '"); SWRT(sort);
+       STOUTL("' in declaration"); STROUT("    of coercion operator ");
+       OPWRT(cp); STOUTL("."); DIBUFF; return }.
+(15) [axiom's left and right hand side types not compatible]
+     if nr=13 then { FIRST3(L; ax,lt,rt);
+       STROUT(": Incompatible types '"); SWRT(lt); STROUT("' and '");
+       SWRT(rt); STOUTL("' in axiom"); STROUT("    "); AXWRT(ax);
+       STOUTL("."); DIBUFF; return }.
+(16) [undeclared sort in variable declaration]
+     if nr=14 then { FIRST2(L; var,sort);
+       STROUT(": Undeclared sort '"); SWRT(sort);
+       STOUTL("' in declaration"); STROUT("    of variable ");
+       VAWRT(var); STOUTL("."); DIBUFF; return }.
+(17) [undeclared sort in constant declaration]
+     if nr=15 then { FIRST2(L; con,sort);
+       STROUT(": Undeclared sort '"); SWRT(sort);
+       STOUTL("' in declaration"); STROUT("    of constant ");
+       CONWRT(con); STOUTL("."); DIBUFF; return }.
+(18) [missing X(READ|WRITE) in external type declaration]
+     if nr=16 then { FIRST2(L; xsort,prop);
+       STROUT(": Missing "); SWRT(prop); 
+       STOUTL(" property in external");
+       STROUT("    type declaration of "); SWRT(xsort); STOUTL(".");
+       DIBUFF; return }.
+(19) [external sort declared twice]
+     if nr=17 then { xsort:=FIRST(L);
+       STROUT(": External sort '"); SWRT(xsort);
+       STOUTL("' declared twice."); DIBUFF; return }. 
+(20) [sort declared twice]
+     if nr=18 then { sort:=FIRST(L);
+       STROUT(": Sort '"); SWRT(sort);
+       STOUTL("' declared twice."); DIBUFF; return }. 
+(21) [property already set]
+     if nr=19 then { FIRST2(L; name, prop);
+       STROUT(": Property '"); SWRT(prop); STOUTL("' already set");
+       STROUT("    for object '"); SWRT(name); STOUTL("'.");
+       DIBUFF; return }.
+(22) [closing roundfix operator mismatch]
+     if nr=20 then { FIRST2(L; expected, seen);
+       STOUTL(": Closing roundfix operator mismatch,");
+       STROUT("    expected '"); SWRT(expected);
+       STROUT("', but found '"); SWRT(seen); STOUTL("'.");
+       DIBUFF; return }.
+(23) [unknown error]
+     STOUTL(": Internal error in SEMERR !!!"); stop ||
+
+
+                 SEMWRN(nr, L)
+[Semantic warning.  nr is the number of the semantic warning,
+ L is a list of ALDES objects depending on the error number nr.
+ An error message is printed according to nr:
+  0: associativity conflict
+  1: no associativity specified
+  2: multiple identifier in roundfix declaration
+  3: associativity specified for non-infix operator
+  4: property of external type declared twice
+  5: precedence declared for coercion operator
+  6: indentifier with underscore may be ambiguous
+  7: variable name with underscore
+  8: no precedence declared between infix operators
+  9: improper precedence declaration
+ The parser usually continues after a semantic warning.]
+(1) [header line]
+    STROUT("*** Semantic warning"); if nr<6 \/ nr>7 then 
+    { STROUT(" in line "); IWRITE(ILINE) }.
+(2) [associativity conflict]
+    if nr=0 then { FIRST2(L; o1,o2);
+      STOUTL(": Conflicting left/right associativity between");
+      STROUT("    "); OPWRT(o1); STOUTL(" and "); STROUT("    ");
+      OPWRT(o2); WRITE;
+      STOUTL("    will be resolved by left associativity.");
+      DIBUFF; return }.
+(3) [no associativity]
+    if nr=1 then { op:=FIRST(L);
+      STOUTL(": No associativity specified for operator");
+      STROUT("    "); OPWRT(op); STOUTL(".");
+      STOUTL("    This will be resolved by left associativity.");
+      DIBUFF; return }.
+(4) [multiple identifier in roundfix declaration]
+    if nr=2 then { STOUTL(": Same closing roundfix symbol");
+      STOUTL("    for different operators."); DIBUFF; return }.
+(5) [associativity specified for non-infix operator]
+    if nr=3 then { on:=FIRST(L);
+      STOUTL(": Associativity specified for non-infix");
+      STROUT("    operator "); SWRT(on);
+      STOUTL(" ignored."); DIBUFF; return }.
+(6) [property of external type declared twice]
+    if nr=4 then { FIRST2(L; xsort, prop);
+      STROUT(": Property "); SWRT(prop); STOUTL(" of external");
+      STROUT("    type '"); SWRT(xsort);
+      STOUTL("' declared twice. Previous declaration ignored.");
+      DIBUFF; return }.
+(7) [precedence declared for coercion operator]
+    if nr=5 then { con:=FIRST(L);
+      STOUTL(": Precedence declared for coercion"); 
+      STROUT("    operator '"); SWRT(con);
+      STOUTL("' will be ignored.");
+      DIBUFF; return }.
+(8) [identifier with underscore]
+    if nr=6 then { FIRST3(L; var, idpre,idpost);
+      STROUT(": Identifier '"); CLOUT(idpre); CWRITE('_');
+      CLOUT(idpost); STROUT("' and variable '"); CLOUT(var);
+      STOUTL("'"); STOUTL("    may lead to ambiguities."); return }.
+(9) [variable with underscore]
+    if nr=7 then { var:=FIRST(L);
+      STROUT(": Variable '"); CLOUT(var);
+      STOUTL("' may be confused with indexed variables."); return }.
+(10) [no precedence declared between infix operators]
+     if nr=8 then { FIRST2(L; op1,op2);
+      STOUTL(": No precedence declared between infix operators");
+      STROUT("    "); SWRT(TNAME(op1)); STROUT(" and ");
+      SWRT(TNAME(op2)); STROUT(". Will be resolved by ");
+      STROUT("higher precedence for "); SWRT(TNAME(op1));
+      STOUTL("."); DIBUFF; return }.
+(11) [improper precedence declaration]
+     if nr=9 then { on:=FIRST(L);
+       STOUTL(": Improper precedence declaration for");
+       STROUT("    operator "); SWRT(on);
+       STOUTL(" ignored."); DIBUFF; return }.
+(12) [ATTENTION: Should be fixed!]
+     if nr=10 \/ nr=11 then { STROUT(": Unhandled error nr. ");
+	IWRITE(nr); STOUTL("."); DIBUFF; return }.
+(13) [unknown warning]
+    STOUTL(": Internal error in SEMWRN !!!"); stop ||

@@ -1,0 +1,388 @@
+[Project:  ReDuX  AC-completion
+   module name        : ACM -- Matching Algorithms
+   modulespecification: matching algorithms
+                        TLMSE and TMSAC computing only one matcher
+                        like acu(1/2/3) only algorithms for matching
+                        like acu3 but optimized TMSSAC
+                        like acm but optimized VLMSAC
+                        formerly acm1
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 15.06.90
+                        $Date: 1994/12/22 15:37:32 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.9 $
+                        CO-operators and extenal terms added
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include globs.h]
+
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+ 
+                    m:=TLMSE(S,T,V,l_)
+[Term list, matching substitution modulo an equational theory.
+S = (s1, ...,sn) and T = (t1, ...,tn) are lists of terms. The operators
+of the terms in S and T may have properties denoting the equetional
+theory they are affected by. S and T do not have common variables.
+V is a set of variables which may not be bound during the match. If 
+l_ = TRUE then no variable in S occurs twice.
+Then m is a matching substitutions of S and T. I.e. m s.th. for each j 
+(1<=j<=n) tj = m(sj) if such a substitution exists or m = () if S does 
+not match T.]
+ 
+(1)  [Initialize.] if PNTRC then STOUTL("TLMSE"); 
+     m:=(); S':=S; T':=T.
+(2)  [Trivial case.] if S = T then { m:=SUBIDTY; return }
+      else if S = () \/ T = () then
+       STOUTL("*** unexpected case in TLMSE.2").
+(3)  [Recursion on term list.] ADV(S'; s,S'); ADV(T'; t,T');
+     s:=TSFS(s); t:=TSFS(t).
+(4)  [Trivial case inner recursion.] if s = t then 
+      {  M':=LIST1(SUBIDTY); goto 9 }.
+(5)  [Type clash.] if TTYPE(s) # TTYPE(t) then { m:=(); return }.
+(6)  [At least one variable.] k*:=TKIND(s); k~:=TKIND(t);
+     [s variable.] if k* = DVS then if INTMEM(s,V) \/ VINT(s,t) 
+     then { m:=(); return }   
+     else { M':=LIST1(SUBCONS(s,t)); goto 9 };
+     [t variable.] if k~ = DVS then { m:=(); return }.
+(7)  [Different top.] if TSIGN(s) # TSIGN(t) then { m:=(); return };
+     [External terms.] if k* = DXT then if TRXEQU(s,t) 
+                          then {  M':=LIST1(SUBIDTY); goto 9 }
+                          else { m:=(); return }.
+(8)  [Inner recursion.] E:=TUSTAT(s);
+     [AC operator.] if E = DAC then if l_ \/ ( S' = () /\ T' = () )
+     then { m':=TMSAC(s,t,V,l_); if S' # () /\ m' # ()
+            then  M':=LIST1(m') else { m:=m'; return }
+          } else { M':=TMSSAC(s,t,V); goto 9 };
+     [CO operator.] if E = DCO then if l_ \/ ( S' = () /\ T' = () )
+     then { m':=TMSCO(s,t,V,l_); if S' # () /\ m' # ()
+            then  M':=LIST1(m') else { m:=m'; return }
+          } else { M':=TMSSCO(s,t,V); goto 9 };
+     [Empty theory.] if E = () then if l_ \/ ( S' = () /\ T' = () ) 
+     then { m':=TLMSE(OARGLST(s),OARGLST(t),V,l_); if S' # () /\ m' # () 
+            then  M':=LIST1(m') else { m:=m'; return }
+          } else M':=TLMSSE(OARGLST(s),OARGLST(t),V).
+(9)  [Outer recursion.] if S' = () /\ T' = () then 
+     { if M' = () then m:= () else m:=FIRST(M'); return };
+     while M' # () do
+      { ADV(M'; m',M'); SBAPPL(m'); m'':=TLMSE(S',T',V,l_); if m'' # () 
+        then { m:=SBCMPS(m',m''); SBDAPP(m'); return }; SBDAPP(m')
+      } ||
+
+                    m*:=TMSAC(s,t,V,l_)
+[Terms, matching substitution modulo AC.
+s and t are non-atomic terms with common AC-operator f at their top
+positions. s and t do not have common variables. V is a set of variables 
+which may not be bound during the match. If l_ = TRUE then s is linear.
+Then m* is a substitution s. th.  m*(s) = t modulo associativity and 
+commutativity. m* = () if s does not match t.] 
+ 
+(1)  [Initialize, flatten.] if PNTRC then STOUTL("TMSAC");
+       [[TRC.] STROUT("Entering TMSAC with "); TDIWRT(s,(); D); 
+              STROUT(" and "); TDIWRT(t,D; D); WRITE;
+       ] 
+     S:=TFCONT(s); T:=TFCONT(t); m*:=() .
+(2)  [Sort argument lists. Variables to the right.] TLBSD(S); TLBSD(T).
+(3)  [Eliminate common elements in S and T.] TLODIF(S,T; S1,T').
+(4)  [Trivial cases.] if S1 = () /\ T' = () then { m*:=SUBIDTY; return }
+      else if S1 = () \/ T' = () then return;
+      l*:=LENGTH(S1); l~:=LENGTH(T'); if l~ < l* then return.
+(5)  [Init individual substitution.] ADV(S1; s',S'); k*:=TKIND(s'); 
+     [Non-matching constant.] if k* = DCS then return;
+     [Operator.] if k* # DVS then goto 8.
+(6)  [Variable only case, trivial case.] if INTMEM(s',V) then return;
+     if S' = () then 
+      { if l~ = 1 then s* :=FIRST(T') else s* :=TCONS(T',t);
+        m*:=SUBCONS(s',s*); return 
+      }.
+(7)  [More than one variable.] M*:=VLMSAC(s,S1,T',l*,l~,V,TRUE); 
+     if M* = () then m*:=() else m*:=FIRST(M*); return.
+(8)  [Non-variable, case init.] if l* = 1 /\ l~ > 1 then return;
+     E:=TUSTAT(s'); if k* = DOS /\ E # DAC then c*:=OARGLST(s');
+     g*:=TSIGN(s'); ADV(T'; t',B); B':=B; 
+     [|S'| <= |B|.] if B # () then if RED(B) = () then L_1:=TRUE 
+     else {L_1:=FALSE; s1:=TCONS(S',s); t1:=TCONS(B,t)}.
+(9)  [Match.] if g* # TSIGN(t') then if B' = () then return 
+                                                else goto 11; 
+     [External terms.] if k* = DXT 
+     then if TRXEQU(s',t') then  M:=LIST1(SUBIDTY) else  M:=()
+     else if l_ then { if E = DAC then m:=TMSAC(s',t',V,l_) 
+                       else if  E = DCO then m:=TMSCO(s',t',V,l_)
+                       else m:=TLMSE(c*,OARGLST(t'),V,l_); 
+                       if m = () then M:=() else M:=LIST1(m)
+                     } else if E = DAC then M:=TMSSAC(s',t',V) 
+                       else if E = DCO then M:=TMSSCO(s',t',V)
+                                       else M:=TLMSSE(c*,OARGLST(t'),V);
+     if M = () then if B' = () then return else goto 11;
+     if B = () then { [|B| <= |S'|.] m*:=FIRST(M); return }.
+(10) [Extend set of matches.] while M # () do 
+      { ADV(M; m,M); SBAPPL(m); if L_1 then m':=TLMSE(S',B,V,l_) else
+        m':=TMSAC(s1,t1,V,l_); if m' # () then 
+        { m*:=SBCMPS(m,m'); SBDAPP(m); return }; SBDAPP(m)
+      }. 
+(11) [Next matching partner.] if B' # () then 
+      { t'':=FIRST(B'); FIRST(B'):=t'; t':=t''; B':=RED(B'); goto 9}||
+
+                    m*:=TMSCO(s,t,V,l_)
+[Terms, matching substitution modulo commutativity.
+s and t are non-atomic terms with common commutative operator f at their 
+top positions. s and t do not have common variables. V is a set of 
+variables which may not be bound during the match. If l_ = TRUE then s 
+is linear.
+Then m* is a substitution s. th.  m*(s) = t modulo (commutativity,
+associativity and commutativity). m* = () if s does not match t.]
+
+(1)  [Initialize.] S:=OARGLST(s); T:=OARGLST(t).
+(2)  [Straight.] m*:=TLMSE(S,T,V,l_); if m* # () then return.
+(3)  [Reverse.] S:=INV(S); m*:=TLMSE(S,T,V,l_); S:=INV(S) ||
+
+
+                    b:=TSMTHE(M,T,V,l_)
+[Term, match at subterms modulo equational theory.
+M is a non-atomic or external term. T is a term and V is its 
+variable-set. l_ is TRUE if M is linear otherwise l_ is FALSE.
+Then b = TRUE if T contains an E-instance of M as subterm, 
+b = FALSE otherwise.]
+     safe b,M,T,V,E.
+(1)  [Initialize.] k:=TKIND(T); b:=FALSE.
+(2)  [Match at top level.] E:=TUSTAT(M); 
+     if TSIGN(M) # TSIGN(T) then goto 3;
+     [External term.] if k = DXT then { b:=TRXEQU(M,T); return };
+     MC:=MC+1; MTI:=MTI-CLOCK(); if E = DAC then S:=TMSAC(M,T,V,l_) 
+     else if E = DCO then S:=TMSCO(M,T,V,l_)
+     else S:=TLMSE(OARGLST(M),OARGLST(T),V,l_); MTI:=MTI+CLOCK();
+     if S # () then {b:=TRUE; return}.
+(3)  [Match at operand level.] if k = DOS then b:=TNPSME(M,T,V,E,l_) ||
+
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    M:=TLMSSE(S,T,V)
+[Term list, matching substitution set modulo an equational theory.
+S = (s1, ...,sn) and T = (t1, ...,tn) are lists of terms. The operators
+of the terms in S and T may have properties denoting the equetional
+theory they are affected by. S and T do not have common variables.
+V is a set of variables which may not be bound during the match.
+Then M is the most general set of matching substitutions of S and T.
+I.e. M is a set of substitutions mi s.th. for each j (1<=j<=n)
+tj = mi(sj) if such a substitution exists or M = () if S does not match
+T.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("TLMSSE");
+      [[TRC.] STROUT("Entering TLMSSE with "); D:=(); S_:=S; 
+       while S_ # () do {ADV(S_; s_,S_); TDIWRT(s_,D ; D); STROUT("  ")
+                        }; STROUT(" and "); T_:=T; while T_ # ()
+         do { ADV(T_; t_,T_); TDIWRT(t_,D ; D); STROUT("  ") }; WRITE;
+      ]
+     M:=(); S':=S; T':=T.
+(2)  [Trivial case.] if S = T then { M:=LIST1(SUBIDTY); return }
+      else if S = () \/ T = () then
+       STOUTL("*** unexpected case in TLMSSE.2").
+(3)  [Recursion on term list.] ADV(S'; s,S'); ADV(T'; t,T');
+     s:=TSFS(s); t:=TSFS(t).
+(4)  [Trivial case inner recursion.] if s = t then 
+      { M':=LIST1(SUBIDTY); goto 9 }.
+(5)  [Type clash.] if TTYPE(s) # TTYPE(t) then { M:=(); return }.
+(6)  [At least one variable.] k*:=TKIND(s); k~:=TKIND(t);
+     [s variable.] if k* = DVS then if INTMEM(s,V) \/ VINT(s,t)
+     then { M:=(); return }
+     else { M':=LIST1(SUBCONS(s,t)); goto 9 };
+     [t variable.] if k~ = DVS then { M:=(); return }.
+(7)  [Different top.] if TSIGN(s) # TSIGN(t) then { M:=(); return };
+     [External terms.] if k* = DXT then if TRXEQU(s,t)
+                       then {  M':=LIST1(SUBIDTY); goto 9 }
+                       else { M:=(); return }.
+(8)  [Inner recursion.] E:=TUSTAT(s);
+     [AC operator.] if E = DAC then { M':=TMSSAC(s,t,V); goto 9 };
+     [CO operator.] if E = DCO then { M':=TMSSCO(s,t,V); goto 9 };
+     [Empty theory.] if E = () then M':=TLMSSE(OARGLST(s),OARGLST(t),V).
+(9)  [Outer recursion.] if S' = () /\ T' = () then { M:=M'; return };
+     M:=(); while M' # () do
+      { ADV(M'; m,M'); SBAPPL(m); M'':=TLMSSE(S',T',V);
+        while M'' # () do
+         { ADV(M''; m'',M''); M:=COMP(SBCMPS(m,m''),M) }; SBDAPP(m)
+      } ||
+
+                    M*:=TMSSAC(s,t,V)
+[Terms, matching substitution set modulo AC.
+s and t are non-atomic terms with common AC-operator f at their top
+position. s and t do not have common variables. V is a set of variables
+which may not be bound during the match.
+Then M* is a set of substitutions s. th. for m in M* m(s) = t modulo
+associativity and commutativity.]
+ 
+(1)  [Initialize, flatten.] if PNTRC then STOUTL("TMSSAC");
+       [[TRC.] STROUT("Entering TMSSAC with "); TDIWRT(s,(); D);
+              STROUT(" and "); TDIWRT(t,D; D); WRITE;
+       ]
+     S:=TFCONT(s); T:=TFCONT(t); M*:=() .
+(2)  [Sort argument lists. Variables to the right.] TLBSD(S); TLBSD(T).
+(3)  [Eliminate common elements in S and T.] TLODIF(S,T; S1,T').
+(4)  [Trivial cases.] if S1 = () /\ T' = ()
+      then { M*:=LIST1(SUBIDTY); return }
+      else if S1 = () \/ T' = () then return;
+      l*:=LENGTH(S1); l~:=LENGTH(T'); if l~ < l* then return.
+(5)  [Init individual substitution.] ADV(S1; s',S'); k*:=TKIND(s');
+     [Non-matching constant.] if k* = DCS then return;
+     [Operator.] if k* # DVS then goto 8.
+(6)  [Variable only case, trivial case.] if INTMEM(s',V) then return;
+     if S' = () then
+      { if l~ = 1 then s* :=FIRST(T') else s* :=TCONS(T',t);
+        M*:=LIST1(SUBCONS(s',s*)); return
+      }. 
+(7)  [More than one variable.] M*:=VLMSAC(t,S1,T',l*,l~,V,FALSE); 
+     return.
+(8)  [Non-variable, case init.] if l* = 1 /\ l~ > 1 then return;
+     E:=TUSTAT(s'); g*:=TSIGN(s'); 
+     if k* = DOS /\ E # DAC then c*:=OARGLST(s'); 
+     ADV(T'; t',B); B':=B; [|S'| <= |B|.] if B # () then if RED(B) = () 
+     then L_1:=TRUE else {L_1:=FALSE; s1:=TCONS(S',s); t1:=TCONS(B,t)}.
+(9)  [Match.]
+     if g* # TSIGN(t') then if B' = () then return else goto 11;
+     [External terms.] if k* = DXT
+     then if TRXEQU(s',t') then  M:=LIST1(SUBIDTY) else  M:=()
+     else if E = DAC then M:=TMSSAC(s',t',V) 
+     else if E = DCO then M:=TMSSCO(s',t',V) 
+     else M:=TLMSSE(c*,OARGLST(t'),V);
+     if M = () then if B' = () then return else goto 11;
+     if B = () then { [|B| <= |S'|.] M*:=M; return }.
+(10) [Extend set of matches.] while M # () do
+      { ADV(M; m,M); SBAPPL(m); if L_1 then M':=TLMSSE(S',B,V) else
+        M':=TMSSAC(s1,t1,V); while M' # () do 
+        { ADV(M'; m',M'); M*:=COMP(SBCMPS(m,m'),M*) }; SBDAPP(m)
+      }.
+(11) [Next matching partner.] if B' # () then
+      { t'':=FIRST(B'); FIRST(B'):=t'; t':=t''; B':=RED(B'); goto 9 }||
+
+                    M*:=TMSSCO(s,t,V)
+[Terms, matching substitution set modulo commutativity.
+s and t are non-atomic terms with common commutative operator f at their 
+top positions. s and t do not have common variables. V is a set of 
+variables which may not be bound during the match.
+Then M* is a set of substitutions s. th. for m in M*: m(s) = t modulo 
+(commutativity, associativity and commutativity). M = () if s does not 
+match t.]
+
+(1)  [Initialize.] S:=OARGLST(s); T:=OARGLST(t).
+(2)  [Straight.] M':=TLMSSE(S,T,V).
+(3)  [Reverse.] S:=INV(S); M'':=TLMSSE(S,T,V); S:=INV(S);
+     M*:=CONC(M',M'') ||
+
+                    b:=TNPSME(M,T,V,E,l_)
+[Non-atomic terms, proper subterm match, outer preference modulo E.
+M is a non-atomic or external and T a non-atomic term, T is semi-bound. 
+V is a superset of the variable set of T. E is the unification status 
+of M (DAC,DCO or ()). l_ is TRUE if M is linear otherwise l_ is FALSE.
+Then b=TRUE if T contains an E-instance  of  M as proper   subterm,   
+b=FALSE   otherwise.   The  search  mode  is  outer preference.]
+     safe b,M,V,E,k,k',m,t.
+(1)  [Initialize.] b:=FALSE; m:=TSIGN(M); k:=TKIND(M).
+(2)  [Match with operands.] L:=OARGLST(T); while L # () do
+     {  ADV(L; t,L); if m = TSIGN(t) then
+      { MTI:=MTI-CLOCK(); [External terms.] if k = DXT 
+        then { if TRXEQU(M,t) then S:=1 else S:=() }
+        else if E = DAC then S:=TMSAC(M,t,V,l_) 
+        else if E = DCO then S:=TMSCO(M,t,V,l_)
+        else S:=TLMSE(OARGLST(M),OARGLST(t),V,l_); 
+        MTI:=MTI+CLOCK(); MC:=MC+1; if S # () then {b:=TRUE; return} 
+     }}.
+(3)  [Match with subterms of operands.] L:=OARGLST(T); while L # () do
+     {  ADV(L; t,L); t':=TSFS(t); k' := TKIND(t');
+       if k' = DOS then { b:=TNPSME(M,t',V,E,l_); if b then return }
+     } ||
+
+                    M*:=VLMSAC(o,V,T,l1,l2,V~,e) 
+[Variable list, matching substitutions modulo AC.
+o is an AC-operator. V is a non-empty list of variables in non-ascending
+order wrt. TTO and |V| = l1. T is a non-empty list of terms in non-
+ascending order wrt. TTO, disjoint from V and |T| = l2. V~ is a list of
+variables which may not be bound during the match. E is TRUE or FALSE
+Then M* is a set of substitutions s.th. for M in M* M(oV) = oT modulo
+associativity and commutativity. If e is FALSE then M* contains all
+matching substitutions otherwise only the first one found.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("VLMSAC");
+       [[TRC.] if AATRC then { STROUT("V:  "); TLWRT(V);
+                              STROUT("T:  "); TLWRT(T) }; 
+       ]
+     V':=V; T':=T; M*:=().
+(2)  [Multipicities.] D1:=TLOEML(V'); D2:=TLOEML(T').
+(3)  [Select max. multiplicity m from V.] D:=D1; V*:=V'; V^:=V'; m:=0;
+     while D # () do
+      { ADV2(D; d1,d2,D); V0:=V^; for i=1,...,d1-1 do V0:=RED(V0);
+       V^:=RED(V0); if d1 > m then { m:=d1; v:=d2; V1:=V*; V2:=V^ }; 
+       V*:=V0;
+      }.
+(4)  [Forbidden bound.] if INTMEM(v,V~) then return.
+(5)  [Delete v's from V'.] if FIRST(V1) = v 
+          then V':=V2 else RED(V1):=V2.
+(6)  [Non-backtracking case.] if V' # () then goto 7;
+     T*:=COMP((),T'); D:=D2; while D # () do
+      { ADV2(D; d1,d2,D); QREM(d1,m; q,r); if r # 0 then return;
+       [q > 0.] for i=1,...,q do T*:=RED(T*); T^:=RED(T*); 
+       for i=1,...,d1-q do T^:=RED(T^); RED(T*):=T^
+      }; if RED(T') = () then s*:=FIRST(T')  else s*:=TCONS(T',o);
+     M*:=LIST1(SUBCONS(v,s*)); return.
+(7)  [Init backtracking case.] D2:=INV(D2); MSNSSC(D2,(),m; P,b); 
+        [[TRC.] STROUT("D2:  "); D2TRC(D2,();N9);]
+     l'1:=l1-m; l'2:=l2-m; if P = () then return.
+(8)  [For each element A in the power set of T' let M:={v <- oA}.]
+     [0 < l1-m <= l2-(m*|P|). Construct A and B:=T\A.] P:=INV(P); 
+          [[TRC.] PSTRC(P,N9);]
+     P':=P; A:=(); B:=(); D:=D2; ADV2(D; d2,d1,D'); while P' # () do
+      { ADV2(P'; k,p,P'); 
+             [[TRC.] STROUT("p:  "); D2TRC(p,N9;N9);]
+         while p # D do [p sublist of D.]
+        { for i=1,...,d1 do B:=COMP(d2,B); if D' # () then 
+           { D:=D'; ADV2(D; d2,d1,D') } else  
+           STOUTL("*** unexpected case 1 in VLMSAC.8"); 
+        }; if p = D then
+        { d1:=k; A:=COMP(d2,A) } else 
+        { STOUTL("*** unexpected case 2 in VLMSAC.8")
+          ;[TRC.] PSTRC(P;N9);
+          TDIWRT(d2,N9;N9); STROUT(" > "); TDIWRT(FIRST(p),N9;N9);
+          D2TRC(D2,N9)
+      } }; [Rest to B.] for i=1,...,d1 do B:=COMP(d2,B); while D' # () 
+     do { ADV2(D'; d2,d1,D'); for i=1,...,d1 do B:=COMP(d2,B) };
+     [Construct M.] if RED(A) = () then s*:=FIRST(A) 
+     else s*:=TCONS(A,o); M:=SUBCONS(v,s*).
+(9)  [Inner recursion.] M1:=VLMSAC(o,V',B,l'1,l'2,V~,e); if M1 # () then 
+      { if ~e then while M1 # () do 
+        { ADV(M1; m1,M1); M*:=COMP(SBCMPS(M,m1),M*) }
+        else { M*:=LIST1(SBCMPS(M,FIRST(M1))); return }
+      }.  
+(10) [Next element of power set of T'.] 
+            [[TRC.] STROUT("nach:"); PSTRC(P,N9);
+            ]
+     P:=INV(P); MSNSSC(D2,P,m; P,b); 
+     if P = () then return
+     else if b then { l'2:=l'2-m; if l'1 > l'2 then return };
+     goto 8 ||
+
+[----------------------------------------------------------------------
+       Section 3  Input & test routines
+----------------------------------------------------------------------]
+
+                    PSTRC(P,N)
+(1)  N':=N; P':=P; STROUT("P: |P|="); GWRITE(LENGTH(P)); STOUTL("  ");
+     STROUT("           "); while P' # () do { ADV2(P'; k, p,P');
+     GWRITE(k); STROUT(":: "); if p <= BETA then { STROUT("!!!"); 
+     GWRITE(p); WRITE };
+     D2TRC(p,N';N'); STROUT("           ") }; STOUTL("<-P")|| 
+
+                   D1TRC(D,N;N')
+(1)  N':=N; D':=D;
+     while D' # () do { ADV2(D'; d1,d2,D'); GWRITE(d1); STROUT(": ");
+     TDIWRT(d2,N';N'); STROUT("  /  ") }; WRITE ||
+
+                   D2TRC(D,N;N')
+(1)  N':=N; D':=D; 
+     while D' # () do { ADV2(D'; d2,d1,D'); GWRITE(d1); STROUT(": ");
+     TDIWRT(d2,N';N'); STROUT("  /  ") }; WRITE ||

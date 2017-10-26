@@ -1,0 +1,26 @@
+Directory TAPE
+===============
+
+This directory contains the C-sources of the ALDES (V3.7) compiler
+and the ALDES sources of the SAC-2 system.
+
+Contents:
++++++++++
+	a2c.c:		ALDES compiler
+	a2c.ini:	initialization file for ALDES compiler and 
+                        default  initialization file for ALDES programs
+	an:		SAC-2 algebraic number system (Langemyr)
+	ar:		SAC-2 arithmetic system
+	bs:		SAC-2 list processing system
+	co:		SAC-2 combinatorial system
+	la:		SAC-2 linear algebra system
+	lp:		SAC-2 list processing system
+	pf:		SAC-2 polynomial factorisation system
+	pg:		SAC-2 polynomial gcd and resultant system
+	po:		SAC-2 polynomial system
+	rr:		SAC-2 real root isolation system
+	sy:		SAC-2 symbol system
+
+        io/:		directory for ALDES/SAC-2 i/o routines
+			(interface to operating system, may be OS-depenent)
+

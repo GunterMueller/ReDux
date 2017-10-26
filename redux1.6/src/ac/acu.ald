@@ -1,0 +1,222 @@
+[Project:  ReDuX  AC-completion
+   module name        : ACU -- Unification Algorithms
+   modulespecification: unification algorithms
+                        like acu but optimized TSMTHE, TNPSME, TMSSAC
+                        like acu1 but exports matching algorithms
+                        TLMSE and TMSAC computing only one matcher
+                        like acu2 without matching algorithms
+                        formerly acu3
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 11.01.90
+                        $Date: 1995/12/20 18:15:14 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.7 $
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+
+[---------------------------------------------------------------------]
+[ A diophantine Equation a1*x1 + ... + am*xm = b1*y1 + ... bm*ym will ]
+[ be reprsented as two lists X and Y of period 2 such that            ]
+[ X = (a1, x1, ..., am, xm) and Y = (b1, y1, ..., bn, yn)             ]
+[ A solution of a diophantine equation is a list S of period 2 s. th. ]
+[ S = (s1, z1, ..., sk, zk) where z1, ... zk are the unknowns         ]
+[ occurring in the equation and zi = si for all i (1 <= i <= k) is an ]
+[ assignment which solves the equation.                               ]
+[---------------------------------------------------------------------]
+
+      const
+      DESSVAR(S)=LP2EVE(FIRST(S)).
+                [Variables in set of solutions of diophantine equation.]
+
+ 
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    M:=TLMGUE(S,T)
+[Term list, most general unifyer modulo an equational theory.
+S = (s1, ...,sn) and T = (t1, ...,tn) are lists of terms. The operators
+of the terms in S and T may have properties denoting the equetional 
+theory they are affected by.
+Then M is the most general unifier of S and T. I.e. M is a set of
+substitutions mi s.th. for each j (1<=j<=n) mi(tj) = mi(sj) if such a
+unifier exists or M=() if S and T are not unifyable.]
+
+(1)  [Initialize.] M:=(); S':=S; T':=T.
+                          [; STOUTL("TLMGUE");
+                             STROUT("S: "); TLWRT(S); WRITE;
+                             STROUT("T: "); TLWRT(T); WRITE
+                          ]
+(2)  [Trivial case.] if S = T then { M:=LIST1(SUBIDTY); return }
+      else if S = () \/ T = () then
+       STOUTL("*** unexpected case in TLMGUE.2").
+(3)  [Recursion on term list.] ADV(S'; s,S'); ADV(T'; t,T'); 
+     s:=TSFS(s); t:=TSFS(t); M':=LIST1(SUBIDTY).
+(4)  [Trivial case inner recursion.] if s = t then goto 9.
+(5)  [Type clash.] if TTYPE(s) # TTYPE(t) then { M:=(); return }.
+(6)  [At least one variable.] k*:=TKIND(s); k~:=TKIND(t);
+     [s variable.] if k* = DVS then if VINT(s,t) then { M:=(); return }
+             else { M':=LIST1(SUBCONS(s,t)); goto 9 };
+     [t variable.] if k~ = DVS then if VINT(t,s) then { M:=(); return }
+            else { M':=LIST1(SUBCONS(t,s)); goto 9 }.
+(7)  [Different top.] if TSIGN(s) # TSIGN(t) then { M:=(); return };
+     [External terms.] if k* = DXT then 
+     { if TRXEQU(s,t) then M':=LIST1(SUBIDTY) else M':=(); goto 9 }.
+(8)  [Inner recursion.] E:=TUSTAT(s); 
+     [AC operator.] if E = DAC then { M':=TMGUAC(s,t); goto 9 };
+     [CO operator.] if E = DCO then { M':=TMGUCO(s,t); goto 9 };
+     [Empty theory.] if E = () then M':=TLMGUE(OARGLST(s),OARGLST(t)).
+(9)  [Outer recursion.] if S' = () /\ T' = () then { M:=M'; return };
+     M:=(); while M' # () do
+      { ADV(M'; m,M');  SBAPPL(m); M'':=TLMGUE(S',T'); while M'' # () do
+        { ADV(M''; m'',M''); M:=COMP(SBCMPS(m,m''),M) }; SBDAPP(m) 
+      } ||
+ 
+                    TMGCIE(s,t; T*,M)
+[Terms, most general common instance modulo equational theory.
+s and t are terms. The operators in s and t may have properties denoting
+the equetional theory they are affected by.
+Then T* is the set of most genereal common instances of s and t if such
+instances exist. Otherwise T* = (). The representations of variables of
+terms in T* are not the same as the representation of ther associated
+variables in s or t. M is the set of most general unifyer modulo the
+equational theory if such a unifyier exists otherwise M = ().]
+ 
+(1)  [Initialize.] T*:=(); M:=(); s':=TSFS(s); t':=TSFS(t).
+(2)  [Trivial Case.] if s' = t' then 
+      { T*:=LIST1(s); M:=LIST1(SUBIDTY); return }.
+(3)  [Type clash.] if TTYPE(s') # TTYPE(t') then return.
+(4)  [At least one variable.] k*:=TKIND(s'); k~:=TKIND(t');
+     [s variable.] if k* = DVS then if VINT(s',t') then return
+          else { T*:=LIST1(t'); M:=LIST1(SUBCONS(s',t')); return }; 
+     [t variable.] if k~ = DVS then if VINT(t',s') then return
+          else { T*:=LIST1(s'); M:=LIST1(SUBCONS(t',s')); return }.
+(5)  [Different top.] if TSIGN(s') # TSIGN(t') then return;
+     [External terms.] if k* = DXT then 
+      { if TRXEQU(s,t) then {M:=LIST1(SUBIDTY); T*:=LIST1(s)}; return };
+     if k* # DOS \/ k~ # DOS then
+      STOUTL("*** unexpected case in TMGCIE.5").
+(6)  [Non-atomic terms.] E:=TUSTAT(s'); UC:=UC+1; UTI:=UTI-CLOCK();
+     if E = DAC then [AC operator.] M:=TMGUAC(s',t')
+     else  if E = DCO then [CO operator.] M:=TMGUCO(s',t')
+     else [Empty theory] M:=TLMGUE(OARGLST(s'),OARGLST(t'));
+     UTI:=UTI+CLOCK().
+(7)  [Compute comon instances.] M':=M; while M' # () do
+      { ADV(M'; m,M'); SBAPPL(m); TFCVS(s'; s*,V*);
+         [[TRC.] STOUTL(" NEXT SUBST "); ]
+       T*:=TLDJIN(s*,T*,V*); SBDAPP(m)
+      } ||
+
+                    M*:=TMGUAC(s,t)
+[Terms, most general unifyer modulo AC.
+s and t are non-atomic terms with common AC-operator at their top
+position.
+Then M* is a set of substitutions s. th. M* = mgu(s,t) modulo
+associativity and commutativity.]
+
+(1)  [Initialize, flatten.] if PNTRC then STOUTL("TMGUAC");
+     S:=TFCONT(s); T:=TFCONT(t); M*:=(); z:=TGET(s,DAV)
+       [;[TRC] STROUT("After Flatten: S "); TLWRT(S); WRITE
+        ;[TRC] STROUT("After Flatten: T "); TLWRT(T); WRITE
+       ]
+     .  
+(2)  [Sort argument lists.] TLBSD(S); TLBSD(T)
+       [;[TRC] STROUT("After Sort: S "); TLWRT(S); WRITE
+        ;[TRC] STROUT("After Sort: T "); TLWRT(T); WRITE
+       ]
+     .  
+(3)  [Eliminate common elements in S and T.] TLODIF(S,T; S',T');
+       [[TRC] STROUT("After Diff: S' "); TLWRT(S'); WRITE
+        ;[TRC] STROUT("After Diff: T' "); TLWRT(T'); WRITE;
+       ]
+     if S' = () /\ T' = () then { M*:=LIST1(SUBIDTY); return }
+     else if S' = () \/ T' = () then return.
+(4)  [Create diophantine equation.] L:=TLOEML(S'); R:=TLOEML(T').
+(5)  [Compute non-negative, integral basic solution set of diophantine
+     equation represented by L and R.] S*:=DEBSS(L,R); S*:=DESSRI(S*);
+     l:=LENGTH(S*); if l = 0 then return;
+      [[TRC] S'':=S*; while S''#() do { ADV(S''; s'',S''); DESWRT(s'') };
+      ]
+     if l > 29 then { STOUTL("*** Solution overflow!"); HALT() };
+     l^2:=EXPF(2,l); X:=DESSVAR(S*)
+     [&   ^^^^     ].
+(6)  [Compute constraint vector. ci = 0 iff xi is variable .] C:=();
+     k:=0; X':=X; while X' # () do
+     { ADV(X'; x,X'); k:=k+1; if TKIND(TSFS(x))=DVS then C:=COMP(0,C)
+       else C:=COMP(1,C)
+     }; C:=INV(C).
+(7)  [Compute all substitutions.] p:=DESSNS(S*,l,l^2,k,C,0);
+     while p # 0 do
+      { T:=DESSTV(S*,k,s,z,p); [unify xi with ti.] M:=TLMGUE(X,T);
+       M*:=CONC(M,M*); p:=DESSNS(S*,l,l^2,k,C,p)
+      } ||
+
+                    M*:=TMGUCO(s,t)
+[Terms, most general unifyer modulo commutativity.
+s and t are non-atomic terms with common CO-operator at their top
+position.
+Then M* is a set of substitutions s. th. M* = mgu(s,t) modulo
+(commutativity, associativity and commutativity).]
+
+(1)  [Initialize.] S:=OARGLST(s); T:=OARGLST(t).
+(2)  [Straight.] M':=TLMGUE(S,T).
+(3)  [Reverse.] S:=INV(S); M'':=TLMGUE(S,T); S:=INV(S);
+     M*:=CONC(M',M'') ||
+
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    T*:=TLDJIN(t,T,V)
+[Term, list of disjoint terms insert.
+t is a non-atmic term and T is a list of non atomic terms. V is the set 
+of variables in t. The elements of T and t may have properties denoting 
+the equetional theory they are affected by.
+Then T* = T if t is an instance of some element in T. Otherwise T* is
+equal T union {t} \ { t' in T | t' is an instance of t}.]
+
+(1)  [Initialize.] T':=T; s~:=TSIGN(t); E:=TUSTAT(t); T*:=T;
+     k~:=TKIND(t); l_0:=TNLIN(t); UNDO(V);
+         [[TRC.] STROUT("TLDJIN:  "); TDIWRT(t,(); D); WRITE;]
+     if PNTRC then STOUTL("TLDJIN").
+(2)  [T empty.] if T = () then { T*:=LIST1(t); return }.
+(3)  [Compare.] t':=FIRST(T'); if s~ # TSIGN(t') then if RED(T') = ()
+        then { RED(T'):=LIST1(t); return }
+        else { T':= RED(T'); goto 3 };
+     [ may not happen:
+      [External term.] if k~ = DXT then  if TRXEQU(t,t') then return
+                                        else { M:=(); goto 4 };
+     ]
+     TBVSLI(t';V',l_); MC:=MC+1; MTI:=MTI-CLOCK(); 
+     [AC operator.] if E = DAC then M:=TMSAC(t',t,V,l_) 
+     [CO operator.] else if E = DCO then M:=TMSCO(t',t,V,l_)
+     else M:=TLMSE(OARGLST(t'),OARGLST(t),V,l_); MTI:=MTI+CLOCK(); 
+     [t' matches t.] if M # () then  return;
+     MC:=MC+1; MTI:=MTI-CLOCK(); 
+     [AC operator.] if E = DAC then M:=TMSAC(t,t',V',l_0) 
+     [CO operator.] else if E = DCO then M:=TMSCO(t,t',V',l_0)
+     else M:=TLMSE(OARGLST(t),OARGLST(t'),V',l_0); MTI:=MTI+CLOCK().
+(4)  [No match.] if M = () then if RED(T') = ()
+       then { RED(T'):=LIST1(t); return }
+       else { T':= RED(T'); goto 3 }.
+(5)  [t' matches t.] FIRST(T'):=t.
+(6)  [Other matching elements in T'.] if RED(T') = () then return;
+     t':=SECOND(T'); TBVSLI(t';V',l_); 
+[  [ueberfluessig?]  MC:=MC+1; MTI:=MTI-CLOCK(); 
+     [AC operator.] if E = DAC then M:=TMSAC(t',t,V,l_) 
+     [CO operator.] else if E = DCO then M:=TMSCO(t',t,V,l_)
+     else M:=TLMSE(OARGLST(t'),OARGLST(t),V,l_); MTI:=MTI+CLOCK();
+     if M # () then return; 
+]
+     MC:=MC+1; MTI:=MTI-CLOCK(); 
+     [AC operator.] if E = DAC then M:=TMSAC(t,t',V',l_0) 
+     [CO operator.] else if E = DCO then M:=TMSCO(t,t',V',l_0) 
+     else M:=TLMSE(OARGLST(t),OARGLST(t'),V',l_0); MTI:=MTI+CLOCK();
+     if M # () then RED(T'):=RED2(T') else T':=RED(T'); goto 6 ||
+

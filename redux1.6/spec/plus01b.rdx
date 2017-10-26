@@ -1,0 +1,17 @@
+DATATYPE SORT;
+SORT
+	SORT;
+CONST
+	0, 1: SORT;
+VAR
+	A, B, C, D, E: SORT;
+OPERATOR
+	+: SORT, SORT -> SORT;
+NOTATION
+	+: FUNCTION;
+AXIOM
+[1]  +(0,A)==A;
+[2]  +(1,0)==1;
+[3]  +(+(B,A),C)==+(1,+(A,B));
+END
+;This file is sort.typ

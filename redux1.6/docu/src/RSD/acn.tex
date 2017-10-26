@@ -1,0 +1,58 @@
+\section{The ACN-Subsystem} \label{se:acn}
+
+The subsystem {\it acn} provides a new version of the AC-system that
+supports evaluation domains
+\index{evaluation domains}
+and memorization
+\index{memorization}
+during normalization.
+The normalization strategy is controlled by a new global variable NSTR.
+NSTR may have three values.
+\begin{description}
+\item[purenorm:] Standard innermost normalization modulo AC and C is used.
+\item[evalsupport:]  Normalization with evaluation support is used
+                     interleaving innermost normalizations (modulo AC and C)
+                     and evaluations.
+\item[memorize:] Innermost normalization modulo AC and C is used supported
+                  by reusing memorized (intermediate) results.
+                  Memorizing intermediate results uses partial evaluation.
+\end{description}
+The modules {\tt accsc}, {\tt acde}, {\tt acm}, {\tt acr}, {\tt actto},
+{\tt acu}, {\tt acu1} and {\tt acx} are taken from the subsystem {\it ac}.
+
+\subsection{The {\tt achr}-Module}
+
+The module {\tt achr} exports the normalization procedure TNRMLZ.
+TNRMLZ normalizes a term according to the setting of the global variable
+NSTR as described above.
+The module {\tt achr} also provides an innermost normalization procedure
+TIREH that reuses precomputed normal forms.
+The normal form $t\!\downarrow_{\cal R}$ of a term $t$ is memorized (hashed)
+\index{memorization}
+if $t$ is ground and the top operator $t(\lambda)$ of $t$  is marked as
+``hashable'', i.\,e., if $t(\lambda)$ has a property under indicator DSH.
+In the positive case  $t\!\downarrow_{\cal R}$ is stored  as rule
+\( t \rightarrow ev(t\!\downarrow_{\cal R} \) where 
+$ev(t\!\downarrow_{\cal R})$ denotes the evaluated form of
+$t\!\downarrow_{\cal R}$.
+The last evaluations step takes only place if there are evaluable function
+symbols.
+
+\subsection{The {\tt accmp}-Module}
+
+The module {\tt accmp} extends the {\tt accmp} module of the {\it ac} subsystem
+to take advantage of built-in evaluation domains.
+In the procedure DTKBC is is possible to determine a term rewriting system
+$\cal R$ that is already known to be complete.
+If evaluation support is enabled the reduction relation described by this 
+$\cal R$ must be contained in the evaluation relation.
+
+\subsection{The Modules {\tt acf} and {\tt accp}}
+ 
+The modules {\tt acf} and {\tt accp} have be adapted form their versions
+in the {\it ac} subsystem to  call TNRMLZ instead of TIRDSE.
+
+\subsection{The EV-Rewrite Laboratory}
+
+The main algorithm EV is essentially a modified version of AC allowing to
+select among different  normalization procedures.

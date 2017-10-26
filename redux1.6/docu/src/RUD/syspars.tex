@@ -1,0 +1,90 @@
+\section{Adjusting System Parameters}
+
+Although this manual is intended to be read by users of the \redux\
+demo programs that do not write programs, we include this section where
+we describe how to adjust several system parameters.
+
+One reason for this section is that even non-programming \redux\ users should
+be able to modify these parameters is that they indicate how much RAM is
+consumed by the demo programs. On computers with smaller RAM size,
+it might be necessary to reduce the RAM consumtion to prevent degradation
+of system performance.
+The other reason is that it needs only a neglibly small knowledge of
+the \ALDES\ programming language.
+
+The system parameters are set in the source code of the \redux\ demo programs.
+Therefore, one must have write access to the \redux\ system.
+Table~\ref{tab:ReDuXMainProgramFiles} contains the file where modifications
+must take place for each of the demo programs. The paths are relative to
+the \redux\ installation directory.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|c||l|}
+\hline
+Demo Program & Source Code of Main Program\\ \hline
+ac & src/ac/MAIN/ac.front\\
+ev & src/acn/MAIN/ev.fornt\\
+ic & src/ic/MAIN/ic.front\\
+tc & src/tc/MAIN/tc.front\\
+to & src/to/MAIN/to.front\\
+trd & src/rd/MAIN/trd.front\\
+uc & src/uc/MAIN/uc.front\\ \hline
+\end{tabular}
+\caption{\redux\ demo programs}\label{tab:ReDuXMainProgramFiles}
+\end{center}
+\end{table}
+
+Then the \redux\ system must be recompiled. This task is accomplished
+by making the \redux\ installation directory the current directory
+and activating the installation {\tt make} file. To activate the
+{\tt make} file, enter {\tt make all} or simply {\tt make}.
+
+There are two system parameters that are available in all demo programs.
+Both are set in a pragma declaration, i.\,e.\ a declaration of the form
+\begin{quote}
+\begin{verbatim}
+pragma TNU=100000.
+\end{verbatim}
+\end{quote}
+The two parameters are:
+\begin{description}
+\item[{\bf TNU}:] This parameter controls the size of the demo program's
+heap space, i.\,e.\ the RAM where dynamic memory allocation takes place.
+It indicates the number of machine words (4 bytes on a 32-bit computer)
+that are provided for the heap space.
+On the heap, the machine words are allocated pairwise, so {\tt TNU}
+must be set to an even number.
+
+\item[{\bf TMU}:] To facilitate garbage collection, \ALDES\ maintains
+an own stack different from the system stack. The parameter
+{\tt TMU} indicates the number of machine words that are provided
+for this stack.
+
+\end{description}
+
+The random term generator (demo program {\tt trd}) maintains several
+global arrays which determine the ``size'' of data types for which
+random terms can be computed. To change the size of those arrays, {\tt
+const}-declarations at the beginning of the header file
+{\tt src/include/rd.h} must be adjusted. These constants are
+{\tt MAXPOS}, {\tt MAXDEPTH1}, {\tt MAXSORTS}, {\tt MAXDOMS},
+{\tt MAXOPPS}, {\tt MAXARITY}, {\tt MAXATOM} and {\tt MAXPOSINSTATS}.
+For each of those constants, there is a comment in the source file
+that describes its meaning.
+
+Another possibility to reduce the RAM consumtion of the demo programs
+{\tt ac}, {\tt trd} and {\tt tc} if no external terms are needed is to 
+resign of the interpreter. To do so, one must modify the source code where
+the main algorithm is defined. These file can be determined by taking
+the file names from Table~\ref{tab:ReDuXMainProgramFiles} and
+changing the file name extensions from {\tt front} to {\tt end}.
+Within the file, one must search for step~1 of the main algorithm.
+In this step, the function {\tt BGNRWD} is invoked. The argument of
+{\tt BGNRWD} must be set to 4 instead of the standard value 5.
+Before the \redux\ system is recompiled, the file {\tt Makefile}
+in the {\tt demo} directory should be modified to link a dummy library
+instead of the interpreter module. One has to edit the definition
+of the macros {\tt ACLIB}, {\tt RDLIB} and {\tt TCLIB}. Each occurrence
+of \verb!$(LIBDIR)/libint.a! must be replaced by
+\verb!$(LIBDIR)/libintdummy.a!.

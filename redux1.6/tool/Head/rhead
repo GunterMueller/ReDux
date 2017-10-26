@@ -1,0 +1,49 @@
+#!/bin/sh
+# synopsis:   rhead module_name [path]
+#
+# rhead produces a file containing an entry for each ALDES algorithm in
+# the directory path/module_name. Each entry consisting of the algorithm 
+# name and its  first specification sentence.
+# The algorithms of the module are assumed to be in files matched by
+#                    path/module_name/*.ald
+# The default path name is set in the variable sources.
+# The output file is called $module_name.hd
+
+ RDX="/home/buendgen/ReDuX"
+#^^^^^^^          The previous line was modified by the ReDuX 
+#                 installation make file!
+sources="$RDX/src"
+BIN="$RDX/bin"
+
+if [ $# -eq 0 ]; then
+   echo "usage: rhead directory [path]"
+   exit
+fi
+
+module=$1
+
+if [ $# -eq 1 ]; then
+   path=$sources
+else
+   path=$2
+fi
+
+if [ ! -d $path ]; then
+   echo "unknown path " $path
+   exit
+fi
+
+if [ ! -d $path/$module ]; then
+   echo "unknown module" $path"/"$module 
+   exit
+fi
+
+echo "sources taken from " $path"/"$module
+echo "removing" $module".hd"
+rm -f $module.hd
+
+for f in `$BIN/fald $path/$module`
+do
+  echo $f
+  cat $f | $BIN/headers >> $module.hd
+done

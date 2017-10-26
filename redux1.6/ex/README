@@ -1,0 +1,13 @@
+This directory contains preassembled examples running programs from the
+ReDuX demo directory.
+
+The subdirectory PPP contains the exaples for the program ../demo/ppp.
+
+For each example xxx in PPP there are two files:
+    PPP/xxx.rdx	    containing a ReDuX specification and
+    PPP/xxx.in      containing the user part of the dialog with the
+                    ReDuX program PPP.
+Then
+    % cat PPP/xxx.in | ../demo/ppp PPP/xxx.rdx
+produces the example. The result may be read from the log-file ppp.log.
+

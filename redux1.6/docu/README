@@ -1,0 +1,24 @@
+Directory docu
+==============
+ 
+This directory contains the documentation for the ReDuX system.
+ 
+User documentation:
+rud.dvi:   The ReDuX User Guide
+           Describes the ReDuX demo programs.
+pud.dvi:   A New Parser for ReDuX -- User Guide
+           Explains the syntax for the language of equational
+           specifications.
+ 
+Programmer documentation:
+rsd.dvi:   The ReDuX System Documentation
+           Describes the the ReDuX system from a programmer's point
+           of view.
+rix.dvi:   The ReDuX System Indices
+           Contains various indices of the ReDuX source code.
+psd.dvi:   A New Parser for ReDuX -- Programmer's Guide
+           Explains the parser for the language of equational
+           specifications from a programmer's point of view.
+modules.eps:
+           This is a graphics file that is needed for psd.dvi.
+

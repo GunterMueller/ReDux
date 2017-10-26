@@ -1,0 +1,193 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICCOV -- Cover algorithm
+   modulespecification: Cover algorithm as described in 
+                        Buendgen & Kuechlin: Computing Ground
+                        Reducibility and Inductively Complete Positions
+                        (1989) LNCS 355
+                        The universe to be covered is described by a top
+                        set tree. 
+                        The method of Buendgen & Kuechlin (1989) has
+                        been extended to allow non-linear terms 
+                        sequences to match ground terms with their
+                        non-linear variables.
+   programmer         : Reinhard Buendgen
+   last change        : $Date: 1994/12/22 09:10:14 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.5 $
+   bugs               : none known
+   restrictions       :
+   modules needed     : sac2/bs, sac2/sy, sac2/lp
+                        redux/ax, redux/co, redux/tp, redux/tc
+]
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+[In this module the following complex data structure is used:
+
+ A TR-LIST is a list ((T1, r1), ...,(T sub n, r sub n)) where the
+         T sub i are lists of terms which all have the same length,
+         no two diffenrent T sub i and T sub j share common
+         variables and the types of the terms in the k-th position of
+         each term list are equal.  The r sub i are rules.
+]
+
+[--------------------------------------------------------------------
+
+   section 1   algorithms for export
+
+--------------------------------------------------------------------]
+
+                    COVER(S,V,N; R*,C)
+[Term list set covers universe of set of term lists.
+S = ((S1, r1),...,(Sk, rk)) is a TR-LIST such that Si is a non-empty 
+term list of length n. V is the subset of variables occuring more than 
+once in one of the Si. N = (n1,...nn) is a list of lenght n of top set 
+tree nodes with labels t1,...tn. such that type(ti) is the type of the 
+i-th term in each Sj.
+Then if R* = () if (S1, ..., Sk) does not cover UNIV((t1...,tn)) and
+C = (c1,...,cn) is the first list of top set tree nodes found by COVER 
+whose labels cannot be covered by (S1, ..., Sk).  
+Otherwise R*=(r sub i'1,..., r sub i'h) where (S sub i'1,..., S sub i'h) 
+is a subset of (S1,..., Sk) and covers  UNIV((t1,...,tn)).]
+     [safe t*, I, b, l_, V',v',H1, h1, V^1.]
+(1)  [Initialize.] if PNTRC then STOUTL("COVER"); w:=FALSE;
+          [[TRC.] STOUTL("TR-LIST: "); TRLWRT(S); 
+                 STROUT("Variables: "); TLWRT(V); WRITE; 
+                 STROUT("Node labels: "); NSTLLW(N); WRITE;
+          ]
+     S':=S; S_:=(); T^:=(); R*:=(); H:=(); h:=(); V^:=(); C:=(); 
+     ADV(N; n,N'); C':=N'; t:=NTSLAB(n); t*:=TSIGN(t); k:=TKIND(t). 
+(2)  [Cover 1st component.] if S'=() then goto 5;
+      [For all S* in S.] ADV(S'; S*,S'); ADV2(S*; S1,r1,S*');
+      ADV(S1; s,S_1); if s = t then goto 4;
+      if TKIND(s) = DVS then 
+      { [s non-linear.] if ~INTMEM(s,V) then goto 4;
+        if TBGRND(t) then 
+        { [Copy S_1{s<-t}.] VARBIND(s):=t; TLRCVS(S_1; S_2,V_2); 
+         VARBIND(s):=(); S_:=COMP(LIST2(S_2,r1),S_)
+        } else w:=TRUE; T^:=COMP(S*,T^); goto 2
+      }; [Different tops.] if k = DVS then { T^:=COMP(S*,T^); goto 2 };
+      if TSIGN(s) # t* then goto 2;
+      [Match 1st component.] TBVSLI(s; V*,l_); I:=TNRMCH(s,t);
+      if I = () then goto 3;
+      if V = () then { UNDO(V*); goto 4 };
+      b:=TRUE; V':=V*; while V' # () do
+      { ADV(V'; v',V'); if ~INTMEM(v',V) then VARBIND(v'):=() else 
+        if TBGRND(v') then b:=FALSE else { w:=FALSE; goto 3 }
+      }; if b then goto 4;
+      [Copy S_1{s<-t}.] TLRCVS(S_1; S_2,V_2); UNDO(V*);  
+      S_:=COMP(LIST2(S_2,r1),S_); T^:=COMP(S*,T^); goto 2.
+(3)   [Match failed, baut unificatin still possible.] UNDO(V*);
+      H:=COMP(S*,H); h:=COMP(s,h); V^:=COMP(V*,V^); goto 2.
+(4)   [Match succeded.] S_:=COMP(LIST2(S_1,r1),S_); T^:=COMP(S*,T^);
+      goto 2.
+(5)  [Success] if N' = () /\ S_ # () then {  R*:=TRL2RL(S_); return }.
+(6)  [Cover remainig components.] if S_ # () then 
+     { COVER(S_,V,N'; R*,C'); if R* # () then return }.
+(7)  [Collect Si where 1st element and t unify.] if H # () then
+     { TBVSLI(t; V^2,l_); repeat
+        ADV(H; H1,H); ADV(h; h1,h); ADV(V^; V^1,V^); 
+        if TNRMIL(h1,t) # () then T^:=COMP(H1,T^); UNDO(V^1); UNDO(V^2);
+     until H = ()
+     }; if T^ = () then { C:=COMP(n,C'); return }.
+(8)  [Cover successors of n.] Q:=NTSSUC(n); while Q # () do
+     { ADV(Q; q,Q); COVER(T^,V,COMP(q,N'); R,C); 
+       if R # () then R*:=INTUNI(R,R*) else { R*:=(); return }
+     }; if R* = () then { C:=COMP(n,C'); if w then MWCPMF(S,N) } ||
+
+[--------------------------------------------------------------------
+
+   section 2   algorithms internal use
+
+--------------------------------------------------------------------]
+
+                    MWCPMF(S,N)
+[Message, warining concerning potential method failure.
+S is a list of pairs where each pair consists of a list of terms and a
+list of rules. N is a list of top set trees.]
+     safe S',s.
+(1)  [Warning.] STOUTL(" *** Warning !").
+(2)  [Write term lists in S] STOUTL("None of the following term lists");
+     S':=S; while S' # () do { ADV(S'; s,S'); TLWRT(FIRST(s)) };
+     STOUTL("s-matches").
+(3)  [Collect labels in N and write.] T:=(); N':=N; while N' # () do
+     { ADV(N'; n,N'); T:=COMP(NTSLAB(n),T) }; T:=INV(T); TLWRT(T).
+(4)  [Explain.] STOUTL("This may be due to non-linearity conditions.")||
+     
+ 
+                    b:=TBGRND(t)
+[Ground term.
+t is a semi-bound term.
+Then b = TRUE if t is ground, b = FALSE otherwise.]
+     safe k.
+(1)  [Initialize.] t':=t; b:=TRUE.
+(2)  [Constant.] k:=TKIND(t'); if k = DCS then return.
+(3)  [Variable.] if k = DVS then 
+     { C:=VARBIND(t'); if C = () then { b:=FALSE; return }
+                                 else { t':=C; goto 2 }
+     }.
+(4)  [Operator.] C:=OARGLST(t'); while C # () do
+     { ADV(C; c,C); b:=TBGRND(c); if ~b then return } ||
+
+                    TLRCVS(T; T*,V*) 
+[List of related terms, copy and variable set.
+T=(t1,...,tn) is a list of semi-bound terms which may share variables.
+Then T*=(t*1,...,t*n) is a copy of T s. th. for all variable positions
+pi and pj where ti/pi = tj/pj, t*i/pi = t*j/pj.  V* is the set of
+variables occuring in T*.]
+
+(1)  [Initialize.] T*:=(); V*:=().
+(2)  [Trivial case.] if T # () then ADV(T; t',T') else return.
+(3)  [Copy 1st term.] k:=TKIND(t'); if k = DVS then
+     { C:=VARBIND(t'); if C # () then { t':=C; goto 3 }
+       else { t*:=TCONS((),t'); V0:=(t'); V1:=(t*) }
+     } else if k = DCS then { t*:=t'; V0:=(); V1:=() }
+     else TFCVS1(t',(),(); t*,V0,V1); T*:=(t*).
+(4)  [Copy remaining terms.] if T' # () then ADV(T'; t',T')
+     else { T*:=INV(T*); V*:=V1; return }.
+(5)  [Copy next term] k:=TKIND(t'); if k = DVS then
+     { C:=VARBIND(t'); if C # () then { t':=C; goto 5 }
+       else { t*:=ILPASS(t',V0,V1); if t* = () then
+             { t*:=TCONS((),t'); V0:=COMP(t',V0); V1:=COMP(t*,V1) }
+     }      } else if k = DCS then t*:=t' 
+                   else TFCVS1(t',V0,V1; t*,V0,V1);
+     T*:=COMP(t*,T*); goto 4 ||
+
+
+                    R*:=TRL2RL(S) 
+[TRL-LIST to rule list.
+S = ((S1, r1),...,(Sk, rk)) is a TR-LIST such that each Si is a non-
+empty term list of length n and each ri is a rule.
+Then R* = (r1,...,rk).]
+
+(1)  [Initialize.] S':=S; R*:=().
+(2)  [Collect ri.] while S' # () do
+     { ADV(S'; i,S'); R*:=COMP(SECOND(i),R*) }.
+(3)  [Restore ordering.] R*:=INV(R*) ||
+
+
+[--------------------------------------------------------------------
+
+   section 3   trace algorithms
+ 
+--------------------------------------------------------------------]
+ 
+                    TRLWRT(S)
+[Write TR-LIST.  S is a TR-LIST.]
+
+(1)  [Initialize.] S':=S.
+(2)  while S' # () do
+     { ADV(S'; S*,S'); ADV2(S*; T,r,S*');
+       GWRITE(LENGTH(T)); STROUT(" "); TLWRT(T); WRITE;
+       AXWRT(r); WRITE
+     } ||
+
+                    NSTLLW(N)
+[List of top set tree nodes, write. 
+N is a list of top set tree nodes.] 
+
+(1)  [Initialize.] N':=N; D:=().
+(2)  while N' # () do 
+     { ADV(N'; n,N'); TDIWRT(NTSLAB(n),D; D); STOUTL("  ") } ||

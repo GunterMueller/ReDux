@@ -1,0 +1,24 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICLAB -- LABoratory
+   modulespecification: main algorithm of the ic-laboratory
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen           
+   language           : aldes                                           
+   last change        : 03.05.88   27.07.88  29.06.90
+                        $Date: 1993/10/08 10:43:13 $
+                        by $Author: buendgen $
+   version            : algrbra analysis does not generate a
+                        topset for freely generated algebras
+                        $Revision: 1.1 $
+   bugs               : non known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        redux/ax, redux/co, redux/tp, redux/to
+                        redux/tc
+]                                                                      
+                                                                       
+ pragma TMU=2000.                                                      
+ pragma TNU=256000.                                                     
+
+
+                    IC.
+     [Main, inductive completion laboratory.]
+

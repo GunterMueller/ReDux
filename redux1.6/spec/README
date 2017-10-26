@@ -1,0 +1,10 @@
+This is a collection of ReDuX specifications.
+
+!!! It is not well organized in any way. Names may give you some hints.
+    Files of the form *C.rdx normally contain a complete TRS.
+
+!!! There is no guarantee what soever that the specifications are
+    sensible or syntactically correct.
+
+
+

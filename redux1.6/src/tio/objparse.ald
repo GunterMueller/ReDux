@@ -1,0 +1,99 @@
+[----------------------------------------------------------------------]
+[-  This file contains the interface to the parser --------------------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "parse.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+               t:=TEPRS(T)
+[Parse term.  t is a term, T is a data type.]
+(1) [call parser with start symbol STERM]
+    STSYMB:=STERM; PDXVRS:=(); t:=YYPARS(T); if t#0 then return.
+(2) [error in parsed term]
+    STOUTL("Please reenter term: *"); IPOS:=ISIZE; goto 1 ||
+
+
+               TPRSC(T,VD; t,NVD)
+[Parse term.  VD and NVD are parse variable dictionaries,
+ t is a term, T is a data type.]
+(1) [call parser with start symbol STERM]
+    STSYMB:=STERM; PDXVRS:=VD; t:=YYPARS(T).
+(2) [return new variable set]
+    if t#0 then { NVD:=PDXVRS; return }.
+(3) [error in parsed term]
+    STOUTL("Please reenter term: *"); IPOS:=ISIZE; goto 1 ||
+
+
+               a:=AXPRS(T)
+[Parse axiom.  a is an axiom, T is a data type.]
+(1) [call parser with start symbol SAXIOM]
+    STSYMB:=SAXIOM; PDXVRS:=(); a:=YYPARS(T); if a#0 then return.
+(2) [error in parsed axiom]
+    STOUTL("Please reenter axiom: *"); IPOS:=ISIZE; goto 1 ||
+
+
+               as:=ASPRS(T)
+[Parse axiom set.  as is an axiom set, T is a data type.]
+(1) [call parser with start symbol SAXSET]
+    STSYMB:=SAXSET; PDXVRS:=(); as:=YYPARS(T).
+(2) [error in parsed axioms]
+    if as=0 then { STOUTL("Please reenter axiom set: *");
+      IPOS:=ISIZE; goto 1 } ||
+
+               cs:=CSPRS(T)
+[Parse constant set.  cs is a constant set, T is a data type.]
+(1) [call parser with start symbol SCONSTSET]
+    STSYMB:=SCONSTSET; cs:=YYPARS(T).
+(2) [error in parsed constants]
+    if cs=0 then { STOUTL("Please reenter constant set: *");
+      IPOS:=ISIZE; goto 1 } ||
+
+               o:=OPRS(T)
+[Operator parse.  T is a data type, o is an operator.]
+(1) [call parser with start symbol SOPERATOR]
+    STSYMB:=SOPERATOR; o:=YYPARS(T).
+(2) [error in parsed operator]
+    if o=0 then { STOUTL("Please reenter operator: *");
+      IPOS:=ISIZE; goto 1 }.
+(3) [query fixity, associativity and precedence]
+    ODFFIX(LIST1(o)); QOPAFP(T,o); RMDFFX(T) ||
+
+               os:=OSPRS(T)
+[Operator set parse.  T is a data type, os is an operator set.]
+(1) [call parser with start symbol SOPSET]
+    STSYMB:=SOPSET; os:=YYPARS(T).
+(2) [error in parsed operator set]
+    if os=0 then { STOUTL("Please reenter operator set: *");
+      IPOS:=ISIZE; goto 1 } ||
+
+               vs:=VSPRS(T)
+[Variable set parse.  T is a data type, vs is a variable set.]
+(1) [call parser with start symbol SVARSET]
+    STSYMB:=SVARSET; vs:=YYPARS(T).
+(2) [error in parsed variable set]
+    if vs=0 then { STOUTL("Please reenter variable set: *");
+      IPOS:=ISIZE; goto 1 } ||
+
+               T:=DTPRS()
+[Parse data type.  T is a data type, if no parse error occurred,
+ and 0 otherwise.]
+(1) [call parser with start symbol SDATATYPE]
+    STSYMB:=SDATATYPE; PDXVRS:=(); T:=YYPARS(()); if T#0 then return.
+(2) [error in data type, exit]
+    STOUTL("Exiting."); STOP ||
+
+               OROLRD(; o,r,O,b)
+[Operator relation operator list.
+ o is a symbol, r is a string in (">=","<=","~","#","<",">"), O is a
+ list of symbols. b is TRUE if a non-empty relation list was read,
+ otherwise b=FALSE, o,r and O are undefined.]
+(1) [call parser with start symbol SOPRELOPLIST]
+    STSYMB:=SOPRELOPLIST; L:=YYPARS(()); if L#0 then
+    { if L=1 then b:=FALSE else { FIRST3(L; o,r,O); b:=TRUE };
+      return }.
+(2) [error in operator relation operator list]
+    STOUTL("Please reenter operator relation operator list: *");
+    IPOS:=ISIZE; goto 1 ||

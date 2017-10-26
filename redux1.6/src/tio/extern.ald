@@ -1,0 +1,59 @@
+[----------------------------------------------------------------------]
+[- This file contains routines to handle external term IO -------------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "it.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                  o:=XTREAD(fun)
+[External term read.  fun is a coercion function. o is an
+ object read from the input stream by the algorithm under
+ property XREAD of operator fun's domain type.]
+(1) [get external parse function]
+    rf:=GET(OXTYPE(fun), DXRA).
+(2) [read external object, default routine]
+    if rf=() then { o:=UREAD(); return }.
+(3) [read function or procedure specified]
+    alg:=GET(rf,DAK);
+    if ALGTYPE(alg)=FUNCTION then
+    { [function] o:=FCALL0(ALGIDNT(alg)) }
+    else
+    { [procedure: IPREAD or RPREAD]
+      o:=PCALL0(ALGIDNT(alg),3) } ||
+
+
+                XTWRIT(fun)
+[External term write.  fun is a coercion function. The
+ function symbol of fun is printed together with its 
+ argument to the output stream. The algorithm under
+ property XWRITE of fun's domain type is used.]
+(1) [init] name:=TNAME(fun); cont:=XOBJECT(fun); f:=TGET(fun,DFS).
+(2) [get external write function] wf:=GET(OXTYPE(fun),DXWA).
+(3) [switch, depending on coercion function notation]
+    if f=DEF then { SOWRIT(fun); XOWRIT(cont,wf) }
+    else if f=DFF then { SOWRIT(fun); CWRITE('('); XOWRIT(cont,wf);
+                         CWRITE(')') }
+    else if f=DLF then { CWRITE('('); SOWRIT(fun); CWRITE(' ');
+                         XOWRIT(cont,wf); CWRITE(')') }
+    else { [ f=DRF ] SOWRIT(fun); XOWRIT(cont,wf);
+                     SWRT(TGET(fun,DCR)) } ||
+
+                XOWRIT(obj, wfunc)
+[External object write.  obj is an arbitrary ALDES/SAC2 object,
+ wfunc is a write function stored under property DXWA of a coercion
+ operator. Then object obj is printed to the output stream
+ using write function wfunc.]
+(1) [write external object, default routine]
+    if wfunc = () then UWRITE(obj).
+(2) [write procedure specified]
+    alg:=GET(wfunc,DAK);
+    if ALGIPAR(alg) = 1 then
+    { [one argument] dummy:=PCALL1(ALGIDNT(alg),0,obj) }
+    else
+    { [three arguments: IPWRIT or RPWRIT]
+      FIRST3(obj; a1,a2,a3);
+      dummy:=PCALL3(ALGIDNT(alg),0,a1,a2,a3)
+    } ||

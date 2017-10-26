@@ -1,0 +1,25 @@
+DATATYPE INT;
+SORT
+	INT;
+CONST
+	0, 1: INT;
+VAR
+	A, B, C: INT;
+OPERATOR
+	+: INT, INT -> INT;
+	I: INT -> INT;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+ [1] +(0,A)==A;
+ [2] +(I(A),A)==0;
+ [3] +(+(A,B),C)==+(A,+(B,C));
+ [4] +(I(A),+(A,C))==C;
+ [5] +(A,0)==A;
+ [6] +(A,I(A))==0;
+ [7] I(0)==0;
+ [8] I(I(A))==A;
+ [9] +(A,+(I(A),C))==C;
+[10] I(+(A,B))==+(I(B),I(A));
+END
+; this file is Z1.typ

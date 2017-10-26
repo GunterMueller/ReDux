@@ -1,0 +1,18 @@
+DATATYPE RG;
+SORT
+	RG;
+CONST
+	0: RG;
+VAR
+	A, B, C: RG;
+OPERATOR
+	+: RG, RG -> RG;
+	I: RG -> RG;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+[1] +(A,0)==A;
+[2] +(A,I(A))==0;
+[3] +(+(A,B),C)==+(A,+(B,C));
+END
+; This file is  RG.TYP

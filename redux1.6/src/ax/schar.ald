@@ -1,0 +1,13 @@
+                    b:=SCHAR(c)
+[Scan character.  c is a character. b is true, if the
+next non-blank character on the input agrees with c, 
+otherwise b is false.]
+     safe SCHAR.
+     const FALSE=0, TRUE=1.
+(1)  [Next non-blank character.] c':=CREADB().
+(2)  [Compare.] if c = c' then b:=TRUE else { b:=FALSE; BKSP } ||
+
+[ SCHAR is used instead of an algorithm FCH which also checks whether
+  the strings "->" and "/\" are in the input stream. In that case
+  FCH retruns FALSE.
+]

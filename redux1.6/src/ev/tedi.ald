@@ -1,0 +1,169 @@
+[Evaluation dictionary, access functions]
+
+[ #include tp.h ]
+[ #include it.h ]
+[ #include ev.h ]
+[ #include globs.h ]
+
+[-----------------------------------------------------------------------
+
+    Algorithms for export
+
+-----------------------------------------------------------------------]
+
+                    entry:=DCIE(rank,dc)
+[Dictionary rank-th entry. 
+rank is a beta-integer and dc a dictionary. If rank <= size_of(dc) then 
+entry is the rank-th entry in d else nil (entry is the entry of rank r). 
+[WL]]
+     safe rank, entry.
+(1)  [Initialize.] dc2:=dc.
+(2)  [Get rank-th entry.]
+     if PDCSIZE(dc) < rank then { entry:=(); return }
+     else for i:=1,...,rank do PDCADV(dc2; entry, dc2) ||
+
+
+                    PDC2DC(d,x)
+[Pre-dictionar to dictionary.
+d is an evaluation pre-dictionary and x is an external sort.
+d is transformed into a dictionary using the generator algorithm
+for x. d is modified.]
+
+(1)  [Initialize.] d':=d; F:=GET(x,DXFG);
+     if F = () then
+     {  STROUT("  *** Warning, there is no free generator algorithm"); 
+        STROUT(" for sort "); SWRT(x); STOUTL("."); HALT
+     }; a:=ALGIDNT(GET(F,DAK)).
+(2)  [Update all entries.] i:=0; while d' # () do
+     { PDCADV(d'; e,d'); i:=i+1; DCEINTP(e):=FCALL2(a,i,d) } ||
+
+
+                    e:=TDILUP(t,D)
+[Term, dictionary look-up.
+t is a term and D is an evaluation (pre-)dictionary.
+Then e is the dictionay entry of t in D if it exists.
+Otherwise e is ().]
+
+(1)  [Initialize.] e:=(); D':=D.
+(2)  [Look for t.] while D' # () do
+     { PDCADV(D'; e', D');
+       if TTO(t,DCETERM(e')) = 0 then { e:=e'; return } 
+     } ||
+
+                    o:=TDIVAL(t,D)
+[Term, dictionary get value.
+t is a term and D is an evaluation dictionary containing some
+entry (t,o,s). ]
+
+(1)  [Initialize.] D':=D.
+(2)  [Look for t.] while D' # () do
+     { PDCADV(D'; e', D');
+       if DCETERM(e') = t then { o:=DCEINTP(e'); return } 
+     }.
+(3)  [Error.] o:=(); STOUTL("*** unexpected case in TDIVAL!") ||
+
+[----------------------------------------------------------------------]
+[ Algorithms for internal use                                          ]
+[----------------------------------------------------------------------]
+
+
+                    PDCADV(P; e,P')
+[Pseudo dictionary, advance.
+P is a (pseudo) dictionary.
+Then e is its first entry and P' is P without e.]
+
+(1)  [Advance.] ADV(P; e,P') ||
+
+                    n:=STRFT(t)
+[String from term.
+Race version / Dummy.]
+
+(1)  n:=() ||
+
+[
+                    n:=STRFT(t)
+[String from term. 
+t is a term. Then n is a string representing t. An external term (DXT) 
+is  represented by the string "external" and the coercion operator. 
+[WL]]
+     safe varb, oarg, subt.
+(1)  [Initialize.] tkind:=TKIND(t).
+(2)  [Constant or Variable.]
+     if tkind = DCS \/ tkind = DVS then
+     {
+         varb:=VARBIND(t);
+         if varb # () then n:=STRFT(varb)
+         else n:=EXPLOD(TNAME(t));
+         return
+     }.
+(3)  [Operator initialize.] o:=EXPLOD(TNAME(t)); fix:=TGET(t,DFS).
+(4)  [Coercion operator (external term).]
+     if tkind = DXT then
+     {
+         if fix = DEF \/ fix = DFF \/ fix = DRF then n:=o;
+         if fix = DPF then n:=EXPLOD(DOB);
+         if fix = DLF then { n:=EXPLOD(DOB); n:=CCONC(n,o) };
+         n:=CCONC(n," external ");
+         if fix = DRF then n:=CCONC(n,EXPLOD(DRS));
+         if fix = DPF then { n:=CCONC(n,EXPLOD(DCB)); n:=CCONC(n,o) };
+         if fix = DEF \/ fix = DFF \/ fix = DLF 
+         then n:=CCONC(n,EXPLOD(DCB));
+         return
+     }.
+(5)  [Operator before contents.] oarg:=OARGLST(t);
+     if fix = DCS then { n:=o; return };
+     if fix = DIF \/ fix = DPF then { n:=EXPLOD(DOB); goto 6 };
+     if fix = DLF then
+     {
+         n:=EXPLOD(DOB); n:=CCONC(n,o);
+         if oarg = () then { n:=CCONC(n,EXPLOD(DCB)); return };
+         n:=CCONC(n," "); goto 6
+     };
+     if fix = DRF then { n:=o; goto 6 };
+     if fix = DEF \/ fix = DFF then { n:=o; n:=CCONC(n,EXPLOD(DOB)) }.
+(6)  [Contents of the operator.]
+     while oarg # () do
+     {
+        ADV(oarg; subt,oarg); n:=CCONC(n,STRFT(subt));
+        if oarg # () then
+        {
+            if fix = DLF then n:=CCONC(n," ");
+            if fix = DIF then
+            { n:=CCONC(n," "); n:=CCONC(n,o); n:=CCONC(n," ") }
+            else n:=CCONC(n,EXPLOD(DRS))
+        }
+     }.
+(7)  [Operator after contents.]
+     if fix = DRF then { n:=CCONC(n,EXPLOD(TGET(t,DCR))); return };
+     n:=CCONC(n,EXPLOD(DCB));
+     if fix = DPF then n:=CCONC(n,o) ||
+]
+
+
+[----------------------------------------------------------------------]
+[ Algorithms for trace.                                                ]
+[----------------------------------------------------------------------]
+
+                    DCEWRT(entry,N; N*)
+[Dictionary entry write. 
+entry is an dictionary entry. N is a variable dictionary.
+Then entry is written in the output stream. N* is N updated.]
+     safe entry.
+(1)  [Write entry.] if entry = () then STOUTL("<>");
+     CWRITE('<');
+     TDIWRT(DCETERM(entry),N; N*); CWRITE('|'); 
+     CLOUT(DCENAME(entry)); CWRITE('|');
+     UWRIT1(DCEINTP(entry)); CWRITE('>') ||
+
+
+                    DCWRT(d)
+[Dictionary write. 
+dc is a dictionary. Then dc is written in the output stream. [WL]]
+     safe i, entry.
+(1)  [Initialize.] d':=d; i:=0; N:=().
+(2)  [Write entries.] CWRITE('[');
+     while d' # () do
+     {   PDCADV(d'; entry,d'); i:=i+1;
+         IWRITE(i); CWRITE(':'); DCEWRT(entry,N; N);
+         if d' # () then CWRITE(',');
+     }; CWRITE(']'); WRITE ||

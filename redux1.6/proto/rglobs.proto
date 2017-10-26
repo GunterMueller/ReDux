@@ -1,0 +1,67 @@
+#!/bin/sh
+# rglobs -- recursive external variable declarations in ReDuX system
+# 
+# Usage: rglobs [ module_name | <directory>]
+# Output: All externally defined global variables, together with the
+#         type `safe' or `global' and the file they are declared in.
+#         If a module name is used, only the according
+#         ReDuX subsystem is searched
+#         through. If <directory> is provided as second argument, then
+#         <directory> is scanned recursively for files which match *.ald.
+#         The variable AMODULES contains all valid module names.
+#         A sorted list of all externally declared variables in the 
+#         ReDuX system can be obtained by 
+#         rglobs | sort +1
+
+ RDX=RDX
+#^^^^^^^             Only to be modified by the ReDuX 
+#                    installation make file!
+ AMODULES=AMODULES
+#^^^^^^^^^^^^^^^^^   Only to be modified by the ReDuX
+#                    installation make file!
+RDXS=$RDX/src
+RDXB=$RDX/bin
+
+if [ $# -gt 1 ]; then 
+    echo "Usage: $0 [ module_name | <directory>]" 1>&2
+    echo "where module_name is one of the following: $AMODULES" 1>&2
+    exit 1
+fi
+
+if [ $# -eq 0 ]
+then 
+    cd $RDXS 
+    for f in $AMODULES; do
+       args=`$RDXB/fald $f`
+       if [ "" != "${args}" ]
+       then
+          for fn in $args; do
+             $RDXB/aglobs $fn <$fn
+          done
+       fi
+    done
+else
+    for f in $AMODULES; do
+       if [ $1 != $f ]; then
+          continue
+       fi
+       cd $RDXS
+       args=`$RDXB/fald $f`
+       if [ -n "${args}" ]; then
+          for fn in $args; do
+             $RDXB/aglobs $fn <$fn
+          done
+       fi
+       exit 0
+    done
+    if [ ! -d $1 ]; then
+       echo "$0: $1 does not exist or is not a directory!" 1>&2
+       exit 1
+    fi
+    args=`$RDXB/fald $1`
+    if [ "" != "${args}" ]; then   
+       for fn in $args; do 
+          $RDXB/aglobs $fn <$fn 
+       done
+    fi
+fi

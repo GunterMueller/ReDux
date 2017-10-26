@@ -1,0 +1,13 @@
+[ $Author: buendgen $
+  $Date: 1993/10/08 10:22:12 $
+  $Revision: 1.1 $
+]
+                    FDEC(T;T1,p,T2) 
+[Operator decomposition. 
+T is a QE formula or term in internal prefix 
+representation. p is its top operator symbol. If p is unary T1=T2. 
+If p is binary T1 is the first and T2 the second operand of T.] 
+    safe FDEC. 
+(1) [Split.] ADV(T;p,T1); if T1#() then {ADV(T1;T'1,T2); T1:=T'1; 
+    if T2=() then T2:=T1 else T2:=FIRST(T2)} || 
+ 

@@ -1,0 +1,589 @@
+                    ADV(L;a,L')
+[Advance.  L is a non-null list.  a=first(L) and L'=red(L).]
+     safe ADV.
+(1)  a:=FIRST(L);  L':=RED(L) ||
+                    ADV2(L;a,b,L')
+[Advance 2.  L is a list of length two or more.  a=first(L),
+b=second(L) and L'=red(red(L)).]
+     safe ADV2.
+(1)  ADV(L;a,L');  ADV(L';b,L') ||
+                    ADV3(L;a1,a2,a3,L')
+[Advance 3.  L is a list of length 3 or more.  a1, a2 and a3 are the
+first three elements of L.  L' is the third reductum of L.]
+     safe ADV3.
+(1)  ADV2(L;a1,a2,L');  ADV(L';a3,L') ||
+                    ADV4(L;a1,a2,a3,a4,L')
+[Advance 4.  L is a list of length 4 or more.  a1, a2, a3, and a4
+are the first 4 elements of L.  L' is the fourth reductum of L.]
+     safe ADV4.
+(1)  ADV(L;a1,L');  ADV(L';a2,L');  ADV(L';a3,L');  ADV(L';a4,L') ||
+                    AFCL(A;a,A')
+[Atom from character list.  A is a character list. An atom a is read
+from A and A' is the rest of A. Leading blanks are skipped and a may
+be signed. If A does not start with an atom then a=0 and A'=A.]
+     safe AFCL.
+(1)  [Skip blanks and read sign, if any.] s:=1; a:=0; A':=A;
+     while A'#()/\FIRST(A')=' ' do A':=RED(A'); if A'=() then return;
+     ADV(A';c,A''); if c='+' then A':=A'' else if c='-' then {A':=A'';
+     s:=-1}; if A'=A''/\(A''=()\/~DIGIT(FIRST(A'))) then go to 3 else
+     if ~DIGIT(FIRST(A')) then return.
+(2)  [Get digits and convert.] repeat if a>BETA/10 then go to 3;
+     a:=10*a+FIRST(A')-'0'; if a>=BETA then go to 3; A':=RED(A')
+     until A'=()\/~DIGIT(FIRST(A')); a:=s * a; return.
+(3)  [Error.] print "Error found by AFCL:"; CLOUT(A); CWRITE(' ');
+     CLOUT(A'); WRITE; stop ||
+                    A:=AREAD()
+[Atom read.  An atom A  is read from the input stream.  Any preceding
+blanks are skipped.]
+     safe AREAD.
+(1)  [Skip blanks and read sign, if any.]  S:=1;  C:=CREADB();
+     if C='+' then C:=CREAD() else if C='-' then { C:=CREAD();  S:=-1 }
+     else if ~DIGIT(C) then go to 3.
+(2)  [Read digits and convert.]  A:=0;  repeat { if A > BETA/10 then
+     go to 3;  A:=10 * A+C-'0'; if A >= BETA then go to 3;  C:=CREAD() }
+     until ~DIGIT(C);  A:=S * A;  BKSP;  return.
+(3)  [Error.]  print "Error found by AREAD.";  DIBUFF;  stop ||
+                    L:=ARGGET(n)
+[Argument get.  n is a non-negative integer. L is the n-th command line
+argument, a character list. If there is no n-th argument, an error 
+occurs. The command name is the argument with n=0.]
+    const input=0, output=2, cmdline=4, open=5, close=6.
+    safe ARGGET.
+(1) [Basic IO.] k:=IO(n,cmdline); if k=0 then stop.
+(2) [Read from input buffer.] L:=CLIN(1,k) ||
+                    b:=ATOM(a)
+[Atom.  a is an object. b is true if a is an atom and false otherwise.]
+    safe ATOM.
+(1) if -BETA<a /\ a<BETA then b:=TRUE else b:=FALSE ||
+                    AWRITE(A)
+[Atom write.  The atom A  is written in the output stream.]
+     safe AWRITE.
+     safe D[20].
+(1)  [Write minus sign?]  if A < 0 then { A':=-A;  CWRITE('-') }
+     else A':=A.
+(2)  [Convert to decimal.]  N:=0;  repeat Q:=A'/10;  N:=N+1;
+     D[N]:=A'-10 * Q + '0';  A':=Q  until A'=0.
+(3)  [Write digits.]  repeat CWRITE(D[N]);  N:=N-1  until N=0 ||
+                    b:=BDIGIT(a)
+[Beta digit.  a is an object. b is true if a is a beta-digit
+and false otherwise.]
+    safe BDIGIT.
+(1) if -BETA<a /\ a<BETA then b:=TRUE else b:=FALSE ||
+                    BEGIN1()
+[Begin 1.  Initialize list processing system.]
+     safe BEGIN1.
+(1)  [Initialize basic system.]  BEGIN0.
+(2)  [Set parameters.]  BETA:=2 ^ 29;  BETA1:=BETA-1;
+     RHO:=10;  TAU:=0;  GCC:=0;  GCCC:=0;  GCM:=0.
+(3)  [Create available cell list.]  L:=NU-ODD(NU); for i=1,3,...,L-1 do
+     { i':=i+BETA;  SRED(i',i'+2);  SFIRST(i',0) };  
+     SRED(L-1+BETA,BETA);  AVAIL:=BETA+1 ||
+                    BETATS()
+[Beta test.  The test is true, if beta is a positive power of 2 greater
+than 2^10.  Otherwise the program stops with an error message.]
+     safe BETATS.
+(1)  T:=BETA;  if T <= 4096 then goto 2;
+     while T > 1 do {if ODD(T) then goto 2; T:=T/2};  return.
+(2)  print "Initialize BETA in BEGIN1."; stop ||
+                    L:=CCONC(L1,L2)
+[Constructive concatenation.  L1 and L2 are lists.  L is the
+concatenation of L1 and L2.  The list L is constructed.]
+     safe CCONC.
+(1)  [Is L1 or L2 null.]  L:=L2;  if L1=() then return;  L:=L1;
+     if L2=() then return.
+(2)  [Concatenate copy of L1.]  L'1:=CINV(L1);  L:=INV(L'1);
+     SRED(L'1,L2) ||
+                    M:=CINV(L)
+[Constructive inverse.  L is a list.  M=inv(L).  M is constructed
+using COMP.]
+     safe a,L'.
+(1)  M:=();  L':=L;  while L' # () do { ADV(L';a,L');  
+     M:=COMP(a,M) } ||
+                    L:=CLIN(k,l)
+[Character list input.  k and l are integers, 1<=k<=l<=ISIZE. L is the 
+character list (IBUFF[k],...,IBUFF[l]).]
+(1) [Read.] L:=(); for i=l,l-1,...,k do L:=COMP(IBUFF[i],L); IPOS:=l ||
+                    CLOUT(L)
+[Character list out.  The input is a character list L=
+(C_1,C_2,...,C_n),n>=0. The C_i are sequentially transmitted to OBUFF by
+CWRITE.]
+     safe CLOUT.
+(1)  L':=L;  while L' # () do { ADV(L';C,L'); CWRITE(C)} ||
+                    M:=COMP(a,L)
+[Composition.  a  is an object.  L is a list.  M is the composition of
+a  and L.]
+     safe COMP.
+(1)  [Is avail null.] if AVAIL=() then GC.
+(2)  [Get new cell.]  M:=AVAIL; AVAIL:=RED(M).
+(3)  [Store a and L.] SFIRST(M,a); SRED(M,L) ||
+                    M:=COMP2(a,b,L)
+[Composition 2.  a  and b are objects.  L is a list.
+M=comp(a,comp(b,L)).]
+(1)  M:=COMP(a,COMP(b,L)) ||
+                    M:=COMP3(a1,a2,a3,L)
+[Composition 3.  a1, a2 and a3 are objects.  L is a list.
+M=comp(a1,comp(a2,comp(a3,L))).]
+(1)  M:=COMP(a1,COMP(a2,COMP(a3,L))) ||
+                    M:=COMP4(a1,a2,a3,a4,L)
+[Composition 4.  a1, a2, a3 and a4 are objects.  L is a list.
+M= comp(a1, comp(a2, comp(a3, comp(a4,L)))).]
+(1)  M:=COMP2(a1,a2,COMP(a3,COMP(a4,L))) ||
+                    M:=COMP5(a1,a2,a3,a4,a5,L)
+[Composition 5.  a1, a2, a3, a4 and a5 are objects. L is a list.
+M=comp(a1, comp(a2, comp(a3, comp(a4, comp(a5,L))))).]
+(1)  M:=COMP2(a1,a2,COMP3(a3,a4,a5,L))||
+                    L:=CONC(L1,L2)
+[Concatenation.  L1 and L2 are lists.  L=conc(L1,L2).  The list L1 is
+modified.]
+     safe CONC.
+(1)  [L1 null.]  L:=L2;  if L1=() then return.
+(2)  [L2 null.]  L:=L1;  if L2=() then return.
+(3)  [L1 and L2 non-null.]  L':=LAST(L1);  SRED(L',L2) ||
+                    B:=COPY(A)
+[Copy.  A  is a list. B is a copy of A. Elements of A  are shared
+with B, but not copied.]
+(1) B:=INV(CINV(A)) ||
+                    B:=DELETE(a,A)
+[Delete.  The first occurrence of the element a, if any, is removed
+from the list A. If a  is contained in A, the list A  is modified. 
+B is the resulting list.]
+(1) [Initialize.] A'':=A; B:=A.
+(2) [Scan A.] while A''#() do {ADV(A'';a',A'''); if a=a' then
+    {[remove] if A''=A then B:=A''' else SRED(A',A'''); return};
+    A':=A''; A'':=A'''} ||
+                    END1()
+[End 1.  Terminating algorithm for list processing system.  Prints
+data on garbage collections, then calls END0.]
+     safe L,m,n,t.
+(1)  m:=GCC;  n:=GCCC;  t:=TAU;  L:=LENGTH(AVAIL);  EMPTOB;  AWRITE(m);
+     CLOUT(" Garbage collections, ");  AWRITE(n);
+     CLOUT(" cells reclaimed, in ");  AWRITE(t);  CLOUT(" ms.");
+     EMPTOB;  AWRITE(L);  CLOUT(" cells in AVAIL, ");  AWRITE(NU/2);
+     CLOUT(" cells in space.");  EMPTOB.
+(2)  END0 ||
+                    A:=ENVGET(S)
+[Environment get.  S is a character list "c_1,...,c_k", k>0.  The
+environment is searched for an entry S=A.  If found, A is the character
+list of the value of the environment variable S.  If not found, A=().]
+    const input=0, output=2, cmdline=4, open=5, close=6, environment=7.
+    safe ENVGET.
+(1) [Transmit S to output buffer.] SOBUFF; CLOUT(S). 
+(2) [Basic IO.] k:=IO(0,environment); ROBUFF.
+(3) [Read from input buffer.]  if k=0 then A=() else A:=CLIN(1,k) || 
+                    t:=EQUAL(a,b)
+[Equal.  a  and b are objects.  t=TRUE if a=b, t=FALSE otherwise.] 
+(1)  [Identical atoms or list representations.]  t:=FALSE;  if a=b 
+     then { t:=TRUE;  return }.
+(2)  [a or b is an atom.]  if ATOM(a) \/ ATOM(b) then return.
+(3)  [Recursion.]  a':=a;  b':=b;  while a' # () /\ b' # () do
+     {  ADV(a';a1,a');  ADV(b';b1,b');  if ~EQUAL(a1,b1)
+     then return;  if a'=b' then { t:=TRUE;  return }  } ||
+                    n:=EXTENT(a)
+[Extent.  a  is an object.  n=extent(a).]
+     safe a1.
+(1)  [a an atom.]  n:=0;  if ATOM(a) then return.
+(2)  [a a list.]  a':=a;  while a' # () do { ADV(a';a1,a');
+     n:=n+EXTENT(a1)+1 } ||
+                    a:=FIRST(L)
+[First element of a list.  L is a non-empty list. a is its first
+element.]
+    safe FIRST.
+(1) a:=SPACE[L-BETA1] ||
+                    FIRST2(L;a,b)
+[First 2.  L is a list of length 2 or more.  a=first(L) and
+b=second(L).]
+     safe FIRST2.
+(1)  ADV(L;a,L');  b:=FIRST(L') ||
+                    FIRST3(L;a1,a2,a3)
+[First 3.  L is a list of length 3 or more.  a1=first(L),
+a2=second(L) and a3=third(L).]
+     safe FIRST3.
+(1)  ADV2(L;a1,a2,L');  a3:=FIRST(L') ||
+                    FIRST4(L;a1,a2,a3,a4)
+[First 4.  L is a list of length 4 or more.  a1=first(L),
+a2=second(L), a3=third(L) and a4=fourth(L).]
+     safe FIRST4.
+(1)  ADV(L;a1,L');  ADV(L';a2,L');  ADV(L';a3,L');  a4:=FIRST(L') ||
+                    FOPENR(U,F)
+[File open for reading.  U is a unit number.
+If F is 0, the output buffer contains a filename and otherwise F is 
+the character list of a file name.  The syntax of the file name is 
+operating system specific.  The file indicated by F is connected to the 
+unit U. An error occurs if the file is already connected to another 
+unit.]
+    safe FOPENR. 
+    const input=0, create=1, output=2, cmdline=4, open=5, close=6.
+(1) [Transmit file name?] if F>0 then {SOBUFF; CLOUT(F)}.
+(2) [Open] n:=IO(U,open).
+(3) [Restore.] if F>0 then ROBUFF.
+(4) [Error?]  if n=0 then stop || 
+                    FOPENW(U,F)
+[File open for writing.  U is a unit number.
+If F is 0, the output buffer contains a filename and otherwise F is 
+the character list of a file name.  The syntax of the file name is 
+operating system specific.  The file indicated by F is connected to the 
+unit U. An error occurs if the file is already connected to another 
+unit.]
+    safe FOPENW. 
+    const input=0, create=1, output=2, cmdline=4, open=5, close=6.
+(1) [Transmit file name?] if F>0 then {SOBUFF; CLOUT(F)}.
+(2) [Open] n:=IO(U,create).
+(3) [Restore.] if F>0 then ROBUFF.
+(4) [Error?]  if n=0 then stop || 
+                    a:=FOURTH(L)
+[Fourth.  L is a list of length 4 or more.  a  is the fourth element
+of L.]
+     safe FOURTH.
+(1)  a:=FIRST(RED3(L)) ||
+                    GC()
+[Garbage collection.  All list cells accessible from STACK are marked.
+Then a new available cell list is formed from the unmarked cells and
+the marks are removed.  If GCM=1 a report is written on OUNIT.  If the
+number of reclaimed cells is no more than nu/rho then a message is
+written on MUNIT and a stop occurs.]
+     safe GC.
+(1)  [Read timer.]  T1:=CLOCK().
+(2)  [Mark accessible cells.] for I=1,...,INDEX do { a:=STACK[I];
+     if ~(a=()\/ATOM(a)) then MARK(a) }.
+(3)  [Reclaim unmarked cells.]  AVAIL:=();  N:=0;  L:=NU-ODD(NU);
+     for i=L-1,L-3,...,1 do { I:=i+BETA; R:=RED(I); if R>0 then 
+     {SRED(I,AVAIL); AVAIL:=I; N:=N+1 } else SRED(I,-R)}.
+(4)  [Increment counters.]  T:=CLOCK()-T1;  TAU:=TAU+T;  GCC:=GCC+1;
+     GCCC:=GCCC+N.
+(5)  [Optional report.]  if GCM=1 \/ N <= NU/RHO then {
+     SOBUFF; CWRIT3('*','*',' '); AWRITE(N); CWRITE(' ');
+     CWRIT5('C','E','L','L','S'); CWRIT2(',',' '); AWRITE(T);
+     CWRIT4(' ','M','S','.');  WRITE; ROBUFF}.
+(6)  [Stop.]  if N <= NU/RHO then { print "Too few cells reclaimed.";
+     WRITE; if N > 100 then END1; stop } ||
+                    M:=INV(L)
+[Inverse.  L is a list.  M is the inverse of L.  The list L is
+transformed into M.]
+     safe INV.
+(1)  M:=();  M':=L;  while M' # () do { M'':=RED(M');  SRED(M',M);
+     M:=M';  M':=M'' } ||
+                    L':=LAST(L)
+[Last.  L is a non-null list.  L' is the location of the last cell
+of L.]
+     safe LAST.
+(1)  L':=L;  L'':=RED(L');  while L'' # () do { L':=L'';  
+     L'':=RED(L') } ||
+                    M:=LBIBMS(L)
+[List of beta-integers bubble-merge sort.  L is an arbitrary list of
+beta-integers, possibly with repetitions.  M is the result of sorting
+L into non-decreasing order.  A combination of bubble-sort and merge-
+sort is used.  The list L is modified to produce M.]
+     safe B',i,j,k,L1,L2,L',L'',m,n,q,q',r,t.
+(1)  [Short list.]  t:=10;  n:=LENGTH(L);  if n < t then
+     { LBIBS(L);  M:=L;  return }.
+(2)  [Prepare for merge.]  k:=0;  m:=1;  q:=n;  repeat  k:=k+1;
+     m:=m+m;  q:=q/2  until q < t;  r:=n-m * q;  B:=();  L':=L;
+     for i=1,...,m do {  if i <= r then q':=q else q':=q-1;
+     L'':=L';  for j=1,...,q' do L'':=RED(L'');  L''':=RED(L'');
+     SRED(L'',());  LBIBS(L');  B:=COMP(L',B);  L':=L''' }.
+(3)  [Merge.]  for i=1,...,k do {  C:=();  B':=B;  repeat
+     ADV2(B';L1,L2,B');  L1:=LBIM(L1,L2);  C:=COMP(L1,C) until B'=();
+     B:=C  };  M:=FIRST(B) ||
+                    LBIBS(L)
+[List of beta-integers bubble sort.  L is an arbitrary list of
+beta-integers, with possible repetitions.  L is sorted into
+non-decreasing order by the bubble-sort method.  The list L, though not
+its location, is modified.]
+     safe LBIBS.
+(1)  [Trivial case.]  if L=() then return.
+(2)  [General case.]  M:=();  repeat  L':=L;  L'':=RED(L');
+     a':=FIRST(L');  M':=();  while L'' # M do {  a'':=FIRST(L'');
+     if a' > a'' then { SFIRST(L',a'');  SFIRST(L'',a');  M':=L'' }
+     else a':=a'';  L':=L'';  L'':=RED(L')  };  M:=M'  until M=() ||
+                    L:=LBIM(L1,L2)
+[List of beta-integers merge.  L1 and L2 are arbitrary lists of
+beta-integers in non-decreasing order.  L is the merge of L1 and L2.
+L1 and L2 are modified to produce L.]
+     safe LBIM.
+(1)  [L1 or L2 null.]  if L1=() then { L:=L2;  return };  if L2=() then
+     { L:=L1;  return }.
+(2)  [Initialize.]  L'1:=L1;  L'2:=L2;  a1:=FIRST(L1);  a2:=FIRST(L2);
+     if a1 > a2 then { L:=L2;  L':=L2;  L'2:=RED(L2);  go to 4 } else
+     { L:=L1;  L':=L1;  L'1:=RED(L1) }.
+(3)  [LAST element from L1.]  if L'1=() then go to 5;  a1:=FIRST(L'1);
+     if a1 <= a2 then { L':=L'1;  L'1:=RED(L'1);  go to 3 } else
+     { SRED(L',L'2);  L':=L'2;  L'2:=RED(L'2) }.
+(4)  [LAST element from L2.]  if L'2=() then go to 5;  a2:=FIRST(L'2);
+     if a1 <= a2 then { SRED(L',L'1);  L':=L'1;  L'1:=RED(L'1);
+     go to 3 } else { L':=L'2;  L'2:=RED(L'2);  go to 4 }.
+(5)  [Left over.]  if L'1=() then SRED(L',L'2) else SRED(L',L'1) ||
+                    L:=LEINST(A,i,a)
+[List element insertion.  A  is the list (a_1,...,a_n) of objects.  i
+is a beta-integer, 0<=i<=n.  a  is an object.  If i=0, then L=(a,a_1,
+...,a_n).  If i=n, then L=(a_1,...,a_n,a).  Otherwise, L=(a_1,...,a_i,
+a,a_{i+1},...,a_n).  A  is modified.]
+     safe j.
+(1)  [i=0.]  if i=0 then { L:=COMP(a,A);  return }.
+(2)  [i > 0.]  L:=A;  A':=A;  for j=2,...,i do A':=RED(A');
+     A'':=RED(A');  A'':=COMP(a,A'');  SRED(A',A'') ||
+                    a:=LELT(A,i)
+[List element.  A  is a list.  1<=i<=length(A).  a  is the i-th
+element of A.]
+     safe LELT.
+(1)  A':=A;  for j=1,...,i-1 do A':=RED(A');  a:=FIRST(A') ||
+                    n:=LENGTH(L)
+[Length.  L is a list.  n=length(L).]
+     safe LENGTH.
+(1)  n:=0;  L':=L;  while L' # () do { L':=RED(L');  n:=n+1 } ||
+                    M:=LEROT(L,i,j)
+[List element rotation.  L is a list (a_1,...,a_n) of objects,
+n>0.  i and j, 1<=i<=j<=n, are beta-integers.  If i=j then M=L.
+Otherwise M=(a_1,...,a_{i-1},a_j,a_i,...,a_{j-1},a_{j+1},...,a_n).
+L is modified.]
+     safe LEROT.
+(1)  [i=j.]  M:=L;  if i=j then return.
+(2)  [i<j.]  L':=L;  for k=1,...,i-1 do L':=RED(L'); ADV(L';a,L'');
+     for k=i,...,j-1 do { b:=FIRST(L''); SFIRST(L'',a);  a:=b;
+     L'':=RED(L'') };  SFIRST(L',a) ||
+                    LINS(a,L)
+[List insertion.  L is a non-null list (a_1,...,a_n).  a  is an
+object.  a  is inserted in L after a_1 (suffixed to L if n=1),
+producing a modified list L=(a_1,a,a_2,...,a_n).]
+     safe LINS.
+(1)  A:=COMP(a,RED(L));  SRED(L,A) ||
+                    B:=LINSRT(a,A)
+[List insertion.  A  is a list (a_1,...,a_n) of beta-integers, n>=0,
+with a_1<a_2<...<a_n.  If n=0 then B=(a). If a<a_1 then B=(a,a_1,...,
+a_n).  If a>=a_n then B=(a_1,...,a_n,a).  Otherwise B=(a_1,...,a_i,a,
+a_{i+1},...,a_n) where a_i<=a<a_{i+1}.  The list A  is modified to
+produce B.]
+     safe A',A''.
+(1)  [n=0.]  if A=() then { B:=LIST1(a);  return }.
+(2)  [a<a1.]  if a < FIRST(A) then { B:=COMP(a,A);  return }.
+(3)  [General case.]  A':=A;  A'':=RED(A');  while A'' # () /\
+     a >= FIRST(A'') do { A':=A'';  A'':=RED(A') };  A*:=COMP(a,A'');
+     SRED(A',A*);  B:=A ||
+                    L:=LIST1(a)
+[List, 1 element.  a  is an object.  L is the list (a).]
+     safe LIST1.
+(1)  L:=COMP(a,()) ||
+                    L:=LIST10(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
+[List, 10 elements.  a1, a2, a3, a4, a5, a6, a7, a8, a9 and a_{10} are
+objects.  L is the list (a1,a2,a3,a4,a5,a6, a7,a8,a9,a10).]
+(1)  L:=COMP5(a1,a2,a3,a4,a5,LIST5(a6,a7,a8,a9,a10)) ||
+                    L:=LIST2(a,b)
+[List, 2 elements.  a  and b are objects.  L is the list (a,b).]
+(1)  L:=COMP(a,COMP(b,())) ||
+                    L:=LIST3(a1,a2,a3)
+[List, 3 elements.  a1, a2 and a3 are objects.  L is the list 
+(a1,a2,a3).]
+(1)  L:=COMP(a1,COMP(a2,COMP(a3,()))) ||
+                    L:=LIST4(a1,a2,a3,a4)
+[List, 4 elements.  a1, a2, a3 and a4 are objects.  L is the list
+(a1,a2,a3,a4).]
+(1)  L:=COMP2(a1,a2,COMP2(a3,a4,())) ||
+                    L:=LIST5(a1,a2,a3,a4,a5)
+[List, 5 elements.  a1,a2,a3,a4 and a5 are objects.  L is the list
+(a1,a2,a3,a4,a5).]
+(1)  L:=COMP3(a1,a2,a3,COMP2(a4,a5,())) ||
+                    L:=LREAD()
+[List read.  The list L is read from the input stream.  Any preceding
+blanks are skipped.]
+     safe C.
+(1)  [Read list elements.]  L:=();  C:=CREADB();  if C # '(' then
+     go to 2;  repeat {  C:=CREADB();  if C=')' then { L:=INV(L);
+     return } else if C='(' then { BKSP;  L1:=LREAD() } else if C='+' \/
+     C='-' \/ DIGIT(C) then { BKSP;  L1:=AREAD() } else go to 2;
+     L:=COMP(L1,L);  C:=CREADB();  if C=')' then BKSP else if C # ','
+     then go to 2  }.
+(2)  [Error.]  print "Error found by LREAD.";  DIBUFF;  stop ||
+                    i:=LSRCH(a,A)
+[List search.  A  is a list of beta-integers, (a_1,...,a_n), n>=0.  If
+there is a j such that a=a_j then i is the least such j.  Otherwise
+i=0.]
+     safe LSRCH.
+(1)  A':=A;  i:=1;  while A' # () do { ADV(A';a1,A');  if a=a1 then
+     return;  i:=i+1 };  i:=0 ||
+                    LWRITE(L)
+[List write.  The input list L is written in the output stream.]
+(1)  [Initialize.]  CWRITE('(');  L':=L.
+(2)  [Write list elements.]  while L' # () do { ADV(L';L1,L');
+     if ATOM(L1) then AWRITE(L1) else LWRITE(L1);  if L' # ()
+     then CWRITE(',') }.
+(3)  [Finish.]  CWRITE(')') ||
+                    MARK(L)                                            
+[Mark.  L is a non-null list.  Every non-marked cell which is accessible
+from  L is marked.]                                  
+     safe a,L'.
+(1)  [Initialize.]  L':=L.
+(2)  [Finished?] if ATOM(L')\/L'=() then return. 
+(3)  [Marked?]  R:=RED(L'); if R<0 then return.  
+(4)  [Mark it.] SRED(L',-R).
+(5)  [Recursion?]  a:=FIRST(L');  if ~(ATOM(a)\/a=BETA\/a=-BETA) then 
+     MARK(a).
+(6)  [Next cell.] L':=R; go to 2 ||
+                    t:=MEMBER(a,L)
+[Membership test.  a  is an object, L a list.  t is true if a  is a 
+member of L, otherwise t is false.]
+     safe MEMBER.
+(1)  [Initialize.] t:=TRUE;  L':=L.
+(2)  [Search.]  while L' # () do {ADV(L';a1,L'); if EQUAL(a,a1) then 
+     return}.
+(3)  [No success.] t:=FALSE ||
+                    A:=OPTGET(n,S)
+[Options get.  n is an argument number of the command line, n>=1. S is a 
+character list "c_1,...,c_k", k>=0. A is the character c_i, 1<=i<=k, 
+if the option "-c_i" is the n-th option on the command line. The option 
+"-c_i" has an argument, if the character c_{i+1} in S is ':'. In this 
+case A is the argument from the command line, a character list starting
+with the option character. The argument must follow 
+the option letter immediately, not after blanks. If the argument is 
+missing, an error message is given and the program is stopped, unless 
+c_1 is the character ':'.  If there are no more options on the command 
+line, A is the character '$'.]
+    safe L',S',L'',s,f.
+(1) [n-th argument no option?] L:=ARGGET(n); if ~(L#()/\FIRST(L)='-')
+    then {A:='$'; return}; L':=RED(L).
+(2) [Option character.] if L'=() then go to 5; ADV(L';A,L''); if A='$'
+    then go to 5.
+(3) [Argument expected?] S':=S; f:=false; while S'#()/\~f do 
+    {ADV(S';s,S'); if s=A then {f:=true; if ~(S'#()/\FIRST(S')=':') then
+     return; S':=()}}; if ~f then go to 5.
+(4) [Option argument.] if L''=()/\S#()/\FIRST(S)#':' then go to 5;
+    if L''#() then A:=L'; return. 
+(5) [Unknown option.] CLOUT("OPTGET: option incorrect:"); CLOUT(L); 
+    WRITE; stop ||
+                    n:=ORDER(a)
+[Order.  a  is an object.  n=order(a).]
+     safe a1.
+(1)  [a an atom.]  n:=0;  if ATOM(a) then return.
+(2)  [a a list.]  a':=a;  while a' # () do { ADV(a';a1,a');
+     n:=MAX(n,ORDER(a1)) };  n:=n+1 ||
+                    B:=OREAD()
+[Object read.  The object B is read from the input stream.  Any
+preceding blanks are skipped.]
+     safe OREAD.
+(1)  [Read list or atom.]  C:=CREADB();  BKSP;  if C='(' then B:=LREAD()
+     else B:=AREAD() ||
+                    OWRITE(B)
+[Object write.  The input object B is written in the output stream.]
+     safe OWRITE.
+(1)  if ATOM(B) then AWRITE(B) else LWRITE(B) ||
+                    C:=PAIR(A,B)
+[Pair.  A=(a_1,...,a_m) and B=(b_1,...,b_n) are lists with m,n>=0.
+C is the list (a_1,b_1,...,a_r,b_r) where r=min(m,n).]
+     safe a,A',b,B'.
+(1)  [Initialize.] A':=A;  B':=B;  C:=().
+(2)  [Combine.]  while A' # () /\ B' # () do { ADV(A';a,A');  
+     ADV(B';b,B');  C:=COMP2(b,a,C) };  C:=INV(C) ||
+                    L1:=RED(L)
+[Reductum.  L is a non-empty list. L1 is the reductum of L.]
+    safe RED.
+(1) L1:=SPACE[L-BETA] ||
+                    L':=RED2(L)
+[Reductum 2.  L is a list of length 2 or more.  L'=red(red(L)).]
+     safe RED2.
+(1)  L':=RED(RED(L)) ||
+                    M:=RED3(L)
+[Reductum 3.  L is a list of length 3 or more.  M is the third
+reductum of L.]
+     safe RED3.
+(1)  M:=RED(RED2(L)) ||
+                    M:=RED4(L)
+[Reductum 4.  L is a list of length 4 or more.  M is the fourth
+reductum of L.]
+     safe RED4.
+(1)  M:=RED(RED(RED(RED(L)))) ||
+                    B:=REDUCT(A,i)
+[ith reductum.  A  is a list.  i<=length(A) is a non-negative beta-integer.
+B=A, if i=0.  Otherwise, B is the i-th reductum of A.]
+     safe REDUCT.
+(1)  B:=A;  for j=1,...,i do B:=RED(B) ||
+                    C:=SCONC(A,B)
+[Safe concatenation.  If B is a cell not occurring in the list A  then
+C=conc(A,B) and otherwise C=A.]
+     safe SCONC.
+(1)  [A or B empty.] if A=() then { C:=B; return }; C:=A; if B=()
+     \/ ATOM(B) \/ B=-BETA then return.
+(2)  [Scan A.]  A':=A; repeat { if A'=B then return; A'':=RED(A');
+     if A''=() then { SRED(A',B); return } else A':=A'' } ||
+                    C:=SDIFF(A,B)
+[Set difference.  A  and B are sets of beta-integers.  C=A-B.]
+     safe a,A',b,B',C.
+(1)  [Initialize.] C':=();  A':=A;  B':=B.
+(2)  [Scan.]   while A' # () /\ B' # () do {a:=FIRST(A');  b:=FIRST(B');
+     if a=b then { A':=RED(A'); B':=RED(B')} else if a < b then
+     {C':=COMP(a,C');  A':=RED(A')} else B':=RED(B')  }.
+(3)  [Dangling end.]  if C'=() then C:=A' else { C:=INV(C');
+     SRED(C',A') } ||
+                    a:=SECOND(L)
+[Second.  L is a list of length 2 or more.  a  is the second element
+of L.]
+     safe SECOND.
+(1)  a:=FIRST(RED(L)) ||
+                    SFIRST(L,a)
+[Set first.  L is a non-null list.  a  is an object.  The first
+element of L is changed to a.]
+     safe SFIRST.
+(1)  SPACE[L-BETA1]:=a ||
+                    C:=SINTER(A,B)
+[Set intersection.  A  and B are sets of beta-integers.  C is the
+intersection of A  and B.]
+     safe A',a,B',b,C.
+(1)  [Initialize.] C':=();  A':=A;  B':=B.
+(2)  [Scan.]  while A' # () /\ B' # () do {a:=FIRST(A');  b:=FIRST(B');
+     if a=b then { C':=COMP(a,C'); A':=RED(A');  B':=RED(B') }
+     else if a < b then A':=RED(A') else B':=RED(B')  }.
+(3)  [End.]  C:=INV(C') ||
+                    SLELT(A,i,a)
+[Set list element.  A  is a list.  1<=i<=length(A).  The i-th
+element of A  is changed to a.]
+     safe SLELT.
+(1)  A':=A;  for j=1,...,i-1 do A':=RED(A');  SFIRST(A',a) ||
+                    SRED(L,L')
+[Set reductum.  L is a non-null list.  L' is a list.  The reductum
+of L is changed to L'.]
+     safe SRED.
+(1)  SPACE[L-BETA]:=L' ||
+                    L':=SUFFIX(L,b)
+[Suffix.  L is a list (a_1,...,a_n), n>=0.  b is an object.  
+L'=(a_1,...,a_n,b).  L is modified.]
+     safe SUFFIX.
+(1)  L':=CONC(L,LIST1(b)) ||
+                    C:=SUNION(A,B)
+[Set union.  A  and B are sets of beta-integers.  C is the union of
+A  and B.]
+     safe A',a,B',b,C.
+(1)  [Initialize.]  C':=();  A':=A;  B':=B.
+(2)  [Scan.]  while A' # () /\ B' # () do {a:=FIRST(A');  b:=FIRST(B');
+     if a=b then { C':=COMP(a,C'); A':=RED(A');  B':=RED(B') }
+     else if a < b then { C':=COMP(a,C'); A':=RED(A') } else
+     { C':=COMP(b,C');  B':=RED(B') }  }.
+(3)  [End.]  if A'=() then A':=B';  if C'=() then C:=A' else
+     { C:=INV(C');  SRED(C',A') } ||
+                    a:=THIRD(L)
+[Third.  L is a list of length 3 or more.  a  is the third element
+of L.]
+     safe THIRD.
+(1)  a:=FIRST(RED2(L)) ||
+                    L':=UCL(L)
+[Upper case list.  L is a non-empty list of characters.  L is
+modified into L' by replacing lower case letters by upper case
+letters.]
+    safe UCL.
+(1) [Initialize.]  L':=L;  L_:=L.
+(2) [Replace.]
+    repeat SFIRST(L_, UCASE(FIRST(L_))); L_:=RED(L_) until L_=() ||
+                    C:=USDIFF(A,B)
+[Unordered set difference.  A  and B are unordered sets.  C is the
+difference A-B.]
+     safe a,A'.
+(1)  [Initialize.] A':=A;  C:=().
+(2)  [Subtract.] while A' # () do { ADV(A';a,A'); if ~MEMBER(a,B)
+     then C:=COMP(a,C) };  C:=INV(C) ||
+                    C:=USINT(A,B)
+[Unordered set intersection.  A  and B are unordered sets.  C is the
+intersection of A  and B.]
+     safe a,A'.
+(1)  A':=A;  C:=();  while A' # () do { ADV(A';a,A');
+     if MEMBER(a,B) then C:=COMP(a,C) }; C:=INV(C) ||
+                    C:=USUN(A,B)
+[Unordered set union.  A  and B are unordered sets.  C is the union
+of A  and B.]
+     safe USUN.
+(1)  C:=CONC(USDIFF(A,B),B) ||

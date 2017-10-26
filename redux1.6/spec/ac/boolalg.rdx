@@ -1,0 +1,31 @@
+DATATYPE BOOL;
+SORT
+	BOOL;
+CONST
+	t, f: BOOL;
+VAR
+	p, P, Q, R, P1, P2, P3: BOOL;
+OPERATOR
+	#: BOOL, BOOL -> BOOL;
+	/\: BOOL, BOOL -> BOOL;
+	~: BOOL -> BOOL;
+	>: BOOL, BOOL -> BOOL;
+	\/: BOOL, BOOL -> BOOL;
+	=: BOOL, BOOL -> BOOL;
+NOTATION
+	#, /\, ~, >, \/, =: FUNCTION;
+THEORY
+	#, /\: AC;
+AXIOM
+[1] \/(P,Q) == #(/\(P,Q),#(P,Q));
+[2] >(P,Q) == #(/\(P,Q),#(P,t));
+[3] =(P,Q) == #(P,#(Q,t));
+[4] ~(P) == #(P,t);
+[5] #(P,f) == P;
+[6] #(P,P) == f;
+[7] /\(P,t) == P;
+[8] /\(P,P) == P;
+[9] /\(P,f) == f;
+[10] /\(P,#(Q,R)) == #(/\(P,Q),/\(P,R));
+END
+; this file is boolalg.typ 

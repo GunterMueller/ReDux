@@ -1,0 +1,506 @@
+\section{Programming Style and - Conventions}
+
+This  section contains some general remarks on the programming style and 
+\index{programming style}
+\index{programming convention}
+conventions used in the \redux-system.
+The recommendations and conventions presented in this section must be taken
+seriously, especially by programmers who expect their code to be upward
+compatible with future versions of the \redux-system.
+
+\subsection{Modularization}
+
+As already mentioned in the introduction, the \redux-system is subdivided
+into several subsystems.
+\index{subsystem}
+Each subsystem is again subdivided into {\em modules}.
+A \redux\ module can either be a collection of algorithms which have related
+tasks (E.\,g.\ the module {\tt tpcy} contains copying algorithms.),
+the specification of an abstract data type (E.\,g.\ {\tt tpsb} specifies the
+abstract data type substitution.) or the implementation of a complicated
+algorithm which is broken into subtasks (E.\,g.\ {\tt icip}).
+
+Each module is physically a file. It begins with a documentation header.
+\index{documentation header}
+\begin{example} \null \\
+ \begin{tabbing}
+   module specification\=: \= \kill
+  [Project: ReDuX Term Primitives \\
+   module name        \>: \> TPDD -- -- Data type Definition \\
+   module specification\>: \> basic data type definitions and manipulation \\
+                        \> \> algorithms for data types allowing \\
+                        \> \> function symbols with  AC-status. \\
+                        \> \> upgrade of icd1.ald as of Oct. 13, 1989 \\
+                        \> \> BLKW has been changed to match the new \\
+                        \> \> specification of TAB and to circumvent \\
+                        \> \> endless loop caused by TAB. \\
+   programmer         \>: \> Wolfgang Kuechlin / Reinhard Buendgen \\
+   language           \>: \> \ALDES \\
+   last change        \>: \> 7.3.90 12.11.89 10.08.89 \\
+                        \> \> \$Date: 91/09/09 09:10:19 \$ \\
+                        \> \> by \$Author: buendgen \$ \\
+   version            \>:\> 1 without labels and AC-status \\
+                        \> \> TEPRS added \\
+                        \> \> \$Revision: 1.3 \$ \\
+   bugs               \>:\> none known \\
+   modules needed     \>: \> SAC2: low/bs, low/sy, low/lp \\
+
+]
+\end{tabbing}
+\hspace*{\fill} $\Box$
+\end{example}
+There may be comments denoting header files (see \RIX)
+to be concatenated in front of the source file.
+The header files contain macros declarations to manipulate and access data 
+types and declarations of global (safe) variables.
+\index{header file}
+The macro definition techniques used in \redux\ are explained in
+Section~\ref{ss:mac}.
+Then some more  macro definitions specific to that file may be declared.
+\begin{example}  \null \\
+ \begin{tabbing}
+const \= \kill
+{[ \#include tp.h ]} \\
+{[ \#include ic.h ]} \\
+{[ \#include globs.h ]} \\
+\end{tabbing}
+\hspace*{\fill} $\Box$
+\end{example}
+Finally the algorithms which may be grouped into different {\em sections}
+\index{section}
+follow.
+Modules containing abstract data types or complex procedures contain
+\index{abstract data type}
+sections called ``Algorithms for export'' and ``Algorithms for internal use''.
+If these sections exist, only the procedures and functions in the section 
+``Algorithms for export'' may be called from outside the module.
+
+\subsection{Global Variables} \label{ss:gv}
+
+The use of global variables in the ReDuX-system should be avoided.
+\index{variable!global}
+However there are a few occasions where global variables are used.
+\begin{itemize}
+ \item pointers to symbols in the global symbol table,
+\index{symbol}
+ \item global time accumulators,
+\index{time accumulator}
+ \item global counters and
+\index{global counter}
+ \item flags for toggling traces
+ \item global hash arrays for the random term generator
+\index{trace flag}
+\end{itemize}
+may be stored in global variables.
+In any case, global variables should be used with utmost care and whenever
+possible should their use be restricted to one module.
+\index{declaration!external}
+\index{declaration!safe}
+Global variables must be declared externally\footnote{External declarations
+precede the algorithms.} safe\footnote{I.\,e.\ they should not have any
+impact on the garbage collection.}.
+See the \RIX\ for a list of 
+all global variables used in ReDuX.
+
+\paragraph{Pointers to Symbols}
+Symbols are mostly used for grammar symbols and indicators of global
+\index{symbol}
+properties.
+Therefore most of the global symbols are declared and used in the term primitive
+data type definition module {\tt tpbgn}.
+Pointers to symbols are supposed to keep a constant value once they are 
+initialized.
+
+The variable names for global symbols should consist of three or four upper 
+case letters, the first being the letter `D' and the last preferably being 
+the letter `S'.
+There are some exceptions to this rule, mainly for symbols needed by the old
+parser in {\tt tpprs} and for symbols which are only referred to by a single 
+module.
+Global variables related with external objects
+\index{object!external}
+should start with `DX'.
+
+\paragraph{Time Accumulators}
+\index{time accumulator}
+Time accumulators accumulate the time spent during certain operations.
+Their names typically consist of  three letters, the last two being a `TI'.
+\begin{example}
+ A typical update of a time accumulator looks as follows:
+ 
+ \begin{tabbing}
+  global \= \kill
+  \> \vdots \\
+  global \> UTI. safe UTI. [Unification time] \\
+       \> \vdots \\
+       \> UTI:=UTI-CLOCK(); I:=TNRMCI(T1,T2); UTI:=UTI+CLOCK(); \\
+       \> \vdots
+ \end{tabbing}
+ 
+ The time spent in TNRMCI is added to UTI. \hfill $\Box$
+\end{example}
+
+\paragraph{Counters}
+\index{global counter}
+Global counters are used to count how often certain operations are performed.
+Their names typically consists of two or three letters, the last being a `C'.
+
+\paragraph{Trace Flags}
+Trace flags are integer variables which control whether certain features
+of a program should be traced.
+The value 0 means that the trace is switched off.
+The names of the trace flags consist of five upper case letters or digits,
+the last three of which must be `TRC'.
+
+\paragraph{Exceptions}
+The ReDuX system is not a homogeneous piece of software.
+Several programmers have been involved in its development and up to now there
+have not been any written guidelines on how to use global variables.
+That is why there are a few exceptions from the rules described so far.
+These exceptions are supposed to be the only exceptions in future extensions of 
+the ReDuX system and they will be replaced step by step in the following
+versions.
+Here we list all exceptional global variables known to us:
+\index{variable!global}
+\begin{itemize}
+ \item The symbols KIND, IDENT, XIDNT, INT, GRSYM, SYM are
+  used in scanner and parser routines.
+ \item The symbol FLAT is used in scanner, parser and output routines.
+ \item There are trace flags TRC1 (theorem derivation trace), TRC2 (prove
+  theorem trace) and TRC3 (formula reduction trace).
+ \item the global variable AUTOM is used in completion procedures.
+ \item Property indicators used in term orderings:
+       KBOI, KBOW, POASK, POGEQ, POLEQ, POSTS. 
+       The use of these global variables is restricted to very few files.
+ \item If a global variable is only referenced in the file containing the
+  main algorithm and its direct menu-subalgorithms
+  its name is only restricted to not clash with that of
+  other global variables in the system (e.\,g.\ STPWT in {\tt ac}).
+\end{itemize}
+
+\subsection{Macro Techniques} \label{ss:mac}
+
+The \ALDES\ language provides a macro expansion facility which is introduced
+\index{macro}
+with the key word `const'.
+\index{declaration!const{-}}
+Const-declarations can be used to define constants and functions by macro
+definitions.
+
+\paragraph{Constants}
+For all ReDuX algorithms the constants FALSE = 0 and TRUE =1 should always be
+declared.
+\index{ALDES}
+In newer \ALDES\ implementations these constants are already built-in.
+
+There is no constant for the empty list. Even though comments and the
+documentation often use the word `nil', `nil' is neither a built-in constant
+nor is it a declared constant in any ReDuX module.
+The only way to refer to the empty list is by writing `()'.
+In ReDuX it is not allowed to refer to the \ALDES\ variable BETA ($\beta$)
+\index{BETA ($\beta$)}
+in order to refer to the empty list.
+
+If constants are used to describe parts of an abstract data type
+(like ASSIDTY in {\tt tpsb}) these parts should be referenced to only via these
+constants.
+I.\,e., in all modules referring to that part of a data type this constant must
+be redeclared.
+
+\paragraph{Functions}
+The const-declarations can also be used to define function macros.
+\begin{example} 
+   const TCONT(T) = FIRST(T). \hfill $\Box$
+\end{example}
+Then every occurrence of the left-hand side of a constant declaration
+(here TCONT(\ldots)) is replaced by the expression in the right-hand side of
+the declaration where the function parameters are replaced by the actual 
+parameters.
+\begin{example} 
+ TCONT(INV(L)) becomes FIRST(INV(L)).  \hfill $\Box$
+\end{example}
+A const-declaration is valid as soon as it appears, thus a const-declaration
+can use a previous const-declaration.
+\begin{example} \label{ex:sel} \null \\
+\begin{tabbing}
+ const         \= RED(L)    = SPACE[L-BETA], \\
+               \> RED2(L)   = RED(RED(L)), \\
+               \> RED3(L)   = RED(RED2(L)), \\
+               \> RED4(L)   = RED(RED3(L)), \\
+               \> FIRST(L)  = SPACE[L-BETA1], \\
+               \> SECOND(L) = FIRST(RED(L)), \\
+               \> THIRD(L)  = FIRST(RED2(L)), \\
+               \> FOURTH(L) = FIRST(RED3(L)), \\
+               \> FIFTH(L)  = FIRST(RED4(L)). 
+\end{tabbing}
+\hspace*{\fill} $\Box$
+\end{example}
+In the ReDuX-system function const-declarations are used for the following 
+purposes:
+\begin{enumerate}
+ \item to rename functions in order to give them a more intuitive name,
+ \item it speed up the computation, avoiding function call overhead,
+ \item to implement (virtual) records and
+ \item to provide interfaces for (abstract) data types.
+\end{enumerate}
+A function $i$th(L) which returns the \ith{i} element of
+the list L is called an {\em \ith{i} element selector}.
+\index{element selector}
+At the beginning of most ReDuX modules the \ith{i} element selectors are 
+defined by macro techniques such that each selector is mapped to access to
+\index{SPACE}
+\index{ALDES}
+a field in the array SPACE\footnote{The array SPACE is the dynamic storage 
+(heap) of \ALDES.}.
+Thereby the standard \ALDES\ and SAC-2/{\it lp} element selectors 
+(FIRST, SECOND,
+\index{SAC-2}
+THIRD and FOURTH) are overwritten.
+\index{reductum}
+\index{reductum selector}
+In the same way the \ith{i} reductum\footnote{Reductum is the \ALDES/SAC-2 
+expression for the rest or `cdr' of a list.} selectors are defined by mapping 
+them to accesses to SPACE  (see Example~\ref{ex:sel}).
+\index{SPACE}
+
+Element- and reductum selectors as defined above do not contain actual 
+function calls.
+This has the following implications.
+Firstly, the overhead of function calls is avoided and secondly 
+function macros may occur at the left-hand side of an assignment resulting 
+in a convenient way to update parts of a list\footnote{This way of using 
+macros is due to Wolfgang K\"{u}chlin.}.
+\begin{example}
+  SECOND(L) maps to SPACE[SPACE[L-BETA]-BETA1]. Therefore \\
+  SECOND(L) := L' maps to SPACE[SPACE[L-BETA]-BETA1] := L' \\
+  which is a correct \ALDES\ statement. \hfill $\Box$
+\end{example}
+
+In the ReDuX system, data structures which contain a fixed set of 
+substructures are stored in lists of fixed length.
+Such structures would be implemented as records in languages like Pascal.
+To access the components of such a data structure in ReDuX there is a 
+const-declaration for each component which renames an \ith{i} element or
+reductum selector.
+\begin{example} const TNAME(T) = THIRD(T). \hfill $\Box$
+\end{example}
+Together with the previously explained macro definitions of element and
+reductum selectors such constant declarations are equivalent to
+record selectors.
+
+It is understood that the data structures defined using macros should always
+be accessed through these macros.
+
+Most macros used in \redux\ algorithms are collected in the header files
+{\tt tp.h} and {\tt ic.h} (see \RIX.)
+In each \redux-source file  comments (e.\,g.\  $[$ \# include tp.h $]$)
+state which header files must be concatenated in front of the source file.
+
+\subsection{Naming Conventions}
+
+Here we give an outline for naming conventions used for ReDuX variable and
+algorithm identifiers.
+It must be noted that these conventions are not strictly followed
+throughout the ReDuX system.
+However they provide some guidelines for systematically naming program objects
+and therefore give raise to mnemonics which after some practice can 
+easily be expanded to their full meaning.
+This is especially important because \ALDES\ identifiers may only consist of
+\index{ALDES}
+\index{identifier!ALDES}
+at most six upper case letters and digits (with a few exceptions to be
+explained later).
+Therefore programmers are advised to follow these conventions as strictly as
+possible.
+
+The most important convention which {\em may not} be violated is that 
+no identifier of an ReDuX algorithm (or a global variable) may be equal to a 
+\index{SAC-2}
+SAC-2 algorithm (or global variable) name.
+
+\paragraph{Variable Identifiers}
+The following restrictions are due to the \ALDES\ language:
+\begin{itemize}
+ \item a variable identifier may consist of at most six upper case letters
+       and digits or,
+ \item it is an ornamented one-letter identifier and
+\index{identifier!ornamented}
+ \item names of global variables have a maximum length of five.
+\end{itemize} 
+An {\em ornamented one-letter variable name} consists of one letter
+(lower or upper case) possibly followed by ornaments and indices, as described 
+by the regular expression
+\[ \{a,\ldots,z,A,\ldots,Z\}\{\_, \; \hat{}, \; \tilde{}\,\}^*\{*,'\}^*\{0,\ldots,9\}^*. 
+\]
+Ornamented identifiers may consist of at most six characters, too.
+Table~\ref{ta:oi} gives an overview of the ornamented variants of the
+identifier T, in publication form, \ALDES\ source code and the source
+code of an older version of \ALDES\ --- sometimes called {\em OLDES} 
+\index{OLDES}
+(\cite{Loos:76}).
+\begin{table} 
+\begin{center}
+\begin{tabular}{|c|c|c|l|}
+ \hline
+ publication & \ALDES & transliteration to & mnemonic\\
+ \ALDES       & source code  & OLDES source code & \\
+ \hline \hline
+ $T$               & T                 & T     & \\
+ $t$               & t                 & TL    & T lower case \\
+ $\bar{T}$         & T\_               & TB    & T bar \\
+ $\hat{T}$         & T\,$\hat{}$       & TH    & T hat \\
+ $\tilde{T}$       & T\,$\tilde{}$     & TT    & T tilde \\
+ $T^*$             & T*                & TS    & T star \\
+ $T'$              & T'                & TP    & T prime \\
+ $T_1$             & T1                & T1    & \\
+ $t''$             & t'\,'             & TLPP  & \\
+ $T'_3$            & T'3               & TP3   & \\
+ $\tilde{t}^*_5$   & t$\,\tilde{}\,$*5 & TLTS5 & \\   
+ \hline
+\end{tabular}
+\caption{Ornamented variants of T} \label{ta:oi}
+\end{center}
+\end{table}
+Note that many translators (like e.\,g., the \ALDES\ to Fortran translator)
+transliterate ornamented identifiers as it was done in OLDES.
+This may lead to name clashes in the intermediate language!
+
+In \redux\ mostly ornamented identifiers are used for local variables.
+Input parameters of algorithms are normally denoted by single letters
+(e.\,g., t) and output parameters (or function results) are often
+ornamented with a star (e.\,g., t*).
+Working copies of a variable are normally primed versions of the 
+original variable (e.\,g., t').
+
+If possible a variable name is a mathematical standard identifier of the
+\index{identifier!mathematical standard}
+object it presents as it is used in most publications (e.\,g., s, t for terms
+or v, x, y for variables).
+It is common practice in \redux\ to use the OLDES transliteration of ornamented
+variables as mnemonics (e.\,g., L$\,\hat{}\,$* = LHS = left-hand side,
+D$\,\tilde{}$ = DT = data type).
+Unfortunately this may lead to some confusion.
+Whereas in newer code objects are normally named by lower case letters
+(e.\,g., t) and lists of these objects by corresponding upper case letters
+(e.\,g., T), this was done just in the opposite way by OLDES programmers
+\index{OLDES}
+(TL was interpreted as `T-list'.).
+
+Note that Greek letters (ALPHA, BETA, \ldots) should not be used as
+variable names because many such identifiers are used as built-in
+global \ALDES\ variables.
+\index{ALDES}
+For naming conventions of global variables see Section~\ref{ss:gv}.
+
+\paragraph{Warning!} 
+Because of clashes with the global variables DLS, DPS, DSS and DTS
+the variable names d*, D`*, D**, D$\,\tilde{}\,$* may not be used for local
+variables.
+To avoid future clashes, the variable names d', d\,$\hat{}$, d\,$\tilde{}$,
+d\_ and Dxy where x, y $\in \{$ ', *, $\hat{}$, $\tilde{}$, \_ $\}$
+should not be used either.
+
+\paragraph{Algorithm Names}
+\index{algorithm name}
+Algorithm names are identifiers consisting of at least two and
+at most six upper case letters and digits.
+The first letters of an algorithm name often describe the types of its main
+parameters (see Table~\ref{ta:pt}).
+The letters `L', `P' and `S' often mean list, pair and set respectively.
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|l||l|l|}
+ \hline
+ abbrev. & type(s)                    & abbrev. & type(s) \\
+ \hline \hline
+  A     & atom or axiom               
+                                      &
+                                        NTS(T) & node of top set tree  \\
+  AX    & axiom                       &                                   
+                                        O(P)  & operator / function symbol \\
+  C     & constant                    &                                   
+                                        P     & polynomial \\             
+  CP    & critical pair               &                                   
+                                        P(D)  & production rule \\        
+  CSC   & completion strategy control &                                   
+                                        PTS   & pruned top set tree \\    
+  DC    & dictionary                  &                                   
+                                        R(R)  & rewrite rule \\           
+  DE    & Diophantine equation        &                                   
+                                        S     & symbol \\                 
+  D(I)  & variable dictionary         &                                   
+                                        SB    & substitution \\           
+  DT    & data type                   &                                   
+                                        STL   & subterm list \\           
+  EVC   & evaluation candidate        &                                   
+                                        T(N)     & (non-atomic) term \\   
+  GR    & grammar                     &                                   
+                                        TST   & top set tree \\           
+  I     & integer                     &                                   
+                                        TX    & mixed term \\             
+  INT   & $\gamma$-integer            &                                   
+                                        V     & variable \\               
+  L     & list                        &                  
+                                        X     & external \\               
+  NPTS  & node of pruned top set tree &
+                                        Y     & type \\                   
+ \hline      
+\end{tabular} 
+\end{center}  
+\caption{Abbreviations of parameter types} \label{ta:pt}
+\end{table}
+In the {\it ac}-subsystem the suffixes `E' and `AC' often mean `modulo an
+equational theory' and `modulo AC'.
+
+Names of interactive procedures often begin with `M' (for message, pure output)
+or `Q' (for query, dialogue).
+
+Algorithm names often include words where the vowels have been omitted
+(e.\,g., WRT for `write') and some times digits are used instead of
+words with the same pronunciation (e.\,g., `2' instead of `to' or
+`W8' instead of `weight').
+
+\subsection{Interactive Input}
+All \redux\ programs use an asterisk ({\tt *}) as prompt for user input.
+Input options are given in  brackets ({\tt [}, {\tt ]}) and may be separated by
+slashes.
+\begin{example}
+\begin{verbatim}
+ ...
+ Enter your choice [B/L/N/E] *
+\end{verbatim}
+\end{example}
+
+\subsection{The Main Programs}
+
+The main programs normally start with reading a description of an
+\index{main program}
+algebraic specification from input stream~4\footnote{The stream number may be 
+subject to change on systems where this stream is reserved for special
+purposes.}.
+The algebraic specification is called a {\em data type} in the \redux\
+\index{data type}
+system. 
+A \redux\ data type consists of a description of a many sorted signature,
+\index{signature!many sorted}
+together with a list of sorted variables and a set of equations
+\index{variable!ReDuX}
+\index{equation}
+\index{axiom}
+(called {\em axioms} in the \redux\ system).
+Typically this data type is displayed after it has been parsed.
+The remaining I/O is done interactively.
+The syntax of these data types and the use of the \redux\ demo programs
+\index{demo program}
+is described in \cite{RUD1.4}.
+
+Modules containing main programs can also contain some procedures
+specific to that very program.
+For such procedures we do not require that the above mentioned
+naming conventions are followed strictly, provided these procedures are
+{\em not} included in a library.
+Generally main programs are not included in \redux\ libraries.
+
+With the current \ALDES-to-C compiler main programs must contain
+local declarations of all global variables used in any called algorithm.
+Global SAC-2 system variables need not be declared.

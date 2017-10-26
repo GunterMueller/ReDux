@@ -1,0 +1,192 @@
+\section{Exported Functions}
+
+Most  functions of the parser modules are not intended to be called
+from user source code.
+The interface routines to the parser, write routines and some other
+functions are  exported and expected to be called from user programs,
+however.
+These functions will be shown in the next sections.
+
+\subsection{Parser Interface}
+
+The parser interface incorporates functions to parse data types,
+parts of data types and provides the user with different term
+parsers. They are contained in file {\tt objparse.ald}.
+
+\begin{description}
+\item[AS $\leftarrow$ ASPRS(DT):] This parser can be used to
+parse non-empty
+axiom sets. {\tt DT} is a data type which is usually parsed before the
+axiom set parser is called,
+{\tt AS} is a list of axioms.
+Signature information is taken from data type {\tt DT}. The parsed
+axioms {\tt AS} are not inserted into the data type.
+\item[A $\leftarrow$ AXPRS(DT):] This parser is intended to parse one
+axiom {\tt A}
+(equation) according to the signature information provided by
+data type {\tt DT}. The axiom number of the parsed axiom is set to zero,
+but can be changed afterwards if desired. Axiom {\tt A} is not added
+to the data type.
+\item[CS $\leftarrow$ CSPRS(DT):] This is the constant set parser.
+Similar to the parsers before, sort information is taken from
+data type {\tt DT} to parse {\tt CS}, a list of constants. Parsed
+constants are not implicitly added to the data type.
+\item[DT $\leftarrow$ DTPRS():] To parse a complete data type,
+this function has to be called. Note, that the data type parser
+aborts program executions if an error was found in the data type
+specification.
+\item[O $\leftarrow$ OPRS(DT):] This is an interactive operator parser.
+{\tt DT} is a data type which provides the operator parser with
+the necessary signature declarations. The operator {\tt O} is
+read using the YACC parser, before additional properties of operator
+{\tt O}, such as notation, associativity or precedence, can be
+interactively set. This parser is not recommended for batch file usage.
+Use {\tt OSPRS} instead. {\tt O} is not inserted into {\tt DT}.
+\item[OS $\leftarrow$ OSPRS(DT):] Operator sets can be read with this parser.
+Specification is similar to {\tt OPRS}, but additional properties
+can be added using the same notation as in data type descriptions.
+Signature information is taken, as usual, from data type {\tt DT}. The
+list of operators {\tt OS} is not inserted into {\tt DT}.
+\item[OROLRD(; O,R,OS,ne):] This parser (operator - relation - operator list)
+is needed by some demo programs to read in information for a term ordering
+(path ordering). 
+{\tt O} is a symbol (denoting a constant or operator name), {\tt R} is a
+string 
+(in $\{$ {\tt >=}, {\tt <=}, {\verb+~+}, {\tt \#}, {\tt <}, {\tt >}$\}$)
+denoting a relation, {\tt OS} is a list of symbols 
+(each a constant or operator name) and {\tt ne} signals whether a valid input
+was read in.
+\item[T $\leftarrow$ TEPRS(DT):] This is the main term parser. Using
+signature information from data type {\tt DT}, a term is read.
+\item[TPRSC(DT,V; T,V'):] This term parser (parse term in context)
+should be used to parse related terms, i.e. terms, which share
+common variables, e.\,g., the left and right hand sides of an axiom.
+{\tt DT} is a data type, which provides a signature description,
+V is a (possibly empty) parser variable dictionary.
+To parse related terms, a first call to {\tt TPRSC} should be
+performed with {\tt V=()}. The parser then returns the parsed term
+{\tt T} in conjunction with a new, updated parse variable dictionary
+that can be used for further term parsing. Entries in the variable dictionary
+provide the parser with information about which variables (and which indices)
+are already known from preceding calls to {\tt TPRSC}.
+\item[VS $\leftarrow$ VSPRS(DT):] This parser is responsible for
+parsing of variable sets. Specification is almost like that for {\tt CSPRS},
+with the only difference that {\tt VS} is a list of variables.
+\end{description}
+
+All these parsers are based on the assumption that the global
+parser variables
+were properly initialized (by {\tt ITGLPR}) before their first usage.
+
+\subsection{ReDuX Object Write Functions}
+
+The new parser demands a change of the output functions to be
+adapted to the new data type style. All functions provided by
+the old write module are still provided (in file {\tt write.ald}):
+
+{\tt ASWRT}, {\tt AXWRT}, {\tt CONWRT}, {\tt CSWRT}, {\tt DTWRT},
+{\tt OPWRT}, {\tt OSWRT}, {\tt RRWRT}, {\tt SBDIW}, {\tt SBWRT},
+{\tt SLWRT}, {\tt SWRT}, {\tt TLWRT}, {\tt TDICT}, {\tt TDIWRT},
+{\tt TWRT}, {\tt VAWRT}, {\tt VSWRT}, {\tt VDWTS}, {\tt YXSWRT},
+{\tt YXWRT}
+
+Their specifications were left unchanged.
+Besides these functions, the new parser defines the following output
+functions:
+
+\begin{description}
+\item[OSWRTN(OS):] Write set of ``normal'' operators. {\tt OS}
+is a set of operators, probably containing also some coercion operators.
+The set {\tt OS} is printed ignoring all coercion operators.
+\item[CESWRT(OS):] Write set of coercion operators. {\tt OS} is a
+set of operators, probably a mixture of normal and coercion operators.
+All coercion operators of {\tt OS} are printed, normal operators
+are ignored.
+\item[FXWRT(OS):] Write fixity for operator set. {\tt OS} is a set
+of operators (maybe also coercion operators). The notation information
+for all operators in the set {\tt OS} is printed.
+\item[ASCWRT(OS):] Write associativity for set of operators. {\tt OS}
+is a set of operators. The associativity status for all operators
+which have set the {\tt ASSOC} property is printed.
+\item[PRWRIT(OS):] Write precedence for set of operators. {\tt OS}
+is a set of operators. A precedence list containing all operators of
+{\tt OS} which have set the {\tt PREC} property is printed.
+\item[USWRT(OS):] Write unification status. Unification status for
+all operators of list {\tt OS} which belong either to theory {\tt AC} or
+{\tt COM} is printed.
+\item[PPWRT(OS):] Property write for operator set {\tt OS}. This includes
+properties {\tt COERC}, {\tt KBINDEX}, {\tt KBWEIGHT} and
+{\tt XINT}.
+\item[SRTWRT(S):] Write sorts. {\tt S} is a list of sorts that is printed.
+\item[SOWRIT(SO):] Write symbol of signature object. {\tt SO} is a signature
+object (or term). The symbol {\tt TNAME(SO)} is written with
+the state of the output mode flags being considered.
+\end{description}
+
+\subsection{Data Type Manipulation Tools}
+
+The parser modules provide a variety of functions for data type manipulation.
+Most of them cover insertion of additional objects like constants, operators,
+etc. into a data type.
+Partly, the functions are contained in file {\tt insert.ald}:
+
+\begin{description}
+\item[INSAXS(DT,AS):] Insert axiom set into the data type. {\tt DT} is
+the data type where the axioms of {\tt AS} are to be added.
+No errors can occur here, but the user should make sure that no
+axiom numbers are used multiply.
+\item[INSCNS(DT,CS; IS,ES):] Insert constants into the data type. {\tt DT}
+is a data type into which the constant set {\tt CS} is to be inserted.
+Then {\tt IS} is the set of constants that were successfully added,
+{\tt ES} is the set of constants that could not be added to the data
+type because of name conflicts. {\tt IS} concatenated with {\tt ES}
+is the complete constant set {\tt CS}.
+\item[INSOPS(DT,OS; IS,ES):] Insert operators into the data type. {\tt OS}
+is a set of operators, all other parameters have the same meaning as
+in {\tt INSCNS}.
+\item[INSVRS(DT,VS; IS,ES):] Insert variables into the data type. {\tt VS}
+is a variable list, all other parameters have the same meaning as in
+{\tt INSCNS} or {\tt INSOPS}.
+\item[t $\leftarrow$ INSOBJ(DT,OL):] Insert objects into the data type
+symbol table. 
+{\tt DT} is a data type, {\tt OL} a list of constants,
+variables and/or operators. These objects are inserted into {\tt DT}'s
+symbol list. If an error occurs due to name conflicts {\tt t=FALSE}.
+In this case it is not assured that all objects really have been inserted
+into the symbol table. Otherwise {\tt t=TRUE}.
+\item[t $\leftarrow$ INSOB(DT,O):] Insert object into data type's
+symbol table. Specification is similar to {\tt INSOBJ}, but only
+one object can be inserted using this function.
+\end{description}
+
+The file {\tt dtax.ald} offers some more operations on data types:
+
+\begin{description}
+\item[P $\leftarrow$ DTGET(DT,I):] Get data type property. {\tt DT}
+is a data type, {\tt I} an indicator symbol. Then {\tt P} is the value
+(property) stored under indicator {\tt I} in the property list of
+data type {\tt DT}.
+\item[DTPUT(DT,I,P):] Put data type property. {\tt DT} is a data type,
+{\tt I} is an indicator under which value {\tt P} is stored in {\tt DT}'s
+property list.
+\item[STADD(DT,SS):] Add new sort to data type. The symbol {\tt SS}
+is interpreted as a sort name and stored in the sort list of data type
+{\tt DT}. It is not checked, whether the sort is already in the sort list
+or not.
+\item[XSTADD(DT,XS):] Add new external sort to data type. The symbol
+{\tt XS} is interpreted as an external sort name and stored in the
+external sort list of data type {\tt DT}. The symbol {\tt XS} is
+assumed to have suitable properties (e.g. {\tt XREAD},{\tt XWRITE})
+added. There is no occurrence check for symbol {\tt XS} in the external
+sort list.
+\end{description}
+
+\subsection{Miscellaneous}
+The function {\tt ITGLPR} (initialize global variables for parser) of file
+{\tt pinit.ald} should be called before any other parser action
+is started.
+It should be called only once\footnote{Only in case the program uses
+more than one global symbol table multiple calls to ITGLPR make sense.}.
+
+There are further exported functions that control output modes. These functions
+will be described in the next section.

@@ -1,0 +1,45 @@
+DATATYPE R3X;
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1: KOEF;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+NOTATION
+	+, *, ~, |, M, #, @: FUNCTION;
+THEORY
+	+, *, |, #, @: AC;
+AXIOM
+ [1] +(0,a) == a;
+ [2] *(0,a) == 0;
+ [3] *(1,a) == a;
+ [4] *(a,+(b,c)) == +(*(a,b),*(a,c));
+ [5] +(+(a,a),a) == 0;
+ [6] ~(a) == +(a,a);
+ [7] |(x,I) == x;
+ [8] M(0,x) == O;
+ [9] #(M(a,x),M(b,x)) == M(+(a,b),x);
+[10] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+[11] #(p,O) == p;
+[12] @(p,O) == O;
+[13] @(p,M(1,I)) == p;
+[14] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[15] #(@(p,M(a,x)),@(p,M(b,x))) == @(p,M(+(a,b),x));
+[16] @(p,M(+(1,b),I)) == #(p,@(p,M(b,I)));
+[17] #(p,#(p,p)) == O;
+
+[18] M(1,|(X,|(X,Y))) == M(+(1,+(1,+(1,1))),Y);
+[19] M(1,|(X,|(Y,Y))) == M(1,X);
+END

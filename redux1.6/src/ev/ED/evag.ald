@@ -1,0 +1,119 @@
+[Project: External Evaluation.
+   module name        : EVAG -- EValuate in a Abelian Group.
+   modulespecification: Algorithms to evaluate in abelian group.
+   programmer         : Werner Lauterbach
+   language           : aldes
+   last change        : 28.10.94
+                        $Date: 1995/07/19 07:02:58 $
+                        by $Author: lauterba $
+   version            : $Revision: 1.3 $
+   bugs               : none known
+   modules needed     : tp/tpdd.ald
+]
+
+[ #include "ev.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+
+[----------------------------------------------------------------------
+     This algorithms are intended to evaluate in a free group :
+     Let (G, +, -, I, 1) the signature:
+         G   <--->  group elements
+         +   <--->  AGSUM                :  +: N x N --> N
+         -   <--->  AGDIF                :  -: N x N --> N
+         I   <--->  AGNEG                :  I: N --> N
+         0   <--->  AGZERO               :  constant
+-----------------------------------------------------------------------
+     External Algorithms:
+     XFG    : AGFG
+     XREAD  : Not implemented.
+     XWRITE : 
+     XTERM  : TFAGE
+     XLT    : Not implemented.
+     XEQ    : Not implemented.
+-----------------------------------------------------------------------]
+
+                    e:=AGZERO(d)
+[Abelian Group ZERO.
+d is the dictionary. Then e is a list representing the zero. [WL]]
+     safe rank, i.
+(1)  [Init.] rank:=LENGTH(d); e:=().
+(2)  [Dictionary is empty.] if rank = 0 then rank:=1.
+(3)  [Zero.] for i:=1,...,rank do e:=COMP(0,e) ||
+
+                    a:=AGSUM(DUMMY,a1,a2)
+[Abelian Group SUM.
+DUMMY is the not used dictionary. a1 and a2 are elements of the abelian 
+group. a:=a1+a2. [WL]]
+(1)  [Sum.] a:=VISUM(a1,a2) ||
+
+                    a:=AGNEG(DUMMY,a1)
+[Abelian Group NEGation. 
+DUMMY is the not used dictionary. a1 is an element of the abelian group. 
+a:=-a1. [WL]]
+(1)  [Negate.] a:=VINEG(a1) ||
+
+                    a:=AGDIF(DUMMY,a1,a2)
+[Abelian Group DIFference.
+DUMMY is the not used dictionary. a1 and a2 are elements of the abelian 
+group. a:=a1-a2. [WL]]
+(1)  [Difference.] a:=VIDIF(a1,a2) ||
+
+[----------------------------------------------------------------------
+     External Algorithms:
+-----------------------------------------------------------------------]
+
+                    a:=AGFG(k,d)
+[Abelian Group Free Generator. 
+DUMMY is the not used dictionary. k <= LENGTH(DUMMY). Then a is the 
+vector which represents the the r-th entry in the dictionary. [WL]]
+     safe r, k, i.
+(1)  [Init.] r:=LENGTH(d); a:=().
+(2)  [Make generator.]
+     for i:=1,...,k-1 do a:=COMP(0,a);
+     a:=COMP(1,a);
+     for i:=k+1,...,r do a:=COMP(0,a) ||
+
+                    t:=TFAGE(O,d,a)
+[Term From Abelian Group Element.
+O = ((czero,...),(osum,oneg,...)) is a pair containg the constants
+and the operators corresponding to the constructors of the free Abelian
+group, d is the dictionary and a an element of the abelian group. 
+Then t is a term representing a ("XTEVL(t)=a", the inverse of the 
+evaluation). ]
+     safe oneg, osum, czero, i, r, e, k.
+(1)  [Extrakt constants and Operators] O1:=FIRST(O); O2:=SECOND(O);
+     if LENGTH(O1) + LENGTH(O2) >= 3 then
+     { czero:=FIRST(O1);  ADV2(O2; osum,oneg,O') }
+     else
+     {
+         STROUT(" *** Warning, unexpected number ");
+         STOUTL("of operators in TFAG! "); HALT
+     }.
+(2)  [Trivial case: zero.] a':=a;
+     while a' # () do
+     {
+         ADV(a'; i,a');
+         if i # 0 then goto 3
+     };
+     t:=TCONS((),czero); return.
+(3)  [Initialize.] a':=CINV(a); r:=LENGTH(d); k:=1.
+(4)  [Trivial case: variable.] cont:=(); ADV(a'; e,a');
+     if e > 0 then t':=DCETERM(DCIE(k,d))
+     else t':=TCONS((DCETERM(DCIE(k,d))),oneg);
+     for i:=1,...,ABS(e) do cont:=COMP(t',cont).
+(5)  [Sum.]
+     while a' # () do
+     {
+         k:=k+1; ADV(a'; e,a');
+         if e > 0 then t':=DCETERM(DCIE(k,d))
+         else t':=TCONS((DCETERM(DCIE(k,d))),oneg);
+         for i:=1,...,ABS(e) do cont:=COMP(t',cont);
+     }.
+(6)  [Finish up.]
+     if LENGTH(cont) = 1 then t:=FIRST(cont)
+     else t:=TCONS(cont,osum) ||

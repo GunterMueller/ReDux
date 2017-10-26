@@ -1,0 +1,166 @@
+[Project: ReDuX AC-completion
+   module name        : ACSB -- SuBstitution
+   modulespecification: Algorithms and data structures for
+                        abstract data type substitution
+   programmer         : Reinhard Buendgen
+   language           : aldes                                           
+   last change        : 7.11.89
+                        $Date: 1994/12/05 09:38:15 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.9 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        redux/tpdd
+]                                                                      
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                     ASADV(A; v,t,A*)
+[Assignment list, advance.
+A is an assignment list. Then v is the firtst variable in A, t is the
+substitution value of v and A* is A without v and t.]
+     
+(1)  ADV2(A; v,t,A*) ||
+
+                    A*:=AASSOC(v,A)
+[Assignment list, associate. 
+v is a variable and A is an assignment list. Then A* = () if v does not
+occur in A at an odd position. Otherwise A* is the sublist of A
+beginning with v.]
+
+(1)  [Initialize.] A*:=A.
+(2)  [Search.] while A* # () do 
+       if ASSVAR(A*) = v then return  else A*:=ASSNXT(A*)||
+
+                    A*:=ASCONS(v,t,A) 
+[Assignment list, construct.
+v is a variable, t is a term A is an assignment list which does not
+contain a variable v. Then A* is the Assignment list where the
+assignment v <- t is added to A.]
+
+(1)  [Compose.] A*:=COMP2(v,t,A)||
+
+                    SBAPPL(S)
+[Substitution application.
+S is a substitution. 
+Then the contents of each variable in S will be set to S(v). Possible
+old contents of the variables gets lost.]
+ 
+(1)  [Initialize.] A:=SUBASS(S).
+(2)  [Apply S.] while A # () do { ASADV(A; v,t,A); VARBIND(v):=t } ||
+
+                    S*:=SBCMPS(S1,S2)
+[Substitution composition.
+S1 and S2 are substitutions. The intersection of the image of S2 and the
+domain of S1 is empty. Then S* is a new substitution, the result of 
+applying S2 to S1.]
+
+(1)  [Initialize.] A1:=SUBASS(S1); A2:=SUBASS(S2); V':=(); T':=().
+(2)  [Perform S2 restricted to dom(S2)\dom(s1).] while A2 # () do
+      { v:=ASSVAR(A2); if AASSOC(v,A1) = () then
+       { V':=COMP(v,V'); T':=COMP(VARBIND(v),T'); VARBIND(v):=ASSTRM(A2) 
+       }; A2:=ASSNXT(A2)
+      }.
+(3)  [Compose new substitution. S1 part.] A:=(); while A1 # () do
+      { TGCVS(ASSTRM(A1); t,V); A:=ASCONS(ASSVAR(A1),t,A); 
+       A1:=ASSNXT(A1)
+      }.
+(4)  [Compose new substitution. S2 part. Undo S2.] while V' # () do
+      { ADV(V'; v,V'); ADV(T'; t',T'); TGCVS(VARBIND(v); t,V);
+        A:=ASCONS(v,t,A); VARBIND(v):=t'
+      }.
+(5)  [Finish up.] S*:=SBCONS(A)||
+
+                    S:=SBCONS(A)
+[Substitution, construct.
+A is an assignment list. Then S is the substitution whose assignments
+are described by A.]
+
+(1)  [Compose.] S:=COMP(A,())||
+
+                     SBDAPP(S)
+[Substitution, disapplication.
+S is a substitution. with SUBDOM(S) = V = (v1, ..., vn)  a list of
+Then the contents of each variable in S is set to nil. SBDAPP is
+intended to be the inverse function of SBAPPL.]
+ 
+(1)  [Initialize.] A:=SUBASS(S).
+(2)  [Undo variables.] while A # () do 
+      { ASADV(A; v,a,A); VARBIND(v):= ()} ||
+
+                    L:=SBFAPP(S)
+[Substitution, full application.
+S is a substitution. Let V be SUBDOM(S) a list of possibly bound 
+variables.
+Then L=(l1,... ,ln) is a list where li is the contents of the i-th
+variable in V. The contents of each variable v will be set to S(v).]
+
+(1)  [Initialize.] A:=SUBASS(S); L:=().
+(2)  [Apply S.] while A # () do
+     { ASADV(A; v,t,A); L:=COMP(VARBIND(v),L); VARBIND(v):=t }; 
+     L:=INV(L) ||
+
+                    L:=SBRAPP(S,V)
+[Substitution, restricted application.
+S is a substitution, V is a set of possibly bound variables.
+Then L=(l1,... ,ln) is a list where li is the contents of the i-th
+variable in V. The contents of each variable v will be set to S(v).] 
+
+(1)  [Initialize.] V':=V; A:=SUBASS(S); L:=().
+(2)  [Perform S restricted to V.] while V' # () do
+      { ADV(V'; v,V'); A':=AASSOC(v,A);
+       L:=COMP(VARBIND(v),L); if A' # () then VARBIND(v):=ASSTRM(A') 
+      }; L:=INV(L) ||
+
+                     SBFUDO(S,L)
+[Substitution, full undo.
+S is a substitution with SUBDOM(S) = V = (v1, ..., vn)  a list of 
+possibly bound variables. L =(t1, ...,tn) is a list of terms or nils. 
+Then the contents of vi will be set to ti for 1 <= i <= n. SBFUDO is 
+intended to be the inverse function of SBFAPP.]
+ 
+(1)  [Initialize.] A:=SUBASS(S); L':=L.
+(2)  [Undo variables.] while A # () do
+      { ASADV(A; v,a,A); ADV(L'; t,L'); VARBIND(v):=t } ||
+
+                    SBUNDO(V,L)
+[Substitution, undo.
+V = (v1, ..., vn) is a list of possibly bound variables. L =(t1, ...,tn)
+is a list of terms or nils. Then the contents of vi will be set to ti
+for 1 <= i <= n. SBUNDO is intended to be the inverse function of
+SBRAPP.]
+
+(1)  [Initialize.] V':=V; L':=L.
+(2)  [Undo variables.] while V' # () do 
+      { ADV(V'; v,V'); ADV(L'; t,L'); VARBIND(v):=t } ||
+
+                    S:=VLTLSB(V,T)  
+[Varialble list, term list, construct substitution. 
+V=(v1, ...,vn) is a list of distinct variables and T=(t1,...,tn) is a 
+list of terms.  
+Then S is a substitution which assigns ti to vi (1<=i<=n).]
+ 
+(1)  [Initialize.] V':=V; T':=T; A:=ASSIDTY. 
+(2)  [Construct assignment list] while V' # () do 
+     { ADV(V'; v,V'); ADV(T'; t,T'); A:=ASCONS(v,t,A) }.
+(3)  [Construct substitution.] S:=SBCONS(A) ||
+
+                    S:=VLXSB(V)
+[Variable list, extract substitution.
+V is a list of possibly bound variables where each variable occurs at
+most once. No term in the contents of a variable in V may contain an 
+unbound variable which is in V. Then S is the substitution where each 
+variable in V is assigned its contents unless its contents is empty.]
+
+(1)  [Initialize.] V':=V; A:=ASSIDTY.
+(2)  [Get assignments.] while V' # () do
+      { ADV(V'; v,V'); if VARBIND(v) # () then
+        { TGCVS(VARBIND(v); t,V_); A:=ASCONS(v,t,A) }
+      }; S:=SBCONS(A)||
+

@@ -1,0 +1,21 @@
+ReDuX copying policy:
+=====================
+
+The programs and algorithms in this directory may be used for free
+under the following preconditions:
+  - the ReDuX-system itself, modified versions of it, parts of it, and
+    systems relying on it may only be used and distributed further on a 
+    no-profit basis.
+  - all bugs found are to be reported to Reinhard Buendgen 
+  - all changes to the sources must be documented (preferably using
+    the RCS revision control system).
+  - credit should be given to the authors of the programs
+  - this file is not to be modified.
+
+
+   Reinhard Buendgen  
+   Universitaet Tuebingen
+   Sand 13
+   D-72076 Tuebingen 
+   Germany
+   e-mail: <buendgen@informatik.uni-tuebingen.de>

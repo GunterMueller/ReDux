@@ -1,0 +1,43 @@
+\subsection{The Parse Process}
+
+The subsequent steps of a typical parse run are preferably shown for
+parsing a data type. 
+This process includes parsing signature definitions
+as well as terms (within axioms) and therefore covers most parts of
+the algorithms provided by the parser modules.
+
+Parsing normally starts with a call to one of the interface functions
+of module {\tt objparse.ald} (here {\tt DTPRS}). The interface routine
+directly invokes the main parser ({\tt YYPARS} of file {\tt parse.y}).
+The parser scans the input file and builds up the appropriate parts
+of the data type step by step. Therefore it uses auxiliary routines
+from {\tt parsax.ald}. As soon as certain parts of the data type are parsed
+(e.g. constants) they are checked for semantical correctness ({\tt check.ald})
+and inserted into an initially empty data type ({\tt insert.ald}).
+In case of syntactical errors, these are handled directly by
+the main parser.
+Semantical errors which are found either by {\tt check.ald},
+{\tt insert.ald} or {\tt parsax.ald} are reported by {\tt semerr.ald}.
+
+This first part of the parse process makes use of the symbol table
+only to insert symbols and to check whether objects, which are to be assigned
+special properties (e.g. notation, precedence, associativity),
+have been declared properly before.
+All other lexical analysis work is done directly by the LEX-scanner in file
+{\tt scan.l}. Especially, lexemes with definite predefined meaning
+(keywords, special lexemes) make use of the statical lexical analyzer.
+
+The second step of the process consists of the parsing of the
+{\tt AXIOM}-section.
+This step heavily depends upon symbol table access.
+The parser successively uses the symbol table (via the scanner) to look
+for a suitable symbol. It is in this step where the principle of longest
+match has its main importance.
+After successfully parsing a term, it has to be transformed according to the
+precedence and associativity declarations of the
+signature part of the declaration. 
+This is done by {\tt fxpras.ald}.
+
+These two steps almost complete the parsing process. Post processing
+is still necessary, though. This includes setting of default values,
+ambiguity checks and external (coercion) operator post processing.

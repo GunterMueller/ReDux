@@ -1,0 +1,248 @@
+[Project:  ReDuX  AC-Completion 
+   module name        : ACCMP -- completion
+   modulespecification: Completion modulo AC (Peterson & Stickel)
+                        with critical pair reduction done in ACCP1
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 17.11.98 25.10.89
+                        $Date: 1995/07/24 09:41:44 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.15 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include tp.h ]
+[ #include ac.h ]
+[ #include globs.h ]
+
+     const                                                             
+     TNORM(T,A)=TIRDSE(T,A),                                           
+               [TNORM computes a normal form of term T under           
+                 the set of axioms A.]                                 
+     STRATV(CP)=CPMSIZ(CP).                                            
+               [STRATV computes the value of critical pair CP          
+                according to the current strategy.]                    
+
+
+[--------------------------------------------------------------------- 
+     section 1.                                                         
+     The Knuth-Bendix algorithm.                                        
+-----------------------------------------------------------------------]
+                                                                       
+                    D*:=DTKBAC(D~,R*,O,CSC)                                     
+[Data type, Knuth-Bendix completion procedure modulo AC. 
+Inputs:
+=======
+D~:  a data type. 
+R*:  a set of canonical rewrite rules, a copy of a subset of the axioms 
+     in D~; no critical pairs between rules in R* will be computed
+O:   a string. It determines which orderings will be used during the 
+     completion process automatically. Empty string means no automatic 
+     ordering.
+CSC: contains parameter settings for the completion strategy control.
+
+Outputs: (on standard termination)
+========
+D*:  D~ with the set of rewrite rules replaced  by a TRS such that all 
+     critical pairs are confluent modulo AC. If the rules in D* are 
+     terminating (which is always the case with an automatic ordering) 
+     then the term rewriting system in D* is confluent.
+
+Sideeffects:
+============
+D~ and R* are destroyed.
+
+Local variables:
+ (1) queues: Q1: old axioms, Q2: unoriented crit. pairs,
+             Q3 delayed crit. pairs
+ (2) statistics: 
+     s1:   |Q1| + |Q2| + |Q3|,
+     s2:   total number of theorems derived 
+           (proper crit. pairs no collapsed rules)
+     s3:   total number of theorems proved
+     S0:   statistics list of s1 for every loop.
+]
+     safe N~*,C~*,V~*,F~*,M,V,N,n,n1,n2.                   
+     safe s0,s'0,s1,s2,s3,s4.
+(1)  [Initialize.] DTDIS(D~; N~*,C~*,V~*,F~*,A); MINITE(N~*,CSC);
+     [Completion strategy control.] 
+      CSCDIS(CSC ;AUTOM,c2,c3,c4,c5,c6,c7,c8);
+     [Init rules.] A*:=R*; [Next rule number.] n:=LENGTH(A*); A':=A*;
+     while A' # () do { ADV(A'; a',A'); n:=MAX(ANUM(a'),n) }; n:=n+1;
+     [Init global timers.] CTI:=0; STI:=0; OTI:=0;
+     [Init global counters.] OC:=0; CC:=0; 
+     [Init statistics.] s1:=LENGTH(A); s2:=0; s3:=0; S0:=LIST1(s1);
+     [Init queues.] Q3:=(); if c3 = 1 then { Q1:=A; Q2:= () }
+     else { Q1:=(); Q:=AL2CPL(A,0); Q2:=LOISE((),Q,s1) }.
+(2)  [Terminate successfully.] if Q1=() /\ Q2=() /\ Q3=() then       
+     {MEXITE(N~*,(),S0); D*:=D~; DTAX(D*):=A*; return}.
+(3)  [Select next pair.] if Q1 # () then                                    
+     {ADV(Q1;a,Q1); ADIS(a;n2,M,V,N,n1); a:=CPCONS(M,N,0,n2,ESS)} 
+     else if Q2 # () then                                                   
+     { ADV(Q2; a,Q2); M_:=CPLHS(a); N_:=CPRHS(a); if c2 = 1 then 
+       { if AUTOM > 0 /\ O # () then 
+         { C^:=CPORIEN(a); 
+           if C^ = 'S' \/ C^ = 'R' then { ORDWRT(M_,N_,C^); goto 6 }
+         }; goto 5
+     } } else ADV(Q3; a,Q3).
+(4)  [Normal forms.] MCPC(a); M:=CPLHS(a); N:=CPRHS(a);
+     M_:=TNORM(M,A*); N_:=TNORM(N,A*);
+     if TTO(M_,N_) = 0 then {MCPDEL(a); s1:=s1-1; s3:=s3+1; goto 2};
+     CPLHS(a):=M_; CPRHS(a):=N_.
+(5)  [Orient.] C^:=QCA(n,a,D~,A*,Q2,O).
+(6)     if C^='S' then TRPCVS(M_,N_; L,R,V*);
+     if C^='R' then TRPCVS(N_,M_; L,R,V*);
+     if C^='B' then { Q3:=SUFFIX(Q3,a); goto 3 };
+     if C^='Q' then { Q2:=SUFFIX(Q2,a); goto 3 };
+     if C^='F' then 
+     { s1:=s1+1; s2:=s2+1; Q2:=COMP(a,Q2); a:=CPFERT(a,A*,O); 
+       M_:=CPLHS(a); N_:=CPRHS(a); goto  5 
+     }; if C^='E' then 
+     { D*:=D~; DTAX(D*):=A*; STAPRT(INV(S0)); return };
+     [New rule.] a:=ACONS(n,L,V*,R); [AC-extension.] a*:=APUTXR(a,A*);
+     [Compute set of linearly constrained subterms of LHS.] 
+     if c6 = 1 then  if ALLB(a) # 1 then
+     { APUT(a, DST, TLLCST(L)); if a* # () then 
+                                  APUT(a*, DST, TLLCST(ALHS(a*)))
+     }; s1:=s1-1.
+(7)  [Collapse/Compose: reduce old axioms.] ALPURE(A*,a; A*,A0); 
+     MASCLR(A0,n); A**:=COMP(a,A*);
+     [Subconnectedness criterion.] if c5 = 1 then
+     { CPLCCA(Q2,A0; Q2,s4); s1:=s1-s4; s3:=s3+s4  };
+     [Reduce old pairs.] if c2 =1 then 
+     { CPLCLE(Q2,a; Q2,Q); CPOLNE(Q,A**; Q',s0,s'0); 
+       if AUTOM > 0 /\ O # () then Q':=CPLOW8(Q',O);
+       Q2:=LOISE(Q2,Q',s'0); s4:=s0-s'0; s1:=s1-s4; s3:=s3+s4 
+     };
+     [Store collapsed axioms.] if c4 = 1
+     then { s1:=s1+LENGTH(Q1); Q1:=CONC(Q1,INV(A0)) } 
+     else { Q:=AL2CPL(A0,n); CPOLNE(Q,A**; Q',s0,s'0); 
+            if AUTOM > 0 /\ O # () then Q':=CPLOW8(Q',O);
+            Q2:=LOISE(Q2,Q',s'0); s3:=s3+s0-s'0; s1:=s1+s'0
+          }.
+(8)  [Deduce: new unconnected pairs.] if c6 = 0 
+     then CP:=ACPAC(a,A*,A*,TRUE) else CP:=ACPACG(a,A*,A*,TRUE);
+     CP:=CPLOW8(CP,O); A*:=ALINS(A*,a);
+     [Statistics.] s0:=LENGTH(CP); if s0 > 0 then 
+       { MCPSC(s0,n); s1:=s1+s0; s2:=s2+s0 }; 
+     [Remove redundant pairs.] if c7 = 1 then
+     { Q:=(); s4:=0; while CP # () do
+      { ADV(CP; p,CP); CPLIST(Q,p; Q,s'4); s4:=s4+s'4 };
+      [Statistics.] s1:=s1-s4; s3:=s3+s4; s0:=LENGTH(Q); MCSCLR(s0);
+     } else Q:=CP;
+     [Statistics.]  S0:=COMP(s1,S0); MSTAT(s2,s1);
+     [Add new pairs.] Q2:=LOISE(Q2,Q,s0); n:=n+1; go to  2 || 
+
+[--------------------------------------------------------------------  
+     section 2.                                                         
+     Subalgorithms.                                                     
+----------------------------------------------------------------------]
+                                                                       
+                    ALPURE(A,a; A*,C*)                                  
+[List of axioms, purge modulo equational theories.
+A is a list of axioms,a is an axiom. Then C* is the list of all axioms 
+in A whose lhs contains an instance of the lhs of a.  A* = A minus C*, 
+where all right-hand sides of axioms in A* are in normal form with      
+respect to A union a. A is destroyed.]                                 
+     safe A'',a',l,l',v',b,l_.                          
+(1)  [Initialize.] A*:=A; C*:=(); A':=A*; a^:=AGET(a,DXR); l:=ALHS(a); 
+     l_:=ALLB(a); if a^ # () then l^:=ALHS(a^).
+(2)  [Trivial case.] if A'=() then return. 
+(3)  [Top(A*).] ADV(A'; a',A''); ARDIS(a'; l',v',r');
+     [Match at lhs. Disconnect.] b:=TSMTHE(l,l',v',l_); 
+     if ~ b /\ a^ # () then b:=TSMTHE(l^,l',v',l_); if b then       
+     {A*:=RED(A*); RED(A'):=C*; C*:=A'; A':=A*; go to  2};
+     [Reduce rhs.] A_:=COMP(a,A''); b:=TSMTHE(l,r',v',l_); 
+     if ~ b /\ a^ # () then b:=TSMTHE(l^,r',v',l_); if b then     
+     { r_:=TNORM(r',A_); ARHS(a'):=TSTDR(r_); a*:=APUTXR(a',A_)
+     }.
+(4)  [Rest A*.] A_:=COMP(a,A'); A'':=A'; A':=RED(A'); while A' # () do 
+     {  a':=FIRST(A'); ARDIS(a'; l',v',r'); b:=TSMTHE(l,l',v',l_); 
+      if ~ b /\ a^ # () then b:=TSMTHE(l^,l',v',l_); if b then
+      { [Disc.] RED(A''):=RED(A'); RED(A'):=C*; C*:=A'; A':=RED(A'') } 
+      else 
+       { [Reduce.] b:=TSMTHE(l,r',v',l_); if ~ b /\ a^ # () then 
+        b:=TSMTHE(l^,r',v',l_); if b then
+        { [Reduce wrt. A_ \ {a'}.] RED(A''):=RED(A'); r_:=TNORM(r',A_); 
+          ARHS(a'):=TSTDR(r_); a*:=APUTXR(a',A_);
+          [Recover A_.] RED(A''):=A' 
+        }; A'':=A'; A':=RED(A') 
+     } } ||          
+
+                    C':=AL2CPL(A,n)
+[Axiom list to critical pair list.
+A is al list of axioms which is left-reducible by the axiom number n
+(n is a beta-digit, 0 can be used as a dummy value).
+Then C' is A transformed into a critcal pair list.]
+
+(1)  [Initialize.] C':=(); A':=A.
+(2)  [Transform each axiom.] while A' # () do
+     { ADV(A'; a',A'); ADIS(a'; n',l',V',r',b');
+       c':=CPCONS(l',r',n,n',ESS);  C':=COMP(c',C')
+     } ||
+
+ 
+                    CPOLNE(C,A; C*,s,s')                              
+[List of old critical pairs, normal forms.                             
+C is a list of critical pairs, A is a set of axioms.                    
+Then C* is C where the critical pairs are in normal form with           
+respect to A. s=length(C), s'=length(C*). C is destroyed.             
+According to the setting of the global variable TRC3, appropriate       
+messages for A reduction of queued theorems are output.]               
+     safe s,s',C'',c,M,N.                                            
+(1)  [Trivial case.] C*:=(); s:=0; s':=0; if C=() then return.
+(2)  [Initialize.] CP:=C; if TRC3 then                                 
+     { BLINES(1); STOUTL(" Reducing the set of old theorems -") }.
+(3)  [Normalize.]  while CP # () do                                   
+     {  c:=FIRST(CP); s:=s+1; M:=CPLHS(c); N:=CPRHS(c);
+      if TRC3 then { BLINES(1); MCPB(c,0); STROUT(" reduced") };
+      RTI:=RTI-CLOCK(); M_:=TNORM(M,A); N_:=TNORM(N,A); 
+      RTI:=RTI+CLOCK(); if TTO(M_,N_) = 0 then
+      { if TRC3 then STOUTL(" and proved."); CP:=RED(CP) } else 
+      { s':=s'+1; CPRHS(c):=N_; CPLHS(c):=M_; CPW8(c):=STRATV(c);
+       if TRC3 then { STOUTL(" and  retained as"); RRWRT(M_,N_); 
+                      CWRIT2(' ','.'); WRITE
+                    }; C'':=RED(CP); RED(CP):=C*; C*:=CP; CP:=C'' 
+     }}.
+(4)  if TRC3 then BLINES(1) ||                                         
+ 
+[-----------------------------------------------------------------------
+     Section 3.
+     Message handling.
+-----------------------------------------------------------------------] 
+
+                    MINITE(N,C)                                           
+[Message on initialization - modulo E completion.]  
+(1)  BLINES(1); STOUTL("Completion modulo AC (Peterson & Stickel)."); 
+     STOUTL("[$Revision: 1.15 $]"); 
+     WRITE; STROUT("Beginning completion of "); SWRT(N);
+     STOUTL("-data-type."); BLINES(1);
+     STOUTL("Control parameters:"); LWRITE(C); WRITE; BLINES(1) ||                         
+
+                    MEXITE(N,M,S)
+[Message on exit - modulo E completion.
+N is the name of a data type. M is al list of period 2 with atoms in the
+odd positions and strings in the even position. S is al list of
+statistical information.]
+     safe S'.
+(1)  BLINES(1); STROUT("The completion of the "); SWRT(N);
+     STOUTL("-data-type succeeded."); BLINES(1).
+(2)  AWRITE(UC); STROUT(" unifications and ");
+     AWRITE(MC); STROUT(" matches attempted ");
+     STOUTL("including detection of");
+     AWRITE(CC); STOUTL(" non-trivially subconnected pairs.");
+     AWRITE(OC); STOUTL(" were critcal pairs compared.");
+     AWRITE(RC); STOUTL(" were rewrites performed.").
+(3)  [Write information from M.] M':=M; while M' # () do
+     { ADV2(M'; a,s,M'); AWRITE(a); CLOUT(s); WRITE }.
+(4)  BLINES(1);
+     STROUT("unification-time = "); AWRITE(UTI); STOUTL(" ms.");
+     STROUT("rewriting-time   = "); AWRITE(RTI); STROUT(" ms, ");
+     STROUT("including ");
+     AWRITE(CTI); STROUT(" ms copying and ");
+     AWRITE(MTI); STOUTL(" ms matching.");
+     STROUT("scheduling-time  = "); AWRITE(STI); STOUTL(" ms."); 
+     STROUT("ordering-time    = "); AWRITE(OTI); STOUTL(" ms.").
+(5)  BLINES(1); STOUTL("Bar diagram of the critical pair queue:");
+     S':=INV(S); STAPRT(S') ||

@@ -1,0 +1,58 @@
+DATATYPE RS;
+SORT
+	KOEF, STPOLY, STRING;
+CONST
+	0, 1: KOEF;
+	I, X, Y, Z: STRING;
+	O: STPOLY;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: STRING;
+	p, q, r, s, t: STPOLY;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: STRING, STRING -> STRING;
+	M: KOEF, STRING -> STPOLY;
+	#: STPOLY, STPOLY -> STPOLY;
+	@: STPOLY, STPOLY -> STPOLY;
+NOTATION
+	+, *, ~, |, M, #, @: FUNCTION;
+THEORY
+	+, *, #: AC;
+AXIOM
+  [1] +(0,a) == a;
+  [2] *(0,a) == 0;
+  [3] *(1,a) == a;
+  [4] ~(0) == 0;
+  [5] ~(~(a)) == a;
+  [6] +(a,~(a)) == 0;
+  [7] ~(+(a,b)) == +(~(a),~(b));
+  [8] *(a,~(b)) == ~(*(a,b));
+  [9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+
+  [10] |(x,I) == x;
+  [11] |(I,x) == x;
+
+  [12] M(0,x) == O;
+  [13] #(M(a,x),M(b,x)) == M(+(a,b),x);
+  [14] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+  
+  [15] #(p,O) == p;
+  [16] @(p,O) == O;
+  [17] @(O,p) == O;
+  [18] @(p,M(1,I)) == p;
+  [19] @(M(1,I),p) == p;
+  [20] @(p,#(q,r)) == #(@(p,q),@(p,r));
+  [21] @(#(q,r),p) == #(@(q,p),@(r,p));
+  [22] #(@(p,M(a,x)),@(p,M(b,x))) == @(p,M(+(a,b),x));
+  [23] #(@(M(a,x),p),@(M(b,x),p)) == @(M(+(a,b),x),p);
+  [24] @(p,M(+(1,b),I)) == #(p,@(p,M(b,I)));
+  [25] @(M(+(1,b),I),p) == #(p,@(M(b,I),p));
+  [26] #(p,@(p,M(~(1),I))) == O;
+  [27] #(p,@(M(~(1),I),p)) == O;
+  [28] #(p,@(p,M(+(~(1),a),I))) == @(p,M(a,I));
+  [29] #(p,@(M(+(~(1),a),I),p)) == @(M(a,I),p);
+END
+; This file is RS.typ 

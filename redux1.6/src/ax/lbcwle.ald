@@ -1,0 +1,12 @@
+                    b:=LBCWLE(L1,L2)
+[Lists of beta-integers, component wise less than or equal to.
+L1=(a1,...,ak) and L2=(b1,...bk) are both lists of beta integers.
+L1 may also be empty and L2 arbitrary.
+Then b = true if ai <= bi for all 1 <= i <= k.
+Otherwise b = false.
+If L1 is empty then b:=true. ]
+
+(1)  [Initialize.] A:=L1; B:=L2.
+(2)  [Compare components.] while A # () do
+     { ADV(A; a,A); ADV(B; b, B); if a > b then { b:=false; return } 
+     }; b:=true ||

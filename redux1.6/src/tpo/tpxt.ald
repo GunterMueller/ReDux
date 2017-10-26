@@ -1,0 +1,46 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPXT -- Data type Definition
+   modulespecification: basic datatype definitions and manipulation
+                        algorithms for data types allowing
+                        function symbols with  AC-status.
+                        upgrade of icd1.ald as of Oct. 13, 1989
+                        BLKW has been changed to match the new 
+                        specification of TAB and to circumvent
+                        endless loop caused by TAB.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : 7.3.90 12.11.89 10.08.89 30.09.91
+                        $Date: 1993/10/08 09:09:53 $ 
+                        by $Author: buendgen $
+   version            : 1 without labels and AC-status
+                        TEPRS added
+                        $Revision: 1.2 $
+   bugs               : none known
+   modules needed     : SAC-2: low/bs, low/sy, low/lp
+
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+                    Y:=XYSPRS()
+[Parse set of external types.
+Y is a set of external (i.e. imported) types which is parsed
+from the input.]
+
+(1)  [Initialize.] Y:=().
+(2)  [Type.] Y:=COMP(XYPRS(),Y).
+(3)  [(separator) - recursive call.] if SYM=DSS then goto 2.
+(4)  [Finish up.] Y:=INV(Y) ||
+
+                    y:=XYPRS()
+[Parse external type.   --  Algorithm No. 17
+y is an extenal (imported) type which is parsed from the input.]
+
+(1)  [Identifier.] SID(17); y:=SYM.
+(2)  [Indicator Symbol.] GETSYM; i:=SYM; 
+     if i#DXDA /\ i#DXLA /\ i#DXQA /\ i#DXRA /\ i#DXWA /\ i#DXOP 
+     then { PUT(y,DXT,1); return }.
+(3)  [Enumeration symbol.] SNS(17).
+(4)  [Get property.] GETSYM; p:=SYM; PUT(y,i,p); goto 2 ||
+

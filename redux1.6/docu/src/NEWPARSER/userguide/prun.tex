@@ -1,0 +1,41 @@
+\begin{verbatim}
+/--------\
+| PARSER |
+\--------/
+Loading your data type.
+ 
+DATATYPE LIST;
+SORT    INT, LIST;
+CONST   0: INT;
+        nil: LIST;
+VAR     x, y, z: INT;
+        L, M, N: LIST;
+OPERATOR
+        s: INT -> INT;
+        p: INT -> INT;
+        +: INT, INT -> INT;
+        @: LIST, LIST -> LIST;
+        [: INT, LIST -> LIST;
+        |: LIST -> INT;
+NOTATION
+        s, p: PREFIX;
+        +, @: INFIX;
+        [: ROUNDFIX ];
+        |: ROUNDFIX |;
+AXIOM
+ [1] nil @ L == L;
+ [2] [x,L] @ M == [x,L @ M];
+ [3] spx == x;
+ [4] psx == x;
+ [5] 0 + x == x;
+ [6] sx + y == s(x + y);
+ [7] px + y == p(x + y);
+ [8] |nil| == 0;
+ [9] |[x,L]| == s|L|;
+END
+ 
+Do you want to parse a (t)erm, an (a)xiom, an (o)perator,
+term(s), a(x)ioms, (v)ariables, (c)onstants, o(p)erators,
+a (r)elation list, write the current (d)ata type,
+change term (w)rite mode or (q)uit ? *
+\end{verbatim}

@@ -1,0 +1,340 @@
+[Project:  Term Orderings
+   module name        : TOSQOL -- Symbol Quasi Ordering with l-r and
+                        r-l status
+   modulespecification: Algorithms to initialize symbol quasi ordering
+                        and to compare symbols. 
+                        Ordering contains l-r status information.
+                        (see Kapur, Narendran, Sivakumar: "A Path
+                         Ordering for Proving Termination of TRS")
+   programmer         : Gerhard Schwaerzler/Reinhard Buendgen
+   language           : aldes                                           
+   last change        : 10/06/92
+                        (extensions for l-r status by R.B.)
+                        $Date: 1995/06/28 10:00:23 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.20 $
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        ic/icd                                          
+]                                                                      
+                                                                
+[ #include tp.h ]
+[ #include globs.h ]
+
+     const                                                             
+     [Result type of po.]  QUIT=-1, INCOMP =0, GREATEQ =1,    
+     [Status] NONE   =0, LRST   =1, RLST   =2.
+
+[----------------------------------------------------------------------.
+   Section 1
+   Algorithms for export
+-----------------------------------------------------------------------]
+
+                    BGNPO(D~)
+[Begin path ordering.                                                  
+Initialization routine on ordering level. D~ is a data-type.            
+The constants and operators of D~ get properties describing a quasi 
+ordering among them and a function status.]
+
+(1)  [Initialize.]  DTDIS(D~; N,C,V,O,A);
+     [New symbols.] POASK:=SCONS("PO-ask-list");
+                    POGEQ:=SCONS("PO-greater-than-or-equal-list");
+                    POLEQ:=SCONS("PO-less-than-or-equal-list");
+                    POSTS:=SCONS("PO-status").
+(2)  [Init constants.] C':=C; while C' # () do
+     { ADV(C'; c,C'); TPUT(c,POLEQ,()); TPUT(c,POSTS,NONE); C*:=COPY(C); 
+       C*:=DELETE(c,C*); O*:=COPY(O); TPUT(c,POASK,CONC(O*,C*))
+     }.
+(3)  [Init operators.] O':=O; while O' # () do
+     { ADV(O'; o,O'); TPUT(o,POLEQ,()); 
+       if LENGTH(ODTYPE(o)) >= 2 then TPUT(o,POSTS,OASKST(o))
+       else TPUT(o,POSTS,NONE); 
+       O*:=DELETE(o,COPY(O)); C*:=COPY(C); TPUT(o,POASK,CONC(O*,C*))
+     }.
+(4)  [Initialization menu of quasi-ordering.]
+     BLINES(1); CLOUT("Initialization of the quasi-ordering over ");
+     CLOUT("the signature:"); WRITE;
+     CLOUT("You have following choices: "); WRITE;
+     CLOUT(" n - initialize constants and operators ");
+     CLOUT("by need"); WRITE;
+     CLOUT(" q - query the ordering relation for each constant and ");
+     CLOUT("operator"); WRITE;
+     CLOUT(" l - initialize the quasi-ordering using list notation");
+     CLOUT("   [n/q/l]? *"); WRITE;
+     READ; c':= UCASE(CREAD()).
+(5)  [Choice.] if c' = 'N' then return
+          else if c' = 'Q' then goto 6
+          else if c' = 'L' then goto 7
+          else goto 4.
+(6)  [Query initialize quasi-ordering.]
+     [Initialize.] OC1:=CCONC(O,C); b:=INCOMP;
+     while OC1 # () /\ b # QUIT do
+     { OC2:=OC1; ADV(OC1;oc,OC1);
+       while OC2 # () /\ b # QUIT do
+       { ADV(OC2;oc2,OC2); b:=OPQUOQ(oc,oc2); 
+         if b # QUIT then b:=OPQUOQ(oc2,oc) 
+     } }; return.
+(7)  [Initialize quasi-ordering with lists.]
+     OC1:=CCONC(O,C); BLINES(1);
+     CLOUT("Enter one or more relation lists for each operator");
+     CLOUT(" or constant.");
+     WRITE; BLINES(1);
+     CLOUT("In each relation list the first element specifies the");
+     CLOUT(" operator or"); WRITE; 
+     CLOUT("constant you consider, then you must enter a relation");
+     CLOUT(" in {>,>=,<,<=,~,#}"); WRITE;
+     CLOUT("followed by a comma seperated list of operater and");
+     CLOUT(" constants terminated by"); WRITE;
+     CLOUT("a period. A period marks the end of the initalization.");
+     WRITE;
+     b':=FALSE;
+     while b'=FALSE do
+     { BLINES(1); CLOUT("Enter a relation list (. to quit)! *"); WRITE;
+       b':=QUOLI(OC1);
+     } ||
+
+                    ENDPO(DT)
+[End path ordering.
+Removes the path ordering from the property list of data-type DT,
+if installed. Otherwise leaves it as is.]
+     safe N,C,V,F,A.
+(1)  [Initialize]  DTDIS(DT; N,C,V,F,A).
+(2)  [Constants] C':=C; while C' # () do
+     { ADV(C'; c,C');
+       b:=TPRRM(c,POLEQ); b:=TPRRM(c,POSTS);
+       b:=TPRRM(c,POGEQ); b:=TPRRM(c,POASK);
+     }.
+(3)  [Operators] F':=F; while F' # () do
+     { ADV(F'; f,F');
+       b:=TPRRM(f,POLEQ); b:=TPRRM(f,POGEQ);
+       b:=TPRRM(f,POSTS); b:=TPRRM(f,POASK);
+     } ||
+
+                    b:=OPQUO(t1,t2)
+[Operator quasi-ordering.
+t1 and t2 are terms.
+Then b=GREATEQ if the top operator of t1 has been specified as being 
+greater than or equal to the top operator of t2, b=INCOMP if the top 
+operator of t1 has been specified as being incomparable to the top 
+operator of t2. If neither is specified, the user is asked for a 
+specification, which will be recorded for future calls.]
+
+(1)  [Trivial case.] if TSIGN(t1) = TSIGN(t2) then {b:=GREATEQ; return};
+     [Initialize.] b:=INCOMP; L1:=TGET(t1,POLEQ); A1:=TGET(t1,POASK). 
+(2)  [ (t1(/\), t2(/\)) already specified.] if TSOOCC(t2,A1) = () then 
+       { if TSOOCC(t2,L1) # () then b:=GREATEQ; return }.
+(3)  [Ask user for specification of ordering.]
+     repeat CLOUT("     "); SWRITE(TNAME(t1)); CLOUT(" >= ");
+            SWRITE(TNAME(t2)); CLOUT(" [y/n]?  *"); WRITE;
+            READ; C^:=UCASE(CREAD()); if C^ = 'Y' then b:=GREATEQ
+     until C^ = 'Y' \/ C^ = 'N'.
+(4)  OPQUOI(t1,t2,C^) ||
+
+                    S:=TSSTAT(t)
+[Term, status of symbol.
+t is a term. Then S is the status of the top operator of t.]
+(1)  S:=TGET(t,POSTS)|| 
+ 
+[-----------------------------------------------------------------------
+   Section 2
+   Algorithms for internal use.
+-----------------------------------------------------------------------]
+
+                    L*:=OLDDEL(f,L)
+[Operator list delete.
+f is a non-variable term and L is a list of constants or operators. 
+Then L* is L where the first occurrence of an operator or constant which
+is equal to the top operator of f is deleted. L is destroyed.]
+
+(1)  [Initialize.] if L = () then { L* := L; return}
+                             else { ADV(L; l,L'); k:=TSIGN(f) }.
+(2)  [First element.] if TSIGN(l) = k then { L*:=L'; return }.
+(3)  [Internal element.] L*:=L; L'':=L; while L' # () do
+     { ADV(L'; l,L'); if TSIGN(l) = k then { RED(L''):=L'; return };
+       L'':=RED(L'')
+     }  ||
+
+                    b:=OPQUOQ(t1,t2)
+[Operator quasi-ordering or quit.
+t1 and t2 are terms.
+Then b=GREATEQ if the top operator of t1 has been specified as being
+greater than or equal to the top operator of t2, b=INCOMP if the top
+operator of t1 has been specified as being incomparable to the top
+operator of t2. If neither is specified, the user is asked for a
+specification, which will be recorded for future calls. If the user
+answers with 'q' b will be set to QUIT.]
+
+(1)  [Trivial case.] if TSIGN(t1) = TSIGN(t2) then {b:=GREATEQ; return};
+     [Initialize.] b:=INCOMP; L1:=TGET(t1,POLEQ); A1:=TGET(t1,POASK).
+(2)  [ (t1(/\), t2(/\)) already specified.] if TSOOCC(t2,A1) = () then
+       { if TSOOCC(t2,L1) # () then b:=GREATEQ; return }.
+(3)  [Ask user for specification of ordering.]
+     repeat CLOUT("     "); SWRITE(TNAME(t1)); CLOUT(" >= ");
+            SWRITE(TNAME(t2)); CLOUT(" [y/n/q]?  *"); WRITE;
+            READ; C^:=UCASE(CREAD()); if C^ = 'Y' then b:=GREATEQ
+     until C^ = 'Y' \/ C^ = 'N' \/ C^ = 'Q'.
+(4)  if C^ # 'Q' then OPQUOI(t1,t2,C^) else b:=QUIT ||
+
+                    L*:=OSDDIF(L1,L2)
+[Operator set, destructive difference.
+L1 and L2 are sets of operators and constants. 
+Then L* is L1 \ L2. L1 is destroyed.]
+
+(1)  [Initialize.] if L1 = () \/ L2 = () then { L*:=L1; return }
+                                         else { ADV(L1; l,L'); L*:=L1 }.
+(2)  [Remove leading elements.] while TSOOCC(l,L2) # () do
+     { L*:=L'; if L' # () then ADV(L'; l,L') else return }.
+(3)  [Remove inner elements.] L'':=L*; while L' # () do
+     { ADV(L'; l,L'); if TSOOCC(l,L2) = () then L'':=RED(L'')
+                                           else RED(L''):=L'
+      } ||
+
+                    L*:=OSUNI(L1,L2)
+[Operator set, semi-contructive union.
+L1 and L2 are sets of operators and constants. 
+Then L* is the union of L1 and L2. L1 is a sublist of L*.]
+     safe L', l.
+(1)  [Initialize.] L':=L2; L*:=L1.
+(2)  while L' # () do
+     { ADV(L'; l,L'); if TSOOCC(l,L*) = () then L*:=COMP(l,L*) } ||
+
+
+                    OPQUOI(o1,o2,C^)
+[Operator quasi-ordering initalizise.
+o1 and o2 are operators or constants and C^ a character.
+If C^ = 'Y' then the operator quasi-ordering is set to o1 >= o2
+else if C^ = 'N' then o1 not >= o2.]
+
+(1)  [Trivial case.] if TSIGN(o1) = TSIGN(o2) then return;
+     [Initialize.] L1:=TGET(o1,POLEQ); A1:=TGET(o1,POASK). 
+(2)  [ (o1(/\), o2(/\)) already specified.] if TSOOCC(o2,A1) = () then 
+       { if TSOOCC(o2,L1) # () then return }.
+(3)  [1st ask-list update of o1.] A1:=OLDDEL(o2,A1); G2:=TGET(o2,POGEQ);
+     if POTRC then 
+       if C^ = 'Y' then
+       { CLOUT("     "); SWRITE(TNAME(o1)); CLOUT(" >= ");
+         SWRITE(TNAME(o2));
+       }
+       else if C^ = 'N' then
+       { CLOUT("     "); SWRITE(TNAME(o1)); CLOUT(" not >= ");
+         SWRITE(TNAME(o2));
+       }.
+(4)  [ not (o1(/\) >= o2(/\).] if C^ = 'Y' then goto 5;
+     [Update ask-lists of o1 and operators in leq-list of o1.]
+     A1:=OSDDIF(A1,G2); TPUT(o1,POASK,A1); L':=L1; 
+     while L' # () do
+     { ADV(L'; l,L'); A':=OSDDIF(OLDDEL(o2,TGET(l,POASK)),G2);
+       TPUT(l,POASK,A') 
+     }; return.
+(5)  [(o1(/\) >= o2(/\).] G1:=TGET(o1,POGEQ); L2:=TGET(o2,POLEQ); 
+     [Update ask- and leq-lists of o1 and operators in geq-list of o1.]
+     A1:=OSDDIF(A1,L2); TPUT(o1,POASK,A1); 
+     L1:=OLDDEL(o1,OSUNI(COMP(o2,L1),L2)); TPUT(o1,POLEQ,L1); 
+     G':=G1; while G' # () do
+     { ADV(G'; g,G'); 
+       L':=OLDDEL(g,OSUNI(TGET(g,POLEQ),COMP(o2,L2))); TPUT(g,POLEQ,L');
+       A':=OSDDIF(OLDDEL(o2,TGET(g,POASK)),L2); TPUT(g,POASK,A')
+     }. 
+(6)  [Update geq-lists of o2 and operators in leq-list of o2.]
+     G2:=OLDDEL(o2,OSUNI(COMP(o1,G2),G1)); TPUT(o2,POGEQ,G2); 
+     L':=L2; while L' # () do
+     { ADV(L'; l,L'); G':=OLDDEL(l,OSUNI(TGET(l,POGEQ),COMP(o1,G1)));
+       TPUT(l,POGEQ,G')
+     } ||
+
+                    b:=QUOLI(O*)
+[Quasi-ordering list initalisation.
+O* is a set of constants and operators of the data type. b is TRUE if
+a point is read from the input, b is FALSE if a list is read in.]
+
+(1)  [Init.] O':=(); b:=FALSE.
+(2)  [Parse list.] GETSYM; if SYM=DSS then { b:=TRUE; return };
+     k:=GET(SYM,KIND);
+     if k # IDENT /\ k # INT /\ k # XIDNT then
+        { ERRORD(11,"QUOLI 77"); goto 2 };
+     if STOCC(SYM,O*) # () then O':=COMP(SYM,O')
+     else { CLOUT("Operators or constants are expected, please repeat");
+            CLOUT(" your input. *"); WRITE;
+            c:=CREADB(); c':=CREAD();
+            SIIX("QUOLI"); GETSYM; while SYM=DRS do GETSYM; return };
+     c:=CREADB(); c':=CREAD(); r:=LIST2(c,c');
+     if EQUAL(r,">=") then C':="GE"
+     else if EQUAL(r,"<=") then C':="LE"
+     else { BKSP; if c = '~' then C':="E"
+            else if c = '#' then C':="U"
+            else if c = '<' then C':="L"
+            else if c = '>' then C':="G"
+            else { CLOUT("A relation symbol is expected, please ");
+                   CLOUT("repeat your input. *"); WRITE; SIIX("QUOLI"); 
+                   GETSYM; while SYM=DRS do GETSYM; return 
+           }     }; SIIX("QUOLI");
+     if STOCC(SYM,O*) # () then O':=COMP(SYM,O')
+     else { CLOUT("Operators or constants are expected, please repeat");
+            CLOUT(" your input. *"); WRITE; 
+            GETSYM; while SYM=DRS do GETSYM; return };
+     GETSYM; while SYM=DRS do
+     { SIIX("QUOLI");
+       if STOCC(SYM,O*) # () then O':=COMP(SYM,O')
+       else {CLOUT("Operators or constants are expected, please");
+             CLOUT(" repeat your input. *"); WRITE;
+             GETSYM; while SYM=DRS do GETSYM; return };
+       GETSYM
+     }.
+(3)  [Enter relation.] if O'#() then { O':=INV(O'); ADV(O'; o',O') };
+     while O' # () do 
+     { ADV(O';o'',O');
+       if EQUAL(C',"GE") then
+          { t':=STOCC(o',O*); t'':=STOCC(o'',O*); OPQUOI(t',t'','Y') }
+       else if EQUAL(C',"G") then
+          { t':=STOCC(o',O*); t'':=STOCC(o'',O*);
+            OPQUOI(t',t'','Y'); OPQUOI(t'',t','N') }
+       else if EQUAL(C',"LE") then
+          { t':=STOCC(o',O*); t'':=STOCC(o'',O*); OPQUOI(t'',t','Y') }
+       else if EQUAL(C',"L") then
+          { t':=STOCC(o',O*); t'':=STOCC(o'',O*);
+            OPQUOI(t'',t','Y'); OPQUOI(t',t'','N') }
+       else if EQUAL(C',"E") then
+          { t':=STOCC(o',O*); t'':=STOCC(o'',O*);
+            OPQUOI(t',t'','Y'); OPQUOI(t'',t','Y') }
+       else if EQUAL(C',"U") then
+          { t':=STOCC(o',O*); t'':=STOCC(o'',O*);
+            OPQUOI(t',t'','N'); OPQUOI(t'',t','N') }
+     } ||
+
+[-----------------------------------------------------------------------
+   Section 3
+   Algorithms for trace and output
+-----------------------------------------------------------------------]
+
+                    DTPOIW(DT)
+[Data type path ordering information, write.
+DT is a data type then the  information concerning the operator
+precedences used for the path ordering is out put.]
+
+(1)  [Initialize.] DTDIS(DT; N,C,V,O,A).
+(2)  [Constants.] CLOUT("Constants"); WRITE;
+     while C # () do
+     { ADV(C; c,C); CLOUT("const.: "); CONWRT(c); WRITE;
+       CLOUT("Less or equal:"); COLWRT(TGET(c,POLEQ)); WRITE;
+       CLOUT("Greater or equal:"); COLWRT(TGET(c,POGEQ)); WRITE;
+       CLOUT("Unknown:"); COLWRT(TGET(c,POASK)); WRITE
+     }.
+(3)  [Operators.] CLOUT("Operators"); WRITE; while O # () do
+     { ADV(O; o,O); CLOUT("Oper.: "); OPWRT(o); 
+       CLOUT("  Status: "); s:=TSSTAT(o); if s = NONE then
+       CLOUT("none.") else if s = LRST then CLOUT("l-r status.")
+       else if s = RLST then CLOUT("r-l status.") else
+       CLOUT("unkown status."); WRITE;
+       CLOUT("Less or equal:"); COLWRT(TGET(o,POLEQ)); WRITE;
+       CLOUT("Greater or equal:"); COLWRT(TGET(o,POGEQ)); WRITE;
+       CLOUT("Unknown:"); COLWRT(TGET(o,POASK)); WRITE
+     } ||
+
+                    COLWRT(L)
+[Constant and operator list write.
+L is a list of operators and constants. It is written.]
+
+(1)  L':=L; while L' # () do
+     { ADV(L'; l,L'); if TKIND(l) = DCS then CONWRT(l) else
+       OPWRT(l); CLOUT("    ")
+     }; WRITE ||

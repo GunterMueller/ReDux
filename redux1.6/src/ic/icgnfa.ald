@@ -1,0 +1,267 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICGNFA - Ground Normal Form analysis
+                                 Auxilliary algorithms
+   modulespecification: Algorithms used for (pruned) top set
+                        tree computation, mainly constructors,
+                        and trace algorithms
+   programmers        : Reinhard Buendgen, Hasko Eckhardt 
+   language           : aldes                                           
+   last change        : 20.9.91
+                        $Date: 1993/10/08 10:36:29 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.3 $
+   bugs               : comments beginning with `!' show tricky
+                        programming which may fail if underlaying
+                        modules have changed. 
+   modules needed     : SAC2/low: fp, bs, lp, sy (low: complete);
+                        ReDuX/ax
+                             /tp: dd, cy, wx     (tp:  complete).
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+[--------------------------------------------------------------------  
+     section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+                    
+                     GGLINI(g; H,C)
+[General generator list initialize.
+ g is a node of a top set tree with principal subterm list 
+ D = (d1, ..., dn).
+ Then H=(H1, ..., Hn) and C = (C1, ...,Cn) are lists such that
+ Hi and Ci are the successor lists of Di if Di is not
+ a ground node. Otherwise Hi and Ci are equal to (Di).  ]
+ 
+(1)  [ Initialize. ] if PNTRC then STOUTL("GGLINI");
+     H := (); C := (); D' := NTSPSL(g).
+(2)  [ Create H and C. ] while D' # () do
+     { ADV(D'; d1,D'); if NTSLAB(d1) = () then [d1 marked as deleted.]
+       { STOUTL("? warning: unexpected case in GGLINI.2!");
+         H := (); return }; G := NTSGRD(d1);
+       if (G = TRUE) \/ (G = UNEXT) then H1 := LIST1(d1)
+       else H1 := NTSSUC(d1); if H1 = () then
+       { STOUTL("? warning: unexpected case in GGLINI.2!");
+         H := (); return };
+       H := COMP(H1,H); C := COMP(H1,C) };
+     H := INV(H); C := INV(C) ||
+
+                    D*:=NTSLCS(D,n)
+[Top set tree node list, subterm containment.
+D is a list of top set tree nodes. n is a top set tree node. Then D* is
+the list of all elements m of D where the label of m has a principal
+subterm equal to the label of n.]
+ 
+(1)  [Initialize.] if PNTRC then STOUTL("NTSLCS"); 
+     D':=D; D*:=().
+(2)  [Scan D.] while D' # () do
+     { ADV(D'; d,D'); if INTMEM(n,NTSPSL(d)) then D*:=COMP(d,D*) } ||
+ 
+                    n:=NTSTCO(t,l,f,g,D,U)
+[Node of top set tree, construct.
+t is a term, l is an integer, f is a top set tree node, g is a boolean
+value, D is a list of top set trees, U is a list of rules. Then n is the
+top set node, with label t, level l, father f, groundness information g,
+main subterm list D, unifying rule list R and empty succesor list, as
+well as a mark for the closure algorithm that equals the groundness
+information g.
+In order for n to be well formed the following constaints must hold:
+  1. t is an instance of NTSLAB(f)
+  2. l = NTSLEV(f) + 1
+  3. g = TRUE iff t is a ground term
+  4. let TCONT(t)=(t1, ..., t sub n) and D=(D1, ..., D sub n) than
+     NTSLAB(D sub i) = t sub i, for 1 <= i <= n.
+  5. U a subset of NTSURL(f) is a list of rules whose left-hand side
+     unifies with t.]
+ 
+(1)  [Construct node.] n := (t,l,f,g,D,(),U,g) ||
+
+                    G*:=NTSTDL(n,G)
+[Node of top set tree, delete.
+n is a node of the top set tree G. n has no successors. Then the label
+of n will be marked with () and deleted from G. Further, all
+predecessors of n will be deleted if they do not have successors.
+G* is G without the deleted nodes. G will be destroyed.]
+
+(1)  [Trivial case.] if PNTRC then STOUTL("NTSTDL");
+     if NTSLAB(n) = () then { G*:=G; return };
+     if DLTRC then { STROUT("deleted: "); NTSWRT(n) }.
+(2)  [Mark label.] NTSLAB(n):=(); m:=NTSFAT(n).
+(3)  [Base case.] if m = () then { G*:=DELETE(n,G); return }.
+(4)  [Delete from father's successor list.]
+     NTSSUC(m):=DELETE(n,NTSSUC(m)).
+(5)  if NTSSUC(m) = () then G*:=NTSTDL(m,G) else G*:=G||
+ 
+                    L*:=TSTBFT(G,A)
+[Topset tree, traverse breadth first.
+G is a list of top set tree nodes (i.e. the root of a top set tree),
+A is an integer describing an action. Then the tree will be traversed
+breadth first and at each node an action according to A will be 
+performed. L* is the list of the results of the actions.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("TSTBFT"); 
+     G':=G; L':=(); L'':=(); S:=(); L*:=().
+(2)  [Trivial case.] if G' = () then return.
+(3)  [Top level.] s:=(); S':=(); repeat
+      ADV(G'; g,G'); L'':=COMP(NTSTAC(g,A),L''); s:=COPY(NTSSUC(g));
+      if s # () then
+      { S'':=LAST(s); if S = () then S:=s else SRED(S',s); S':=S'' }
+     until G' = ().
+(4)  [Combine partial results.] L:=INV(L'') [! L'' is last of L];
+     if L* = () then L*:=L else SRED(L',L); L':=L''.
+(5)  [Recursion.] G':=S; S:=(); goto 2||
+                                                                       
+                    g:=TSTGTS(G,y)
+[Top set tree, get typed subtree.
+G is a top set tree, y is a type. Then g is the subtree of G with
+label v where v is a variable of type y.]
+ 
+(1)  [Initialize.] if PNTRC then STOUTL("TSTGTS");
+     G':=G; g:=().
+(2)  [Search through list of sons.] while G' # () /\ g = () do
+     { ADV(G'; g',G'); if TTYPE(NTSLAB(g')) = y then g:=g' }.
+(3)  [Error check - not found.] if g = () then
+     STOUTL("? unexpected error in TSTGTS.3 ")||
+
+
+                    G*:=TSTSSN(G)
+[Top set tree, sort successor nodes.
+G is a top set tree. Then G* is the same top set tree where in each node
+the successor list has beeen permuted such that the subtrees in each
+successor list are sorted in ascending order wrt the number of nodes
+occuring in each subtree. G is modified.] 
+
+(1)  [Initialize.] G*:=G; G':=G.
+(2)  [For each typed subtree.] while G' # () do
+     { ADV(G'; g,G'); i:=NTSSSN(g) } ||
+
+                    L*:=TSTTRV(G,L,M,A)
+[Top set tree, traverse depth first.
+G is a list of top set tree nodes (i.e. the root of a top set tree or
+a successor list), L is a list, M is a small integer describing a
+tree traversal mode (0 means prefix order, 1 means postfix order),
+A is an integer describing an action. Then the tree will be traversed 
+according to the mode M and at each node an action according to A 
+will be performed. L* is the list composed of the non-side effect 
+results form the above mentioned actions and L.]
+     const PREFIX=0, POSTFI=1.
+(1)  [Initialize.] if PNTRC then STOUTL("TSTTRV");
+     G':=G; L':=L.
+(2)  [Scan through G.] while G' # () do
+     { ADV(G'; g,G'); case M of
+       { PREFIX do {L':=COMP(NTSTAC(g,A),L'); if NTSSUC(g) # () then 
+                    L':=TSTTRV(NTSSUC(g),L',M,A)          
+                   };
+         POSTFI do {if NTSSUC(g) # () then L':=TSTTRV(NTSSUC(g),L',M,A);
+                    L':=COMP(NTSTAC(g,A),L')
+     } }           }.
+(3)  [Finish up.] L*:=L'||
+
+[---------------------------------------------------------------------
+     Trace funtions.
+---------------------------------------------------------------------]
+
+                     NLWRTL(L)
+[ Node List, Write Labels.
+  L is a list of top set tree nodes. The labels of these nodes will
+  be written.                                                        ]
+ 
+(1)  [ Initialize. ] L' := L.
+(2)  [ Write. ] while L' # () do
+     { ADV(L'; l,L'); t := NTSLAB(l); if t # () then
+       { TWRT(NTSLAB(l)); CWRITE(' ') } } ||
+ 
+                    NTSWRT(n)
+[Node of top set tree, write.
+n is a node of a top set tree. Then the information it contains is
+printed.]
+
+(1)  [Print label.] STROUT("Label: "); if NTSLAB(n) # () then
+     TWRT(NTSLAB(n)) else STOUTL("deleted").
+(2)  [Ground?] STROUT("is "); case NTSGRD(n) of
+     { TRUE do STROUT("ground. ");
+       FALSE do STROUT("not ground. ");
+       UNEXT do STROUT("unextendable. ") }.
+(3)  [Print level.] STROUT("It's level is "); GWRITE(NTSLEV(n)); WRITE.
+(4)  [Principal subterms.] D:=NTSPSL(n); STOUTL("Principal subterms: "); 
+     while D # () do 
+      { ADV(D; d,D); TWRT(NTSLAB(d)); STROUT("  ") }; WRITE.
+(5)  [Successor list.] S:=NTSSUC(n); STROUT("Labels of sucessors: "); 
+     while S # () do { ADV(S; s,S); TWRT(NTSLAB(s)); STROUT("  ") };
+     WRITE.
+(6)  [Unifying rules.] STROUT("Unifying rules: "); 
+     if NTSURL(n) = 0 then STOUTL("deleted.") else ASWRT(NTSURL(n)).
+(7)  [Mark.] STROUT("Mark for the closure algorithm: ");
+     GWRITE(NTSMCA(n)); WRITE ||
+
+
+[-----------------------------------------------------------------
+     section 3   auxiliary algorithms for internal use in module
+------------------------------------------------------------------]
+ 
+                    l:=NTSTAC(g,A)
+[Node of top set tree, action.
+g is a top set tree node, A is an integer describing an action to be
+performed on certain nodes. Then the following tables tell us if the
+action will be performed on g and if what kind of action will be
+performed.
+ A mod 8       selected nodes
+ =======       ======================
+    1          non-leaf nodes
+    2          ground nodes
+    4          non-ground leaf nodes
+ 
+ A div 8       action
+ =======       =====================
+    0          [nothing] l = 1
+    1          [print]   l = NTSLAB(g)
+    2          [collect node] l = g
+    3          [collect node label] l = NTSLAB(g)
+    4          [trace]   l = NTSLAB(g)
+    5          [constrained nodes] l = NTSLAB(g) if NTSURL(g) # ().
+ 
+Selections may be `added'. If g is not selected l = ().]
+ 
+(1)  [Initialize.] if PNTRC then STOUTL("NTSTAC"); 
+     QREM(A,8; a,s); l:=(); if NTSLAB(g) = () then
+      STOUTL("? Warning: passing deleted node in NTSTAC").
+(2)  [Trivial case.] if a = 0 then return.
+(3)  [Selection.] if NTSGRD(g) = TRUE then S:=2
+     else if NTSSUC(g) = () then S:=4 else S:=1; case s of
+     { 0  do { return };
+       1  do { if S # 1 then return };
+       2  do { if S # 2 then return };
+       3  do { if S # 1 /\ S # 2 then return };
+       4  do { if S # 4 then return };
+       5  do { if S # 1 /\ S # 4 then return };
+       6  do { if S # 2 /\ S # 4 then return };
+       7  do { if S # 1 /\ S # 2 /\ S # 4 then return }
+     }.
+(4)  [Action.] case a of
+     { 0  do { l := 1 };
+       1  do { for i= 0,...,NTSLEV(g) do STROUT("  "); l:=NTSLAB(g);
+               TWRT(l); WRITE
+             };
+       2  do { l:=g };
+       3  do { l:=NTSLAB(g) };
+       4  do { NTSWRT(g); l:=NTSLAB(g)};
+       5  do { if NTSURL(g) > BETA then l := NTSLAB(g)}
+     }||
+
+                    i:=NTSSSN(n)
+[Node of top set tree, sort successor node.
+n is a top set tree node. Then i is the number of nodes occuring in the 
+subtree rooted by n. This subtree is modified such that in each of its
+nodes the successor list is such that the subtrees in each successor 
+list are sorted in ascending order wrt the number of nodes occurring in 
+these subtrees.]
+
+(1)  [Initialize.] i:=1; S:=NTSSUC(n).
+(2)  [Trivial case.] if S = () then return.
+(3)  [Sort each subtree.] S^:=(); while S # () do
+     { ADV(S; n1,S); i1:=NTSSSN(n1); 
+       S*:=LOISE(S^,LIST1(LIST2(i1,n1)),1); i:=i1+i; S^:=S*
+     }.
+(4)  [Construct new successor list.] S':=(); while S* # () do
+     { ADV(S*; s*,S*); S':=COMP(SECOND(s*),S') }; NTSSUC(n):=INV(S') ||

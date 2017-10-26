@@ -1,0 +1,18 @@
+DATATYPE SORT;
+SORT
+	SORT;
+CONST
+	0: SORT;
+VAR
+	x, y, z: SORT;
+OPERATOR
+	f: SORT, SORT -> SORT;
+	s: SORT -> SORT;
+	p: SORT -> SORT;
+NOTATION
+	f, s, p: FUNCTION;
+AXIOM
+[1] s(f(x,0)) == s(x);
+[2] p(f(0,x)) == p(x);
+END
+; This file is sfx0pf0x.typ

@@ -1,0 +1,40 @@
+%%  comment symbol
+DATATYPE ACRDIFF;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS not completed
+%%  DESCRIPTION commutative ring with 1 with differential operator
+%%              completion (ordering all equations straight) yields
+%%              the following three equations:
+%%                       13) D(0) == 0
+%%                       15) D(~(a)) == ~(D(a))
+%%                       18) D(1) == 0
+%%  ORIGIN Peterson & Stickel 81 / Geddes et al 91
+SORT
+	RING;
+CONST
+	0, 1: RING;
+VAR
+	a, b, c, d, e: RING;
+OPERATOR
+	+: RING, RING -> RING;
+	*: RING, RING -> RING;
+	~: RING -> RING;
+	D: RING -> RING;
+NOTATION
+	~, D: FUNCTION;
+	+, *: INFIX;
+THEORY
+	+, *: AC;
+AXIOM
+  [1] (0 + a) == a;
+  [2] (0 * a) == 0;
+  [3] (1 * a) == a;
+  [4] ~(0) == 0;
+  [5] ~(~(a)) == a;
+  [6] (a + ~(a)) == 0;
+  [7] ~((a + b)) == (~(a) + ~(b));
+  [8] (a * ~(b)) == ~((a * b));
+  [9] (a * (b + c)) == ((a * b) + (a * c));
+ [10] D((a + b)) == (D(a) + D(b));
+ [11] D((a * b)) == ((D(a) * b) + (a * D(b)));
+END

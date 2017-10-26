@@ -1,0 +1,81 @@
+%%  comment symbol
+DATATYPE Rx;
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION polynomials 
+%%              1) - 24) is complete
+SORT
+	KOEF, POLYNOM, POWER;
+CONST
+	0, 1: KOEF;
+	o, i: POWER;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	k, n, m: POWER;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	++: POWER, POWER -> POWER;
+	**: POWER, POWER -> POWER;
+	*X^: KOEF, POWER -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+%%   C(POWER)-KOEF.
+	': POLYNOM -> POLYNOM;
+NOTATION
+	~: FUNCTION;
+	': POSTFIX;
+	+, *, ++, **, *X^, #, @: INFIX;
+THEORY
+	+, *, ++, **, #, @: AC;
+AXIOM
+  [1] (0 + a) == a;
+  [2] (0 * a) == 0;
+  [3] (1 * a) == a;
+  [4] ~(0) == 0;
+  [5] ~(~(a)) == a;
+  [6] (a + ~(a)) == 0;
+  [7] ~((a + b)) == (~(a) + ~(b));
+  [8] (a * ~(b)) == ~((a * b));
+  [9] (a * (b + c)) == ((a * b) + (a * c));
+  
+ [10] (o ++ n) == n;
+ [11] (o ** n) == o;
+ [12] (i ** n) == n;
+ [13] (k ** (m ++ n)) == ((k ** m) ++ (k ** n));
+  
+ [14] (0 *X^ n) == O;
+ [15] ((a *X^ n) # (b *X^ n)) == ((a + b) *X^  n);
+ [16] ((a *X^ m) @ (b *X^ n)) == ((a * b) *X^ (m ++ n));
+ 
+ [17] (p # O) == p;
+ [18] (p @ O) == O;
+ [19] (p @ (1 *X^ o)) == p;
+ [20] (p @ (q # r)) == ((p @ q) # (p @ r));
+ [21] ((p @ (a *X^ n)) # (p @ (b *X^ n))) == (p @ ((a + b) *X^ n));
+ [22] (p @ ((1 + b) *X^ o)) == (p # (p @ (b *X^ o)));
+ [23] (p # (p @ (~(1) *X^ o))) == O;
+ [24] (p # (p @ ((~(1) + a) *X^ o))) == (p @ (a *X^ o));
+
+ %%  22) ((p # q))' == ((p)' # (q)')
+ %%  23) ((p @ q))' == ((p @ (q)') # (q @ (p)'))
+ %%  27) ((a *X^ i))' == (a *X^ o) ; inductive consequence
+
+ %%  28) C(o) == 0
+ %%  29) C(i) == 1
+ %%  30) C((n ++ m)) == (C(n) + C(m))
+ %%  31) ((a *X^ (n ++ i)))' == (((C(n) + 1) * a ) *X^ n) ; inductive cons.
+ %%  32) ((a *X^ o))' == 0                                ; inductive cons.
+END
+
+
+
+
+
+
+
+
+
+

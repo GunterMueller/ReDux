@@ -1,0 +1,126 @@
+DATATYPE Logical_Clock;
+%% Lamports logical clocks
+
+SORT
+     BOOL, TIME, PROCESS, COUNT, EVENT, MESSAGE;
+
+OPERATOR
+     0: -> TIME;
+     s: TIME -> TIME;
+     max: TIME, TIME -> TIME;
+
+     o: -> COUNT;
+     ': COUNT -> COUNT;
+
+     P1, P2, P3, P4: -> PROCESS;
+     E: PROCESS, COUNT -> EVENT;
+     C: EVENT -> TIME;
+     M: PROCESS, PROCESS, COUNT -> MESSAGE;
+
+     true, false:   -> BOOL;
+     /\: BOOL, BOOL -> BOOL;
+     \/: BOOL, BOOL -> BOOL;
+     =: PROCESS, PROCESS -> BOOL;
+     if: BOOL, TIME, TIME -> TIME;
+     if-bool: BOOL, BOOL, BOOL -> BOOL;
+
+     msg: EVENT      -> MESSAGE;
+     source: MESSAGE  -> PROCESS;
+     sink:   MESSAGE  -> PROCESS;
+     counter: MESSAGE -> COUNT;
+     time_stamp: MESSAGE -> TIME;
+
+     <:   TIME, TIME   -> BOOL;
+     <<:  COUNT, COUNT -> BOOL;
+     =/=: COUNT, COUNT -> BOOL;
+     -->: EVENT, EVENT -> BOOL;
+
+NOTATION
+     max, C, E, msg, source, sink, counter, time_stamp: FUNCTION;
+     ': POSTFIX;
+
+PREC
+%%     \/ < /\;
+     \/ < /\ < `=, -->, `=/`=;
+
+VAR
+     q, q1, q2: BOOL;
+     p, p1, p2: PROCESS;
+     t, t1, t2: TIME;
+     c, c1, c2: COUNT;
+     e, e1, e2: EVENT;
+     m, m1, m2: MESSAGE;
+
+THEORY
+    =: COM;     
+    /\, \/: AC;
+
+AXIOM
+  [1] q /\ false == false;
+  [2] q /\ true  == q;
+  [3] q \/ false == q;
+  [4] q \/ true  == true;
+
+  [5] max(t,t)     == t;
+  [6] max(t,0)     == t;
+  [7] max(0,t)     == t;
+  [8] max(st1,st2) == s max(t1,t2);
+
+  [9] o << c' == true;
+ [10] c << o  == false;
+ [11] c1' << c2' == c1 << c2;
+
+ [12] p  = p == true;
+ [13] P1 = P2 == false;
+ [14] P1 = P3 == false;
+ [15] P1 = P4 == false;
+ [16] P2 = P3 == false;
+ [17] P2 = P4 == false;
+ [18] P3 = P4 == false;
+
+ [19] if(true,t1,t2)  == t1; 
+ [20] if(false,t1,t2) == t2;
+
+ [21] C(E(p,o)) == 0;
+ [22] C(E(p,c')) == if( source(msg(E(p,c'))) = p,
+                      %% then
+                        sC(E(p,c)),
+                      %% else
+                        max(sC(E(p,c)),time_stamp(msg(E(p,c'))))
+                       );
+
+ [23] source(M(p1,p2,c))     == p1;
+ [24] sink(M(p1,p2,c))       == p2;
+ [25] counter(M(p1,p2,c))    == c;
+ [26] time_stamp(m) == C(E(source(m),counter(m)));
+
+ [27] E(p,c1)  --> E(p,c2) == c1 << c2;
+ [28] e --> E(p,o) == false;
+ [29] e --> E(p,c') == if-bool(   source(msg(e)) = source(msg(E(p,c')))
+                               /\ sink(msg(e))   =  sink(msg(E(p,c')))
+                               /\ c =/= counter(msg(E(p,c'))),
+                        %% then
+                            true,
+                        %% else
+                            e --> E(p,c)
+                            \/ ( sink(msg(E(p,c'))) = p /\
+                                 e --> E(source(msg(E(p,c'))),
+                                                counter(msg(E(p,c')))))
+                          );
+
+ [30] 0 < st == true;
+ [31] t < 0  == false;
+ [32] st1 < st2 == t1 < t2;   
+
+ [33] if-bool(true,q1,q2) == q1;
+ [34] if-bool(false,q1,q2) == q2;                                
+
+ [35] c1 =/= c1 == false;
+ [36] c' =/= o  == true;
+ [37] o  =/= c' == true;
+ [38] c1' =/= c2' == c1 =/= c2;
+
+%%  msg(E(p,c)) == M(p,p1,c)  %% send a message tp process p1
+%%  msg(E(p,c)) == M(p1,p,c1) %% receive a message from process p
+%%  msg(E(p,c)) == M(p,p,c)   %% local compuatation (pseudo message)
+END

@@ -1,0 +1,11 @@
+                       A:=RPFCV(r,s,i)
+[Rational polynomial from constant or variable.
+ s is a rational number, i is 0 or an index in the variable list of 
+length r>=0.
+A is the rational polynomial s\cdot x_i, if i>0 and A=s, if i=0 or r=0.]
+(1) [r=0?] if r=0 then {A:=s; return}.
+(2) [General case.] A:=s; for j=1,...,r do
+    {if j=i then e:=1 else e:=0; A:=PCOMP(e,A,0)} ||
+     
+
+[The varable list used to be the global list VARL.]

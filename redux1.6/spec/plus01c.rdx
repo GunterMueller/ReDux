@@ -1,0 +1,18 @@
+DATATYPE plus01c;
+SORT
+	plus01c;
+CONST
+	0, 1: plus01c;
+VAR
+	A, B, C, D: plus01c;
+OPERATOR
+	+: plus01c, plus01c -> plus01c;
+NOTATION
+	+: FUNCTION;
+AXIOM
+[1]  +(0,A)==A;
+[2]  +(1,0)==1;
+[3]  +(+(A,B),1)==+(1,+(A,B));
+[4]  +(1,+(A,0))==+(A,1);
+END
+;This file is plus01c.typ 

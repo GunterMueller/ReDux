@@ -1,0 +1,158 @@
+[Project:a ReDuX Term Completion
+   module name        : TCR -- Reduction
+   modulespecification: reduction algorithms                            
+                        same as tcr3                                    
+                        without TEPRS
+                        same as icr
+   programmer         : Wolfgang Kuechlin                               
+   language           : aldes                                           
+   last change        : 04/06/87                                        
+                        $Date: 1994/12/21 20:07:14 $ 
+                        by $Author: buendgen $
+   version            : 3 without labels                                
+                        $Revision: 1.9 $
+   bugs               : TIREDS may produce unexpected results if
+                        used with non-terminating TRSs
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        tp/tpdd, tp/tpcy, tc/tcu                          
+]                                                                      
+     
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[---------------------------------------------------------------------
+     Section 1.  Algorithms for Export
+----------------------------------------------------------------------]
+
+                    t*:=TIREDS(t,R)
+[Term, innermost reduction, Stickel-version.
+t is a term, R a set of axioms presenting a terminating TRS. 
+Then t*=t if no axiom in R is applicable to t, otherwise t* is a normal 
+form of t with respect to R.  t is destroyed.]
+     safe k.
+(1)  [Initialize.] t*:=t; if R=() then return; k:=TKIND(t).
+(2)  [Constant or variable.]  if k = DCS \/ k = DVS then return.
+(3)  [External term.] if k = DXT then 
+     { RTI:=RTI-CLOCK(); t*:=TXAPLY(t*,R); RTI:=RTI+CLOCK();
+       if TKIND(t*) # DOS then return 
+     }.
+(4)  [Non-atomic term.] if TRC1 = 1 then TRCAAI(t*);
+     RTI:=RTI-CLOCK(); t*:=TNRIS(t*,R); RTI:=RTI+CLOCK() ||
+
+                    t*:=TSTDR(t)
+[Term standard representation.
+t is a semi-bound term.
+Then t* is a modification of t such that if t contains multiple pointers
+to non-atomic subterms then all but one of these pointers a replaced by
+copies of the subterms such that the variables of t* are still uniquely
+represented. t is destroied.]
+
+(1)  [Initialize.] t':=t.
+(2)  [Atomic term.] k:=TKIND(t');
+     [Constant.] if k = DCS \/ k = DXT then { t*:=t'; return };
+     [Variable.] if k = DVS then
+      { C:=VARBIND(t'); if C # () then { t':=C; goto 2 }
+                                else { t*:=t'; return }
+      }.
+(3)  [Non-atomic term.] TNSTDR(t',(); t*,T*) ||
+
+[---------------------------------------------------------------------
+     Section 2.  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    T*:=TAPPLY(T,A)                                    
+[Term, application of axioms.                                          
+T is a non-atomic term, A is a set of axioms. Then T*=T if no           
+axiom in A is applicable to T on outermost position, otherwise          
+T* is the result of the first such application of an axiom.]           
+     safe L,K,k,a,LHS,I,V,RHS.                                        
+(1)  [Initialize.] T*:=T; L:=A; K:=TSIGN(T).
+(2)  [Recursion basis. Trivial case.] if L=() then return.
+(3)  [Recursion step. Apply single axiom.]                             
+     [Initialize.] a:=FIRST(L); LHS:=ALHS(a); k:=TSIGN(LHS);
+     [Trivial case.] if K # k then {L:=RED(L); go to  2};
+     [Try match.] V:=ALHSV(a);
+     MTI:=MTI-CLOCK(); I:=TNRMCH(LHS,T); MTI:=MTI+CLOCK(); MC:=MC+1;
+     [a not applicable.] if I=() then {UNDO(V); L:=RED(L); go to  2};
+     [Apply a.] RHS:=ARHS(a); T*:=TBPCPM(RHS); RC:=RC+1; UNDO(V);
+     [TRACE.] if TRC1 then TRCAA(a,T*) ||                             
+
+                    T*:=TNRIS(T,R)                                     
+[Non-atomic term, innermost reduction, Stickel version.                
+T is a non-atomic term, R is a non-empty set of axioms.                 
+Then T*=T if no axiom in R is applicable to any subterm of T,           
+otherwise T is reduced to a descendant whose subterms are all           
+irreducible under R. Innermost reduction is used.]                     
+     safe R,T,k,t.                                                    
+(1)  [Initialize.]  T*:=T; T^:=T.
+(2)  [Reduce operands.]  T':=OARGLST(T^); while T' # () do               
+     { t:=FIRST(T'); k:=TKIND(t);
+      [Variable.] if k=DVS then                                        
+       {t:=VARBIND(t); if t # () then FIRST(T'):=t} else                
+      { [External term.] if k = DXT then 
+       { FIRST(T'):=TXAPLY(t,R); t:=FIRST(T'); k:=TKIND(t) };
+       [Non-atomic term.] if k=DOS then FIRST(T'):=TNRIS(t,R)
+      }; T':=RED(T') }.
+(3)  [Reduce operator.] T*:=TAPPLY(T^,R); if T*=T^ then return;
+     k:=TKIND(T*);
+     [Replaced by constant.] if k=DCS then return;
+     [Replaced by variable.] if k=DVS then                            
+      {T^:=VARBIND(T*); if T^ # () then T*:=T^; return};
+     [Replaced by external term.] if k = DXT then
+      { T*:=TXAPLY(T*,R); if TKIND(T*) # DOS then return };
+     [Replaced by non-atomic term.] T^:=T*; go to  2 ||                
+
+                    TNSTDR(t,T; t*,T*)
+[Non-atomic standard representation.
+t is a non-atomic semi-bound term and T is a list of terms.
+Then t* is a modification of t such that if t contains  pointers
+to terms in T then these pointers a replaced by copies of the subterms
+such that the variables of t* are still uniquely represented. In
+addition if t contains multiple pointers to non-atomic subterms then all
+but one of these pointers a replaced by copies of the subterms such
+that the variables of t* are still uniquely represented. T* is T union
+the set of pointers to proper non-variable subterms in t.  t is
+destroied.]
+
+(1)  [Initialize.] C:= OARGLST(t); t*:=t; T*:=T.
+(2)  [Standardize arguments.] while C # () do
+     { a:=FIRST(C); if TKIND(a) = DOS then
+       { if INTMEM(a,T*) then { TGCVS(a; a',V); FIRST(C):=a' }
+         else {[Standarizde within a.] TNSTDR(a,T*; a',T*);
+               T*:=COMP(a,T*)
+       }      }; C:=RED(C)
+     } ||
+
+                    t*:=TXAPLY(t,R)
+[Extenrnal term, apply axioms. 
+t is an external term and R is a set of axioms which presents a 
+terminating TRS.
+Then t* is the normal form w.r.t. all rules in R with external left-hand
+sides. If no rule applies then t* is t.]
+
+(1)  [Initialize.] t*:=t.
+(2)  [Apply axioms.] s:=TSIGN(t*); R':=R; while R' # () do
+     { ADV(R'; a,R'); l:=ALHS(a); if TSIGN(l) = s then if TRXEQU(l,t*) 
+      then { TFCVS(ARHS(a); t*,V*); RC:=RC+1;
+             if TKIND(t*) = DXT then goto 2 
+     }     } ||
+
+[--------------------------------------------------------------------  
+     section 2.                                                         
+     Subalgorithms.                                                     
+----------------------------------------------------------------------]
+
+                    TRCAA(a,T)                                        
+[Trace application of axiom.                                           
+a is an axiom, T a term. Then a trace-message is                       
+output if the global variable TRC1=TRUE.]                              
+     safe TRCAA.                                                       
+(1)  if TRC1=FALSE then return; WRITE.
+(2)  CWRIT6('A','x','i','o','m',' '); AWRITE(ANUM(a));
+     CWRIT4(' ','y','i','e'); CWRIT3('l','d','s'); WRITE;
+     TWRT(T); WRITE ||                                                 
+
+                    TRCAAI(t)
+[Trace application of axiom, initialization message.] 
+
+(1)  CLOUT("Normalizing "); TWRT(t); CWRITE(':'); WRITE ||

@@ -1,0 +1,358 @@
+README-file for the ALDES/SAC-2 Makefile.
+25.1.1993 / update to ALDES-to-C compiler V3.2 and ALDES tools: 24.7.93
+            update to allow for 8 character identifiers: 1.3.1995
+
+1. This directory contains:
+===========================
+
+README:    This file
+Makefile:  A makefile for installing the ALDES/SAC-2 system
+TAPE:      A directory with the ALDES standard distribution
+tools:     some useful tools
+man:       manual pages for the tools
+ass:       contains assembler primitives for important SAC-2 algorithms.
+doc:       some documentation
+
+
+2. Installation of the ALDES translator, the SAC-2 system and the ALDES tools
+=============================================================================
+
+The translator is distributed as C source code. Therefore, a
+C compiler is necessary to work with the compiler.
+
+The Makefile has been tested on Sun 4 computers.
+If the ALDES translator shall be installed on this architecture,
+some macros in the Makefile must be changed according to the comments
+in the Makefile. (APATH, LBINPATH (and perhaps other paths),
+CC, CFLAGS, CLOCKSCALING.) 
+Other macros can be changed if special compiler behaviour
+is necessary. They are described in section 5 of this text.
+
+If these modifications have been made, it should be sufficient to type
+``make'' and let the Makefile do the installation. Then this section 
+can be skipped.
+
+Users of other architectures should follow the directives in this
+section.
+
+First of all, values for the macros described in section 5 
+must be chosen. For most of the macros, this is quite obvious, but
+for CLOCKSCALING it can be difficult. Some hints are
+given is section 5. 
+
+Although the Makefile is intended to do the complete installation, due to 
+system-dependent peculiarities it is recommended to do the installation in 
+several steps. This makes it is easier to localize errors.
+
+The first step is to create a working version of the ALDES-C-translator.
+Enter ``make atr''. If the make commands aborts with an error message,
+the C compiler's internal symbol table may be exhausted.
+In this case, the C compiler must be directed to allocate more
+memory for this table. The compiler option to achieve this varies from
+one system to another. It must be assigned to the `make'-macro `CFLAGS'.
+(This should not occur any more since the ALDES-C-compiler's source
+code is separated in small C files with ccsplit before it is compiled.)
+
+If the compiler or linker reports errors concerning the basic timing
+function CLOCK (in cp.c), it's best to set CLOCKSCALING to 0 and continue with 
+the installation.  This replaces the CLOCK function by a dummy function 
+which returns 0. The CLOCK-problem can be solved easier when a working
+ALDES-C-translator and the low-library (liblow.a) exist.
+
+The ALDES translator can read an ALDES program from stdin and write the
+corresponding C program to stdout. Error- and status messages are
+written to stderr. The compiler can be tested by entering 
+``bin/a2c -ibin/a2c.ini <TAPE/bs >tmpfile''. It should issue some lines
+describing its progress (they are also written to a2c.log) 
+and write the C code to the file tmpfile.
+
+If the ALDES translator hasn't been compiled properly, it is necessary
+to find a solution to compile it before proceeding with the next step
+since the other parts cannot be compiled without the ALDES translator.
+
+The second step is to create libraries containing the basic parts of
+the SAC-2 system (liblow.a) and the virtual SAC-2 system (libsac2.a). 
+To do so, enter ``make libs''. This shouldn't cause any problems.
+
+If CLOCKSCALING has been set to 0 in the step 1, it is necessary
+to install a working CLOCK function now. 
+You must write a C-function that reports the user time of the current 
+process in milliseconds and place it in TAPE/cp/cp.c. If there is a line
+containing the regular expression `^     return' and `20' in this
+file, `20' will be replaced by the clock scaling factor defined in
+the Makefile.
+
+Finally, the clock function must be adjusted. This is done by choosing 
+an appropriate value for the macro CLOCKSCALING. Some explanations are 
+given in section 5.
+
+If a working clock function has been created, the system (or at least 
+liblow.a) should be rebuilt by typing ``make'' (or ``make liblow''). 
+
+The ALDES tools are built by entering ``make atools'', but there are
+some things to be done by hand:
+-  The backwalk shell script is used to display a function backwalk by
+   filtering the output of the UNIX debugger adb. This output is system
+   specific and therefore the arguments of the calls to ``egrep'' and ``tr''
+   must be changed.
+-  If there are assembler routines for the ALDES functions DPR or DQR,
+   the ald shell script must be changed. The options -sun4 and -sun10
+   must be replaced by corresponding names for the used architectures.
+
+
+3. Directory structure:
+=======================
+It is assumed that the ALDES-translator shall be installed in a
+directory <ALDES>. The `make'-macro APATH must be set to <ALDES> 
+(where <ALDES> must be an absolute specification of the directory).
+Then the Makefile expects the following directory structure:
+
+<ALDES>/TAPE
+   This directory contains the files from the ALDES distribution tape.
+<ALDES>/TAPE/cp
+   This directory contains the file cp.c
+<ALDES>/ass: contains assembler primitives for important SAC-2 algorithms.
+   The objects produced from the according ALDES sources may be
+   replaced by the assembled versions in the libraries.
+   so far only DPR assembler versions for the Sun Sparc architecture
+   and for 80486 architectures for DPR and DQR are distributed
+      dpr.s works best for Sun ELC and  Sparc2
+      dpr-sparc10.s works best for Sparc10
+      dpr-i486.s and dqr-i486.s work for 80486 architectures
+   So far these assembler versions must be compiled by hand. See the
+   README in ass.
+<ALDES>/tools
+   This directory contains some useful tools:
+      ald is a csh script to conveniently translate ALDES sources
+         to objects, libraries, executables (see comment at
+         the head of the ald script)
+      asplit: splits ALDES-sources into one-function-files.
+      backwalk*: Displays a function call backwalk after
+         a core dump has occurred.
+      ccsplit splits C-sources produced by the compiler
+         into one file per function.
+      fald: Displays a list of all ALDES files in a given
+         directory.
+      scat: Shows the source of a named SAC-2 algorithm.
+      sgrep:  recursive source grep in SAC-2 system.
+
+
+The Makefile generates the following directories:
+<ALDES>/lib
+   In this directory, the libraries for the ALDES/SAC-2 system are
+   written.
+<ALDES>/src
+   The (modified) source code for the compiler and the library are placed here.
+<ALDES>/bin
+   This is the directory for the ALDES-C-translator, its initialization
+   file and the tools from <ALDES>/tool.
+
+All directory names are defined by the `make'-macros in the beginning
+of the Makefile and can be changed if the default directory structure is
+not applicable. Since the `APATH'-macro is directly inserted in the
+shell script in tools, it must contain an absolute file specification, 
+otherwise the shell scripts won't find the needed files if they are started
+from another directory.
+
+4. Targets:
+===========
+The following targets can be given in the command line of `make':
+(The other targets are only for internal use)
+
+all:
+----
+The ALDES compiler, both libraries and the ALDES tools are installed.
+
+atr (ALDES translator):
+-----------------------
+The ALDES-to-C translator and ccsplit are compiled.
+
+liblow (Low library):
+---------------------
+The low library and asplit are compiled. (It is assumed that the ALDES 
+compiler already has been compiled.)
+
+libsac2 (SAC-2 library):
+------------------------
+The SAC-2-library and asplit are compiled. (It is assumed that the ALDES 
+compiler already has been compiled.)
+
+libs (Libraries):
+-----------------
+Both libraries and asplit are compiled. (It is assumed that the ALDES 
+compiler already has been compiled.)
+
+atools: (ALDES tools):
+----------------------
+The ALDES tools ald, asplit, backwalk, ccsplit, scat and sgrep are
+installed.
+
+ald: (ALDES supervisor):
+------------------------
+The ALDES supervisor shell script is installed.
+
+asplit (ALDES splitter):
+------------------------
+The ALDES splitter lex program is installed.
+
+backwalk (Show function call backwalk):
+---------------------------------------
+The backwalk shell scripts are installed.
+
+ccsplit (C code splitting program):
+-----------------------------------
+ccsplit lex program (similar to fsplit for fortran code) is installed.
+
+fald (Find ALDES files):
+------------------------
+The ``Find ALDES files''-shell script is installed.
+
+scat (cat for SAC-2 sources):
+-----------------------------
+The scat shell script is installed.
+
+sgrep (Grep for ALDES sources):
+-------------------------------
+The sgrep shell script is installed.
+
+linstall (Logical installation):
+--------------------------------
+Symbolic links to the the ALDES compiler and the ALDES tools are placed in
+the directory in $(LBINPATH) (e.g. /usr/local/bin).
+It is assumed that the ALDES compiler and the ALDES tools already
+has been compiled. Otherwise the symbolic links doesn't point to files.)
+
+cleanup:
+--------
+The ALDES binary directory, the library directory and the directory with
+modified source texts are removed. The auxiliary files are also
+removed.
+
+lcleanup:
+---------
+Removes the symbolic links created by target linstall.
+
+The targets linstall and lcleanup must write to the directory 
+$(LBINPATH). Therefore, make must usually be started by
+`root'.
+
+5. The meaning of the `make'-macros:
+====================================
+
+CFLAGS
+------
+The contents of this macro are given as options to the C compiler.
+On some systems, the C-compiler's symbol table is not large enough
+to compile the ALDES-compiler. In this case, a corresponding compiler
+option should be assigned to CFLAGS.
+On some systems an optimizer can be used. The corresponding compiler
+option can also be assigned to CFLAGS.
+
+CC
+--
+May be set to gcc if GNU-C is used.
+
+LEX, LEXLIB:
+------------
+The lexer and the lex library. May bet set to GNU flex and the
+corresponding flex library.
+
+BETA
+----
+This is the value for the number base in the SAC-2 system.
+The contents of this macro are directly inserted into the C
+and ALDES source texts. Therefore it must be a both a correct C 
+expression and a correct ALDES expression. The simplest way to do this 
+is to call the SAC-2 function EXPF (exponentiation). On a 32 bit computer,
+the `make'-macro BETA is set to EXPF(2,29).
+If the the computer does not use 32 bits for an integer, BETA must be chosen 
+so that 4*BETA <= zeta, where zeta is the least integral number such that 
+|i| < zeta for all integers i representable on the computer.
+
+IUNIT
+-----
+This should be set to the C unit that is connected to console
+input (stdin), usually 5. If one of the unit macros is changed, the 
+C primitives must be changed accordingly.
+
+CUNIT
+-----
+This is the C unit that is connected to the file containing the
+ALDES character table, usually 3.
+
+MUNIT
+-----
+This should be set to the C unit that is connected to diagnostics
+output (stderr), usually 0.
+
+OUNIT
+-----
+This should be set to the C unit that is connected to console
+output (stderr), usually 6.
+
+PRNTR
+-----
+This is the C unit which is used for the printer, usually 7.
+
+CLOCKSCALING
+------------
+The contents of this macro are inserted into the CLOCK function in cp.c.
+The CLOCK function in this file uses the operating system
+`times'-function to yield the cpu-time the ALDES-program has already
+used. The value that function reports is multiplied by the contents of
+`CLOCKSCALING'. This value should be adjusted so that the value of 
+`clock' is reported in milliseconds.
+If CLOCKSCALING is set to `0', the CLOCK function is not used, a dummy
+function is used instead. This is useful if there is no working clock 
+function available. In this case, all calls to timing functions from an 
+ALDES program yield the result `0'.
+
+TNU
+---
+The ALDES-C-compiler uses an array (SPACE) as a heap for its
+data structures. The size of this array is set to the default value 20000.
+If ALDES programs contain large algorithms or many const-declarations,
+this may be too small. Then the macro TNU must be set to a higher
+value. This value must be an even number smaller than BETA.
+
+The value of TNU affects only the size of the compiler's SPACE,
+the size of the compiled ALDES program's SPACE can be set by a pragma
+declaration.
+
+TMU
+---
+The ALDES-C-compiler uses an array (STACK) as stack for its
+variables. The size of this array is set to the default value 1000.
+If ALDES programs contain large algorithms or deeply nested expressions,
+this may be too small. Then the macro TMU must be set to a higher
+value.
+
+The value of TMU affects only the size of the compiler's STACK,
+the size of the compiled ALDES program's STACK can be set by a pragma
+declaration.
+
+AIDLEN
+------
+This macro contains the maximal length of identifiers in ALDES
+programs. The ANSI-C standard guarantees that the maximal length of
+identifiers is at least 8 characters, so setting AIDLEN to 8 should not
+cause any problems.  If the used compiler/linker allows longer
+identifiers, AIDLEN may be set to greater values. (Note that ALDES
+source code with identifiers longer than 8 characters is not fully
+portable.) If AIDLEN is set to 6, the ALDES translator is backward
+compatible to the earlier (FORTRAN) versions of the ALDES Translator.
+Values less than 6 are not allowed.
+
+DPQRLIB
+-------
+This is needed for the ald-shell script. If no assembler routines are 
+available, use dpqr-slow, else the appropriate assembler library.
+(Cf. directory ass.)
+
+AFPREFIX, AFPOSTFIX
+-------------------
+The Makefile generates several auxiliary files. Their names consist of
+a base name and a pre- and a postfix. On UNIX machines, the prefix is
+the dot, the postfix the empty string. Some other architectures may not
+be able to handle files names with a leading dot. Then these macros have
+to be changed.

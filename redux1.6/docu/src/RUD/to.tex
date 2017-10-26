@@ -1,0 +1,435 @@
+\section{The Term Ordering Program}
+\subsection{Program Invocation}
+The {\tt to}-program is used to experiment interactively with the 
+term orderings implemented in the \redux\ system and the data type
+in {\tt to.in}.
+
+When the program {\tt to} is started, it prints a start message and 
+the time needed for the program initialization.
+Then it reads a data type and prints the time needed
+for the acception of the data type. Subsequently, the data type is output,
+again with the time needed for this procedure:
+\begin{quote}
+\begin{verbatim}
+Loading your data type ...
+Acception time: 34 ms.
+ 
+DATATYPE GROUP;
+SORT
+        G;
+CONST
+        1: G;
+VAR
+        x, y, z: G;
+OPERATOR
+        1/: G -> G;
+        *: G, G -> G;
+NOTATION
+        1/: PREFIX;
+        *: INFIX;
+AXIOM
+ [1] 1 * x == x;
+ [2] (1/x) * x == 1;
+ [3] (x * y) * z == x * (y * z);
+END
+Display time: 0 ms.
+\end{verbatim}
+\end{quote}
+ 
+(For this example, the data type {\tt ./spec/group.rdx} has been used.)
+
+
+\subsection{The Main Menu}
+After the data type has been loaded, the main menu is displayed:
+\begin{quote}
+\begin{verbatim}
+        --  Menu  -- 
+  1 -- add orderings
+  2 -- remove orderings
+  3 -- select an automatic ordering
+  4 -- order the axioms of data type
+  5 -- order an axiom
+  6 -- toggle traces
+  7 -- list the installed orderings
+  8 -- display the data type
+  0 -- exit program
+ 
+Enter your choice [0-8]*
+\end{verbatim}
+\end{quote}
+
+Before axioms can be oriented with the ordering algorithms, a 
+particular ordering must be {\em selected}. This is done with menu
+item 3.
+Before orderings can be selected for usage, they must be {\em installed
+(added)}, i.\,e.\  
+information about a particular ordering has to be specified. This is
+done in item 1 of the main menu. Therefore, this item should be selected
+first.
+
+\begin{enumerate}
+{\bf \item{Add Orderings}}\\
+The user must choose one or more term orderings for initialization.
+There are algorithms for the Knuth-Bendix ordering, a
+polynomial ordering and a path ordering (with l-r and r-l status).
+See Section~\ref{InitializationOfOrderings}.
+
+
+{\bf \item{Remove Orderings}}\\
+This item allows the user to remove one or more of the installed
+orderings:
+
+\begin{quote}
+\begin{verbatim}
+Remove term orderings.
+The following term orderings are installed:
+P -- Path ordering (with l-r and r-l status)
+3 -- 3. polynomial ordering
+
+Which of these orderings shall be removed ?
+Input string of {P,3} *
+\end{verbatim}
+\end{quote}
+
+If one or more orderings are removed, {\em all} orderings will be deselected
+automatically.
+
+{\bf \item{Select an Automatic Ordering}}\\
+This item is used to select an ordering. If at least one polynomial
+ordering has been installed, the program allows to display the definitions
+of these orderings:
+
+\begin{quote}
+\begin{verbatim}
+The following term orderings are installed:
+P -- Path ordering (with l-r and r-l status)
+3 -- 3. polynomial ordering
+S -- Straight (pseudo) ordering
+R -- Reverse (pseudo) ordering
+
+D -- Display polynomial ordering(s)
+
+Input a string consisting of at most one occurrence of the above
+                                                             orderings to
+select the lexicographic combination of these orderings.
+Input string or D to display *
+\end{verbatim}
+\end{quote}
+
+(In the example, the path ordering and one polynomial ordering
+is installed.)
+
+The user is asked to
+enter a lexicographic combination of the orderings chosen in 
+menu item 1 (Knuth-Bendix,
+polynomial or path ordering), and the straight respectively reverse
+pseudo orderings.
+Straight ordering means that for the left-hand side
+$l$ and the right-hand side $r$ of an axiom, $l \succ r$.
+Reverse ordering sorts the terms in the opposite direction.
+Obviously, the straight and reverse pseudo orderings cannot
+be used to prove the termination property of a term rewriting
+system.
+
+The simplest case of a lexicographic combination of orderings is
+one of the four possible orderings. In this case, only the letter {\tt P},
+{\tt 3}, {\tt S} or {\tt R} is entered.
+
+If a lexicographic combination of more 
+than one ordering is selected, then first the leading ordering is
+applied. If the two terms are not comparable with this ordering, they
+are not comparable with the combination. If they are comparable and not
+equal, they are ordered with the leading ordering. If they are
+comparable and equal, the next ordering of the lexicographic combination
+of orderings is used, and so on. Such a combination is entered by 
+concatenating the letters of the desired orderings; the leading ordering 
+is the first letter.
+
+{\bf \item{Order the Axioms of Data Type}}\\
+This menu item is used to order the axioms of the data
+type according to the selected ordering. If the path ordering
+or a polynomial ordering has been initialized to query information by
+need, the program will ask questions concerning these orderings.
+
+Then the oriented axioms are displayed. If the two sides of an axiom are 
+comparable, this is indicated by a {\tt <}-, {\tt >}- or {\tt =}-sign.
+If they are not comparable, this is written explicitly:
+\begin{quote}
+\begin{verbatim}
+1 * x   >   x
+(1/x) * x   >   1
+(x * y) * z   >   x * (y * z)
+\end{verbatim}
+\end{quote}
+
+{\bf \item{Order an Axiom}}\\
+This item allows to order an arbitrary axiom
+that is entered by the user. The axiom must be entered in the form 
+$l${\tt ==}$r$, where $l$ and $r$ are the left-hand side and the right-hand
+side of the axiom. $l$ and $r$ are two arbitrary terms built of the
+constants, variables and operators that have been defined in the data
+type.
+
+{\bf \item{Toggle Traces}}\\
+By selecting this item, the trace status can be changed. After
+starting the program, no trace information is displayed. When this item
+is chosen once, the trace is turned on, the second time the trace is
+turned off, and so on.
+For the three orderings, there are different traces implemented:
+\begin{itemize}
+\item{\bf The Knuth-Bendix Ordering}\\
+There is no trace facility for the Knuth-Bendix ordering.
+
+\item{\bf The Path Ordering (with l-r and r-l status)}\\
+All comparisons of terms (indicated by {\tt TERMS}), paths (indicated by
+{\tt PATHS} and path sets ({\tt PSETS}) are output.
+
+\item{\bf The Polynomial Ordering}\\
+For each comparison of two polynomial interpretations, the following
+output is displayed:
+
+\begin{quote}
+\begin{verbatim}
+CPPI Polynomial interpretation LHS:
+x3^2x1^2+2x3^2x2x1+x3^2x2^2
+CPPI Polynomial interpretation RHS:
+x3^2x1^2+x3^2x2^2
+CPPI LHS-RHS:
+2x3^2x2x1
+\end{verbatim}
+\end{quote}
+
+The polynomial interpretations of the left-hand side and right-hand side of an
+axiom is printed together with the difference of left-hand side minus
+right-hand side.
+\end{itemize}
+
+{\bf \item{List Installed Orderings}}\\
+The installed and selected orderings are shown. The string indicating the
+selected orderings is interpreted as the lexicographic combination
+of the selected orderings if it contains more than one letter. 
+
+
+{\bf \item{List Data Type}}\\ 
+The data type fed in at the program start is displayed.
+
+\setcounter{enumi}{-1}
+{\bf \item{Exit Program}}\\
+This, of course, terminates the program after displaying some
+statistical information.
+\end{enumerate}
+
+\subsection{Initialization of Term Orderings}
+\label{InitializationOfOrderings}%
+If the user has chosen to install one or more orderings, the following 
+menu is displayed:
+
+\begin{quote}
+\begin{verbatim}
+Already installed orderings:
+P3
+Initialization of term orderings.
+The following term orderings are supported:
+P  -- Path ordering (with l-r and r-l status)
+K  -- Knuth-Bendix ordering. Not AC-compatible!
+1. -- polynomial ordering
+2. -- polynomial ordering
+3. -- polynomial ordering
+4. -- polynomial ordering
+5. -- polynomial ordering
+6. -- polynomial ordering
+7. -- polynomial ordering
+8. -- polynomial ordering
+9. -- polynomial ordering
+
+Which of these orderings shall be added ?
+Input string of {P,K,1,2,3,4,5,6,7,8,9} *
+\end{verbatim}
+\end{quote}
+
+Only one Knuth-Bendix or path ordering, but up to nine
+polynomial orderings can be installed. The latter are labeled {\tt 1}
+to {\tt 9}.
+When the user has selected the orderings to work with, further information for
+the initialization of the chosen orderings must be entered:
+
+\subsubsection{Knuth-Bendix Ordering}
+The Knuth-Bendix ordering \cite{KnuthBendix:67}
+is based on an ordering over the set of all
+operators and constants. This ordering is established by adjoining an index
+(a non-negative integer) to each operand and constant so that
+$f \succ g \ {\rm iff} \  {\rm index}(f) > {\rm index}(g)$
+for two operators or constants $f$ and $g$ when ${\rm index}(f)$ denotes
+the index of $f$.
+The implemented
+Knuth-Bendix ordering  needs a total ordering over the constants and
+functions, i.\,e.\  ${\rm index}(f) \neq {\rm index}(g)$ for every pair
+$(f,g)$ of constants or operators with $f \neq g$.
+
+Furthermore, a weight (also a non-negative integer) must be assigned to
+each operand and constant.
+The weights of constants  and unary operators are restricted to positive
+integers,
+with the possible exception of the operator with largest index, whose
+weight can be zero.
+
+For each constant and operator, the user is asked for the appropriate
+numbers. The positivity or non-negativity of weights and indices is
+not checked.
+
+\subsubsection{Path Ordering (with l-r and r-l Status)}
+If the path ordering \cite{KapurNarendranSivakumar:85} is used,
+the arguments of an operator are treated as multi set.
+If the l-r (r-l) status is set, they are regarded as sequence
+ordered from left to right (right to left).
+The program asks for each operator with arity greater than 1 if it has 
+the l-r or r-l-status.\footnote{We implemented the definition in
+\cite{KapurNarendranSivakumar:85} for the l-r- and r-l stati.
+However these definitions seem not to be complete.}
+All commutative operators (with unification status {\tt AC} or {\tt COM})
+are initialized without status.
+Then the program displays the following menu:
+\begin{quote}
+\begin{verbatim}
+Initialization of quasi-ordering over signature:
+You have following choices: 
+ n - initialize constants and operators by need
+ q - query ordering relation for each constant and operator
+ l - initialize quasi-ordering using list notation   [n/q/l]? *
+\end{verbatim}
+\end{quote} 
+The menu item (n) ends the initialization and the relation between operators
+will only be asked when needed.
+
+The menu item (q) allows the user to totally initialize the whole ordering. 
+All possible relations will be queried by the program:
+\begin{quote}
+\begin{verbatim}
+* >= 1 [Y/N]?
+y
+1 >= * [Y/N]?
+n
+\end{verbatim}
+\end{quote}
+
+In this example, $+>0$. If both questions are answered with {\tt Y},
+{\tt +} and {\tt 0} are equal in the applied ordering, if both questions are 
+answered with {\tt N}, the two terms are not comparable.
+
+If the user chooses (l) 
+the program allows to input relation lists specifying that 
+an operator or constant is less than (\verb+<+), greater than (\verb+>+), 
+less than or equal (\verb+<=+), greater than or equal (\verb+>=+),
+equivalent (\verb+~+) or incomparable (\verb+#+) to a list of
+operators and/or constants.
+For example a possible input is:
+\begin{quote}
+\begin{verbatim}
+* >= 1/, 1;
+\end{verbatim}
+\end{quote}
+If the user inputs only a semicolon ``;'' the initialization ends.
+Note, that a previously given relation will not be overwritten by a second one. 
+
+\subsubsection{Polynomial Orderings}
+For a polynomial ordering, a multivariate integral polynomial
+must be assigned to each constant and operator. The rank of a
+polynomial is the same as the arity of the corresponding operator in the data
+type, the polynomial of a nullary operator is a constant. The
+indeterminate $x_i$ corresponds to the \(i\)-th argument of the operator.
+The grammar of the possible inputs is given in
+Figure~\ref{fi:SyntaxOfPolynomials}.
+
+\begin{figure}[htbp]
+\begin{center}
+\noindent
+\rule{\textwidth}{0.6pt}
+ 
+%\fbox{
+\begin{minipage}{5.9in} %necessary if there is a footnote within the figure
+\begin{tabbing}
+\vs{Indeterminate} \= \gprod \= \kill
+\\
+\>\vs{Polynomial}\' \gprod \>
+      \gopt{\ts{+} \galt \ts{-}} \vs{Monomial}
+      \gstar{\group{\ts{+} \galt \ts{-}} \vs{Monomial}}\\
+\>\vs{Monomial}\' \gprod \> \vs{Exp}
+      \gstar{\group{\ts{*} \vs{Exp}} \galt \group{\ts{/} \vs{Number}}}\\
+\>\vs{Exp}\' \gprod \> \vs{Num} \gopt{\ts{\^} \gplus{\vs{Digit}}}\\
+\>\vs{Num}\' \gprod \> \ts{(} \vs{Polynomial} \ts{)} \galt
+      \vs{Indeterminate} \galt \gstar{\vs{Digit}} \\
+\>\vs{Number}\' \gprod \> \ts{(} \gopt{\ts{+} \galt \ts{-}}
+      \gplus{\vs{Digit}} \ts{)}\galt \gplus{\vs{Digit}} \\
+\>\vs{Indeterminate}\' \gprod \> \ts{x}\gplus{\vs{Digit}} \\
+\>\vs{Digit}\' \gprod \>
+         \ts{0} \galt $\ldots$ \galt \ts{9} \\
+\>\vs{Letter}\' \gprod \>
+         \ts{a} \galt $\ldots$ \galt \ts{z} \galt  
+         \ts{A} \galt $\ldots$ \galt \ts{Z} \\
+\end{tabbing}
+\end{minipage} 
+
+\noindent
+\rule{\textwidth}{0.6pt}
+%} end fbox
+\end{center}
+\caption{The Syntax of Polynomials}
+\label{fi:SyntaxOfPolynomials}
+\end{figure}
+First, the program asks if all polynomials shall be entered altogether
+or if they should be queried by need. Then, the user is asked for
+the configuration of the positivity test:
+
+\begin{quote}
+\begin{verbatim}
+Configuration of the positivity test:
+You have the following choices for the change of coefficients: 
+ o - use the solution 1 of Ben Cherifa and Lescanne
+ t - use the solution 2 of Ben Cherifa and Lescanne
+   [o/t]? *
+\end{verbatim}
+\end{quote}
+
+Solution~2 is slower but stronger than solution~1,
+solution~2 may orient a particular axiom if solution~1 fails.
+The solutions referred to can be found in \cite{BenCherifaLescanne:87}.
+
+After those queries, the polynomial interpretations can be entered,
+either instantly or later during the program.
+Coefficients and indeterminates must be separated by a multiplication star,
+exponents are indicated by a hat symbol (\verb!^!) and the whole polynomial
+is terminated by a period. The indeterminates are written as {\tt x1},
+{\tt x2}, {\tt x3} and so forth.
+
+\noindent
+{\bf Example:}
+
+\begin{quote}
+\begin{verbatim}
+Input polynomial interpretation of operator:
+*: G, G -> G.
+Use variables x1, x2 for arguments 1 to 2.   *
+5*x1^7+x2+1.
+\end{verbatim}
+\end{quote}
+
+Note that the polynomial interpretations should be non-negative for all
+possible instantiations with interpretations of ground terms and they
+should be monotonously ascending in each variable. These properties are
+not checked so far.
+
+The positivity-test tries to decide the positivity of a polynomial to
+determine the orientation of an axiom. For example, if there occur
+polynomial interpretations of the left-hand side of an axiom, say
+\(x_3^2x_1^2+2x_3^2x_2x_1+x_3^2x_2^2\), and the right-hand side, say
+\(x_3^2x_1^2+x_3^2x_2^2\), the difference left-hand side minus right-hand side
+is \(2x_3^2x_2x_1\). In this case there is no negative monomial and therefore
+the difference is positive and the axiom is ordered left to right. In a
+case where a negative monomial occurs the positivity-test tries to
+find a positive monomial which bounds it. For this work there is so
+far only one algorithm implemented (choose-monomial-algorithm).
+If such an bound exists the negative monomial will deleted and the
+coefficient of the positive monomial will be changed by an
+change-monomial-algorithm. This modified polynomial is the study of
+the positivity-test now. If at the end the polynomial is positive the
+axiom can be ordered.

@@ -1,0 +1,19 @@
+Directory docs
+==============
+
+This directory contains some documentation on ALDES and the SAC-2 system.
+
+Contents
+++++++++
+
+    README:           this file
+    C_backend.dvi:    the paper (in dvi-Format):
+                      R. Buendgen & J. Walter: 
+                      "A C-backend for the ALDES Compiler"
+    aldes:            Pointer to the literature for ALDES,
+                      some hints for programming in ALDES
+    sac2-headers:     Headers (algorithm name + short specification)
+                      of all SAC-2 algorithms 
+    sac2-kwic-index:  KWIC index produced out ouf sac2-headers
+    sac2packages/:    contains documentation of SAC-2 packages
+                      (not completely up-to-date)

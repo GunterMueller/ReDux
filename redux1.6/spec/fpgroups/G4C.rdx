@@ -1,0 +1,28 @@
+DATATYPE G4C;
+SORT
+	G4C;
+CONST
+	0, 1: G4C;
+VAR
+	A, B, C: G4C;
+OPERATOR
+	+: G4C, G4C -> G4C;
+	I: G4C -> G4C;
+NOTATION
+	+, I: FUNCTION;
+AXIOM
+ [1] +(0,A)==A;
+ [2] +(I(A),A)==0;
+ [3] +(+(A,B),C)==+(A,+(B,C));
+ [4] +(1,+(1,+(1,1)))==0;
+ [5] +(I(A),+(A,C))==C;
+ [8] +(A,0)==A;
+ [9] +(A,I(A))==0;
+[10] I(0)==0;
+[11] I(I(A))==A;
+[12] +(A,+(I(A),C))==C;
+[15] I(+(A,B))==+(I(B),I(A));
+[16] I(1)==+(1,+(1,1));
+[17] +(1,+(1,+(1,+(1,C))))==C;
+END
+; this file is G4C.typ

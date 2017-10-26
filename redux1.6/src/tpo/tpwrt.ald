@@ -1,0 +1,352 @@
+[Project: ReDuX Term Primitives
+   module name        : TPWRT -- WRIte 
+   modulespecification: Output procedures for terms, axioms
+                        rewrite rules, data types, substitutions,
+                        constants, variables.
+                        Terms are output in external representation, 
+                        i.e.  considering that different variables may 
+                        have the same signature.
+                        derived from tpdd, Revision: 1.12
+                        and from tpwx, Revision: 1.5
+   programmer         : Reinhard Buendgen
+   language           : aldes
+   last change        : 09.01.90
+                        $Date: 1995/12/20 15:35:29 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.7 $
+   bugs               : none known
+   modules needed     : SAC2: low/ba, low/sy, low/lp, 
+
+]
+
+[ #include "tp.h" ]
+[ #include "it.h" ]
+[ #include "globs.h" ]
+
+ 
+[---------------------------------------------------------------------
+     Section 1.  Algorithms for Export
+----------------------------------------------------------------------]
+
+                    ASWRT(A)
+[Write set of axioms, external.]
+     safe ASWRT.
+(1)  [Header.] SWRT(DAS); WRITE().
+(2)  [Axioms.] L':=A; while L' # () do {ADV(L'; a,L'); AXWRT(a)} ||
+
+                    AXWRT(A)
+[Write axiom with extension rule, external.]
+     safe AXWRT.
+(1)  [Initialize.] ADIS(A; n,L,V,R,b).
+(2)  [Number.] if n < 10 then CWRITE(' '); AWRITE(n); SWRT(DCB).
+(3)  [Rewrite rule.] CWRITE(' '); RRWRT(L,R); WRITE.
+(4)  [Extension rule] A':=AGET(A,DXR); if A' # () then
+      { CWRIT6(' ',' ','A','C','-','e'); CWRIT4('x','t',')',' ');
+        RRWRT(ALHS(A'),ARHS(A')); WRITE
+      } ||
+
+                    CONWRT(C)
+[Write constant.]
+     safe CONWRT.
+(1)  [Initialize.] CDIS(C; n,t).
+(2)  [Write.] SWRT(n); if t # () then
+     {BLKW(1); SWRT(DLS); BLKW(1); SWRT(t)}; WRITE ||
+
+                    CSWRT(C)
+[Write set of constants.
+A set of constants is written.]
+     safe CSWRT.
+(1)  [Header.] SWRT(DCS); if C=() then {SWRT(DSS); WRITE();
+     return}; WRITE; BLKW(8).
+(2)  [Init.] L:=C; ADV(L; c,L); CDIS(c; n,t); SWRT(n); T:=t.
+(3)  [Write, grouped by types.] while L # () do
+     {  ADV(L; c,L); CDIS(c; n,t); if T # t then
+      { if T # () then {BLKW(1); SWRT(DLS); BLKW(1); SWRT(T)};
+        SWRT(DSS); WRITE; BLKW(8); T:=t } else SWRT(DRS);
+      SWRT(n)  }.
+(4)  [Finish up.] if T # () then
+     {BLKW(1); SWRT(DLS); BLKW(1); SWRT(t)}; WRITE  ||
+
+                    DTWRT(T)
+[Write data type.  - Main algorithm level 1, output part.]
+     safe DTWRT.
+(1)  [Take to pieces.] DTDIS(T; N,C,V,F,A); WRITE.
+(2)  [Type name separator] SWRT(DTS);BLKW(1);SWRT(N);SWRT(DSS);WRITE.
+(3)  [External types.] Y:=OSXXT(F); if Y # () then {YXSWRT(Y); WRITE}.
+(4)  [(constants)] if C # () then {CSWRT(C); WRITE}.
+(5)  [(variables)] if V # () then {VSWRT(V); WRITE}.
+(6)  [(operators)] if F # () then {OSWRT(F); WRITE}.
+(7)  [(axioms)]    if A # () then {ASWRT(A); WRITE}.
+(8)  [End-symbol] SWRT(DES); WRITE; EMPTOB ||
+
+                    OPWRT(L)
+[Write operator.]
+     safe OPWRT.
+(1)  TDIS(L; dum1,dum2,t,n); SWRT(n); SLWRT(ODTYPE(L));
+     BLKW(1); SWRT(DLS); BLKW(1); SWRT(t).
+(2)  [Property list.] u:=TUSTAT(L); if u = DAC then
+     { BLKW(2); SWRT(DUS); SWRT(DNS); BLKW(1); SWRT(DAC) }
+     else if u = DCO then
+     { BLKW(2); SWRT(DUS); SWRT(DNS); BLKW(1); SWRT(DCO) };
+     P:=TPROP(L); while P # () do
+      { ADV2(P; i,p,P); if i = DXCO then
+       { BLKW(2); SWRT(i); SWRT(DNS); BLKW(1); SWRT(TNAME(p)) }
+        else if SYMIOP(i) then
+        { BLKW(2); SWRT(i); SWRT(DNS); BLKW(1); SWRT(p) }
+      }  ||
+
+                    OSWRT(L)
+[Write set of operators.
+A set of operators is written.]
+     safe OSWRT.
+(1)  [Header.] SWRT(DOS); L':=L; if L=() then
+     {SWRT(DSS); WRITE; return}; WRITE; BLKW(8).
+(2)  [Operators.] while L' # () do
+     { ADV(L'; f,L'); TDIS(f; dum1,dum2,t,n); SWRT(n);
+      SLWRT(ODTYPE(f)); BLKW(1); SWRT(DLS); BLKW(1); SWRT(t);
+      [Property list.] u:=TUSTAT(f); if u = DAC then
+       { BLKW(2); SWRT(DUS); SWRT(DNS); BLKW(1); SWRT(DAC) }
+      else if u = DCO then
+       { BLKW(2); SWRT(DUS); SWRT(DNS); BLKW(1); SWRT(DCO) };
+      P:=TPROP(f); while P # () do
+       { ADV2(P; i,p,P);  if i = DXCO then
+       { BLKW(2); SWRT(i); SWRT(DNS); BLKW(1); SWRT(TNAME(p)) }
+        else if SYMIOP(i) then
+        { BLKW(2); SWRT(i); SWRT(DNS); BLKW(1); SWRT(p) }
+       }; if L' # () then {SWRT(DSS); WRITE; BLKW(8)} else WRITE } ||
+
+
+                    RRWRT(L,R)
+[Rewrite rule write, external.]
+(1)  TDIWRT(L,(); N); BLKW(1); SWRT(DPS); BLKW(1); TDIWRT(R,N; N') ||
+
+                    SBDIW(S,N; N*)
+[Substitution write, external with dictionary.
+S is a substitution, N is a variable dictionary. The F is written using
+the names for variables in S according to N. N* is N updated if there
+are variables in F which do not occur in N.]
+ 
+(1)  [Initialize.] CLOUT("{ "); A:=SUBASS(S).
+(2)  [1st aasignment.] if A = () then goto 4;
+     VDWRT(ASSVAR(A),N; N*); CLOUT(" <- ");
+     TDIWRT(ASSTRM(A),N*; N*); A:=ASSNXT(A).
+(3)  [Rest.] while A # () do
+     { CLOUT(",  "); VDWRT(ASSVAR(A),N*; N*); CLOUT(" <- ");
+       TDIWRT(ASSTRM(A),N*; N*); A:=ASSNXT(A)
+     }.
+(4)  [Finish up.] CLOUT(" }"); WRITE||
+
+                    SBWRT(S)
+[Substitution write, external.]
+
+(1)  [Initialize.] CLOUT("{ "); A:=SUBASS(S); N:=().
+(2)  [1st aasignment.] if A = () then goto 4;
+     VDWRT(ASSVAR(A),N; N); CLOUT(" <- ");
+     TDIWRT(ASSTRM(A),N; N); A:=ASSNXT(A).
+(3)  [Rest.] while A # () do
+     { CLOUT(",  "); VDWRT(ASSVAR(A),N; N); CLOUT(" <- ");
+       TDIWRT(ASSTRM(A),N; N); A:=ASSNXT(A)
+     }. 
+(4)  [Finish up.] CLOUT(" }"); WRITE||
+
+                    SLWRT(L)
+[Write symbol list.
+L is a list of symbols. Then L is written on output.]
+     safe SLWRT.
+(1)  SWRT(DOB); L':=L.
+(2)  while L' # () do
+     {ADV(L'; s,L'); SWRT(s); if L' # () then SWRT(DRS)}.
+(3)  SWRT(DCB) ||
+
+                    SWRT(S)
+[Symbol write.
+A  symbol  is  written  on  OUNIT.  If  its  character-list is stored as
+property under indicator FLAT this is used for output.]
+     safe c.
+(1)  c:=GET(S,FLAT); if c=() then SWRITE(S) else 
+     { if ~ SFOL(c) then WRITE; CLOUT(c) } || 
+
+                    TLWRT(L)
+[Term list write, external.]
+(1)  L':=L; N:=(); while L' # () do 
+     { ADV(L'; t,L' ); TDIWRT(t,N; N); CLOUT("   ") }; WRITE||
+
+                    TDICT(F,N; N*)
+[Term, get dictionary.
+F is a term, N is a variable dictionary. Then N* is N updated if there 
+are variables in F which do not occur in N.]
+     safe k,t,n,f.
+(1)  [Trivial case.] N*:=N;
+     if F=() then {ERRORD(10,7); UWRITE(F); return};
+     [Initialize.] TDIS(F; c,k,t,n).
+(2)  [(constant)] if k=DCS then return;
+     [(variable)] if k=DVS then
+      if c=() then {VDICT(F,N*; N*); return}
+      else {TDICT(c,N*; N*); return}.
+(3)  [Recursive call - write arguments.] while c # () do
+     {ADV(c; f,c); TDICT(f,N*; N*)} ||
+
+                    TDIWRT(F,N; N*)
+[Term with dictionary, write.
+F is a term, N is a variable dictionary. Then F is written using the
+names for variables in F according to N. N* is N updated if there
+are variables in F which do not occur in N.]
+     safe k,t,f.
+(1)  [Trivial case.] N*:=N; 
+     if F=() then {ERRORD(10,7); UWRITE(F); return};
+     [Initialize.] TDIS(F; c,k,t,n).
+(2)  [(constant)] if k=DCS then {SWRT(n); return};
+     [(variable)] if k=DVS then
+      if c=() then {VDWRT(F,N*; N*); return} 
+      else {TDIWRT(c,N*; N*); return};
+     [Operator: get notation] X:=TGET(F,DFS).
+(3)  [Constant notation.] if X = DCS then { SWRT(n); return }.
+(4)  [Lisp notation.] if X = DLF then 
+     { SWRT(DOB); SWRT(n); if c # () then CWRITE(' '); goto 7 }.
+(5)  [Postfix or infix.] if X = DIF \/ X = DPF then 
+     { SWRT(DOB); goto 7 }.
+(6)  [Prefix or roundfix.] SWRT(n); 
+     if X = DRF then {if c # () then CWRITE(' ')} else SWRT(DOB).
+(7)  [Recursive call - write arguments.] if TKIND(F) = DXT then
+      { [external operator] y:=XOBTYPE(F); A:=GET(y,DXWA); 
+       if A = () then UWRITE(c) else R:=PCALL1(ALGIDNT(GET(A,DAK)),0,c)
+      } else [normal operator] while c # () do
+      { ADV(c; f,c); TDIWRT(f,N*; N*); if c # () then 
+        if X = DIF then { CWRITE(' '); SWRT(n); CWRITE(' ')}
+        else if X = DLF then CWRITE(' ') else SWRT(DRS)
+      }; [Closing "bracket".] if X = DRF then 
+      { CWRITE(' '); SWRT(TGET(F,DCR)) } else SWRT(DCB).
+(8)   [Postfix operator.] if X=DPF then SWRT(n) ||
+
+                    TWRT(t)
+[Term write, external.]
+(1)  TDIWRT(t,(); N)||
+
+                    VAWRT(V)
+[Write variable.]
+     safe VAWRT.
+(1)  [Initialize.] VDIS(V; n,t).
+(2)  [Write.] SWRT(n); if t # () then
+     {BLKW(1); SWRT(DLS); BLKW(1); SWRT(t)}; WRITE ||
+
+                    VSWRT(V)
+[Write set of variables.]
+     safe VSWRT.
+(1)  [Header.] SWRT(DVS); if V=() then {SWRT(DSS); return};
+     WRITE; BLKW(8).
+(2)  [Init.] L:=V; ADV(L; v,L); VDIS(v; n,t); SWRT(n); T:=t.
+(3)  [Write.] while L # () do
+     {  ADV(L; v,L); VDIS(v; n,t); if T # t then
+      { if T # () then {BLKW(1); SWRT(DLS); BLKW(1); SWRT(T)};
+       SWRT(DSS); WRITE; BLKW(8); T:=t } else SWRT(DRS);
+      SWRT(n)  }.
+(4)  if T # () then {BLKW(1);SWRT(DLS);BLKW(1);SWRT(t)};WRITE||
+
+                    S:=VDWTS(v,N)
+[Variable with dictionary, write to string.
+v is a variable n is a variable dictionary conaining an entry for v.
+Then S is the string wich would be output by VDWRT.
+[MIC: error corrected; TNAME((v)) -> TNAME(v) in step (2).]]
+
+(1)  [Initialize.] N*:=N; if N* = () then { N*:=LIST2((),()); n:=() }
+                          else n := ASSOC(v,VDINDEX(N*)).
+(2)  [Found.] V:=TNAME(v); s:=GET(V,FLAT); 
+     if s=() then S:=EXPLOD(V) else S:=s; if n = () then 
+     { CLOUT("*** unexpected case in VDWTS.2."); WRITE; return };
+     if FIRST(n) > 0 then S:=CONC(S,COMP('_',STRFBI(FIRST(n)))) ||
+
+                    YXSWRT(Y)
+[Write set of external types.
+A set of operators is written.]
+    
+(1)  [Header.] SWRT(DXT); Y':=Y; if Y=() then
+     {SWRT(DSS); WRITE; return}; WRITE; BLKW(8).
+(2)  [Operators.] while Y' # () do
+     { ADV(Y'; y,Y'); YXWRT(y);
+       if Y' # () then {SWRT(DSS); WRITE; BLKW(8)} else WRITE
+     } ||
+ 
+                    YXWRT(y)
+[External type write.
+y is a symbol denoting an external type.
+y together with its properties is written.]
+
+(1)  [Write type.] SWRT(y).
+(2)  [Properties.] p:=GET(y,DXRA); if p # () then
+     { BLKW(2); SWRT(DXRA); SWRT(DNS); BLKW(1); SWRT(p) };
+     p:=GET(y,DXWA); if p # () then
+     { BLKW(2); SWRT(DXWA); SWRT(DNS); BLKW(1); SWRT(p) };
+     p:=GET(y,DXLA); if p # () then
+     { BLKW(2); SWRT(DXLA); SWRT(DNS); BLKW(1); SWRT(p) };
+     p:=GET(y,DXQA); if p # () then
+     { BLKW(2); SWRT(DXQA); SWRT(DNS); BLKW(1); SWRT(p) };
+     p:=GET(y,DXDA); if p # () then
+     { BLKW(2); SWRT(DXDA); SWRT(DNS); BLKW(1); SWRT(p) };
+     p:=GET(y,DXOP); if p # () then
+     { BLKW(2); SWRT(DXOP); SWRT(DNS); BLKW(1); SWRT(p) } ||
+
+                    QOPMOD()
+[Query concerning output mode - dummy function.]
+
+(1)  STOUTL("Sorry, feature is not implemented!") ||
+
+[---------------------------------------------------------------------
+     Section 2.  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    Y:=OSXXT(O)
+[Operator set extract external types.
+O is a set of operators. Then Y is the set of external types imported
+the operators in O.]
+
+(1)  [Initialize.] Y:=(); F:=O.
+(2)  [Search] while F # () do
+     { ADV(F; f,F); if TKIND(f) = DXT then 
+       { y:=XOBTYPE(f); if ~ MEMBER(y,Y) then Y:=COMP(y,Y) }
+     } || 
+
+                    S:=STRFBI(I)
+[String from beta-integer.
+I is a beta-integer. Then S is the string of the digits of I.]
+
+(1)  [Initialize.] I':=I; S:=().
+(2)  [Add digit.] while I' # 0 do
+     { QREM(I',10; I',R); case R of
+       { 0 do S:=COMP('0',S); 1 do S:=COMP('1',S);
+        2 do S:=COMP('2',S); 3 do S:=COMP('3',S);
+        4 do S:=COMP('4',S); 5 do S:=COMP('5',S);
+        6 do S:=COMP('6',S); 7 do S:=COMP('7',S);
+        8 do S:=COMP('8',S); 9 do S:=COMP('9',S)
+     } } ||
+
+                    VDICT(v,N; N*)
+[Variable, get dictionary.
+v is a variable. N is a variable dictionary. Then if v is contained in
+N then N* = N otherwise v is entered into N giving N*. N is destroyed.]
+ 
+(1)  [Initialize.] N*:=N; if N* = () then { N*:=LIST2((),()); n:=() }
+                          else n := ASSOC(v,VDINDEX(N*)).
+(2)  [Found.] if n # () then return.
+(3)  [New entry.] s:=TSIGN(v); I:=ASSOC(s,VDNAMES(N*)); if I = () then
+      { [1st var. with name s.] VDNAMES(N*):=COMP2(s,0,VDNAMES(N*));
+        i:=0
+      } else { i:=FIRST(I)+1; FIRST(I):=i }.
+(4)  [Update index.] VDINDEX(N*):= COMP2(v,i,VDINDEX(N*))||
+
+                    VDWRT(v,N; N*)
+[Variable with dictionary, write.
+v is a variable. N is a variable dictionary. Then if the external 
+representation of v is stored in N then it is printed according to
+the dictionary entry and N*=N. Otherwise a fresh representation of
+v is printed and entered into N giving N*. N is destroyed.]
+
+(1)  [Initialize.] N*:=N; if N* = () then { N*:=LIST2((),()); n:=() }
+                          else n := ASSOC(v,VDINDEX(N*)).
+(2)  [Found.] SWRT(TNAME(v)); if n = () then goto 3;
+     if FIRST(n) > 0 then { CWRITE('_'); GWRITE(FIRST(n)) }; return.
+(3)  [New entry.] s:=TSIGN(v); I:=ASSOC(s,VDNAMES(N*)); if I = () then
+      { [1st var. with name s.] VDNAMES(N*):=COMP2(s,0,VDNAMES(N*)); 
+        i:=0 
+      }
+     else { i:=FIRST(I)+1; FIRST(I):=i; CWRITE('_'); GWRITE(i) }.
+(4)  [Update index.] VDINDEX(N*):= COMP2(v,i,VDINDEX(N*))||

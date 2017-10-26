@@ -1,0 +1,39 @@
+DATATYPE XZ5;
+SORT
+	EXTERN, Z5;
+CONST
+	0, 1: EXTERN;
+VAR
+	a, b, c, d, e: Z5;
+	A, B, C: EXTERN;
+OPERATOR
+	o:  -> Z5;
+	i:  -> Z5;
+	+: Z5, Z5 -> Z5;
+	*: Z5, Z5 -> Z5;
+	": EXTERN -> Z5;
+	#: EXTERN, EXTERN -> EXTERN;
+	@: EXTERN, EXTERN -> EXTERN;
+NOTATION
+	+, *, #, @: INFIX;
+	": ROUNDFIX ";
+THEORY
+	+, *, #, @: AC;
+AXIOM
+  [1] (o + a) == a;
+  [2] (o * a) == o;
+  [3] (i * a) == a;
+  [4] (a + a + a + a + a) == o;
+  [5] (a * (b + c)) == ((a * b) + (a * c));
+
+  [6] (0 # A) == A;
+  [7] (0 @ A) == 0;
+  [8] (1 @ A) == A;
+  [9] (A # A # A # A # A) == 0;
+  [10] (A @ (B # C)) == ((A @ B) # (A @ C));
+
+  [11] o == " 0 ";
+  [12] i == " 1 ";
+  [13] (" A " + " B ") == " (A # B) ";
+  [14] (" A " * " B ") == " (A @ B) ";
+END

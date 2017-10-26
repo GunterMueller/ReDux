@@ -1,0 +1,215 @@
+[Project: ReDuX Term Primitives 
+   module name        : TPDD -- Data type Definition
+   modulespecification: basic datatype operations
+                        derived from tpdd, Revision: 1.12
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen
+   language           : aldes
+   last change        : 7.3.90 12.11.89 10.08.89 30.09.91
+                        $Date: 1996/06/21 08:38:17 $ 
+                        by $Author: buendgen $
+   version            : $Revision: 1.20 $
+   bugs               : none known
+   modules needed     : SAC-2: low/bs, low/sy, low/lp
+
+]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+
+[----------------------------------------------------------------------
+     1 primitive operations on data structures 
+----------------------------------------------------------------------]
+                                                                       
+                    A:=ACONS(n,LHS,V^*,RHS)                            
+[Axiom constructor.  - Algorithm No. 8.
+n  is  A number, LHS is A non-atomic term, RHS is A term. V^* is A LIST
+of all variables in LHS, the variable set of LHS. Then  A  is  an  axiom
+with  left-hand  side  LHS,  right-hand  side  RHS, variable set V^* and
+number n. The left-linearity bit of A is initialized to zero.]         
+                                                       
+(1)  A:=LIST5(LHS,V^*,RHS,n,0); ALLB(A):=ALLIN(A);
+     if TKIND(LHS)=DCS \/ TKIND(LHS)=DVS then ERRSD(3,8,n) ||          
+                                                                       
+                    ADIS(A; n,LHS,V^*,RHS,b)                         
+[Axiom display function.                                               
+A  is  an  axiom. Then n is its number, LHS its left-hand side, V^* the
+variable set of A, RHS its right-hand side and b is its left-linearity-
+bit.]                                                                  
+     safe ADIS. 
+(1)  ADV3(A; LHS,V^*,RHS,A'); FIRST2(A'; n,b) ||                      
+                                                                       
+                    P:=AGET(A,i)
+[Axiom, get property.
+The property list of the axiom A is searched under the indicator i. P is
+the property under i, if any, otherwise i is set to BETA.]
+     safe AGET.
+(1)  P:=ASSOC(i,APROP(A));  if P # () then P:=FIRST(P) ||
+                                                        
+                    b:=ALLIN(a)                                      
+[Axiom, left linearity.                                                
+a is an axiom. Then b=1 if a is left-linear, b=0 otherwise.]        
+     safe ALLIN.                                                       
+(1)  [Trivial case.] b:=1; V:=ALHSV(a); if V=() then return.
+(2)  [Linearity.] l:=ALHS(a); if TKIND(l) # DOS then return
+                              else { b:=TNLIN(l); UNDO(V) } ||
+                                                                       
+                    APUT(A,i,P)
+[Axiom, put property.
+The  property  P  is  stored  in  the  property list of term T under the
+indicator i.]
+     safe APUT.
+(1)  [Already there.]  p:=APROP(A);  L:=ASSOC(i,p);
+     if L # () then {FIRST(L):=P;  return}.
+(2)  [New entry.]  APROP(A):=COMP2(i,P,p) ||
+
+                    ARDIS(A; LHS,V^*,RHS)                             
+[Axiom, rewrite-rule display.                                          
+A  is an axiom. Then LHS is its left-hand side, V^* its variable set and
+RHS its right-hand side.]                                              
+     safe ARDIS. 
+(1)  FIRST3(A; LHS,V^*,RHS) ||                                         
+                                                                       
+                    C:=CCONS(N,T)                                      
+[Constant constructor.                                                 
+N is a name, T a type. Then C is the constant with name N and type T.] 
+                                                       
+(1)  C:=((),DCS,T,(),(),N) ||                                             
+                                                                       
+                    CDIS(C; n,t)                                      
+[Constant display function.                                            
+C is a constant. Then t is its type, n its name.]                     
+     safe CDIS. 
+(1)  C':=RED2(C); t:=FIRST(C'); n:=FOURTH(C') ||
+                                                                       
+                    T:=DTCONS(N,C,V,F,A,Y,X,S)                               
+[Data-type constructor.                                                
+N  is  a  symbol,  C,  V  and  F  are  sets  of constants, variables and
+operators, respectively, and A is a set of axioms. Y is the set of sorts (type)
+of the data type, X is the set of external sorts and S is a list of symbols needed
+to parse the data type (with the new parser).
+ Then T is  the  datatype with name N, constants C, variables V, operators F and
+axioms A.] 
+     safe C,V,F,A,Y,X,S.                                                     
+(1)  T:=(A,C,V,F,N,Y,X,S) ||                                                 
+                                                                       
+                    DTDIS(T; N,C,V,F,A)                                
+[Data type display function.                                           
+T  is  a data type. Then N is its name and C, V, F and A are sets of its
+constants, variables, operators and axioms, respectively.]             
+     safe DTDIS.                                                       
+(1)  ADV3(T; A,C,V,T'); FIRST2(T'; F,N) ||                             
+                                                                       
+                    F:=OCONS(N,T',T'')                                 
+[Operator constructor.                                                 
+N is a name, T' a type-list, T'' a type. Then F is an operator with name
+N, domain-type-list T' and range-type T''.]                            
+ 
+(1)  F:=((),DOS,T'',(),T',N) ||                                           
+                                                                       
+                    T:=TCONS(c,t)                                      
+[Term constructor.                                                     
+T is a new occurrence of term t with content c.]                      
+ 
+(1)  T:=COMP(c,TSIGN(t)) ||                                              
+ 
+                    TDIS(T; c,k,t,n)                                
+[Term, display function.                                               
+T  is  a  term. Then c is its content, k its kind, t its type, and n
+its name.]                                                             
+     safe TDIS. 
+(1)  ADV3(T; c,k,t,T');  n:=THIRD(T') ||
+                                                                       
+                    P:=TGET(T,i)                                       
+[Term, get property.                                                   
+The property list of the term T is searched under the indicator i. P is
+the property under i, if any, otherwise i is set to BETA.]            
+     safe TGET.                                                        
+(1)  P:=ASSOC(i,TPROP(T));  if P # () then P:=FIRST(P) ||              
+                                                                       
+                    b:=TNLIN(T)                                      
+[Non-atomic term, linearity.                                           
+T  is  a  non-atomic term. Then b=1 if T is linear, b=0 otherwise. The
+contents of the variables in T will be modified.]                      
+     safe b,k,c,t.                                                  
+(1)  [Initialize.] b:=1; T':=OARGLST(T).
+(2)  [Linearity.] while T' # () do                                    
+     {  ADV(T'; t,T'); k:=TKIND(t); if k=DVS then                    
+      { c:=VARBIND(t); if c=() then VARBIND(t):=1 else {b:=0; return} }   
+      else if k=DOS then                                               
+      { b:=TNLIN(t); if b=0 then return }  } ||                       
+                                                                       
+                    b:=TPRRM(t,i)
+[Term, remove property.
+T is a term, i is an indicator of an property.
+Then b = TRUE if a property under indicator i exists and b = FALSE
+otherwise. The property under indicator i is removed from t's property
+list.]
+
+(1) [Initialize] p:=TPROP(t).
+(2) [Empty property list.] if p = () then { b:=FALSE; return }.
+(3) [Indicator at front]  b:=TRUE; if FIRST(p) = i then 
+    { TPROP(t):=RED2(p); return }.
+(4) [Search through list] p':=RED(p); p:=RED(p'); while p # () do
+    { if FIRST(p) = i then { RED(p'):= RED2(p); return };
+      p':=RED(p); p:= RED2(p)
+    }; b:= FALSE ||
+
+                    TPUT(T,i,P)                                        
+[Term, put property.                                                   
+The  property  P  is  stored  in  the  property list of term T under the
+indicator i.]                                                          
+     safe TPUT.                                                        
+(1)  [Already there.]  p:=TPROP(T);  L:=ASSOC(i,p);
+     if L # () then {FIRST(L):=P;  return}.
+(2)  [New entry.]  TPROP(T):=COMP2(i,P,p) || 
+
+                    UNDO(V)
+[Undo variable substitutions.
+V  is  a  set  of -possibly bound- variables. Then all substitutions for
+variables in V are undone.]
+     safe UNDO.
+(1)  [Initialize.]  V':=V.
+(2)  [Loop.] while V' # () do {ADV(V'; v,V'); VARBIND(v):=()} ||
+                                                                       
+                    V:=VCONS(N,T)                                      
+[Variable constructor.                                                 
+N is a name, T a type. Then V is the variable with name N and type T.] 
+                                                       
+(1)  V:=((),DVS,T,(),(),N) ||                                             
+                                                                       
+                    VDIS(V; n,t)                                      
+[Variable display function.                                            
+V is a variable. Then n is its name and t its type.]                  
+     safe VDIS. 
+(1)  V':=RED2(V); t:=FIRST(V'); n:=FOURTH(V') ||
+
+                    VGCONS(V,y; v,V*)
+[Variable,generic construct. 
+V is a set of variables and y is a type so that no variable of V has
+type y. 
+Then v is a new variable of type y with name "VAR-"y and V* is V
+augmented by v.]
+
+(1)  [Generic name.] y~:=GET(y,FLAT); 
+     v~:=CONC(LIST4('V','A','R','-'),y~). 
+(2)  [Symbol table entries.] v*:=ENTER(v~); PUT(v*,KIND,IDENT); 
+     PUT(v*,FLAT,v~).
+(3)  [Construct variable.] v:=VCONS(v*,y); V*:=SUFFIX(V,v) ||
+
+
+                    v:=VSFVY(V,y)
+[Variable set first variable of type.
+V is a set of variables, y is a type. Then v is the first variable in V
+which is of type y if such a variable is in V othwerwise v  = ().]
+
+(1)  [Init.] V':=V.
+(2)  [Select.] while V' # () do
+      { ADV(V'; v,V'); if TTYPE(v) = y then return }; v := ()||
+
+                    F:=XOCONS(N,T',T'')
+[External operator constructor.
+N is a name, T' a type-list, T'' a type. Then F is an operator with name
+N, domain-type-list T' and range-type T''.]
+
+(1)  y:=FIRST(T'); e:=GET(y,DXQA); F:=((),DXT,T'',e,T',N) ||

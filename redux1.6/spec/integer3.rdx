@@ -1,0 +1,34 @@
+%%  Comment symbol
+DATATYPE INTEGER;
+%%  AUTHOR Nutt, Rety, Smolka
+%%  STATUS divergernt
+%%  DESCRIPTION ground confluent specification of integers
+%%  ORIGIN Nutt, Rety, Smolka: Basic Narrowing Revisited, JSC 1989, 
+SORT
+	INT;
+CONST
+	0: INT;
+VAR
+	x, y, z: INT;
+OPERATOR
+	+: INT, INT -> INT;
+	*: INT, INT -> INT;
+	~: INT -> INT;
+	s: INT -> INT;
+	p: INT -> INT;
+NOTATION
+	+, *, ~, s, p: FUNCTION;
+AXIOM
+[1]  s(p(x))         == x;
+[2]  p(s(x))         == x;
+[3]  +(0,x)          == x;
+[4]  +(s(x),y)       == s(+(x,y));
+[5]  +(p(x),y)       == p(+(x,y));
+[6]  ~(0)            == 0;
+[7] ~(s(x))         == p(~(x));
+[8] ~(p(x))         == s(~(x));
+[9] *(0,x)          == 0;
+[10] *(s(x),y)       == +(*(x,y),y);
+[11] *(p(x),y)       == +(*(x,y),~(y));
+END
+;This file is integer3.typ

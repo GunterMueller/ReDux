@@ -1,0 +1,48 @@
+DATATYPE RINGXZ5;
+SORT
+	EXTERN, RING;
+CONST
+	0, 1: EXTERN;
+VAR
+	a, b, c, d, e: RING;
+	A, B, C: EXTERN;
+OPERATOR
+	o:  -> RING;
+	i:  -> RING;
+	+: RING, RING -> RING;
+	*: RING, RING -> RING;
+	~: RING -> RING;
+	": EXTERN -> RING;
+	#: EXTERN, EXTERN -> EXTERN;
+	@: EXTERN, EXTERN -> EXTERN;
+	!: EXTERN -> EXTERN;
+NOTATION
+	~, !: FUNCTION;
+	+, *, #, @: INFIX;
+	": ROUNDFIX ";
+THEORY
+	+, *, #, @: AC;
+AXIOM
+  [1] (o + a) == a;
+  [2] (o * a) == o;
+  [3] (i * a) == a;
+  [4] ~(a) == (a + a + a + a);
+  [5] (a + a + a + a + a) == o;
+  [6] (a * (b + c)) == ((a * b) + (a * c));
+
+  [7] (0 # A) == A;
+  [8] (0 @ A) == 0;
+  [9] (1 @ A) == A;
+ [10] !(0) == 0;
+ [11] !(!(A)) == A;
+ [12] (A # !(A)) == 0;
+ [13] !((A # B)) == (!(A) # !(B));
+ [14] (A @ !(B)) == !((A @ B));
+ [15] (A @ (B # C)) == ((A @ B) # (A @ C));
+
+ [16] o == " 0 ";
+ [17] i == " 1 ";
+ [18] ~(" A ") == " !(A) ";
+ [19] (" A " + " B ") == " (A # B) ";
+ [20] (" A " * " B ") == " (A @ B) ";
+END

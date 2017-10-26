@@ -1,0 +1,84 @@
+#!/bin/csh
+# select data type an call ReDuX demo program
+# synopsis <scriptname> [<file> | -D [directory]]
+# no options: take data type in <scriptname>.in
+#             <file>: look for data type file in directory tree 'typ/'
+#             -D: select from data type directory 'typ/'
+#             -D <directory>: select from data type directory <directory>
+set RDX=REDUXPATH
+set RDXB=${RDX}/bin
+#select data type and copy it to REDUXDEMO.in
+if ($#argv == 0) then
+    ./REDUXDEMO
+    exit
+endif
+if ($1 == -D) then
+    if ($#argv > 1) then 
+       if ( -d $2) then 
+         set num=3
+         set DIR=$2 #$RDXB/choosetype $2
+       else
+         set DIR='typ'
+       endif
+    else
+       set DIR='typ'
+    endif
+    foreach i ($DIR/*.typ)
+       set type=$i:t
+       echo $type:r >>! tmp.typ
+    end
+    more tmp.typ
+    rm -f tmp.typ
+    echo -n "Which type do you want to work with?  "
+    set DT=$<
+    set file=$DIR/$DT.typ
+    echo $DT $file
+    if (-e $file) then
+       cp $file REDUXDEMO.in
+       echo "The data type is " $DT "."
+    endif
+   ./REDUXDEMO
+   exit
+endif
+# adjust file name
+set files=" 1"
+if ($1:e == typ) then
+    set file=$1
+else
+    set file=$1.typ
+endif
+ # search in current directory
+if (-e $file) then
+  set files=($file $files)
+else if (-e typ/$file) then
+ # search in standard data type directory
+  set files=(typ/$file $files)
+else if (-d typ) then
+ # search in subdirectories of standard data type directory
+  set dirs=`(cd typ; ls -l . | awk ' /^d/ {print $8}')`
+  foreach dir ($dirs)
+    if (-e typ/$dir/$file) then
+       set files=(typ/$dir/$file $files)
+    endif
+  end
+  endif
+else
+ # we assume that full path is given
+  set files=($file $files)
+endif
+set answ="C"    # create new file
+while ( $#files != 1 && $answ != "y" && $answ != "Y" )
+  set file=$files[1]
+  set files=$files[2-]
+  echo -n "loading $file ..[y/n]"; set answ=$<
+end
+if ($answ == "y" || $answ == "Y" ) then
+    echo "loading $file "
+    cp $file REDUXDEMO.in
+else if ( $answ == "C") then
+   exit 
+else
+   exit
+endif
+ # call ReDuX program
+./REDUXDEMO

@@ -1,0 +1,51 @@
+Contents of directory .../ReDuX/src/to
+======================================
+
+This directory contains sources for some term ordering (to)
+algorithms to be used with the Knuth-Bendix completion procedure.
+The Knuth-Bendix ordering, the recursive path ordering 
+(Kapur, Narendran, Sivakumar) as well as a package for computing
+a polynomial interpretation of the terms are supplied.
+
+This file: README.
+
+Directory MAIN.
+Contains algorithm to as an example main program
+to illustrate the capability of the system.
+
+Directory PI. [ Polynomial Interpretation ordering]
+Contains the algorithms of the polynomial interpretation package
+which implements the ordering proposed by Ben Cherifa and Lescanne.
+See documentation of PI.
+
+Directory PO. [ recursive Path Ordering ]
+Contains algortihms toknsl.ald, toknsli.ald and tosqol.ald.
+
+Directory SACR. [ ReDuX extensions of the SAC-2 system. ]
+
+Directory YW. [polYnomial Write]
+Contains some interface parts between the PI and the quantifier
+elimination (QE) system. (obsolete if SACR is used)
+
+File qewdummy.ald: dummy interface for linear quantifier elimination
+File TOC: table of contents for all sources in this directory
+File toint.ald: interactive routines
+File tokb.ald: Knuth-Bendix ordering.
+File torm.ald: routines to remove orderings
+File tppo.ald: drive file for all orderings
+
+Links
+  global.h: file for global ReDuX-variable declarations
+  tp.h: header file for macros (term primitives)
+  to.h: eader file for macros (term ordering)
+
+
+Remark: .../ReDuX/lib contains the system libraries.
+        There are (1) libto.a, which contains all PI and PO
+        algorithms as well as toint, tokb, torm and tppo; (2) libyw.a, 
+        which contains all YW algorithms and libsacr.a which contains
+        all SACR algorithms.
+        The librairy hierarchy is the following:
+        libqew.a < libyw.a <  libto.a
+        libsacr.a <  libto.a
+

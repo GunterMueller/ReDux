@@ -1,0 +1,20 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/intuni
+   modulespecification: union of unordered sets of gamma integers
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : by $Author: buendgen $
+   version            : $Revision: 1.4 $
+                        formerly called UNION
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+]                                                                      
+ 
+                    C:=INTUNI(A,B)                                      
+[Integer set union. 
+A and B are unsorted sets of gamma integers. 
+C is the union of A and B.]
+     safe A',a.
+(1)  A':=A; C:=CINV(B).
+(2)  while A' # () do                                                  
+     {ADV(A'; a,A'); if ~INTMEM(a,C) then C:=COMP(a,C)}||        

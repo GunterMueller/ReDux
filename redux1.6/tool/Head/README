@@ -1,0 +1,28 @@
+Directory Head
+==============
+
+The directory contains tools to create header-files of ALDES modules
+
+Inhalt:
+  headers:          Filter to extract algorithm headers + short specifications
+                    from input ALDES file
+  headers.lex       Lex-source of headers
+  headers.doc       Documentation for Lex-source of headers
+  headers.c         C-source of headers
+  mhead:            sh-script  to create a header-file
+  rhead:            sh-script to create a header-file for all ALDES-files
+                    in a ReDuX-module
+  xx.hd:            header-file of module xx
+
+Description of mhead: see comments at the beginning of the script
+Description of rhead: see comments at the beginning of the script
+
+C-Shell Kommando um  `header'-Dateien von allen Modulen 
+in /home/loos/algebra/sources/ut/SAC2 zu erstellen:
+
+  > foreach i (`ls ../SAC2`)
+  ? echo $i
+  ? mhead $i
+  ? end
+  >
+

@@ -1,0 +1,164 @@
+[Project: External Evaluation.
+   module name        : EVFDD -- EValuate in FDD's.
+   modulespecification: Algorithms to evaluate in fdd's.
+   programmer         : Werner Lauterbach
+   language           : aldes
+   last change        : 28.10.94
+                        $Date: 1997/02/05 10:07:50 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   bugs               : none known
+   modules needed     : tp/tpdd.ald ???/wfdd.C 
+]
+
+[ #include "ev.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+
+[----------------------------------------------------------------------
+     This algorithms are intended to evaluate in an boolean algebra:
+     Let (B, \/, /\, ', 0, 1) the signature:
+         B   <--->  boolean
+         \/  <--->  FDDOR                 :  \/: N x N --> N
+         /\  <--->  FDDAND                :  /\: N --> N
+         '   <--->  FDDNOT                :  ':  N --> N
+         0   <--->  FDDZER :  constant
+         1   <--->  FDDONE from evipr.ald :  constant
+     Comment: To define the xor-operator use FDDXOR.
+-----------------------------------------------------------------------
+     External Algorithms:
+     XFG    : FDDFG
+     XREAD  : Not implemented.
+     XWRITE : Not implemented.
+     XTERM  : TFFDDE
+     XLT    : Not implemented.
+     XEQ    : Not implemented.
+-----------------------------------------------------------------------
+     Extensions:
+     1) boolean algebra
+-----------------------------------------------------------------------]
+
+                    z:=FDDZER(d)
+[FDD ZERo. 
+d is the dictionary. Then z is an FDD representing the zero. [WL]]
+     safe rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [Generate z.] z:=WFDDZE(rank) ||
+
+                    e:=FDDONE(d)
+[FDD ONE. 
+d is the dictionary. Then e is an FDD representing the one. [WL]]
+     safe rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [Generate e.] e:=WFDDON(rank) ||
+
+                    f:=FDDOR(d,f1,f2)
+[FDD OR.
+d is the dictionary, f1 and f2 are FDD's of rank LENGTH(d). 
+f = f1 or f2. [WL]]
+     safe rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [Or FDD's.] f:=WFDDOR(rank,f1,f2) ||
+
+                    f:=FDDAND(d,f1,f2)
+[FDD AND.
+d is the dictionary, f1 and f2 are FDD's of rank LENGTH(d). 
+f = f1 and f2. [WL]]
+     safe rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [And FDD's.] f:=WFDDAN(rank,f1,f2) ||
+
+                    f:=FDDNOT(d,f1)
+[FDD NOT.
+d is the dictionary, f1 is a FDD of rank LENGTH(d). 
+f = not f1. [WL]]
+     safe rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [Not FDD.] f:=WFDDNO(rank,f1) ||
+
+[----------------------------------------------------------------------
+     External Algorithms:
+-----------------------------------------------------------------------]
+
+                    f:=FDDFG(k,d)
+[FDD Free Generator. 
+k is the rank of the free generator, k <= LENGTH(d), d the dictionary. 
+Let rank:=LENGTH(d). Then f is integer, an index in the external 
+dictionary of an FDD of rank rank. f represents the k-th. entry in d. 
+[WL]]
+     safe k, rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [Generate f.] f:=WFDDFG(k,rank) ||
+
+                    t:=TFFDDE(O,d,f)
+[Term From FDD Element. 
+O = ((czero,cone...),(osum,oprod,oneg,...)) is a pair containg the 
+constants and the operators corresponding to the constructors of 
+FDDs. d the dictionary and f a fdd with .
+Then t is a term representing f ("XTEVL(t)=f", 
+the inverse of the evaluation). This function expects that  
+osum and oprod are DAC operators. ]
+     [safe rank,entry,l.]
+(1)  [Extrakt constants and operators]  FIRST2(O; O1,O2);
+     if LENGTH(O1) < 2 \/ LENGTH(O2) < 2 then
+     {
+         STROUT(" *** Warning, unexpected number ");
+         STOUTL("of operators in TFFDDE! "); HALT
+     } else
+     { ADV2(O1; czero,cone,O');  ADV2(O2; osum,oprod,O') }.
+(2)  [Initialize.] rank:=LENGTH(d); FDDSTR(rank, f); cont:=().
+(3)  [.]
+     if d = () then
+         if FDDVIP() = 4 then { t:=TCONS((),czero); return };
+     d2:=CINV(d); cont2:=();
+     while d2 # () do
+     {
+         ADV(d2; entry,d2);
+         f':=FDDVIP();
+         if f' = 2 then cont2:=COMP(DCETERM(entry),cont2)
+         else if f' = 4 then { t:=TCONS((),czero); return };
+     };
+     l:=LENGTH(cont2);
+     if l > 1 then cont:=COMP(TCONS(cont2,oprod),cont)
+     else if l = 1 then cont:=COMP(FIRST(cont2),cont)
+     else if l = 0 then cont:=COMP(TCONS((),cone),cont);
+     if FDDVIP() = 3 then goto 3.
+(4)  [.] l:=LENGTH(cont);
+     if l > 1 then { t:=TCONS(cont,osum); return }
+     else if l = 1 then { t:=FIRST(cont); return }
+     else if l = 0 then t:=TCONS((),cone) ||
+
+[----------------------------------------------------------------------
+     Extension Algorithms.
+-----------------------------------------------------------------------]
+
+[----------------------------------------------------------------------
+     This algorithms are intended to evaluate in an boolean ring:
+     Let (B, +, *, -, 0, 1) the signature:
+         B  <--->  boolean
+         +  <--->  FDDXOR  :  +: N x N --> N
+         *  <--->  FDDAND  :  *: N x N --> N
+         -  <--->  FDDNEG  :  -: N --> N
+         0  <--->  FDDZER  :  constant
+         1  <--->  FDDONE  :  constant
+-----------------------------------------------------------------------]
+
+                    f:=FDDXOR(d,f1,f2)
+[FDD XOR.
+d is the dictionary, f1 and f2 are FDD's of rank LENGTH(d). 
+f = f1 xor f2. [WL]]
+     safe rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [Xor FDD's.] f:=WFDDXO(rank,f1,f2) ||
+
+                    f:=FDDNEG(d,f1)
+[FDD NEG.
+d is the dictionary, f1 is a FDD of rank LENGTH(d). 
+f = -f1. [WL]]
+     safe rank.
+(1)  [Initialize.] rank:=LENGTH(d).
+(2)  [Negate FDD.] f:=WFDDNE(rank,f1) ||

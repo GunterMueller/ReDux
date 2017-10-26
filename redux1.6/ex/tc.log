@@ -1,0 +1,421 @@
+-><--><--><--><--><--><--><--><--><--><--><--><-
+|                                              |
+|        ReDuX - Knuth-Bendix laboratory       |
+V                                              V
+->->->->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-
+ 
+           [$Revision: 1.1 $]  
+ 
+Loading your data type ...
+Acception time: 34 ms.
+ 
+DATATYPE GROUP;
+SORT
+        G;
+CONST
+        1: G;
+VAR
+        x, y, z: G;
+OPERATOR
+        1/: G -> G;
+        *: G, G -> G;
+NOTATION
+        1/: PREFIX;
+        *: INFIX;
+AXIOM
+ [1] 1 * x == x;
+ [2] (1/x) * x == 1;
+ [3] (x * y) * z == x * (y * z);
+END
+Display time: 0 ms.
+ 
+Ready? *
+
+
+ 
+ 
+You have following choices: 
+  u - unify two terms 
+  m - match two terms 
+  e - test equality of two terms 
+  p - prove equational theorem
+  n - normalize term 
+  k - run Knuth-Bendix completion procedure
+  i - de/install term ordering
+  s - select term ordering
+  o - order axiom
+  O - order axioms of data type
+  d - display data type
+  S - show times and counters
+  r - reset times and counters
+  h - help, print menu
+  q - quit
+Go on [u/m/e/n/k/i/s/o/O/d/S/r/h/q]?  * 
+i
+
+ 
+ 
+Do you want to
+  i - install term orderings or
+  d - de-install term orderings or
+  c - cancel action         [i/d/c]? *
+i
+
+ 
+Already installed orderings:
+Initialization of term orderings.
+The following term orderings are supported:
+  P  -- Path ordering (with l-r and r-l status)
+  K  -- Knuth-Bendix ordering. Not AC-compatible!
+  1. -- polynomial ordering
+  2. -- polynomial ordering
+  3. -- polynomial ordering
+  4. -- polynomial ordering
+  5. -- polynomial ordering
+  6. -- polynomial ordering
+  7. -- polynomial ordering
+  8. -- polynomial ordering
+  9. -- polynomial ordering
+ 
+Which of these orderings shall be added ?
+Input string of {P,K,1,2,3,4,5,6,7,8,9} *
+k
+
+ 
+The accepted string is K. Ok [Y/N]? *
+y
+
+for defining a Knuth-Bendix ordering on type GROUP
+ 
+give non-negative indexes and weights for constants (weights all positive)
+1: G  index *
+0
+
+ weight *
+1
+
+ 
+give non-negative indexes and weights for operators 
+(weights for unary operators all positive, with the
+possible exception of the operator with largest index.)
+1/: G -> G
+  index *
+2
+
+ weight *
+0
+
+*: G, G -> G
+  index *
+1
+
+ weight *
+0
+
+Initialized orderings:
+K
+ 
+Go on [u/m/e/n/k/i/s/o/O/d/S/r/h/q]?  * 
+s
+
+ 
+ 
+The following term orderings are installed:
+  K -- Knuth-Bendix ordering
+  S -- Straight (pseudo) ordering
+  R -- Reverse (pseudo) ordering
+ 
+Input a string consisting of at most one occurence of the above orderings to  
+select the lexicographic combination of these orderings.
+Input string *
+k
+
+ 
+The accepted string is `K'. Ok [Y/N]? *
+y
+
+Go on [u/m/e/n/k/i/s/o/O/d/S/r/h/q]?  * 
+k
+
+ 
+Which kind of completion procedure do you want to run?
+  p - plain completion
+  s - completion with subconnectedness criterion
+  t - completion with transformation criterion
+  c - completion with both criteria
+  q - quit completion
+Chose one of [p/s/t/c/q] *
+p
+
+ 
+Knuth-Bendix algorithm.
+[$Revision: 1.15 $]
+Beginning completion of GROUP-data-type.
+ 
+Do you want to set trace options? [Y/N] *
+n
+
+Do you want to work
+  s -  in step mode (manual orientation), 
+  a -  in automatic mode 
+       (manual orientation on failure) or
+  A -  in strict automatic mode?
+Enter your choice [s/a/A]. *
+a
+
+ 
+ Old axiom no 1,
+1 * x == x,
+ considered Proposing old axiom no 1,
+1 * x == x,
+ as new axiom no 1.
+1 * x   >   x
+ No axiom can be reduced by new axiom no 1.
+ 
+ No theorems derived so far.
+ 
+ Old axiom no 2,
+(1/x) * x == 1,
+ considered Proposing old axiom no 2,
+(1/x) * x == 1,
+ as new axiom no 2.
+(1/x) * x   >   1
+ No axiom can be reduced by new axiom no 2.
+ 
+ No theorems derived so far.
+ 
+ Old axiom no 3,
+(x * y) * z == x * (y * z),
+ considered Proposing old axiom no 3,
+(x * y) * z == x * (y * z),
+ as new axiom no 3.
+(x * y) * z   >   x * (y * z)
+ No axiom can be reduced by new axiom no 3.
+ 3 new theorems can be derived by new axiom no 3.
+  1 of them must be retained unproved.
+ 
+ 3 theorems derived in total,
+  1 of them still unproved.
+ 
+ Proposing theorem
+z == (1/x) * (x * z)
+ (from 2 and 3) as new axiom no 4.
+z   <   (1/x) * (x * z)
+ No axiom can be reduced by new axiom no 4.
+ 5 new theorems can be derived by new axiom no 4.
+  4 of them must be retained unproved.
+ 
+ 8 theorems derived in total,
+  4 of them still unproved.
+ 
+ Proposing theorem
+(1/1) * x == x
+ (from 1 and 4) as new axiom no 5.
+(1/1) * x   >   x
+ No axiom can be reduced by new axiom no 5.
+ 4 new theorems can be derived by new axiom no 5.
+  1 of them must be retained unproved.
+ 
+ 12 theorems derived in total,
+  4 of them still unproved.
+ 
+ Proposing theorem
+(1/1/x) * z == x * z
+ (from 4 and 4) as new axiom no 6.
+(1/1/x) * z   >   x * z
+ No axiom can be reduced by new axiom no 6.
+ 4 new theorems can be derived by new axiom no 6.
+  2 of them must be retained unproved.
+ 
+ 16 theorems derived in total,
+  4 of them still unproved.
+ 
+ Proposing theorem
+x * 1 == x
+ (from 2 and 4) as new axiom no 7.
+x * 1   >   x
+ No axiom can be reduced by new axiom no 7.
+ 7 new theorems can be derived by new axiom no 7.
+  3 of them must be retained unproved.
+ 
+ 23 theorems derived in total,
+  6 of them still unproved.
+ 
+ Proposing theorem
+1 == x * 1/x
+ (from 2 and 6) as new axiom no 8.
+1   <   x * 1/x
+ No axiom can be reduced by new axiom no 8.
+ 6 new theorems can be derived by new axiom no 8.
+  5 of them must be retained unproved.
+ 
+ 29 theorems derived in total,
+  10 of them still unproved.
+ 
+ Proposing theorem
+1 == 1/1
+ (from 2 and 7) as new axiom no 9.
+1   <   1/1
+ 1 axiom can be reduced by new axiom no 9.
+ 4 new theorems can be derived by new axiom no 9.
+  All of them can be proved.
+ 
+ 33 theorems derived in total,
+  6 of them still unproved.
+ 
+ Old axiom no 5,
+(1/1) * x == x,
+ considered and proved.
+ 
+ Proposing theorem
+x == 1/1/x
+ (from 6 and 7) as new axiom no 10.
+x   <   1/1/x
+ 1 axiom can be reduced by new axiom no 10.
+ 5 new theorems can be derived by new axiom no 10.
+  1 of them must be retained unproved.
+ 
+ 38 theorems derived in total,
+  4 of them still unproved.
+ 
+ Old axiom no 6,
+(1/1/x) * z == x * z,
+ considered and proved.
+ 
+ Proposing theorem
+z == x * ((1/x) * z)
+ (from 8 and 3) as new axiom no 11.
+z   <   x * ((1/x) * z)
+ No axiom can be reduced by new axiom no 11.
+ 11 new theorems can be derived by new axiom no 11.
+  1 of them must be retained unproved.
+ 
+ 49 theorems derived in total,
+  3 of them still unproved.
+ 
+ Proposing theorem
+x * (y * 1/(x * y)) == 1
+ (from 3 and 8) as new axiom no 12.
+x * (y * 1/(x * y))   >   1
+ No axiom can be reduced by new axiom no 12.
+ 17 new theorems can be derived by new axiom no 12.
+  6 of them must be retained unproved.
+ 
+ 66 theorems derived in total,
+  8 of them still unproved.
+ 
+ Proposing theorem
+1/x == y * 1/(x * y)
+ (from 12 and 4) as new axiom no 13.
+1/x   <   y * 1/(x * y)
+ 1 axiom can be reduced by new axiom no 13.
+ 13 new theorems can be derived by new axiom no 13.
+  6 of them must be retained unproved.
+ 
+ 79 theorems derived in total,
+  8 of them still unproved.
+ 
+ Old axiom no 12,
+x * (y * 1/(x * y)) == 1,
+ considered and proved.
+ 
+ Proposing theorem
+(1/y) * 1/x == 1/(x * y)
+ (from 13 and 4) as new axiom no 14.
+(1/y) * 1/x   <   1/(x * y)
+ 1 axiom can be reduced by new axiom no 14.
+ 12 new theorems can be derived by new axiom no 14.
+  All of them can be proved.
+ 
+ 91 theorems derived in total,
+  all of them proved.
+ 
+ Old axiom no 13,
+y * 1/(x * y) == 1/x,
+ considered and proved.
+ 
+Completion of GROUP-data-type succeeded.
+ 
+134 unifications and 1931 matches attempted including detection of
+14 non-trivially subconnected pairs.
+14 critcal pairs compared.
+154 rewrites performed.
+ 
+unification-time=0 ms.
+rewriting-time = 119 ms, including 0 ms copying and 17 ms matching.
+scheduling-time= 0 ms.
+ordering - time= 0 ms.
+ 
+Bar diagram of critical pair queue:
+  1 0
+  2 0
+  3 -1
+  4 ----4
+  5 ----4
+  6 ----4
+  7 ------6
+  8 ---------10
+  9 ------6
+ 10 ----4
+ 11 ---3
+ 12 --------8
+ 13 --------8
+ 14 0
+The maximum is 10.
+The cumulative sum of critical pairs is 58
+ 
+ 
+net completion time = 102 ms.
+ 
+continue *
+
+
+DATATYPE GROUP;
+SORT
+        G;
+CONST
+        1: G;
+VAR
+        x, y, z: G;
+OPERATOR
+        1/: G -> G;
+        *: G, G -> G;
+NOTATION
+        1/: PREFIX;
+        *: INFIX;
+PROPERTY
+        x: KBINDEX=-1, KBWEIGHT=1;
+        y: KBINDEX=-1, KBWEIGHT=1;
+        z: KBINDEX=-1, KBWEIGHT=1;
+        1: KBINDEX=0, KBWEIGHT=1;
+        1/: KBINDEX=2, KBWEIGHT=0;
+        *: KBINDEX=1, KBWEIGHT=0;
+AXIOM
+ [9] 1/1 == 1;
+ [1] 1 * x == x;
+ [7] x * 1 == x;
+[10] 1/1/x == x;
+ [2] (1/x) * x == 1;
+ [8] x * 1/x == 1;
+[14] 1/(x * y) == (1/y) * 1/x;
+ [3] (x * y) * z == x * (y * z);
+ [4] (1/x) * (x * z) == z;
+[11] x * ((1/x) * z) == z;
+END
+ 
+gross completion time = 102 ms.
+continue *
+
+
+Do you wish to continue with the old or with the new data type [n/o]? *
+n
+
+Go on [u/m/e/n/k/i/s/o/O/d/S/r/h/q]?  * 
+q
+
+ 
+ 
+ 
+578 symbols and 1199 properties.
+0 Garbage collections, 0 cells reclaimed, in 0 ms.
+113065 cells in AVAIL, 128000 cells in space.

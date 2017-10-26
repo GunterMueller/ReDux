@@ -1,0 +1,155 @@
+#ALDES-TOC files from which interpreter can call algorithms
+ RDX = RDX
+#^^^^^^^^^        Only to be modified by the ReDuX 
+#                 installation make file!
+RBIN   = $(RDX)/bin
+RLIB   = $(RDX)/lib
+ALDES  = $(RBIN)/ald
+
+# Use standard C compiler 
+#BE = cc
+# Use GNU C compiler 
+#BE = gcc
+ BE = BE
+#^^^^^^^          Only to be modified by the ReDuX 
+# 
+OPTIMIZE = OPTIMIZE
+#^^^^^^^^^^^^^^^^^^   Only to be modified by the ReDuX
+#                     installation make file!
+
+# Use standard lex:
+#LEX = lex
+#LEXLIB = -ll
+# Use GNU flex
+#LEX = flex
+#LEXLIB = -L/usr/local/gnu/lib -lfl
+ LEX = LEX
+#^^^^^^^^^        Only to be modified by the ReDuX 
+#                 installation make file!
+ LEXLIB = LEXLIB
+#^^^^^^^^^^^^^^^  Only to be modified by the ReDuX 
+#                 installation make file!
+
+# Avoids trouble on systems where the `SHELL' variable might be
+# inherited from the environment:
+SHELL = /bin/sh
+
+IT     = $(RDX)/src/it
+INCDIR = $(RDX)/src/include
+ITS    = $(IT)/PRESRC
+ITSC2 = $(IT)/SAC2
+ITEV   = $(IT)/EV
+
+TOC    = $(ITSC2)/it.toc 
+TOCEV  = $(ITEV)/it.toc
+
+EVS    = $(RDX)/src/ev/ED
+EVSRC  = $(EVS)/evag.ald $(EVS)/evip.ald $(EVS)/evbp.ald $(EVS)/evfg.ald \
+         $(EVS)/evfdd.ald
+
+CASES  = $(ITSC2)/fcall.case $(ITSC2)/fcall0.case $(ITSC2)/fcall1.case \
+         $(ITSC2)/fcall2.case $(ITSC2)/fcall3.case $(ITSC2)/pcall.case \
+         $(ITSC2)/pcall0.case $(ITSC2)/pcall1.case $(ITSC2)/pcall2.case \
+         $(ITSC2)/pcall3.case
+CALLS  = $(ITSC2)/fcall.ald $(ITSC2)/fcall0.ald $(ITSC2)/fcall1.ald \
+         $(ITSC2)/fcall2.ald $(ITSC2)/fcall3.ald $(ITSC2)/pcall.ald \
+         $(ITSC2)/pcall0.ald $(ITSC2)/pcall1.ald $(ITSC2)/pcall2.ald \
+         $(ITSC2)/pcall3.ald
+
+CASESEV  = $(ITEV)/fcall.case $(ITEV)/fcall0.case $(ITEV)/fcall1.case \
+         $(ITEV)/fcall2.case $(ITEV)/fcall3.case $(ITEV)/pcall.case \
+         $(ITEV)/pcall0.case $(ITEV)/pcall1.case $(ITEV)/pcall2.case \
+         $(ITEV)/pcall3.case
+CALLSEV  = $(ITEV)/fcall.ald $(ITEV)/fcall0.ald $(ITEV)/fcall1.ald \
+           $(ITEV)/fcall2.ald $(ITEV)/fcall3.ald  $(ITEV)/pcall.ald \
+           $(ITEV)/pcall0.ald $(ITEV)/pcall1.ald $(ITEV)/pcall2.ald \
+         $(ITEV)/pcall3.ald
+
+SOURCES = $(INCDIR)/it.h $(IT)/istini.ald $(IT)/algdis.ald $(IT)/sgcall.ald \
+          $(IT)/algtst.ald
+
+# make table of contents file
+$(TOC): $(ITS)/sac2.toc $(ITS)/aldesops.toc
+	cat $(ITS)/aldesops.toc  $(ITS)/sac2.toc > $(TOC)
+
+$(TOCEV): $(ITS)/sac2.toc $(EVSRC)
+	cp $(ITS)/ev.toc  tmp.toc
+# comment previous line and uncomment next line if als fdds are to be included
+#	cp $(ITS)/evfdd.toc  tmp.toc
+#	csh $(RBIN)/toc $(EVSRC) > tmp.toc
+	cat $(ITS)/aldesops.toc tmp.toc > $(TOCEV)
+
+# make h2case
+$(IT)/h2case: $(ITS)/algos.lex
+	$(LEX) $(ITS)/algos.lex
+	$(BE) $(OPTIMIZE) -o $(IT)/h2case lex.yy.c $(LEXLIB)
+
+# make *.case files and algos file
+$(CASES) $(IT)/algos: $(TOC) $(IT)/h2case
+	cd $(ITSC2); cat $(TOC) | $(IT)/h2case > $(IT)/algos
+	sh propercases $(CASES)
+
+$(CASESEV) $(IT)/algos-ev: $(TOCEV) $(IT)/h2case
+	cd $(ITEV); cat $(TOCEV) | $(IT)/h2case > $(IT)/algos-ev
+	sh propercases $(CASESEV)
+
+# make *.ald files
+$(ITSC2)/fcall.ald: $(ITS)/fcall.front $(ITSC2)/fcall.case $(ITS)/fcall.end
+	cat $(ITS)/fcall.front $(ITSC2)/fcall.case $(ITS)/fcall.end > $@
+$(ITSC2)/fcall0.ald: $(ITS)/fcall0.front $(ITSC2)/fcall0.case $(ITS)/fcall0.end
+	cat $(ITS)/fcall0.front $(ITSC2)/fcall0.case $(ITS)/fcall0.end > $@
+$(ITSC2)/fcall1.ald: $(ITS)/fcall1.front $(ITSC2)/fcall1.case $(ITS)/fcall1.end
+	cat $(ITS)/fcall1.front $(ITSC2)/fcall1.case $(ITS)/fcall1.end > $@
+$(ITSC2)/fcall2.ald: $(ITS)/fcall2.front $(ITSC2)/fcall2.case $(ITS)/fcall2.end
+	cat $(ITS)/fcall2.front $(ITSC2)/fcall2.case $(ITS)/fcall2.end > $@
+$(ITSC2)/fcall3.ald: $(ITS)/fcall3.front $(ITSC2)/fcall3.case $(ITS)/fcall3.end
+	cat $(ITS)/fcall3.front $(ITSC2)/fcall3.case $(ITS)/fcall3.end > $@
+$(ITSC2)/pcall.ald: $(ITS)/pcall.front $(ITSC2)/pcall.case $(ITS)/pcall.end
+	cat $(ITS)/pcall.front $(ITSC2)/pcall.case $(ITS)/pcall.end > $@
+$(ITSC2)/pcall0.ald: $(ITS)/pcall0.front $(ITSC2)/pcall0.case $(ITS)/pcall0.end
+	cat $(ITS)/pcall0.front $(ITSC2)/pcall0.case $(ITS)/pcall0.end > $@
+$(ITSC2)/pcall1.ald: $(ITS)/pcall1.front $(ITSC2)/pcall1.case $(ITS)/pcall1.end
+	cat $(ITS)/pcall1.front $(ITSC2)/pcall1.case $(ITS)/pcall1.end > $@
+$(ITSC2)/pcall2.ald: $(ITS)/pcall2.front $(ITSC2)/pcall2.case $(ITS)/pcall2.end
+	cat $(ITS)/pcall2.front $(ITSC2)/pcall2.case $(ITS)/pcall2.end > $@
+$(ITSC2)/pcall3.ald: $(ITS)/pcall3.front $(ITSC2)/pcall3.case $(ITS)/pcall3.end
+	cat $(ITS)/pcall3.front $(ITSC2)/pcall3.case $(ITS)/pcall3.end > $@
+
+$(ITEV)/fcall.ald: $(ITS)/fcall.front $(ITEV)/fcall.case $(ITS)/fcall.end
+	cat $(ITS)/fcall.front $(ITEV)/fcall.case $(ITS)/fcall.end > $@
+$(ITEV)/fcall0.ald: $(ITS)/fcall0.front $(ITEV)/fcall0.case $(ITS)/fcall0.end
+	cat $(ITS)/fcall0.front $(ITEV)/fcall0.case $(ITS)/fcall0.end > $@
+$(ITEV)/fcall1.ald: $(ITS)/fcall1.front $(ITEV)/fcall1.case $(ITS)/fcall1.end
+	cat $(ITS)/fcall1.front $(ITEV)/fcall1.case $(ITS)/fcall1.end > $@
+$(ITEV)/fcall2.ald: $(ITS)/fcall2.front $(ITEV)/fcall2.case $(ITS)/fcall2.end
+	cat $(ITS)/fcall2.front $(ITEV)/fcall2.case $(ITS)/fcall2.end > $@
+$(ITEV)/fcall3.ald: $(ITS)/fcall3.front $(ITEV)/fcall3.case $(ITS)/fcall3.end
+	cat $(ITS)/fcall3.front $(ITEV)/fcall3.case $(ITS)/fcall3.end > $@
+$(ITEV)/pcall.ald: $(ITS)/pcall.front $(ITEV)/pcall.case $(ITS)/pcall.end
+	cat $(ITS)/pcall.front $(ITEV)/pcall.case $(ITS)/pcall.end > $@
+$(ITEV)/pcall0.ald: $(ITS)/pcall0.front $(ITEV)/pcall0.case $(ITS)/pcall0.end
+	cat $(ITS)/pcall0.front $(ITEV)/pcall0.case $(ITS)/pcall0.end > $@
+$(ITEV)/pcall1.ald: $(ITS)/pcall1.front $(ITEV)/pcall1.case $(ITS)/pcall1.end
+	cat $(ITS)/pcall1.front $(ITEV)/pcall1.case $(ITS)/pcall1.end > $@
+$(ITEV)/pcall2.ald: $(ITS)/pcall2.front $(ITEV)/pcall2.case $(ITS)/pcall2.end
+	cat $(ITS)/pcall2.front $(ITEV)/pcall2.case $(ITS)/pcall2.end > $@
+$(ITEV)/pcall3.ald: $(ITS)/pcall3.front $(ITEV)/pcall3.case $(ITS)/pcall3.end
+	cat $(ITS)/pcall3.front $(ITEV)/pcall3.case $(ITS)/pcall3.end > $@
+
+$(RLIB)/libint.a: $(SOURCES) $(CALLS) 
+	$(ALDES) -A $(SOURCES) $(CALLS)
+	mv liblocal.a $(RLIB)/libint.a
+$(RLIB)/libintev.a:  $(SOURCES) $(CALLSEV) 
+	$(ALDES) -A $(SOURCES) $(CALLSEV)
+	mv liblocal.a $(RLIB)/libintev.a
+
+all: $(IT)/algos $(IT)/algos-ev $(RLIB)/libint.a $(RLIB)/libintev.a
+
+clean:
+	rm  -f $(CASES) $(CALLS) $(CASESEV) $(CALLSEV) $(IT)/h2case \
+	       $(RLIB)/libint.a $(RLIB)/libintev.a $(IT)/algos $(IT)/algos-ev \
+	       $(TOC) $(TOCEV) tmp.toc *.o *.c
+new:
+	make clean
+	make all
+

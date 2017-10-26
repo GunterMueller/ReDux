@@ -1,0 +1,145 @@
+[Project: automated induction
+   module name        : ICGM -- GraMmer for ground normal forms
+   modulespecification: Algorithms to describe the language of
+                        ground normal forms of an algebra 
+                        by a context free grammar
+   programmer         : Reinhard Buendgen / Hasko Eckhardt
+   language           : aldes                                           
+   last change        : 10.11.88 08.02.91
+                        COPYL replaced by COPY
+                        $Date: 1993/10/08 10:36:29 $
+                        by $Author: buendgen $
+                        (r 1.2): NTSGRD is three valued: 
+                        (TRUE, FALSE, UNEXT)
+   version            : $Revision: 1.2.1.3 $
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        redux/tp
+]                                                                      
+
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+ 
+[ Data Type: GRAMMAR
+   A grammar list is a list (l1, R1, ..., l sub n, R sub n) where each 
+   l1 is the name of the data type and R1 is its top set tree. For 
+   i > 1, l sub i is a topset node and R sub i is a possibly empty list
+   of top set nodes. - R sub i is only empty if l sub i is a ground 
+  node.
+]
+
+                                                                       
+[--------------------------------------------------------------------  
+     Section 2   algorithms for export                                  
+---------------------------------------------------------------------] 
+
+                    G*:=TSTGRM(D~,T)
+[Top set tree, extract grammar.
+D~ is the data type, T is the topset tree. Then G* is the grammar
+list describing the language of ground normal forms.] 
+
+(1)  [Initialize.] if PNTRC then STOUTL("TSTGRM");
+     G*:=(); Q:=COPY(T).
+(2)  [Trivial case.] if Q = () then 
+     { G*:=COMP2(DTNAME(D~),T,G*); return }.
+(3)  [Scan Q.] ADV(Q; q,Q); if ASSOC(q,G*) # () then goto 2.
+(4)  [Terminal.] if NTSGRD(q) = TRUE then 
+     { G*:=COMP2(q,(),G*); goto 2 }.
+(5)  [Non terminal.] L:=NTSTGL(q,()); G*:=COMP2(q,L,G*); 
+     while L # () do { ADV(L; l,L); Q:=CCONC(NTSPSL(l),Q) };
+     goto 2||
+
+[----------------------------------------------------------------------
+     section 2.1   grammar output algorithms
+-----------------------------------------------------------------------]
+
+[ Convetions for grammar symbols: 
+    '::=' is the production symbol
+    '<xxx>' is a non-terminal where xxx may be any word. 
+    2 alternative right hand sides of a production rule 
+     are separetd by '|'
+]
+
+                    PDRWRT(r)
+[Production rule right hand side, write.
+r is a node of a topset tree which is interpreted as a right-hand
+side of a production rule.] 
+
+(1)  [Initialize.] f:=NTSLAB(r).
+(2)  [Terminal.] if NTSGRD(r) = TRUE then { TWRT(f); return }.
+(3)  [Word.] SWRT(TNAME(f)); SWRT(DOB); A:=NTSPSL(r); while A # () do
+     { ADV(A; a,A); GRSWRT(a); if A # () then SWRT(DRS) }; SWRT(DCB)|| 
+
+                    PRLWRT(R)
+[Production rule right hand side list, write.
+R is a non-empty list of topset tree nodes which are interpreted as
+alternative right-hand sides of a productio rule. The disjuction of 
+these right hand sides is written.] 
+
+(1)  [Initialize.] R':= R; if R' = () then 
+     { STOUTL("? unexpected error in PDRWRT.1"); HALT }.
+(2)  [First right-hand side.] ADV(R'; r,R'); PDRWRT(r).
+(3)  [Remaining rhss.] while R' # () do
+     { ADV(R'; r,R'); STROUT("  "); CWRITE('|'); WRITE; 
+       STROUT("     "); PDRWRT(r)
+     }; WRITE||
+
+                    PRWRT(l,R)
+[Production rule, write.
+l is a topset tree node, R is a non-empty list of topset tree nodes.
+Then a production rule is written where l is interpreted as non-
+termminal grammar symbol and R is interpreted as set of alternative 
+right-hand sides.]
+
+(1)  [Lhs.] GRSWRT(l); STROUT(" ::= ").
+(2)  [Rhs.] PRLWRT(R) || 
+
+                    GRLWRT(G)
+[Grammar list, write.
+G is a grammar list. The grammar described by G is output. ]
+ 
+(1)  [Initi.] ADV2(G; Z,Y,G'); STROUT("GNF grammar for data type ");
+     SWRT(Z); WRITE.
+(2)  [Start symbol.] CWRITE('<'); SWRT(Z); CWRITE('>'); STROUT(" ::= ");
+     ADV(Y; y,Y); GRSWRT(y); while Y # () do
+     { ADV(Y; y,Y); STROUT("  "); CWRITE('|'); WRITE; STROUT("     ");
+       GRSWRT(y)
+     }; WRITE.
+(3)  [Remaining rules.] T:=(); while G' # () do
+     { ADV2(G'; l,R,G'); if R # () then PRWRT(l,R)
+       else if NTSGRD(l) = TRUE then T:=COMP(NTSLAB(l),T)
+        else { STROUT("??? :"); NTSWRT(l) }
+     }; WRITE ||
+
+[ (4)  [Terminals.] STOUTL("Terminal symbols:"); TLWRT(T)|| ]
+     
+
+                    GRSWRT(n)
+[Grammar symbol, write.
+n is a topset tree node. if the label of n is ground it written as a
+terminal symbol otherwise it is written as a non terminal symbol.]
+
+(1)  [Initialize.] t:=NTSLAB(n).
+(2)  [Terminal.] if NTSGRD(n)  = TRUE then { TWRT(t); return }.
+(3)  [Non-terminal.] CWRITE('<'); TWRT(t); CWRITE('>')|| 
+
+[-----------------------------------------------------------------     
+     section 3   auxiliary algorithms for internal use in module       
+------------------------------------------------------------------]    
+
+                    L*:=NTSTGL(n,L)
+[Node of topset tree, grammar leaves.
+n is a node of a topset tree. L is a list of topset tree nodes. Then
+L* is L union l' where L' consists of all grammar leaves l of the
+subtree with root n. l is a grammar leaf if its label is not a
+variable , its unifying rule list is empty and no predecessor of l is a
+grammar leaf.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("NTSTGL"); L*:= L.
+(2)  [Trivial case.] if NTSURL(n) = () /\ NTSLEV(n) > -1 then
+     { L*:=COMP(n,L*); return }.
+(3)  [Recursion.] S:=NTSSUC(n); if S = () then 
+     STOUTL("? unexpected case in NTSTGL.3"); repeat
+        ADV(S;s,S); L*:=NTSTGL(s,L*)
+     until S = () ||

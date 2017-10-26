@@ -1,0 +1,14 @@
+tckbq.ald:                        variables are uniquely defined by their TCONT.
+tcr.ald:      { C:=TCONT(t'); if C # () then { t':=C; goto 2 }
+tcr.ald:(2)  [Reduce operands.]  T':=TCONT(T^); while T' # () do               
+tcr.ald:       {t:=TCONT(t); if t # () then FIRST(T'):=t} else                
+tcr.ald:      {T^:=TCONT(T*); if T^ # () then T*:=T^; return};
+tcr.ald:(1)  [Initialize.] C:= TCONT(t); t*:=t; T*:=T.
+CPC/tccpc-s.ald:                        variables are uniquely defined by their TCONT.
+CPC/tccpc-s.ald:(2)  [Process subterms of l1.] L':=TCONT(l1); while L' # () do       
+CPC/tccpc-st.ald:                        their TCONT.
+CPC/tccpc-st.ald:(2)  [Process subterms of l1.] L':=TCONT(l1); while L' # () do       
+CPC/tccpc-t.ald:                        variables are uniquely defined by their TCONT.
+CPC/tccpc-t.ald:(2)  [Process subterms of l1.] L':=TCONT(l1); while L' # () do       
+CPC/tccpc.ald:                        Variables are uniquely defined by their TCONT.
+CPC/tccpc.ald:(2)  [Process subterms of l1.] L':=TCONT(l1); while L' # () do       

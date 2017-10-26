@@ -1,0 +1,195 @@
+[Project: ReDuX  AC-completion
+   module name        : ACTTO -- Total Term Ordering
+   modulespecification: Algorithms to implement a total term
+                        ordering TTO and to manipulate lists of terms 
+                        ordered by that ordering.
+                        Properties of TTO:
+                         v <(TTO) t    for v is variable and t is not
+                                       a variable.
+                         t1 <(TTO) t2 if the top operator of t1 is
+                                      "smaller" then the top operartor
+                                       of t2. 
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 09.01.90
+                        $Date: 1994/12/22 17:44:12 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.6 $
+                        14.7.93: external types and commutative 
+                                 operators added
+   status             : not tested
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+                        ac/acd1
+]                                                                      
+
+[ #include tp.h ]
+[ #include it.h ]
+[ #include globs.h ]
+
+
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    T*:=TFCONT(t)
+[Term, flattened contents.
+t is a semi bound term with an associative top operator o. Then T* is
+the flattened argument list of o. I.e. o is considered to have a
+variable arity. The order of the argument is the order of the arguments
+encountered during a depth first traversel of the term.]
+
+(1)  [Initialize - trace.] if PNTRC then STOUTL("TFCONT").
+(2)  [Flatten.] T*:=TFCNT1(t,()); T*:=INV(T*) ||
+
+                    TLBSD(L)                                            
+[Term list, bubble sort decreasing.  
+L is an arbitrary list of terms, with possible repetitions. L is sorted 
+into non-ascending order by the bubble-sort method.  The list L, though 
+not its location, is modified.]
+     
+(1)  [Trivial case.] if L=() then return. 
+(2)  [General case.]  M:=();  repeat {   L':=L;  L'':=RED(L');
+     a':=FIRST(L');  M':=();  while L'' # M do {  a'':=FIRST(L''); 
+     if TTO(a',a'') = -1 then {SFIRST(L',a''); SFIRST(L'',a'); M':=L''}
+     else a':=a'';  L':=L'';  L'':=RED(L')  };  M:=M'   } until M=(); 
+     return||
+
+                    r:=TLTMSO(T1,T2)
+[Term list total multiset ordering.
+T1 and T2 are lists of terms Let << be the multiset ordering induced
+by the total term ordering TTO. Then r = -1 if T1 << T2, r = 0 if
+T1 = T2 and r = +1 if T2 << T1.]
+(1)  [Initialize.] if PNTRC then STOUTL("TLTMSO");
+     T'1:=T1; T'2:=T2; r:=0.
+(2)  [Sort lists.] TLBSD(T'1); TLBSD(T'2).
+(3)  [Compare element wise.] while T'1 # () /\ T'2 # () do
+      { ADV(T'1; t1,T'1); ADV(T'2; t2,T'2); r:=TTO(t1,t2);
+        if r = 1  \/ r = -1 then return 
+      }.
+(4)  [Lists of different lengths.] if T'1 # () then {r:=1; return};
+     if T'2 # () then {r:=-1; return} ||
+
+                    b:=TLMTTO(t,T)
+[Term list, membership with regard to TTO.
+t is a term, T is a list of terms. Then b = TRUE if t is in T
+otherwise b = FALSE. Equality of terms is decided wrt TTO.]
+     safe TLMTTO.
+(1)  b:=0; T':=T; while T' # () do 
+     { ADV(T'; t1,T'); if TTO(t,t1) = 0 then {b:=1; return} }||
+
+                    TLODIF(T1,T2; T*1,T*2)
+[Ordered term lists, difference.
+T1 and T2 are list of terms each of which is orderd wrt TTO in a non-
+ascending way. Then T*1 (resp. T*2) is the list of those terms of T1 
+(resp T2) which do not occur in both T1 and T2. T1 and T2 are 
+destroyed.] 
+
+(1)  [Initialize.] if PNTRC then STOUTL("TLODIF");
+     T*1:=T1; T*2:=T2; if T*1 =() \/ T*2 = () then return;
+     ADV(T1; t1,T'1); ADV(T2; t2,T'2); 
+     [Auxilliary -1st element.] T^1:=COMP((),T*1); T^2:=COMP((),T*2).
+(2)  [Compare.] r:=TTO(t1,t2).
+(3)  [t1 < t2.] if r = -1 then {  if T'2 = () then return
+       else { T^2:=RED(T^2); ADV(T'2; t2,T'2); goto 2 }  }.
+(4)  [t1 > t2.] if r = 1 then {  if T'1 = () then return 
+       else { T^1:=RED(T^1); ADV(T'1; t1,T'1); goto 2 }  }.
+(5)  [t1 = t2.] if r = 0 then 
+      { if T'1 = RED(T*1) then T*1:=T'1; RED(T^1):=T'1;
+        if T'2 = RED(T*2) then T*2:=T'2; RED(T^2):=T'2;
+        if T'1 = () \/ T'2 = () then return;
+        ADV(T'1; t1,T'1); ADV(T'2; t2,T'2); goto 2
+      } ||
+     
+                    D:=TLOEML(T)
+[List of ordered terms, element multiplicity.
+T is a list of terms ordered wrt TTO in a non-ascending way.
+Then D = (a1, t1, ..., an, tn) where the ti (1 <= i <= n) are the 
+different elements in T and ai is the multiplicity of ti in T
+(wrt. the equivalence =(TTO)). The ti are selected from T s.th. 
+they are the first member of a TTO equivalence class occuring in T.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("TLOEML"); 
+     D:=(); T':=T; if T = () then return.
+(2)  [Select element.] ADV(T'; t,T'); D:=LIST2(t,1); while T' # () do
+      { ADV(T'; t',T'); if TTO(t,t') = 0 then SECOND(D):=SECOND(D)+1
+        else { D:=COMP2(t',1,D); t:=t' }
+      }; D:=INV(D) ||
+
+                    r:=TRXTO(t1,t2)
+[Related external terms, total ordering.
+t1 and t2 are external terms with common top operators.
+Then r = 0 if t1 = t2, r = -1 if t1 < t2 and r = +1 if t2 < t1. - 
+As implemented, the ordering depends stronly on the fact that during 
+garbage collection the relative position of active cells is not 
+changed.] 
+
+(1)  [Equal.]  if TRXEQU(t1,t2) then { r:=0; return }.
+(2)  [Fetch comparison algo.] A:=GET(XOBTYPE(t1),DXLA).
+(3)  [Less than or greater then.] C1:=XOBJECT(t1); C2:=XOBJECT(t2);
+     if A  # () then 
+     { A*:=ALGIDNT(GET(A,DAK)); 
+      if FCALL2(A*,C1,C2) then r:= -1 else r:=1
+     } else [default < algo.] if t1 < t2 then r:= -1 else r:=1 ||
+
+                    r:=TTO(t1,t2)
+[Terms, total ordering.
+t1 and t2 are semi-bound terms. Then r = 0 if t1 = t2, r = -1 if t1 < t2
+and r = +1 if t2 < t1. - As implemented, the ordering depends stronly on
+the fact that during garbage collection the relative position of active 
+cells is not changed.]
+
+(1)  [Initialize.] t'1:=TSFS(t1); t'2:=TSFS(t2); 
+     if t'1=t'2 then { r:=0; return };
+     k1:=TKIND(t'1); k2:=TKIND(t'2). 
+(2)  [t1 variable.] if k1 = DVS then 
+      { r:=-1; if k2 = DVS then if t'1 > t'2 then r:=1; return }.
+(3)  [t2 variable.] if k2 = DVS then { r := 1; return }.
+(4)  [Same top operator.] s1:=TSIGN(t'1); s2:=TSIGN(t'2); 
+     if s1 # s2 then goto 5;
+     r:=0; if k1 = DCS then return;
+     [External terms.] if k1 = DXT then { r:=TRXTO(t'1,t'2); return };
+     u:=TUSTAT(t'1); if u = DAC then
+     [AC op.] { T1:=TFCONT(t'1); T2:=TFCONT(t'2); r:=TLTMSO(T1,T2) }
+     [CO op.] else if u = DCO then r:=TLTMSO(OARGLST(t'1),OARGLST(t'2))
+     else {T1:=OARGLST(t'1); T2:=OARGLST(t'2); while T1 # () /\ r = 0 do
+            { ADV(T1; t',T1); ADV(T2; t'',T2); r:=TTO(t',t'') }
+          }; return.
+(5)  [Different operators.] if s1 < s2 then r:=-1 else r:=1 ||
+  
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+----------------------------------------------------------------------]
+
+                    T*:=TFCNT1(t,T)
+[Term, flattened contents, subalgorithm.
+t is a semi-bound term with an associative top operator o. T is a list 
+of terms none of which have top operator o. Let T' be the list of all 
+arguments of t where recursively all arguments t' of t with top operator
+o are replaced by the arguments of t'. 
+Then T* is created by appending T to the inverse of T'.]
+(1)  [Initialize.] T*:=T; T':=OARGLST(t); s:=TSIGN(t).
+(2)  [Replace all args of t with same top operator.] while T' # () do
+      { ADV(T'; t',T'); t'':=TSFS(t');
+        if TSIGN(t'') = s then T*:=TFCNT1(t'',T*) else T*:=COMP(t'',T*)
+      } ||
+
+[----------------------------------------------------------------------
+       Section 3  Output routines 
+----------------------------------------------------------------------]
+
+[
+                    TFWRT(F)
+[Write flattened term.]
+     safe k,t,n,f.
+(1)  [Trivial case.] if F=() then {ERRORD(10,7); UWRITE(F); return};
+     [Initialize.] TDIS(F; c,k,t,n).
+(2)  [(constant)] if k=DCS then {SWRT(n); return};
+     [(variable)] if k=DVS then
+      if c=() then {SWRT(n); return} else {TFWRT(c); return};
+     [Operator] SWRT(n); SWRT(DOB);
+     [AC - Operator.] if TUSTAT(F) = DAC then c:=TFCONT(F).
+(3)  [Recursive call - write arguments.] while c # () do
+     {ADV(c; f,c); TFWRT(f); if c # () then SWRT(DRS)}.
+(4)  [Finish.] SWRT(DCB) ||
+]

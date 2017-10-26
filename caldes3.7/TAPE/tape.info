@@ -1,0 +1,62 @@
+		File Description
+
+1.	tape.info	{This file}
+
+Fortran source programs in alphabetic order:
+2.	at.fort		{Fortran source of the translator subprograms
+                         together with all fortran sources for the
+				fp    	fortran primitives
+				bs    	basic system
+				lp	list processing
+				sy	symbol system
+				in	translator initialization
+				pa      translator parser
+				gd	declaration code generator
+				ge	expression code generator
+				gs	statement code generator
+				cu	clean up system
+				fo	fortran output system
+                                ut      translator utilities
+		         }
+
+ALDES source for each subsystem in alphabetic order:
+3.      an               {SAC2 algebraic number system}
+4.      ar               {SAC2 arithmetic system}		
+5.      co               {SAC2 cominatorial system}
+6.      la     		 {SAC2 linear algebra system}
+7.      pf               {SAC2 polynomial factorization system}
+8.      pg               {SAC2 polynomial gcd and resultant system}
+9.	po	         {SAC2 polynomial system}
+10.	rr               {SAC2 real root system}
+11.     bs	    	basic system
+12.	lp		list processing
+13.     sy		symbol system
+
+FORTRAN primitives
+14.	fp	   	fortran primitives
+
+Note added to new version ALDES-2:
+
+1. Check in BEGIN0 of at.fort for
+   1.1 the CUNIT, IUNIT, OUNIT
+   1.2 in the OPEN-statement insert the full filename of the
+       CHARS-file (first two lines above) on your system
+2. Check in BEGIN1 the size of BETA.
+3. When you run the FORTRAN compiler on at.fort you may have
+   to increase the symbol table size by an option. For example
+   under Berkely UNIX you say
+   f77 -Nx2000 at.f
+   This gives an increase of the default symbol table size by a factor
+   of 10.  Also note the change of the extension from .fort to .f .
+4. The new version does a much more improved error checking
+   compared to the previous releases. The warnings of common inputs
+   and outputs, and the warning on defined (i. e. assigned) local
+   variables which are not used may be in most cases ignored, but
+   sometimes they spot otherwise hard to detect errors.
+5. Any questions and suggestions for improvement  to
+   Prof. Ruediger Loos
+   Wilhelm Schickard-Institut fuer Informatik
+   Auf der Morgenstelle 10
+   D-74 Tuebingen 1
+   F. R. Germany
+

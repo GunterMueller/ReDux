@@ -1,0 +1,259 @@
+[Project: Term Orderings
+   module name        : TOBCL -- Term Ordering a la 
+                        Ben Cherifa and Lescanne.
+   modulespecification: Algorithms to decide the ordering between two
+                        terms according to an polynomial interpretation
+                        of terms as described in:
+                        Ben Cherifa and Lescanne:
+                        "Termination of Rewriting Systems by Polynomial
+                        Interpretations and its Implementation"
+   programmer         : Werner Lauterbach
+   language           : aldes
+   last change        : 18.08.93
+                        $Date: 1993/10/08 10:11:09 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   bugs               : none known
+   modules needed     : 
+]
+
+[ #include "tp.h" ]
+[ #include "to.h" ]
+[ #include "globs.h" ]
+
+[----------------------------------------------------------------------
+     Section 1.
+     Algorithms for export.
+-----------------------------------------------------------------------]
+
+                    C^:=CPPI(CP,n)
+[Critical pair polynomial interpretation.
+CP is a critical pair and n an integer denoting the n-th polynomial
+ordering. Then C^ is 'S' rsp. 'R' if with respect to the chosen
+polynomial ordering the first term of the critical pair is greater
+resp. less than the second one. b is '=' if both terms are equal and b
+is 'H' if both terms are not comparable with respect to this ordering.]
+(1)  [Init.] V:=();
+     CPDIS(CP; LHS,RHS,DUM1,DUM2,DUM3); GETCPO(LHS,n; c*,m*);
+     if m*=0 /\ c*=0 then GETCPO(RHS,n; c*,m*).
+(2)  [Order critical pair.]
+     p:=PRIP2I(LHS,RHS,n);
+     r:=FIRST(p); LHSP:=SECOND(p); RHSP:=THIRD(p);
+     if PITRC then {
+        for j=r,r-1,...,1 do { V:=COMP(COMP('x',STRFBI(j)),V) };
+        BLINES(1); STOUTL("CPPI Polynomial interpretation LHS: ");
+        IPWRTV(r,LHSP,V); WRITE;
+        STOUTL("CPPI Polynomial interpretation RHS: ");
+        IPWRTV(r,RHSP,V); WRITE
+     };
+     P':=IPDIF(r,LHSP,RHSP);
+     if PITRC then {
+        STOUTL("CPPI LHS-RHS: "); IPWRTV(r,P',V); WRITE;
+     };
+     C^:=IPPT(r,P',c*,m*);
+     if C^ = 'S' then return
+     else {
+        if C^ = '=' then return
+        else {
+           P':=IPDIF(r,RHSP,LHSP);
+           if PITRC then {
+              STOUTL("CPPI RHS-LHS: "); IPWRTV(r,P',V); WRITE;
+           };
+           if IPPT(r,P',c*,m*) = 'S' then { C^:='R'; return }
+           else { C^:='H'; return }
+        }
+     } ||
+
+[-----------------------------------------------------------------------
+   Section 2
+   Algorithms for internal use.
+-----------------------------------------------------------------------]
+
+                    CCCLS1(c',c*; c'',c*')
+[Change coefficient according Ben Cherifa and Lescanne solution 1.
+c' and c* are coefficients of a rational polynomial. Then c'' and
+c*' are rational coefficients. c'' will take the place of c' and c*'
+of c* according Ben Cherifa and Lescanne solution 1.]
+(1)  [Calculate new coefficients.]
+     if ~RNCOMP(c*,c')=1 then { [c* <= c'.]
+        c*':=0;
+        c'':=RNSUM(c',c*)
+     } else { [c* > c'.]
+        c*':=RNSUM(c*,c');
+        c'':=0
+     };
+     if PITRC > 1 then {
+        STROUT("CCCLS1: negativ coefficient "); RNWRIT(c'); WRITE;
+        STROUT("CCCLS1: positiv coefficient "); RNWRIT(c*); WRITE;
+        STOUTL("are changed in:");
+        STROUT("CCCLS1: negativ coefficient "); RNWRIT(c''); WRITE;
+        STROUT("CCCLS1: positiv coefficient "); RNWRIT(c*'); WRITE;
+     } ||
+
+                    CCCLS2(c',e',c*,e*; c'',c*')
+[Change coefficient according Ben Cherifa and Lescanne solution 2.
+c' and c* are coefficients of a rational polynomial and e' and e* are
+lists of exponents belong to c' resp. c* of a polynomial in distributive
+representation. Then c'' and c*' are rational coefficients. c'' will
+take the place of c' and c*' of c* according Ben Cherifa and Lescanne
+solution 2.]
+(1)  [Init.] b:=2; e'*:=e'; e**:=e*; f':=(1,1); s':=0.
+(2)  [Calculate factor.]
+     while e'* # () do {
+        ADV(e'*; e'0,e'*); ADV(e**; e*0,e**);
+        s':=ISUM(s',IDIF(e'0,e*0))
+     };
+     if s' > 0 then {
+        f':=RNINT(IEXP(b,s'))
+     } else {
+        if s' < 0 then {
+           s':=IABSF(s');
+           f':=RNINV(RNINT(IEXP(b,s')))
+        }
+     }.
+(3)  [Calculate new coefficients.]
+     c*':=RNPROD(c',f');
+     if ~RNCOMP(c*,RNABS(c*'))=1 then { [c* <= c'*f'.]
+        c*':=0;
+        c'':=RNSUM(c',RNPROD(c*,RNINV(f')))
+     } else { [c* > c'*f'.]
+        c*':=RNSUM(c*,c*');
+        c'':=0
+     };
+     if PITRC > 1 then {
+        STROUT("CCCLS2: negativ coefficient "); RNWRIT(c');
+        STROUT(" with exponent "); ILWRIT(e'); WRITE;
+        STROUT("CCCLS2: positiv coefficient "); RNWRIT(c*);
+        STROUT(" with exponent "); ILWRIT(e*); WRITE;
+        STOUTL("are changed in:");
+        STROUT("CCCLS2: negativ coefficient "); RNWRIT(c'');
+        STROUT(" with exponent "); ILWRIT(e'); WRITE;
+        STROUT("CCCLS2: positiv coefficient "); RNWRIT(c*');
+        STROUT(" with exponent "); ILWRIT(e*); WRITE
+     } ||
+
+                    e^:=CSEXP(e*,e')
+[Choose smaller exponent.
+e* is a list of exponents of a polynomial in distributive representation
+or an empty list, e' is a list of exponents of a polynomial in
+distributive representation. Then e^ is e* if all exponents of e* are
+lower or equal then the exponents of e' else e^ is e'.]
+(1)  [Initialize.] e'':= e'; e*':=e*; s':=0.
+(2)  [Trivial case.] if e* = () then { e^:=e'; return }.
+(3)  [Compare exponents.]
+     while e'' # () do {
+        ADV(e''; e''0,e''); ADV(e*'; e*'0,e*');
+        s':=ISUM(IDIF(e*'0,e''0),s');
+     };
+     if s' > 0 then e^:=e'
+     else e^:=e* ||
+
+                    C':=GEXP(e',e)
+[Greater exponent.
+e' and e are lists of exponents of a polynomial in distributive
+representation. Then C' is TRUE if e' >= e else FALSE.]
+(1)  [Init.] e''':= e'; e'':=e; C':=TRUE.
+(2)  [Compare exponents.]
+     while e'' # () do {
+        ADV(e''; e''0,e''); ADV(e'''; e'''0,e''');
+        if IDIF(e'''0,e''0) < 0 then { C':=FALSE; return }
+     } ||
+
+                    C^:=IPPT(r,P,c,m)
+[Integral polynomial positivity test.
+P is a integral polynomial in r >= 0 variables.
+c is the id of the choose monomial algorithm and c is the id of the
+change coefficient algorithm. Then C^ is '=' iff P is 0 and 'S' resp.
+'R' if P is established as positiv resp. negativ (only if P is an
+negativ integer) in the right open interval which begins by 2
+else 'H'.]
+(1)  [Init.] C^:='S'.
+(2)  [P is an integer.] IPCONV(P; b,v);
+     if b then {
+        if v = 0 then { C^:='='; return };
+        if v > 0 then { C^:='S'; return }
+        else { C^:='R'; return }
+     }.
+(3)  [P is a real polynomial.] P':=RPFIP(r,P); P':=DIPFP(r,P'); P*:=P';
+     if PITRC > 1 then {
+        STOUTL("IPPT Search for a negative coefficient.");
+     };
+     while P' # () do { [Search for a negative coefficient.]
+        if PITRC > 1 then {
+           STROUT("IPPT Polynomial:"); UWRITE(P'); WRITE
+        };
+        ADV2(P'; c',e',P');
+        if RNSIGN(c') < 0 then { [Search and choose an upper bound.]
+           if PITRC > 1 then {
+              STOUTL("IPPT Search and choose an upper bound")
+           };
+           if m = SDIF then RPCMSD(P*,e'; C^,c*,e*)
+           else {
+              STROUT("IPPT ERROR: This choose monomial algorithm is ");
+              STOUTL("not implemented."); 
+              C^:='H'; return
+           };
+           if C^='H' then return
+           else {
+              if c = CLS1 then CCCLS1(c',c*; c'',c*')
+              else {
+                 if c = CLS2 then CCCLS2(c',e',c*,e*; c'',c*')
+                 else {
+                    STROUT("IPPT ERROR: This change coefficient ");
+                    STOUTL("algorithm is not implemented.");
+                    C^:='H'; return
+                 }
+              };
+              P*:=RPCC(P*,c',e',c*,e*,c'',c*'); P':=P*;
+           }
+        }
+     } ||
+
+                    P*:=RPCC(P',c',e',c*,e*,c'',c*')
+[Rational polynomial change monomial.
+P' is a polynomial in rational distributive representation, c' is a
+negativ and c* a positiv coefficient, e' and e*  are lists of
+exponents belong to c' resp. c* of P', and c'' and c*' are rational
+coefficinents. Then P* is P' with modified coefficients, c' is replaced
+by c'' and c* by c*'. If a coefficient is 0 the monomial it belongs to
+is deleted.]
+(1)  [Initialize.] P'':=P'; P*:=().
+(2)  [Change coefficient of polynomial.]
+     while P'' # () do {
+        ADV2(P'';c''', e''',P'');
+        if e''' = e' /\ c''' = c' then {
+           if c'' # 0 then P*:=COMP2(c'',e''',P*)
+        } else {
+           if e''' = e* /\ c''' = c* then {
+              if c*' # 0 then P*:=COMP2(c*',e''',P*)
+           } else { P*:=COMP2(c''',e''',P*) }
+        }
+     } ||
+
+                    RPCMSD(P',e'; C^,c*,e*)
+[Rational polinomial choose monomial with smallest difference.
+P' is a polynomial, e' is a list of exponents of a polynomial in
+distributive representation. Then C^ is 'S' if there exists an monomial
+with positive coefficient and all exponents are greater or equal then the
+exponents of e'. e* is the 'smallest' such list of exponents and c* the
+coefficient belongs to it.]
+(1)  [Initialize.] e*:=(); c*:=0; P'':=P'; C^:='S'.
+(2)  [Search exponent with smallest difference.]
+     while  P'' # () do {
+        ADV2(P''; c'',e'',P'');
+        if RNSIGN(c'') > 0 then { [Compare exponents.]
+           C':=GEXP(e'',e');
+           if C' then { e*:=CSEXP(e*,e''); if e* = e'' then c*:=c'' }
+        }
+     };
+     if e* = () then {
+        if PITRC > 1 then {
+           STROUT("RPCMSD: There is no monomial ");
+           STOUTL("with smaller difference.");
+        };
+        C^:='H'; return
+     };
+     if PITRC > 1 then {
+        STROUT("RPCMSD choose monomial: "); RNWRIT(c*); STROUT(" "); 
+        ILWRIT(e*); WRITE;
+     } ||

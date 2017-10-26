@@ -1,0 +1,58 @@
+#!/bin/sh
+# sgrep -- recursive source grep in SAC-2 system
+# 
+# usage: sgrep <string for fgrep> 
+#                     [low|sac2|bs|lp|sy|an|ar|co|la|pf|pg|po|rr|<directory>]
+# output: all lines in SAC-2 source files containing <string for fgrep>
+#         if one of the optiones [ac|ax|tc|to|tp] is used only the accoording 
+#         ReDuX subsystem is searched through, if <directory> is provided
+#         as second argument then <directory> is scaned recursively for
+#         files which match *.ald
+
+SACS=SRCPATH
+SACB=PHBINPATH
+
+if [ $# -eq 0 ]
+then 
+    echo "usage sgrep <string for fgrep> [low|sac2|bs|lp|sy|an|ar|co|la|pf|pg|po|rr|<directory>]"
+    exit
+fi
+
+if [ $# -eq 1 ]
+then 
+    cd $SACS 
+    for f in `ls`
+    do
+       if [ -d $f ]
+       then
+           args=`$SACB/fald $f`
+           if [ "" != "${args}" ]
+           then
+               fgrep $1 $args
+           fi
+       fi
+    done
+else
+    case $2 in
+      low|sac2) cd $SACS; args=`$SACB/fald $2`
+          if [ "" != "${args}" ]
+           then
+               fgrep $1 $args
+           fi ;;
+      bs|lp|sy) cd $SACS; args=`$SACB/fald low/$2`
+          if [ "" != "${args}" ]
+           then
+               fgrep $1 $args
+           fi ;;
+      an|ar|co|la|pf|pg|po|rr) cd $SACS; args=`$SACB/fald sac2/$2`
+          if [ "" != "${args}" ]
+           then
+               fgrep $1 $args
+           fi ;;
+      *)  args=`$SACB/fald $2`
+          if [ "" != "${args}" ]   
+           then   
+               fgrep $1 $args   
+           fi ;;
+    esac
+fi

@@ -1,0 +1,17 @@
+DATATYPE SORT;
+SORT
+	SORT;
+CONST
+	0: SORT;
+VAR
+	A, B, C, D, E: SORT;
+OPERATOR
+	h: SORT -> SORT;
+	s: SORT -> SORT;
+NOTATION
+	h, s: FUNCTION;
+AXIOM
+[1] s(0) == 0;
+[2] h(h(h(0))) == h(0);
+END
+;This file is hs.typ

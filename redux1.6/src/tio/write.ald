@@ -1,0 +1,696 @@
+[----------------------------------------------------------------------]
+[- This file contains routines to write terms, axioms, data types etc. ]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "parse.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+               ASWRT(as)
+[Write set of axioms.]
+(1) [header] if as=() then return; STOUTL("AXIOM").
+(2) [axioms] l:=as; while l#() do
+    { ADV(l; a,l); AXWRT(a); WRITE } ||
+
+               AXWRT(a)
+[Write axiom.]
+(1) [init & debug mode] if OMODGT(OFULLDEBUG) then
+    { UWRITE(a); return }; ADIS(a; n,L,V,R,b).
+(2) [number] if n<10 then CWRITE(' '); CWRITE('[');
+    AWRITE(n); CWRITE(']').
+(3) [rewrite rule] CWRITE(' '); RRWRT(L,R); CWRITE(';').
+(4) [extension rule] a':=AGET(a,DXR); if a'#() then
+    { WRITE; STROUT("  AC-ext: "); RRWRT(ALHS(a'),ARHS(a'));
+      CWRITE(';') } ||
+
+               CONWRT(c)
+[Write constant.]
+(1) [init & debug mode] if OMODGT(OFULLDEBUG) then
+    { UWRITE(c); return }; CDIS(c; n,t).
+(2) [write] SXWRT(n,1); if t#() then
+    { STROUT(": "); SWRT(t) } ||
+
+               CSWRT(cs)
+[Write set of constants.]
+(1) [empty set] if cs=() then return.
+(2) [header] STOUTL("CONST").
+(3) [init] L:=cs; ADV(L; c,L); CDIS(c; n,t); 
+    BLKW(8); SXWRT(n,1); type:=t.
+(4) [write, grouped by types] while L#() do
+    { ADV(L; c,L); CDIS(c; n,t); if t#type then
+      { [new type] if type#() then
+        { STROUT(": "); SWRT(type) };
+        CWRITE(';'); WRITE; BLKW(8); type:=t
+      } else STROUT(", "); SXWRT(n,1) }.
+(5) [finish up] if type#() then { STROUT(": ");
+    SWRT(t) }; CWRITE(';'); WRITE ||
+
+               DTWRT(dt)
+[Write data type.]
+(1)  [debug mode] if OMODGT(OFULLDEBUG) then { UWRITE(dt); return }.
+(2)  [split] DTDIS(dt; N,C,V,F,A); S:=DTSORTS(dt);
+     XS:=DTXSORTS(dt).
+(3)  [name] STROUT("DATATYPE "); SXWRT(N,0); CWRITE(';');
+     WRITE.
+(4)  [sorts] SRTWRT(S).
+(5)  [external sorts] YXSWRT(XS).
+(6)  [constants] CSWRT(C).
+(7)  [variables] VSWRT(V).
+(8)  ["normal" and coercion operators] OSWRT(F).
+(9)  [fixity] FXWRT(F).
+(10) [precedence] PRWRIT(F).
+(11) [associativity] ASCWRT(F).
+(12) [unification status] USWRT(F).
+(13) [properties] PPWRT(V,C,F,dt).
+(14) [axioms]  ASWRT(A).
+(15) [end symbol] STOUTL("END"). ||
+
+               OPWRT(o)
+[Write operator.]
+(1) [init & debug mode] if OMODGT(OFULLDEBUG) then
+    { UWRITE(o); return }; TDIS(o; c,k,r,n); dl:=ODTYPE(o).
+(2) [operator symbol] SXWRT(n,3); CWRITE(':').
+(3) [domain list] if dl#() then { ADV(dl; d,dl);
+      CWRITE(' '); SWRT(d); while dl#() do
+      { ADV(dl; d,dl); STROUT(", "); SWRT(d) }
+    }; STROUT(" -> ").
+(4) [range] SWRT(r) ||
+
+               OSWRTN(os)
+[Write set of "normal" operators.]
+(1) [init: extract normal operators]
+    o':=os; L:=(); while o'#() do { ADV(o'; op,o');
+      if TKIND(op)=DOS then L:=COMP(op,L) }; L:=INV(L).
+(2) [empty set] if L=() then return.
+(3) [header] STOUTL("OPERATOR").
+(4) [operators] while L#() do 
+    { ADV(L; o,L); BLKW(8); OPWRT(o); CWRITE(';'); WRITE } ||
+
+               CESWRT(cs)
+[Write set of coercion operators.]
+(1) [init: extract coercion operators]
+    c':=cs; L:=(); while c'#() do { ADV(c'; co,c');
+      if TKIND(co)=DXT then L:=COMP(co,L) }; L:=INV(L).
+(2) [empty set] if L=() then return.
+(3) [header] STOUTL("COERCION").
+(4) [operators] while L#() do
+    { ADV(L; o,L); BLKW(8); OPWRT(o); CWRITE(';'); WRITE } ||
+
+               OSWRT(os)
+[Write set of normal and coercion operators.]
+(1) [normal operators] OSWRTN(os).
+(2) [coercion operators] CESWRT(os) ||
+
+               FXWRT(os)
+[Write fixity for set of operators.]
+(1) [empty set] if os=() then return.
+(2) [header] STOUTL("NOTATION").
+(3) [split list] o:=os; prf:=(); fuf:=(); pof:=(); inf:=();
+    cf:=(); lf:=(); rf:=(); while o#() do
+    { ADV(o; op,o); fx:=TGET(op,DFS);
+      if fx=DEF then prf:=COMP(TNAME(op),prf)
+      else if fx=DFF then fuf:=COMP(TNAME(op),fuf)
+      else if fx=DPF then pof:=COMP(TNAME(op),pof)
+      else if fx=DIF then inf:=COMP(TNAME(op),inf)
+      else if fx=DCS then cf:=COMP(TNAME(op),cf)
+      else if fx=DLF then lf:=COMP(TNAME(op),lf)
+      else if fx=DRF then rf:=COMP(op,rf)
+    }; L:=(INV(prf),INV(fuf),INV(pof),INV(inf),INV(cf),INV(lf)).
+(4) [write (except roundfix)] 
+    i:=0; while L#() do { i:=i+1; ADV(L; fl,L); if fl#() then
+      { BLKW(8); ADV(fl; on,fl); SXWRT(on,1);
+        while fl#() do { ADV(fl; on,fl); STROUT(", ");
+        SXWRT(on,1) }; STROUT(": "); case i of
+        { 1 do STROUT("PREFIX");
+          2 do STROUT("FUNCTION");
+          3 do STROUT("POSTFIX");
+          4 do STROUT("INFIX");
+          5 do STROUT("CONSTANT");
+          6 do STROUT("LISP")
+        }; CWRITE(';'); WRITE } }.
+(5) [write roundfix]
+    rf:=INV(rf); while rf#() do { BLKW(8); ADV(rf; op,rf);
+      SXWRT(TNAME(op),1); STROUT(": ROUNDFIX ");
+      SXWRT(TGET(op,DCR),1); CWRITE(';'); WRITE } ||
+
+               ASCWRT(os)
+[Write associativity for set of operators.]
+(1) [init] o:=os; al:=(); ar:=(); an:=().
+(2) [split list]
+    while o#() do { ADV(o; op,o); as:=TGET(op,DOA);
+      if as=DLA then al:=COMP(TNAME(op),al)
+      else if as=DRA then ar:=COMP(TNAME(op),ar)
+      else if as=DNA then an:=COMP(TNAME(op),an)
+    }; L:=(INV(al),INV(ar),INV(an)).
+(3) [empty set] if al=() /\ ar=() /\ an=() then return.
+(4) [header] STOUTL("ASSOC").
+(5) [write] i:=0; while L#() do { i:=i+1; ADV(L; al,L);
+      if al#() then { BLKW(8); ADV(al; on,al);
+        SXWRT(on,1); while al#() do
+        { ADV(al; on,al); STROUT(", "); SXWRT(on,1) };
+        STROUT(": "); case i of
+        { 1 do STROUT("LEFT");
+          2 do STROUT("RIGHT");
+          3 do STROUT("NONE")
+        }; CWRITE(';'); WRITE } } ||
+
+               PRWRIT(os)
+[Write precedence for set of operators.]
+(1) [init] mp:=0; o:=os; al:=().
+(2) [build assoc. list] while o#() do
+    { ADV(o; op,o); p:=TGET(op,DOP); if p#() then
+      { if p>mp then mp:=p; L:=ASSOC(p,al); 
+        if L=() then al:=COMP2(p,(TNAME(op)),al)
+          else FIRST(L):=COMP(TNAME(op),FIRST(L)) } }.
+(3) [empty set or only one precedence]
+    if LENGTH(al)<4 then return.
+(4) [header] STOUTL("PREC"); BLKW(8).
+(5) [write] for i=0,...,mp do { L:=ASSOC(i,al);
+      if L#() then { l:=INV(FIRST(L)); ADV(l; on,l); 
+        SXWRT(on,4); while l#() do 
+        { ADV(l; on,l); STROUT(","); SXWRT(on,4) };
+        if i < mp then STROUT(" < ")
+    } }; CWRITE(';'); WRITE ||
+
+               USWRT(os)
+[Write unification status for set of operators.]
+(1) [init] o:=os; acl:=(); coml:=().
+(2) [split list] while o#() do { ADV(o; op,o);
+      us:=TUSTAT(op);
+      if us=DAC then acl:=COMP(TNAME(op),acl)
+      else if us=DCO then coml:=COMP(TNAME(op),coml);
+    }; L:=(INV(acl),INV(coml)).
+(3) [empty set] if acl=() /\ coml=() then return.
+(4) [header] STOUTL("THEORY").
+(5) [write] i:=0; while L#() do { i:=i+1; ADV(L; ul,L);
+      if ul#() then { BLKW(8); ADV(ul; on,ul);
+        SXWRT(on,1); while ul#() do
+        { ADV(ul; on,ul); STROUT(", "); SXWRT(on,1) };
+        STROUT(": "); case i of
+        { 1 do STROUT("AC");
+          2 do STROUT("COM")
+        }; CWRITE(';'); WRITE } } ||
+
+               PPWRT(vs,cs,os,dt)
+[Write properties DXIA, KBWEIGHT, KBINDEX for set of variables,
+ constants and operators. And write properties concerning external
+ sorts.]
+(1) [init] o:=CONC(COPY(vs),CONC(COPY(cs),os)); pl:=(); X:=DTXSORTS(dt).
+(2) [make list] while o#() do { ADV(o; obj,o);
+      if TGET(obj,DXIA)#() \/ TGET(obj,KBOI)#() \/ TGET(obj,KBOW)#()
+      \/ TGET(obj,DXT) # () then pl:=COMP(obj,pl) }; pl:=INV(pl).
+(3) [empty set] if pl=() then return.
+(4) [header] STOUTL("PROPERTY").
+(5) [write] while pl#() do { ADV(pl; obj,pl);
+      BLKW(8); SXWRT(TNAME(obj),5); STROUT(": "); first:=TRUE;
+      alg:=TGET(obj,DXIA); if alg#() then 
+      { [property DXIA] STROUT("XINT="); SWRT(alg);
+        first:=FALSE };
+      i:=TGET(obj,KBOI); if i#() then
+      { [property KBOI] if ~first then STROUT(", ") else 
+        first:=FALSE; STROUT("KBINDEX="); IWRITE(i) };
+      w:=TGET(obj,KBOW); if w#() then
+      { [property KBOW] if ~first then STROUT(", ");
+        first:=FALSE; STROUT("KBWEIGHT="); IWRITE(w) };
+      cop:=TGET(obj,DXCO); if cop#() then
+      { [property COERC] if ~first then STROUT(", ");
+        first:=FALSE; STROUT("COERC="); SWRT(TNAME(cop)) };
+      a:=TGET(obj,DXFG); if a#() then
+      { [property XFG] if ~first then STROUT(", ");
+        first:=FALSE; STROUT("XFG="); SWRT(a) };
+      X':=X; while X' # () do 
+      { ADV(X'; x,X'); e:=TGET(obj,x); if e # () then
+        { [external evaluation proerty.] if ~first then STROUT(", ");
+          first:=FALSE;  SWRT(x); CWRITE('='); SWRT(e)
+      } };
+      CWRITE(';'); WRITE } ||
+
+               VAWRT(v)
+[Write variable.]
+(1) [init & debug mode] if OMODGT(OFULLDEBUG) then
+    { UWRITE(v); return }; VDIS(v; n,t).
+(2) [write] SXWRT(n,1); if t#() then
+    { STROUT(": "); SWRT(t) } ||
+
+               VSWRT(vs)
+[Write set of variables.]
+(1) [empty set] if vs=() then return.
+(2) [header] STOUTL("VAR").
+(3) [init] L:=vs; ADV(L; v,L); VDIS(v; n,t); 
+    BLKW(8); SXWRT(n,1); type:=t.
+(4) [write, grouped by types] while L#() do
+    { ADV(L; v,L); VDIS(v; n,t); if t#type then
+      { [new type] if type#() then
+        { STROUT(": "); SWRT(type) };
+        CWRITE(';'); WRITE; BLKW(8); type:=t
+      } else STROUT(", "); SXWRT(n,1) }.
+(5) [finish up] if type#() then { STROUT(": ");
+    SWRT(t) }; CWRITE(';'); WRITE ||
+
+               SRTWRT(so)
+[Write sorts.]
+(1) [header] if so=() then return; STOUTL("SORT").
+(2) [sorts] l:=so; BLKW(8); ADV(l; s,l); SWRT(s);
+    while l#() do { ADV(l; s,l); STROUT(", ");
+      SWRT(s) }; CWRITE(';'); WRITE ||
+
+               YXSWRT(xs)
+[Write external sorts.]
+(1) [header] if xs=() then return; STOUTL("EXTERNAL").
+(2) [externals] l:=xs; while l#() do
+    { ADV(l; x,l); BLKW(8); YXWRT(x) } ||
+
+               YXWRT(x)
+[Write external type.]
+(1) [write type] SWRT(x); STROUT(": ").
+(2) [properties] p:=GET(x,DXRA); STROUT("XREAD=");
+    if p#() then SWRT(p) else STROUT("none");
+    p:=GET(x,DXWA); if p#() then
+    { STROUT(", "); STROUT("XWRITE="); SWRT(p) };
+    p:=GET(x,DXQA); if p#() then
+    { STROUT(", "); STROUT("XEQ="); SWRT(p) };
+    p:=GET(x,DXLA); if p#() then
+    { STROUT(", "); STROUT("XLT="); SWRT(p) };
+    p:=GET(x,DXFG); if p#() then
+    { STROUT(", "); STROUT("XFG="); SWRT(p) };
+    p:=GET(x,DXTA); if p#() then
+    { STROUT(", "); STROUT("XTERM="); SWRT(p) };
+    CWRITE(';'); WRITE ||
+
+
+               RRWRT(L,R)
+[Write rewrite rule.]
+(1) TDIWRT(L,(); D); STROUT(" == "); TDIWRT(R,D; D') ||
+
+               SBDIW(S,DICT; D*)
+[Substitution write with dictionary.
+ S is a substitution, DICT is a variable dictionary. The substitution 
+ function F is written using the names for variables in S according to
+ DICT. D* is DICT updated if there are variables in F which do not
+ occur in DICT.]
+(1) [init & debug mode] D*:=DICT; 
+    if OMODGT(OFULLDEBUG) then { UWRITE(S); return }; 
+    STROUT("{ "); A:=SUBASS(S).
+(2) [first assignment] if A = () then goto 4;
+    VDWRT(ASSVAR(A),D*; D*); STROUT(" <- ");
+    TDIWRT(ASSTRM(A),D*; D*); A:=ASSNXT(A).
+(3) [rest] while A # () do
+    { STROUT(", "); VDWRT(ASSVAR(A),D*; D*); STROUT(" <- ");
+      TDIWRT(ASSTRM(A),D*; D*); A:=ASSNXT(A) }.
+(4) [finish up] STROUT(" }"); WRITE ||
+
+               SBWRT(S)
+[Substitution write.]
+(1) [write] SBDIW(S,(); D) ||
+    
+               SLWRT(L)
+[Symbol list write.
+ L is a list of symbols which is written to the output stream.]
+    safe SLWRT.
+(1) CWRITE('('); L':=L.
+(2) while L' # () do { ADV(L'; s,L'); SWRT(s);
+    if L' # () then CWRITE(',') }.
+(3) CWRITE(')') ||
+
+               SWRT(S)
+[Symbol write.
+ A  symbol  is  written  on  OUNIT.  If  its  character-list
+ is stored as property under indicator FLAT this is used
+ for output.]
+    safe c.
+(1) c:=GET(S,FLAT); if c=() then SWRT(S) else 
+    { if ~SFOL(c) then WRITE; CLOUT(c) } || 
+
+                    TLWRT(L)
+[Term list write. 
+ L is a list of related terms. The terms of
+ L are written to the output stream, sharing common variables.]
+(1) [write] L':=L; D:=(); while L'#() do
+    { ADV(L'; t,L'); TDIWRT(t,D; D); CLOUT("   ") }; WRITE ||
+
+                    TDICT(t,DICT; D*)
+[Term, get dictionary. 
+ t is a term, DICT a variable dictionary.
+ Then D* is DICT updated, i.e. any variable which is in t but not
+ in DICT is inserted into D*, which is initially a copy of DICT.]
+(1) [trivial case] D*:=DICT; if t=() then { ERRORD(10,7); return };
+    TDIS(t; c,k,ty,n).
+(2) [constant] if k=DCS then return;
+    [variable] if k=DVS then
+      if c=() then { VDICT(t,D*; D*); return }
+      else { TDICT(c,D*; D*); return }.
+(3) [operator, recursive call] while c#() do 
+    { ADV(c; t',c); TDICT(t',D*; D*) } ||
+
+                    VDICT(v,DICT; D*)
+[Variable, get dictionary. 
+ v is a variable, DICT a variable dictionary.
+ Then if v is contained in N then D*=DICT otherwise v is entered into
+ DICT giving D*. DICT is destroyed.]
+(1) [init] D*:=DICT; if D*=() then { D*:=LIST2((),()); n:=() }
+    else n:=ASSOC(v,VDINDEX(D*)).
+(2) [found] if n#() then return.
+(3) [new entry] s:=TSIGN(v); I:=ASSOC(s,VDNAMES(D*)); if I=() then
+    { [first var. with name s] VDNAMES(D*):=COMP2(s,0,VDNAMES(D*));
+      i:=0 }
+    else { i:=FIRST(I)+1; FIRST(I):=i }.
+(4) [update index] VDINDEX(D*):=COMP2(v,i,VDINDEX(D*)) ||
+
+                    S:=VDWTS(v,DICT)
+[Variable with dictionary, write to string.
+ v is a variable, DICT is a variable dictionary containing an entry
+ for v. Then S is the string which would be output by VDWRT.
+ If v is not in DICT then S=().]
+(1) [init] D*:=DICT; n:=(); if D*#() then n:=ASSOC(v,VDINDEX(D*)).
+(2) [v not in dictionary] if n=() then { S:=(); return }.
+(3) [found] vn:=TNAME(v); s:=GET(vn,FLAT);
+    if s=() then S:=EXPLOD(vn) else S:=s;
+    if FIRST(n)>0 then S:=CONC(S,COMP('_',STRFBI(FIRST(n)))) ||
+
+                    VDWRT(v,D; D*)
+[Variable with dictionary write.
+ v is a variable, D and D* are variable dictionaries. Then if the
+ external representation of v is stored in D then it is printed
+ according to the dictionary entry and D*=D. Otherwise a fresh
+ representation of v is printed and entered into D giving D*.
+ D is destroyed.]
+(1) [init & debug mode] D*:=D;
+    if OMODGT(OFULLDEBUG) then { UWRITE(v); return }; 
+    if D* = () then { D*:=LIST2((),()); n:=() }
+               else n:=ASSOC(v,VDINDEX(D*)).
+(2) [found] SOWRIT(v); if n = () then goto 3;
+     if FIRST(n)>0 then { CWRITE('_'); GWRITE(FIRST(n)) }; return.
+(3) [new entry] s:=TSIGN(v); I:=ASSOC(s,VDNAMES(D*)); if I=() then
+    { [first var. with name s] VDNAMES(D*):=COMP2(s,0,VDNAMES(D*)); 
+      i:=0 }
+    else { i:=FIRST(I)+1; FIRST(I):=i; CWRITE('_'); GWRITE(i) }.
+(4) [update index] VDINDEX(D*):= COMP2(v,i,VDINDEX(D*)) ||
+
+                    TWRT(t)
+[Write term.]
+(1) TDIWRT(t,(); D*) ||
+
+               TDIWRT(t,DICT; D*)
+[Write term, update variable dictionary.]
+(1) [debug mode] D*:=DICT;
+    if OMODGT(OFULLDEBUG) then { UWRITE(t); return }.
+(2) [write] D*:=TDWRT2(t,D*,t,FALSE) ||
+
+               SOWRIT(so)
+[Signature object, write name.
+ The name of signature object 'so' is written to the output
+ stream. If the output mode flag TODEBUG is set, the address
+ of 'so' in the SPACE-array is printed in curly braces directly
+ after the name.]
+(1) [write name] SWRT(TNAME(so)).
+(2) [no debug mode] if ~OMODGT(TODEBUG) then return.
+(3) [debug mode] CWRITE('{'); AWRITE(so-BETA); CWRITE('}') ||
+
+               t:=OMODGT(flag)
+[Get output mode state.
+ If flag is set in OTMODE then t=TRUE, otherwise t=FALSE.
+ flag must be a BETA-integer of the form 2^n for some n.]
+(1) [init] f:=flag; o:=OTMODE; t:=TRUE.
+(2) [find position] while EVEN(f) do { f:=f/2; o:=o/2 }.
+(3) [get bit value] if EVEN(o) then t:=FALSE  ||
+
+               OMODST(flag,t)
+[Set output mode state.
+ Set (t=TRUE) or reset (t=FALSE) a flag in OTMODE.
+ The flag must be a valid value for term output. All other
+ flags are unchanged. flag must be a BETA-integer of the form
+ 2^n for some n.]
+(1) [init] s:=OMODGT(flag).
+(2) [set] if t /\ ~s then OTMODE:=OTMODE+flag else
+    [reset] if ~t /\ s then OTMODE:=OTMODE-flag || 
+
+                             QOPMOD()
+[Query on output mode.
+Different output mode fags may be set interactively.]
+(1)  repeat
+       STOUTL("Current write mode:");
+       STROUT("term output: parentheses..."); WRITE;
+       STROUT("   1) around subterms with higher precedence = ");
+         OFSWRT(TOPLOWPREC); WRITE;
+       STROUT("   2) around subterms with same precedence   = ");
+         OFSWRT(TOPEQPREC); WRITE;
+       STROUT("   3) to indicate associativity              = ");
+         OFSWRT(TOPASSOC); WRITE;
+       STROUT("   4) around lisp-operator's infix arguments = ");
+         OFSWRT(TOPLISPARG); WRITE;
+       STROUT("   5) around prefix operator's argument      = ");
+         OFSWRT(TOPPREARG); WRITE;
+       STROUT("   6) around postfix operator's argument     = ");
+         OFSWRT(TOPPOSTARG); WRITE;
+       STROUT("   7) around infix operator and arguments    = ");
+         OFSWRT(TOPINFIX); WRITE;
+       STROUT("term output:"); WRITE;
+       STROUT("   8) debugging          = "); OFSWRT(TODEBUG); WRITE;
+       STROUT("data type output:"); WRITE;
+       STROUT("   9) rescannable output = "); OFSWRT(DTORSCAN); WRITE;
+       STROUT("global output:"); WRITE;
+       STROUT("  10) full debugging     = "); OFSWRT(OFULLDEBUG); WRITE;
+       STOUTL("Toggle which flag?    [1-10, 0 for none] *");
+       repeat n:=AREADR() until n>=0 /\ n<11; if n#0 then
+       { f:=IMP2(1,n-1); if OMODGT(f) then b:=FALSE else b:=TRUE;
+         OMODST(f,b) }
+     until n = 0 ||
+
+
+[----- Section 2: algorithms for internal use -------------------------]
+
+               D*:=TDWRT2(t,DICT,mt,par)
+[Write term, subalgorithm.
+ t and mt are terms, DICT and D* are variable dictionaries.
+ par indicates, that the character to be printed right
+ after t is a parenthesis.
+ Subterm t of main term mt is printed. The variable
+ dictionary DICT is updated, thus resulting in D*.]
+(1)  [trivial case] D*:=DICT; if t=() then return.
+(2)  [init] TDIS(t; cont,kind,type,name).
+(3)  [constant] if kind=DCS then { if par then SOWRIT(t)
+       else SOWRTA(t,mt); return };
+     [variable] if kind=DVS then 
+     { if cont=() then D*:=VDWRT2(t,D*,mt,par) else
+       D*:=TDWRT2(cont,D*,mt,par); return };
+     [coercion] if kind=DXT then { XTWRIT(t); return };
+     [operator] fix:=TGET(t,DFS).
+(4)  [constant fixity] if fix=DCS then { if par then
+       SOWRIT(t) else SOWRTA(t,mt); return }.
+(5)  [lisp notation] if fix=DLF then { CWRITE('(');
+       SOWRIT(t); CWRITE(' '); D*:=TALWRT(cont,' ',D*,mt,TRUE);
+       CWRITE(')'); return }.
+(6)  [function notation] if fix=DFF then { SOWRIT(t);
+       CWRITE('('); D*:=TALWRT(cont,',',D*,mt,TRUE); CWRITE(')');
+       return }.
+(7)  [roundfix notation] if fix=DRF then { SOWRTA(t,mt);
+       D*:=TALWRT(cont,',',D*,mt,FALSE); if par then 
+         SWRT(TGET(t,DCR)) else CRWRTA(t,mt); return }.
+(8)  [prefix, postfix or infix] pt:=TGET(t,DOP).
+(9)  [prefix notation] if fix=DEF then { st:=FIRST(cont);
+       p:=PRFWPA(t,st); if p then SOWRIT(t) else SOWRTA(t,mt);
+       D*:=TWRTP(st,p,D*,mt,par); return }.
+(10) [postfix notation] if fix=DPF then { st:=FIRST(cont);
+       p:=POFWPA(t,st); D*:=TWRTP(st,p,D*,mt,FALSE); if par then
+         SOWRIT(t) else SOWRTA(t,mt); return }.
+(11) [infix notation] 
+     if fix=DIF then
+     { if OMODGT(TOPINFIX) then { CWRITE('('); ifp:=TRUE };
+       if TUSTAT(t)=DAC then
+       { [infix AC operator] ADV(cont; lmst,cont);
+         p:=INFLWP(t,lmst); D*:=TWRTP(lmst,p,D*,mt,FALSE);
+         CWRITE(' '); SOWRIT(t); CWRITE(' '); rmstp:=LAST(cont);
+         while cont#rmstp do { ADV(cont; st,cont);
+         p:=IACMWP(t,st); D*:=TWRTP(st,p,D*,mt,FALSE);
+         CWRITE(' '); SOWRIT(t); CWRITE(' ') };
+         rmst:=FIRST(rmstp); p:=INFRWP(t,rmst);
+         if ifp \/ par then b:=TRUE else b:=FALSE;
+         D*:=TWRTP(rmst,p,D*,mt,b)
+       } else 
+       { [normal infix operator]
+         FIRST2(cont; lst,rst); p:=INFLWP(t,lst);
+         D*:=TWRTP(lst,p,D*,mt,FALSE); CWRITE(' ');
+         SOWRIT(t); CWRITE(' '); p:=INFRWP(t,rst);
+         if ifp \/ par then b:=TRUE else b:=FALSE;
+         D*:=TWRTP(rst,p,D*,mt,b)
+       }; if ifp then CWRITE(')'); return }.
+(12) [error] STOUTL("Internal error in TDWRT2 !!!"); stop ||
+
+                p:=PRFWPA(t,st)
+[Prefix term, write parentheses.
+ t and st are terms. Then p=TRUE iff subterm st of
+ prefix term t with subterm st has to be written with parentheses
+ according to the operators' precedence declarations.]
+(1) [init] k:=TKIND(st); f:=TGET(st,DFS); p:=FALSE.
+(2) [infix argument with parentheses]
+    if k=DOS /\ f=DIF /\ OMODGT(TOPINFIX) then { p:=FALSE; return }.
+(3) [write parentheses due to precedence?]
+    if k=DOS /\ (f=DPF \/ f=DIF) then { pt:=TGET(t,DOP);
+      pst:=TGET(st,DOP); if pt=() \/ pst=() then { pt:=0;
+      pst:=0 }; if pt>pst \/ ((OMODGT(TOPEQPREC) \/ f=DIF) /\ pt=pst)
+      \/ OMODGT(TOPLOWPREC) then { p:=TRUE; return } }.
+(4) [write parentheses due to other output mode flags?]
+    if OMODGT(TOPPREARG) then p:=TRUE ||
+
+                p:=POFWPA(t,st)
+[Postfix term, write parentheses.
+ t and st are terms. Then p=TRUE iff subterm st of
+ postfix term t has to be written with parentheses
+ according to the operators' precedence declarations.]
+(1) [init] k:=TKIND(st); f:=TGET(st,DFS); p:=FALSE.
+(2) [infix argument with parentheses]
+    if k=DOS /\ f=DIF /\ OMODGT(TOPINFIX) then { p:=FALSE; return }.
+(3) [write parentheses due to precedence?]
+    if k=DOS /\ (f=DEF \/ f=DIF) then { pt:=TGET(t,DOP);
+      pst:=TGET(st,DOP); if pt=() \/ pt=() then { pt:=0;
+      pst:=0 }; if pt>=pst \/ OMODGT(TOPLOWPREC) then
+      { p:=TRUE; return } }.
+(4) [write parentheses due to other output mode flags?]
+    if OMODGT(TOPPOSTARG) then p:=TRUE ||
+    
+                p:=INFLWP(t,st)
+[Infix term, write parentheses around left subterm.
+ t and st are terms. Then p=TRUE iff the left subterm st
+ of infix term t has to be written with parentheses
+ according to the operators' precedence and associativity
+ declarations.]
+(1) [init] k:=TKIND(st); f:=TGET(st,DFS); p:=FALSE.
+(2) [infix argument with parentheses]
+    if k=DOS /\ f=DIF /\ OMODGT(TOPINFIX) then { p:=FALSE; return }.
+(3) [write parentheses due to precedence and associativity?]
+    if k=DOS /\ (f=DEF \/ f=DIF) then { pt:=TGET(t,DOP);
+      pst:=TGET(st,DOP); if pt=() \/ pst=() then { pt:=0;
+      pst:=0 }; if pt>pst \/ (pt=pst /\ OMODGT(TOPEQPREC))
+      \/ OMODGT(TOPLOWPREC) then { p:=TRUE; return };
+      if pt<pst then return; at:=TGET(t,DOA); ast:=TGET(st,DOA);
+      if (f=DIF /\ (OMODGT(TOPASSOC) \/ (at=DRA /\ ast#DLA
+      \/ at#DLA /\ ast=DRA))) then p:=TRUE } ||
+
+                p:=INFRWP(t,st)
+[Infix term, write parentheses around right subterm.
+ t and st are terms. Then p=TRUE iff the right subterm st
+ of infix term t has to be written with parentheses
+ according to the operators' precedence and associativity
+ declarations.]
+(1) [init] k:=TKIND(st); f:=TGET(st,DFS); p:=FALSE.
+(2) [infix argument with parentheses]
+    if k=DOS /\ f=DIF /\ OMODGT(TOPINFIX) then { p:=FALSE; return }.
+(3) [write parentheses due to precedence and assocativity?]
+    if k=DOS /\ (f=DPF \/ f=DIF) then { pt:=TGET(t,DOP);
+      pst:=TGET(st,DOP); if pt=() \/ pst=() then { pt:=0;
+      pst:=0 }; if pt>pst \/ (pt=pst /\ OMODGT(TOPEQPREC))
+      \/ OMODGT(TOPLOWPREC) then { p:=TRUE; return };
+      if pt<pst then return; at:=TGET(t,DOA); ast:=TGET(st,DOA);
+      if (f=DIF /\ (OMODGT(TOPASSOC) \/ (at=DLA \/ ast=DLA
+      \/ (at=DNA \/ at=() /\ ast=DNA \/ ast=())))) then
+      p:=TRUE } ||  [LENGTH(OARGLST(st))>2 ????????? ]
+
+                p:=IACMWP(t,st)
+[Infix AC term, write parentheses around subterm.
+ t and st are terms. Then p=TRUE iff the subterm
+ st of infix AC term t has to be written with parentheses
+ according to the operators' precedence and associativity
+ declarations. st must not be the left- or rightmost subterm
+ of t.]
+(1) [init] k:=TKIND(st); f:=TGET(st,DFS); p:=FALSE.
+(2) [infix argument with parentheses]
+    if k=DOS /\ f=DIF /\ OMODGT(TOPINFIX) then { p:=FALSE; return }.
+(3) [write parentheses due to precedence and associativity?]
+    if k=DOS /\ (f=DEF \/ f=DIF \/ f=DPF) then
+    { pt:=TGET(t,DOP); pst:=TGET(st,DOP); if pt=() \/ pst=()
+    then { pt:=(); pst:=() }; if pt>pst \/ (pt=pst
+    /\ (OMODGT(TOPEQPREC) \/ f=DIF)) \/ OMODGT(TOPLOWPREC)
+    then p:=TRUE } ||
+
+                D*:=TWRTP(t,p,D,mt,par)
+[Term write, with parentheses, if p=TRUE.]
+(1) [write] if p then CWRITE('('); if par \/ p then pa:=TRUE
+    else pa:=FALSE; D*:=TDWRT2(t,D,mt,pa);
+    if p then CWRITE(')') ||
+
+                D*:=TALWRT(al,sep,D,mt,par)
+[Term, write argument list. 
+ al is an argument list,
+ sep is a character. D and D* are variable dictionaries,
+ mt is the main term to be printed. The argument list al
+ is written with arguments seperated by sep.]
+(1) [init, trivial case] D*:=D; l:=al; if al=() then return; 
+    if sep=' ' /\ OMODGT(TOPLISPARG) then b:=TRUE else b:=FALSE.
+(2) [write first argument]
+    ADV(l; t,l); if b /\ TGET(t,DFS)=DIF /\ ~OMODGT(TOPINFIX) then
+    { CWRITE('('); br:=TRUE } else br:=FALSE;
+    if par \/ br then pa:=TRUE else pa:=FALSE;
+    D*:=TDWRT2(t,D*,mt,br,pa); if br then CWRITE(')').
+(3) [other arguments] 
+    while l#() do { ADV(l; t,l); br:=FALSE; CWRITE(sep);
+     if b /\ TGET(t,DFS)=DIF /\ ~OMODGT(TOPINFIX) then
+     { CWRITE('('); br:=TRUE };
+     if par \/ br then pa:=TRUE else pa:=FALSE;
+     D*:=TDWRT2(t,D*,mt,pa); if br then CWRITE(')') } ||
+
+               SOWRTA(so,mt)
+[Signature object, write name, consider ambiguity lists.
+ mt is the main term to be printed, so is a signature
+ object.]
+(1) [write] SOWRIT(so); if SPTDA(so,mt) then CWRITE(' ') ||
+
+               CRWRTA(ro,mt)
+[Closing roundfix term, write name, consider ambiguity lists.
+ ro is a roundfix operator signature object, mt is
+ the main term to be printed.]
+(1) [write] SWRT(TGET(ro,DCR)); if SPCRDA(ro,mt) then
+    CWRITE(' ') ||
+
+
+               D*:=VDWRT2(v,D,mt,par)
+[Variable with dictionary write, plus space if necessary.
+ v is a variable, D and D* are variable dictionaries, mt is the
+ main term to be printed. Then if the external 
+ representation of v is stored in D then it is printed according to
+ the dictionary entry and D*=D. Otherwise a fresh representation of
+ v is printed and entered into D giving D*. 
+ If necessary, a space is printed after the variable in order
+ to disambiguate output. D is destroyed.]
+(1) [write variable] VDWRT(v,D; D*).
+(2) [write space, if necessary]
+    if ~par /\ SPTDA(v,mt) then CWRITE(' ') ||
+
+
+               SXWRT(sym,ct)
+[Write symbol, context dependent.
+ The symbol sym is written to the output stream. If the global
+ flag DTORSCAN is set, then sym is written 'rescannable', i.e.
+ all characters in sym which have a special meaning in context
+ 'ct' are preceded by an escape character.]
+(1) ['normal' output] if ~OMODGT(DTORSCAN) then 
+    { SWRT(sym); return }.
+(2) [context dependent output] n:=GET(sym,FLAT); if n=() then
+    n:=EXPLOD(sym); while n#() do
+    { ADV(n; c,n); case ct of
+      { 0 do if ~IDCHRI(c) then CWRITE('`');
+        1 do if ~IDCHR1(c) then CWRITE('`');
+        2 do if ~IDCHR2(c) then CWRITE('`');
+        3 do if ~IDCHR3(c) then CWRITE('`');
+        4 do if ~IDCHR4(c) then CWRITE('`');
+        5 do if ~IDCHR5(c) then CWRITE('`')
+      }; CWRITE(c) } ||
+
+              S:=STRFBI(I)
+[String from beta-integer.
+ I is a beta-integer. Then S is the string of the digits of I.]
+(1) [init] I':=I; S:=().
+(2) [add digit] while I' # 0 do
+     { QREM(I',10; I',R); case R of
+       { 0 do S:=COMP('0',S); 1 do S:=COMP('1',S);
+         2 do S:=COMP('2',S); 3 do S:=COMP('3',S);
+         4 do S:=COMP('4',S); 5 do S:=COMP('5',S);
+         6 do S:=COMP('6',S); 7 do S:=COMP('7',S);
+         8 do S:=COMP('8',S); 9 do S:=COMP('9',S)
+     } } ||
+
+                    OFSWRT(flag)
+[Output flag state, write.]
+(1) if OMODGT(flag) then STROUT("on") else STROUT("off") ||
+

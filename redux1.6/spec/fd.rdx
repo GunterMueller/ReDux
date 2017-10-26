@@ -1,0 +1,18 @@
+DATATYPE FD;
+SORT
+	FD;
+CONST
+	1: FD;
+VAR
+	A, B, C, D: FD;
+OPERATOR
+	*: FD, FD -> FD;
+	R: FD, FD -> FD;
+	L: FD, FD -> FD;
+NOTATION
+	*, R, L: FUNCTION;
+AXIOM
+[1] *(A,R(A,B))==B;
+[2] *(L(A,B),A)==B;
+END
+;This file is fd.typ

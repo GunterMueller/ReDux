@@ -1,0 +1,27 @@
+* man/manl/blif2*.l:
+--------------------------------------------------------------------
+DATE: 4/1/96
+REPLACE
+and there representation in ReDuX.
+BY
+and their representation in ReDuX.
+CHECK
+e-mail address of Werner Lauterbach (lauterba?)
+---------------------------------------------------------------------
+
+* tool/Blif2rdx/blif2{rdx,typ} ...:
+---------------------------------------------------------------------
+CRITC:
+tool should work independently from calling directory
+HELP:
+parametrize script bnd all auxilliary scripts by $RDX-path ...
+_____________________________________________________________________
+
+
+* tool/Blif2rdx/blif2rdx, man/manl/blif2rdx
+---------------------------------------------------------------------
+CRITC:
+blif2rdx should return a file with extension "rdx"
+---------------------------------------------------------------------
+
+! Fehler behoben

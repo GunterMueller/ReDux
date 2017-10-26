@@ -1,0 +1,68 @@
+\documentclass[twoside]{article}
+\usepackage{makeidx,latexsym}
+\pagestyle{headings}
+ 
+\input{wide10r}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1ex}
+ 
+
+\def\null{\makebox[0mm]{}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{specification}{Specification}
+\newtheorem{definition}{Definition}
+\newtheorem{xmpl}{Example}
+
+\hyphenation{re-write com-ple-tion}
+
+\input{macros}
+\input{gramdef}
+
+\title{The ReDuX System Documentation \\
+       {\large (Version 1.6)} }
+\author{Reinhard B\"{u}ndgen \\
+        Wilhelm-Schickard-Institut f\"{u}r Informatik \\
+        Universit\"{a}t T\"{u}bingen\\
+        D-72076 T\"{u}bingen,
+        Fed.\ Rep.\ of Germany\\
+        {\small $\langle$buendgen@informatik.uni-tuebingen.de$\rangle$}}
+
+
+\makeindex
+\begin{document}
+\maketitle
+\input{abst}
+\newpage
+
+\tableofcontents
+\listoftables
+\input{intro}
+\input{conv}
+\input{io}
+\input{ax}
+\input{co}
+\input{ini}
+\input{it}
+\input{tio}
+\input{tp}
+\input{to}
+\input{tc}
+\input{ic}
+\input{ac}
+\input{ev}
+\input{acn}
+\input{rd}
+\input{ack}
+\appendix
+%\input{app} % -> RIX
+
+%\input{main.ind}
+
+\bibliographystyle{alpha}
+\bibliography{rewrite,systems}
+
+\printindex
+\end{document}

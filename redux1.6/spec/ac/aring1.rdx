@@ -1,0 +1,25 @@
+DATATYPE RNG;
+SORT
+	RNG;
+CONST
+	0, 1: RNG;
+VAR
+	x, X, Y, Z: RNG;
+OPERATOR
+	+: RNG, RNG -> RNG;
+	*: RNG, RNG -> RNG;
+	I: RNG -> RNG;
+NOTATION
+	+, *, I: FUNCTION;
+THEORY
+	+: AC;
+AXIOM
+[1] +(0,X)==X;
+[2] +(I(X),X)==0;
+[3] *(1,X)==X;
+[4] *(X,1)==X;
+[5] *(X,+(Y,Z))==+(*(X,Y),*(X,Z));
+[6] *(+(X,Y),Z)==+(*(X,Z),*(Y,Z));
+[7] *(*(X,Y),Z)==*(X,*(Y,Z));
+END
+; This file is aring1.typ 

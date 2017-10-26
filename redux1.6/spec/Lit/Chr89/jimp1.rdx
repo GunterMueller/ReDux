@@ -1,0 +1,25 @@
+%% 
+DATATYPE JIMP1;
+%%  AUTHOR Jim Christian
+%%  STATUS uncompleted
+%%  ORIGIN Fast Knuth-Bendix Completion: Summary, LNCS 355
+%%  DESCRIPTION Problem P1
+SORT
+	NAT;
+VAR
+	x, y, z: NAT;
+OPERATOR
+	f: NAT, NAT -> NAT;
+	E1:  -> NAT;
+	E2:  -> NAT;
+	I1: NAT -> NAT;
+	I2: NAT -> NAT;
+NOTATION
+	f, I1, I2: FUNCTION;
+AXIOM
+[1]  f(f(x,y),z) == f(x,f(y,z));
+[2]  f(E1,x)     == x;
+[3]  f(E2,x)     == x;
+[4]  f(x,I1(x))  == E1;
+[5]  f(x,I2(x))  == E2;
+END

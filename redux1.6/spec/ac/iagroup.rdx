@@ -1,0 +1,23 @@
+DATATYPE GRP1;
+SORT
+	GRP1;
+CONST
+	0: GRP1;
+VAR
+	x, X, Y, Z, X1, Y1, Y2, Z1, X2, Y2: GRP1;
+OPERATOR
+	+: GRP1, GRP1 -> GRP1;
+	I: GRP1 -> GRP1;
+NOTATION
+	+, I: FUNCTION;
+THEORY
+	+: AC;
+AXIOM
+ [1] +(0,X)==X;
+ [2] +(I(X),X)==0;
+ [3] I(I(Y)) == Y;
+ [4] I(0) == 0;
+ [5] I(+(Y,Y1)) == +(I(Y1),I(Y));
+ [6] +(X,X)==0;
+END
+; This file is agroup.typ 

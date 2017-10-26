@@ -1,0 +1,51 @@
+%% 
+DATATYPE T;
+%%  AUTHORS Kapur & Narendran & Sivakumar
+%%  ORIGIN "A path ordering for proving termination of term 
+%%  ORIGIN  rewriting systems" (LNCS 185), 1985
+%%  DESCRIPTION Examples taken from [KNS:85] for testing RPO
+%%   1) > with b > c
+%%   2) > with a > g2 and b > g2
+%%   3) > with a > p  and b = q
+%%   4) > with f1 > a
+%%   5) incomparable with a > g1 and b > h1
+%%   6) > with no precedence
+%% 
+SORT
+	T;
+CONST
+	0: T;
+VAR
+	x, y, z: T;
+OPERATOR
+	f3: T, T, T -> T;
+	h3: T, T, T -> T;
+	f2: T, T -> T;
+	g2: T, T -> T;
+	f1: T -> T;
+	a: T -> T;
+	b: T -> T;
+	c: T -> T;
+	g1: T -> T;
+	h1: T -> T;
+	p: T -> T;
+	q: T -> T;
+NOTATION
+	f2, g2, f1, a, b, c, g1, h1, p, q: FUNCTION;
+AXIOM
+ [1]  f3(a(x),g2(x,y),b(y)) == f3(x,g2(x,y),c(y));
+ [2]  f2(a(x),b(y))        == g2(x,y);
+ [3]  a(b(c(x)))           == p(a(q(x)));
+ [4]  f1(b(c(x)))          == a(b(c(x)));
+ [5]  f2(a(x),b(x))        == g1(h1(x));
+ [6]  h3(a(z),g2(a(a(x)),x),g2(b(b(y)),y)) == 
+         h3(a(z),g2(a(x),b(y)),g2(a(x),b(y)));
+END
+
+Examples taken from [KNS:85]
+  1) > with b > c
+  2) > with a > g2 and b > g2
+  3) > with a > p  and b = q
+  4) > with f > a
+  5) incomparable with a > g1 and b > h1
+  6) > with no precedence

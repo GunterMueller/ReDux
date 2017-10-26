@@ -1,0 +1,21 @@
+DATATYPE IL;
+SORT
+	I, L;
+CONST
+	0: I;
+	NIL: L;
+VAR
+	A, B, C, D: I;
+	L, N, M: L;
+OPERATOR
+	S: I -> I;
+	U: I -> L;
+	APP: L, L -> L;
+NOTATION
+	S, U, APP: FUNCTION;
+AXIOM
+[1] APP(NIL,L)==L;
+[2] APP(U(A),NIL)==U(A);
+[3] APP(APP(U(A),L),M)==APP(U(A),APP(L,M));
+END
+;This file is intlist.typ

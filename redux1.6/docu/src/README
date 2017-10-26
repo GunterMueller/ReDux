@@ -1,0 +1,18 @@
+Verzeichnis ReDuX/docu
+======================
+
+Contents:
+  README:       this file
+  macros.tex:   LaTeX macros for technical reports
+  wide10r.tex:  LaTeX page format for technical reports
+  syntax.tex:   Figure describing syntax of ReDuX data type (LaTeX format)
+
+  RSD:          directory containing LaTeX sources for
+                   The ReDuX System Documentation 
+
+  RUD:          directory containing LaTeX sources for
+                   The ReDuX User Documentation 
+
+  RIX:          directory containign LaTeX sources for
+                   The ReDuX System Indices
+ 

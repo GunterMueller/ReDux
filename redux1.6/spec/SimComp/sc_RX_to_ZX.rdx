@@ -1,0 +1,75 @@
+DATATYPE RX;
+SORT
+	EXTERN, KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1: EXTERN;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: UNBEK;
+	p, q, r, s, t: POLYNOM;
+	A, B, C, D, E: EXTERN;
+OPERATOR
+	o:  -> KOEF;
+	i:  -> KOEF;
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+	": EXTERN -> KOEF;
+	&: EXTERN, EXTERN -> EXTERN;
+	`%: EXTERN, EXTERN -> EXTERN;
+	!: EXTERN -> EXTERN;
+NOTATION
+	+, *, ~, |, M, #, @, &, `%, !: FUNCTION;
+	": ROUNDFIX ";
+THEORY
+	+, *, |, #, @, &, `%: AC;
+AXIOM
+[1] +(o,a) == a;
+[2] *(o,a) == o;
+[3] *(i,a) == a;
+[4] ~(o) == o;
+[5] ~(~(a)) == a;
+[6] +(a,~(a)) == o;
+[7] ~(+(a,b)) == +(~(a),~(b));
+[8] *(a,~(b)) == ~(*(a,b));
+[9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+
+[10] |(x,I) == x;
+
+[11] M(o,x) == O;
+[12] #(M(a,x),M(b,x)) == M(+(a,b),x);
+[13] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+
+[14] #(p,O) == p;
+[15] @(p,O) == O;
+[16] @(p,M(i,I)) == p;
+[17] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[18] #(@(p,M(a,x)),@(p,M(b,x))) == @(p,M(+(a,b),x));
+[19] @(p,M(+(i,b),I)) == #(p,@(p,M(b,I)));
+[20] #(p,@(p,M(~(i),I))) == O;
+[21] #(p,@(p,M(+(~(i),a),I))) == @(p,M(a,I));
+
+[22] &(0,A) == A;
+[23] %(0,A) == 0;
+[24] %(1,A) == A;
+[25] !(0) == 0;
+[26] !(!(A)) == A;
+[27] &(A,!(A)) == 0;
+[28] !(&(A,B)) == &(!(A),!(B));
+[29] %(A,!(B)) == !(%(A,B));
+[30] %(A,&(B,C)) == &(%(A,B),%(A,C));
+
+[31] o == " 0 ";
+[32] i == " 1 ";
+[33] ~(" A ") == " !(A) ";
+[34] +(" A "," B ") == " &(A,B) ";
+[35] *(" A "," B ") == " %(A,B) ";
+
+END
+

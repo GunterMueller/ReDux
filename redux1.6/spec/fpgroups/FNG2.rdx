@@ -1,0 +1,29 @@
+DATATYPE FNG2;
+SORT
+	FNG2;
+CONST
+	1, a, b: FNG2;
+VAR
+	A, B, C: FNG2;
+OPERATOR
+	*: FNG2, FNG2 -> FNG2;
+	I: FNG2 -> FNG2;
+	K: FNG2, FNG2 -> FNG2;
+NOTATION
+	*, I, K: FUNCTION;
+AXIOM
+ [1] *(1,A)==A;
+ [2] *(I(A),A)==1;
+ [2] *(*(A,B),C)==*(A,*(B,C));
+ [4] *(I(A),*(A,C))==C;
+ [5] *(A,1)==A;
+ [6] *(A,I(A))==1;
+ [7] I(1)==1;
+ [8] I(I(A))==A;
+ [9] *(A,*(I(A),C))==C;
+[10] I(*(A,B))==*(I(B),I(A));
+[11] K(A,B)==*(A,*(B,*(I(A),I(B))));
+[12] K(a,K(a,b))==1;
+[13] K(b,K(b,a))==1;
+END
+; this file is FNG2.typ

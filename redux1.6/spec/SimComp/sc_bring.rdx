@@ -1,0 +1,55 @@
+%%  comment symbol
+DATATYPE BRING;
+%%  AUTHOR  R. Buendgen
+%%  DESCRIPTION Boolean ring with simulation of external objects
+SORT
+	BOOLEAN, EXTERN;
+CONST
+	0, 1: EXTERN;
+VAR
+	p, q, r: BOOLEAN;
+	P, Q, R: EXTERN;
+OPERATOR
+	T:  -> BOOLEAN;
+	F:  -> BOOLEAN;
+	#: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  exclusive or
+	/\: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  and
+	~: BOOLEAN -> BOOLEAN;	%%  not
+	=>: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  implies
+	\/: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  or
+	<=>: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  equivalent
+	|: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  nand
+	": EXTERN -> BOOLEAN;
+	*: EXTERN, EXTERN -> EXTERN;
+	+: EXTERN, EXTERN -> EXTERN;
+NOTATION
+	~: FUNCTION;
+	#, /\, =>, \/, <=>, |, *, +: INFIX;
+	": ROUNDFIX ";
+THEORY
+	#, /\, *, +: AC;
+AXIOM
+  [1] (p \/ q) == ((p /\ q) # (p # q));
+  [2] (p => q) == ((p /\ q) # (p # T));
+  [3] (p <=> q) == (p # (q # T));
+  [4] ~(p) == (p # T);
+  [5] (p # F) == p;
+  [6] (p # p) == F;
+  [7] (p /\ T) == p;
+  [8] (p /\ p) == p;
+  [9] (p /\ F) == F;
+ [10] (p /\ (q # r)) == ((p /\ q) # (p /\ r));
+ [11] (p | q) == ~((p /\ q)) ;
+
+ [12] (P + 0) == P;
+ [13] (P + P) == 0;
+ [14] (P * 1) == P;
+ [15] (P * P) == P;
+ [16] (P * 0) == 0;
+ [17] (P * (Q + R)) == ((P * Q) + (P * R));
+
+ [18] F == " 0 ";
+ [19] T == " 1 ";
+ [20] (" P " # " Q ") == " (P + Q) ";
+ [21] (" P " /\ " Q ") == " (P * Q) ";
+END

@@ -1,0 +1,617 @@
+\section{The TIO-Subsystem} \label{se:tio}
+
+The \redux\ subsystem {\it tio} contains procedures, describing the
+fundamental data structures needed for term rewriting and 
+\index{data structure}
+some primitives manipulating these data structures.
+
+The prominent data structure of the \redux-system is the data structure 
+\index{term}
+{\em term}.
+Terms may either be atomic or non-atomic where {\em atomic terms}
+\index{term!atomic}
+are variables, constants, external terms.
+\index{variable!print name}
+Each constant and each variable is uniquely represented in the system\footnote{
+However different variables may have a common {\em print name} as explained
+in Section~\ref{ss:tpdd}.}.
+A variable may either be free (unbound) or bound.
+A {\em free (or unbound) variable} is a variable with no substitution applied 
+\index{variable!free}
+\index{variable!unbound}
+to it.
+A {\em bound variable} has a term substituted to it and represents this
+\index{variable!bound}
+substituted term.
+The situation where a variable is bound to a bound variable is sometimes
+\index{substitution!chain}
+called a {\em chain substitution}.
+An {\em external term}
+\index{term!external}
+consists of a unary {\em coercion operator}
+\index{operator!coercion}
+\index{object!external}
+whose argument is an arbitrary {\em external object}.
+
+{\em Non-atomic terms} consist of a top operator whose principal subterms 
+\index{term!non-atomic}
+(arguments) are terms.
+Note that even though a `coercion operator' is the top symbol of an external
+term, external terms are not considered to be non-atomic.
+Since constants and variables are uniquely represented, a term is rather a
+\index{variable!unique representation of}
+directed acyclic graph (DAG) than a tree.
+\index{DAG}
+\index{directed acyclic graph}
+According to whether the variables in a term $t$ are free or bound $t$ is
+called a free or (semi-)bound term.
+In a {\em free term} no variable is bound, in a {\em semi-bound term} some
+\index{term!free}
+\index{term!bound}
+\index{term!semi-bound}
+variables may be bound and in a {\em bound term} all variables are bound.
+If a term is referenced by a (chain of) bound variable(s) these binding(s)
+are called a {\em leading substitution}.
+\index{substitution!leading}
+\index{term!related}
+A set of terms is {\em related}\,\footnote{Unfortunately some algorithm 
+descriptions use the keyword `related' to denote two terms with common
+top operator.} if they share common variables.
+Thus the two terms of an equation or rewrite rule are generally related.
+
+Operations which bind variables are mgci computations, matching operations 
+and operations which {\em apply substitutions}.
+\index{substitution!apply}
+These operations actually have side effects on their input arguments.
+There are also operations to {\em undo} variable bindings,
+\index{undo}
+i.\,e.\ which make bound variables free.
+
+Sometimes it is necessary to {\em perform a substitution} in a semi-bound
+\index{substitution!perform}
+term $t$.
+Then a bound variable in $t$ will be replaced by its binding.
+A term with performed substitutions is equal to the original term up to the fact that it cannot be modified by an undo operation any more.
+
+The argument list of associative commutative (AC) operators may be larger than 
+\index{operator!AC{-}}
+two meaning that all arguments are combined by AC-operators (with 
+arbitrary setting of parenthesis).
+Such terms are called {\em semi-flat}.
+\index{term!semi-flat}
+Terms in which no AC-operator has a principal subterm with that
+AC-operator as top symbol are called {\em flat}.
+\index{term!flat}
+\index{term!flattened}
+In \redux\ terms are not generally normalized to flat terms because
+flattening semi-bound terms possibly destroys variable bindings.
+
+\subsection{Definitions of Basic Data Structures: The {\tt tpdd}-Module} 
+\label{ss:tpdd}
+
+The {\tt tpdd}-module provides for the ReDuX system initialization and the
+definition of the basic data structures.
+The following data structures are defined in the {\tt tpdd}-module: 
+\begin{itemize}
+ \item constants,
+\index{constant}
+ \item operators,
+\index{operator}
+ \item coercion operators,
+\index{operators}
+ \item variables,
+\index{variable!ReDuX}
+ \item external terms
+\index{term!external}
+ \item terms,
+\index{term}
+ \item axioms and
+\index{axiom}
+ \item data type.
+\index{data type}
+\end{itemize}
+All of them are implemented as list structures.
+The first six data structures can be divided into two classes:
+{\em signature objects} (constants, variables, operators  and
+coercion operators) which provide the prototypes of the parts terms are built
+from and actual occurrences of the above objects as the  top symbols of terms
+(constants, variables, non-atomic terms and external terms).
+Note that we {\em call} both the prototype-variable and the variable-term a
+variable; and
+prototype constants and constant-terms have even the same representation.
+
+The list structure of the first six data structures is the same.
+Thus signature objects and terms can be overloaded.
+\index{overload}
+Table~\ref{tb:tsy} shows the structure of lists denoting 
+constants, (coercion) operators, variables or (external) terms.
+\begin{table} 
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+ \hline
+ field no. & mnemonic & name & possible entries \\
+ \hline\hline
+ 1 & TCONT & term contents & {\it nil}          \\
+   & OARGLST & operator argument list & list of terms \\
+   & VARBIND & variable binding & {\it nil}, term \\
+   & XOBJECT & external object  & external object     \\
+ \hline
+ 2 & TKIND & term kind     & one of DCS, DOS, DVS, DXT \\
+ \hline
+ 3 & TTYPE &  term type & symbol denoting a sort\\
+   & ORTYPE& operator range type & \\
+ \hline
+ 4 & TUSTAT & unification status & {\it nil}, DAC, DCO,  algorithm key \\
+ \hline
+ 5 & ODTYPE & operator domain type & list of symbols denoting sorts\\
+ \hline
+ 6 & TNAME & term name & symbol denoting operator name \\
+ \hline
+ $>$ 6 & TPROP & term property & property list \\
+ \hline
+ $>$ 1 & TSIGN & term signature & reductum of a term pointer \\
+ \hline
+\end{tabular}
+\caption{The structure  of constants, operators, variables and terms} 
+\label{tb:tsy}
+\end{center}
+\end{table}
+For variables and constants the field ODTYPE is set to {\it nil}. 
+\index{nil}
+For signature objects the TCONT is always {\it nil} (implying that this is
+also true for constant-terms).
+If a pointer points to a non-atomic term it points to the top operator
+of that term. The term list structure can then be considered as a variant
+record according to the contents of the TKIND field.
+In this case Table~\ref{tb:tse} displays the meaning of the different
+fields of the term list structure.
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+ \hline
+         & \multicolumn{4}{c|}{kind of term} \\
+ field   & constant       & variable   & non-atomic   & external \\
+         &                &            & term         & term     \\
+ \hline\hline
+ TCONT   &                & VARBIND    & OARGLST      & XOBJECT \\
+         & {\it nil}      & substitution & list of principal & external \\
+         &                & value      & subterms     & object \\
+ \hline
+ TKIND   & DCS            & DVS        & DOS          & DXT \\
+ \hline
+ TTYPE   & \multicolumn{4}{c|}{sort} \\
+ \hline
+ TUSTAT  & {\it nil}      & {\it nil}  & free-, AC- or & key of equality \\
+         &                &            & commutative op. & function \\
+ \hline
+ ODTYPE  & {\it nil}      & {\it nil}  & list of domain sorts & list of one \\
+         &                &            & of top operator      & external sort \\
+ \hline  
+ TNAME   & \multicolumn{4}{c|}{name of top symbol} \\
+ \hline
+ TPROP   & \multicolumn{4}{c|}{property list of top symbol} \\
+ \hline
+\end{tabular}
+\caption{The meaning of the fields of term list structure} \label{tb:tse}
+\end{center}
+\end{table}
+
+The {\em reductum} (fields 2, 3, \ldots) of a list denoting a constant, 
+\index{reductum}
+operator, variable or term is called the {\em signature} (TSIGN) of that object.
+\index{signature}
+The signature is stored only once for every constant, operator or
+variable name known to the system whereas the {\em contents} (TCONT) is stored
+\index{contents}
+for each occurrence of an operator or variable name on some term of the system.
+The representation of all constants is unique, so is the pointer to
+their contents.
+
+Terms are represented by directed acyclic graphs to ensure the unique
+\index{directed acyclic graph}
+\index{variable!unique representation of}
+representation of a variable which occurs twice in a term or an axiom.
+Constants are always shared and external terms may be shared but this is 
+not mandatory.
+Normally sharing more complex terms than variables (or constants 
+or external terms) is avoided. 
+Exceptions being substituted variables (see module {\tt tcu} in 
+the {\it tp}-subsystem)
+and results of reductions (see module {\tt tcr} in the {\it tc}-subsystem).
+On the other hand it is often convenient to use the same variable name several 
+times in different contexts.
+In such a case two variables may share the signature information
+(TSIGN) but have different TCONT (alias VARBIND) fields.
+\begin{example} Consider
+ \[ {\cal E} = \{ *(x,0) \leftrightarrow 0, \;\;
+                  *(x,+(y,-(y))) \leftrightarrow *(0,y) \}
+ \]
+ Here the name $x$ in the first and second equations denotes {\em different}
+ variables but the two occurrences of $y$ in the second equation
+ denote the same variable.
+
+ From a logical point of view the variables in the two different equations
+ are bound by two different quantifiers:
+ \[ (\forall x: *(x,0) \leftrightarrow 0), \;\;
+    (\forall x, y: *(x,+(y,-(y))) \leftrightarrow *(0,y)).
+ \]
+
+ The two occurrences of $x$ will be implemented by two different lists
+ with two different first fields (TCONT alias VARBIND) 
+ but common reductum (TSIGN).
+ The three occurrences of $y$ are represented by pointers to the same list.
+ Thus the unique variable representation implements the scope of
+ a (quantified) variable.
+ The minimal scope of a variable is a term.
+ \hfill $\Box$
+\end{example}
+Even though  TCONT is an overloaded function for all kinds of terms,
+its use should be avoided whenever possible.
+Instead the appropriate alias (OARGLST for non-atomic terms,
+VARBIND for bound and unbound variables and XOBJECT for terms with a
+coercion operator at their top) should be used to facilitate
+future changes in the representation of argument lists,
+variable bindings etc. (cf.\ \cite{BuendgenGoebelKuechlin:94}).
+
+The VARBIND field of a variable term $x$ field may contain a pointer to a 
+term $t$ meaning that $x$ is bound by a substitution 
+$\{ x \mapsto t, \ldots\}$.
+If a variable is unbound  (or  mapped to itself) its VARBIND is set 
+to {\it nil}.
+The function UNDO can be used to undo the variable bindings of a list
+\index{undo}
+of (bound) variables.
+
+The signature of each constant,  variable or operator may be augmented by
+additional information in an optional property list.
+A {\em property list} is a list ($i_1, p_1, \ldots, i_n, p_n$) of period two
+\index{property list}
+where the $i_j$ are called {\em indicators} and $p_j$ is the 
+\index{indicator}
+{\em property under indicator} $i_j$.
+\index{property}
+The following operator properties are known:
+\begin{itemize}
+ \item The indicator DFS determines the notation used for an operator:
+       The property DEF means prefix, DIF means infix, DPF means
+       postfix, DRF means roundfix and DLF means Lisp notation.
+       The property DCS means constant notation (i.\,e.\ no argument list)
+       for nullary operators.
+       The default is constant notation for nullary operators and
+       prefix notation otherwise for the old parser.
+       With the new parser the default notation for constants and nullary
+       function symbols is constant (DCS), for unary function symbols
+       prefix (DPF), for binary function symbols infix (DIF) and
+       function notation (DFF).
+ \item Under indicator DRF the closing part of an roundfix operator is
+       stored.
+ \item The indicator DAV provides a variable of the argument type of the
+       operator. This is only used for C- and AC-operators.
+ \item The indicator DXIA is used to map an operator to a function
+       over external objects. The symbol denoting the algorithm  (accessible
+       via the {\it}-module) interpreting
+       that function is stored as the property of DXIA.
+ \item Further properties are used to define term orderings.
+       These properties may also be attached to constants and variables.
+ \item For a constant or function symbol we can store
+       under the indicator DXCO a coercion operator 
+       that maps the external interpretation of a term headed by the
+       constant or function symbol to the result type of that constant or
+       function symbol.
+       It overwrites the default stored as a property of the result type.
+
+\index{term ordering}
+       (See Section~\ref{se:to}).
+\end{itemize}
+The functions and procedures to manipulate these property lists are TGET 
+(get property under a given indicator), 
+TPUT (insert or update property under a given indicator) and 
+TPRRM (remove property under a given indicator).
+
+The data structure {\em axiom} is used to represent equations and rewrite rules.
+\index{axiom}
+\index{equation}
+\index{rewrite rule}
+It consists of a list with at least five fields.
+Table~\ref{tb:ax} shows the fields of an axiom denoting an equation
+$ l \leftrightarrow r$ or a rewrite rule $ l \rightarrow r$ respectively.
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+ \hline
+ field no. & mnemonic & name & contents \\
+ \hline\hline
+ 1 &  ALHS & axiom left-hand side & $l$ \\
+ \hline
+ 2 & ALHSV & axiom left-hand side variables & list of variables in $l$  \\
+ \hline
+ 3 & ARHS & axiom right-hand side & $r$ \\
+ \hline
+ 4 & ANUM & axiom number & number of axiom  \\
+ \hline
+ 5 & ALLB & axiom left-linearity bit & 1 iff $l$ is linear otherwise 0  \\
+ \hline
+ $>$ 5 & APROP & axiom properties & property list \\
+ \hline
+\end{tabular}
+\caption{The fields of axiom $ l \leftrightarrow r$ or $ l \rightarrow r$} \label{tb:ax}
+\end{center}
+\end{table}
+If the top operator of the left-hand side of a rewrite rule is associative
+and commutative an AC-extension rule \cite{PetersonStickel:81} may
+\index{rule!AC-extension}
+be stored in the axiom property list under indicator DXR.
+The function AGET and the procedure APUT may be used to look at properties
+and update property lists respectively.
+
+The data structure for {\em data type} is a list containing its name,
+\index{data type}
+signature (constant-, variable- and operator sets) and a set of axioms.
+The new parser also needs the set of sorts, external sorts and a
+list of all symbols occuring in the signature (constants, variables and
+function symbols).
+See Table~\ref{tb:dt}.
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+ \hline
+ field no. & mnemonic & name & contents \\
+ \hline\hline
+ 1 &  DTAX & data type axioms & $\cal R$ \\
+ \hline
+ 2 & DTCONS & data type constants & list of constants  \\
+ \hline
+ 3 & DTVARS & data type variables & list of variables \\
+ \hline
+ 4 & DTOPERS & data type operators & list of function symbols  \\
+ \hline
+ 5 & DTNAME & data type name & name symbol \\
+ \hline
+ 6 & DTSORTS & data type sorts & list of sorts \\ \hline
+ 7 & DTXSORTS & data type ext.\ sorts & list of ext.\ sorts \\ \hline
+ 8 & DTSYMLST & data type symbol list & list of signature objects \\ \hline
+  $>$ 8 & DTPROP & data type properties & property list \\
+ \hline
+\end{tabular}
+\caption{The fields of the data type data structure} \label{tb:dt}
+\end{center}
+\end{table}
+
+The {\tt tpdd} contains procedures to construct 
+\index{construct}
+axioms (ACONS), constants (CCONS), data types (DTCONS), operators (OCONS)
+terms (TCONS), prototype variables (VCONS), external operators (XOCONS) and 
+\index{display}
+display all these data structures or parts of them
+(ADIS, CDIS, DTDIS, TDIS, VDIS).
+
+\subsection{The Syntax of the Data Type -- Old Parser}
+In \redux\ an algebraic specification is called a data type.
+In this section, we want present the syntax of data types, axioms and terms.
+A \redux\ data type consists of a data type name, external type,
+constant, variable and operator declarations with associated types (sorts)
+and a set of axioms.
+In Figures~\ref{dtgram1}, \ref{axgram} and \ref{dtgram2}
+the syntax of a  \redux\ data type is presented in
+extended BNF.
+%It is the same given in \cite{Kuechlin:82a} and
+%\cite{Buendgen:87} with the addition of properties assigned to the
+%operators to denote unification states
+%(for the {\tt ac} program),
+%operator notation (prefix, infix, postfix, roundfix and
+%Lisp notation) and to supply additional information
+%to deal with external objects.
+
+%If the first symbol of the data type specification file is not
+%{\tt TYPE} then this symbol is declared as comment symbol and may be used
+%to declare all characters to the right of the comment symbol to be
+%a comment in the remaining input.
+%This comment symbol is then known to the rest of the program and
+%may be used whenever terms or theorems are read in.
+%If the first symbol of the data type specification file is {\tt TYPE} then
+%no comment symbol is available.
+\input{dtgram1}
+\input{dtgram2}
+\input{axgram}
+
+%In the current implementation the term-syntax has the
+%following limitations that will be removed in a later revision.
+%For operator names may start with a special symbol and end with an
+%identifier or digit and on the other hand may start with an identifier
+%and end with an identifier or digit,
+%it is impossible for the parser to uniquely interpret a term
+%\verb+(A*B)+ as  either \verb+(A * B)+ or \verb+(A *B ...)+, where
+%``{\tt *}'' is an infix operator. Therefore infix operators must be
+%separated by blanks from their arguments.
+%Roundfix Operators also have to be separated by blanks from their argument
+%list. Otherwise \verb+<A,B>+ might be interpreted as \verb+<A,+\ldots
+%instead of as \verb+< A,B >+, where ``{\tt <}'' and ``{\tt >}'' form a
+%roundfix operator. A later
+%revision might restrict operator names to consist either only of
+%special symbols or of identifiers and digits with a leading
+%identifier.
+
+The following
+semantic constraints are given: the argument list of an operator in a term must
+be as long as the type list of its domain and the arguments must be of the
+appropriate type. Also the name of an operator variable or constant
+may not be the same as another operator's, variable's or constant's name.
+Furthermore, no left-hand side of a Rule may consist only of a ConstantName
+or a VariableName. If a constant is needed as a left-hand side of a
+rule, a nullary operator can be used instead.
+
+After reaching the {\tt END} symbol, the programs stop reading the
+algebraic specification. This feature can also be used to put
+comments at the end of algebraic specification files.
+
+Algebraic specifications are called {\em data types} in the ReDuX system.
+The data type describing lists over the elements 0 and 1 can be described as
+shown in Figure~\ref{fi:exa}.
+
+\begin{figure}[htbp]
+\begin{center}
+%\fbox{
+\noindent
+\rule{\textwidth}{0.6pt}
+
+\begin{minipage}{5.9in} %necessary if there is a footnote within the figure
+\begin{quote}
+\begin{verbatim}
+DATATYPE LIST;
+%%  STATUS completed
+%%  AUTHOR Reinhard Buendgen
+%%  DESCRIPTION List({0,1}): cons, app, rev
+%%  ORIGIN  folkore
+SORT
+        EL, LIST;
+CONST
+        0, 1: EL;
+        nil: LIST;
+VAR
+        A, B, C: EL;
+        L, M, N: LIST;
+OPERATOR
+        @: LIST, LIST -> LIST;  %%  append 
+        [: EL, LIST -> LIST;    %%  cons
+        rev: LIST -> LIST;      %%  reverse
+NOTATION
+        rev: FUNCTION;
+        @: INFIX;
+        [: ROUNDFIX ];
+AXIOM
+   [1] nil @ L     == L;
+   [2] [A, L] @ M  == [A, L @ M];
+   [3] rev(nil)    == nil;
+   [4] rev([A, L]) == rev(L) @ [A, nil];
+END
+\end{verbatim}
+\end{quote}
+\end{minipage}
+%} %end fbox
+
+\noindent
+\rule{\textwidth}{0.6pt}
+\end{center}
+\caption{An example of a ReDuX data type specification} \label{fi:exa}
+\end{figure}
+The name of the data type is {\tt LIST}, the constants {\tt 0} and {\tt 1}
+are of sort {\tt EL} and {\tt NIL} is of sort {\tt LIST}.
+There are variables of sort {\tt EL} ({\tt A, B, C}) and of sort {\tt LIST}
+({\tt L, M, N}) and operators {\tt APP, CONS} and {\tt REV} with range sorts
+{\tt LIST} $\times$ {\tt LIST}, {\tt EL} $\times$ {\tt LIST} and
+{\tt LIST} respectively, and result sorts {\tt LIST}.
+
+For further information on input to \redux-programs see 
+\RUD.
+The user's point of view of the new parser is is described in
+\NPUG.
+
+\subsection{The Scanner: The {\tt tpsc}-Module -- Old Parser}
+
+The \redux scanner provides a procedure GETSYM which reads a token from
+\index{scanner}
+the input.
+This token is looked up in the global symbol table\footnote{The global
+system variable SYMTAB points to the symbol table used by the SAC-2 symbol 
+system.} %end footnote
+\index{symbol table!global}
+and if needed a new symbol is entered.
+The symbol scanned is stored in the global variable SYM.
+In GETSYM, the symbols are assigned to different symbol classes which 
+are stored as a property under indicator KIND:
+\begin{description}
+ \item[integer:] unsigned integers (property: INT),
+ \item[identifier:] a letter possibly followed by letters or digits
+                    (property: IDENT),
+ \item[extraordinary identifier:] string of special (non-white-space) 
+                    characters (property: XIDENT)
+ \item[grammar symbol:] key word and key symbols of the \redux\ interactive
+                    language \\ (property: GRSYM).
+\end{description}
+There are also a lot of procedures to scan symbols of certain classes
+(identifiers: SID, integers: SIS), combination of
+classes  (SII, SIX, SIIX, SON, SSYM) and special tokens
+(SCB, SLS, SNS, SOB, SPS, SSS, SWSP).
+
+The scanner of the new parser is based on {\it flex}-program. 
+It is described in \NPPG.
+
+\subsection{The Parser: The {\tt tpprs}-Module -- Old Parser}
+
+The {\tt tpprs}-module provides input procedures for the main data structures
+of the \redux\ system:
+terms (TPRSC, TEPRS), operators (OPRS), operator sets (OSPRS), constant sets
+(CSPRS), axioms (AXPRS), axiom sets (ASPRS) and a  whole data type
+(DTPRS).
+To parse a single independent term TEPRS should be used.
+If several related terms (i.\,e.\ term that share variables) are to be read in
+TPRSC must be used.
+Among others TPRS has an input parameter that describes a list
+of variables that are to be shared.
+This list will be updated and output together with the term.
+The procedure OROLRD parses relations between a constant or
+operator and a list of constants or operators.
+
+The new parser also features the aforementioned interface procedures.
+It is based on a {\it yacc}-program that is described in \NPPG.
+
+\subsection{The {\tt tpprs2}-Module}
+
+The module {\tt tpprs2} contains procedures from the old scanner and 
+parser that are also used in the new parser.
+SCONS enters a symbol into the global symbol table and adds its string as
+a property under indicator FLAT to its property list.
+It contains consistency checks for associative-commutative operators
+(OACC) and commutative operators (OCOMC).
+The operation OSUCF is needed to post-process forward references to
+coercion operators in the declaration of COERC-properties.
+STOCC searches in a list of signature objects (constants, operators, variables,
+top-symbols of terms)
+for the first element with a given TNAME-value.
+
+\subsection{The {\tt tperr}-Module}
+
+The module {\tt tperr} contains routines to output error messages of the scanner
+and the parser.
+
+\subsection{The {\tt tpwrt}-Module -- Old Parser}
+
+The output procedures in the module {\tt tpwrt} write axioms
+(ASWRT, AXWRT), data types (DTWRT), rewrite rules (RRWRT),
+substitutions (SBWRT) and (related) terms (TLWRT, TDIWRT, TWRT)
+such that different variables with common signature (TSIGN) are output
+with different print names, adding \_$i$ to the name (TNAME) for the
+\index{variable!print name}
+$(i+1)^{\mbox{\scriptsize st}}$ different variable with that name.
+
+The output procedures use a data structure called {\em variable dictionary}.
+\index{variable!dictionary}
+The first component of such a dictionary D contains a list of the form
+VDNAME(D) = ($v^*_1,n_1, \ldots, v^*_k,n_k$) which means that so far $n_i-1$
+different variables with signature TSIGN($v^*_i$) have been found.
+The second component of D is VDINDEX(D)=($v_1,i_1, \ldots, v_m,i_m$)
+meaning that $v_j$ is the $i_{j_1}^{\mbox{\scriptsize th}}$ variable with
+signature TSIGN($v_j$).
+
+TDICT and TDIWRT update a variable dictionary w.\,r.\,t.\ a term.
+VDWTS computes the string output when writing a variable.
+
+If operators are specified as infix-, prefix-, postfix-, roundfix- or
+Lisp-operators, they are output accordingly where prefix is the default
+notation.
+Semi-flat terms are output in a semi-flat manner according to their internal
+representation.
+
+External objects which are arguments of coercion operators are written using 
+the procedure whose algorithm key is stored under the property DXWA of
+the coercion operator.
+
+There are also output procedures used in the context of \redux\ data type
+declarations:
+for constants (CONWRT, CSWRT), operators (OPWRT, OSWRT), symbols 
+(SWRT, SLWRT), variables (VAWRT, VSWRT) and external types
+(YXWRT, YXSWRT).
+
+With the new parser a new write module ({\tt write}) must be used.
+It offers all of the procedures of {\tt tpwrt}.
+

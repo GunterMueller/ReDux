@@ -1,0 +1,48 @@
+DATATYPE RX;
+SORT
+	KOEF, POLYNOM, UNBEK;
+CONST
+	0, 1: KOEF;
+	I, X, Y, Z: UNBEK;
+	O: POLYNOM;
+VAR
+	a, b, c, d, e: KOEF;
+	x, y, z, w: UNBEK;
+	p, q, r, s, t: POLYNOM;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: UNBEK, UNBEK -> UNBEK;
+	M: KOEF, UNBEK -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+NOTATION
+	+, *, ~, |, M, #, @: FUNCTION;
+THEORY
+	+, *, #: AC;
+AXIOM
+[1] +(0,a) == a;
+[2] *(0,a) == 0;
+[3] *(1,a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] +(a,~(a)) == 0;
+[7] ~(+(a,b)) == +(~(a),~(b));
+[8] *(a,~(b)) == ~(*(a,b));
+[9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+
+[10] |(x,I) == x;
+[11] |(I,x) == x;
+[12] |(|(x,y),z) == |(x,|(y,z));
+
+[13] @(@(p,q),r) == @(p,@(q,r));
+[12] #(M(a,x),M(b,x)) == M(+(a,b),x);
+[13] @(M(a,x),M(b,y)) == M(*(a,b),|(x,y));
+
+[14] #(p,O) == p;
+[15] @(p,M(1,I)) == p;
+[16] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[17] #(p,@(p,M(~(1),I))) == O;
+END
+; This file is RXnc.typ 

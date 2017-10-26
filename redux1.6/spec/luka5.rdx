@@ -1,0 +1,25 @@
+%%  comments
+DATATYPE Luka5;
+%%  ORIGIN from Siva Anantharaman
+%%  ORIGIN at RTA'95 to test PaReDuX
+%%         try to derive
+%%          (((a => b) => (b => a))  => (b => a)) == true
+%%         using RPO: true < b < a < ~ < <=
+SORT
+	BOOL;
+CONST
+	true, a, b: BOOL;
+VAR
+	x, y, z: BOOL;
+OPERATOR
+	=>: BOOL, BOOL -> BOOL;	%%  implication
+	~: BOOL -> BOOL;	%%  not
+NOTATION
+	~: FUNCTION;
+	=>: INFIX;
+AXIOM
+ [1] (true => x) == x;
+ [2] ((x => y) => ((y => z) => (x => z))) == true;
+ [3] ((~(x) => ~(y)) => (y => x)) == true;
+ [4] ((x => y) => y) == ((y => x) => x);
+END

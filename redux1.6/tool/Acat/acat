@@ -1,0 +1,89 @@
+#! /bin/csh
+###########################################################################################################
+#
+# acat , enhanced version November 1992
+#        This version should work on all computers, if only their hostname is listed
+#        below together with the path under which the Aldes sources can be found.
+#        If a shellvariable ALDES has been defined before (f.ex. in .cshrc)
+#        under which the aldes sources can be found this path is being used.
+# 
+###########################################################################################################
+
+###########################################################################################################
+# Set Path for Aldes sources. 
+# passed via parameter
+if ($#argv == 2) then
+  set ALDES = $argv[2]
+  goto test
+endif
+# ALDES predefined
+if ($?ALDES) then
+  goto test 
+endif
+# not defined and not passed via parameter
+switch ($HOSTTYPE)
+  case sun4:
+  case rs6000:
+       set ALDES = /usr/local/aldes/sources
+       goto test
+  case sun3:
+       set ALDES = /local/algebra/sources 
+       goto test 
+  default:
+       echo "ERROR : acat not useful on this computer. Aldes is not installed here."
+       exit 1
+endsw
+
+test:
+###########################################################################################################
+# test if path ok
+if !(-d $ALDES) then
+  echo "ERROR : acat : Aldes path $ALDES not found."
+  exit 1
+endif 
+if !(-d $ALDES/sources) then
+  echo "ERROR : acat : Aldes sources path $ALDES/sources not found."
+  exit 1
+endif
+
+###########################################################################################################
+# output
+echo "acat : Please wait. I am searching for algorithm $1"
+echo "       under Aldes path $ALDES ...."
+echo ""
+
+acat:
+###########################################################################################################
+# illegal Parameter or number of parameters
+if ($#argv != 1 && $#argv != 2) then 
+  echo "usage acat <algorithm name in lower case without extension> [<Aldes path>]"
+  exit 1
+endif
+if ($1:e == "ald") then 
+  echo "usage acat <algorithm name in lower case without extension> [<Aldes path>]"
+  exit 1
+endif
+
+###########################################################################################################
+# search standard libraries.
+set file="1 "
+foreach LIB (an ar co la pf pg po rr)
+  set file=($file `find $ALDES/sources/sac2/$LIB -name $1.ald -print`)
+  if ($#file != 1) then
+    echo $file[2]
+    cat $file[2]
+    exit 0
+  endif
+end
+
+###########################################################################################################
+# search in liblow and sace
+foreach LIB (sace low)
+  set file=($file `find $ALDES/sources/$LIB/?? -name $1.ald -print`)
+  if ($#file != 1) then
+    echo $file[2]
+    cat $file[2]
+    exit 0
+  endif
+end
+

@@ -1,0 +1,501 @@
+\section{The IC-Subsystem} \label{se:ic}
+
+The {\it ic}-subsystem provides operations to reason in the initial model of
+\index{initial model}
+a (ground) confluent term rewriting system $\cal R$.
+This requires algorithms to analyze the set of $\cal R$-ground normal forms,
+\index{ground normal form}
+and an inductive completion procedure (\cite{Kuechlin:89}) which is built
+\index{completion!inductive}
+around a (positional) ground reducibility test.
+\index{ground reducibility}
+
+The implementation of the inductive completion procedure is mainly
+described in \cite{Buendgen:87}.
+The ground reducibility test has been presented in 
+\cite{BuendgenKuechlin:89} and
+the theory of the top set tree computation can be found in
+\cite[Chap.\ 4.1]{Buendgen:91b} and \cite{BuendgenEckhardt:92}.
+
+The {\it ic}-subsystem does not support external terms.
+
+\subsection{Top Set Trees}
+
+The data structure {\em top set tree} is a special tree with additional 
+\index{top set tree}
+references which describe how each node can be derived from nodes of
+a lower level.
+The root of a top set tree is a list of pointers to top set tree nodes.
+All top set tree nodes (with the exception of the root node) are realized
+as lists of length eight.
+These lists are described in Table~\ref{tb:tst} and the according
+macro declarations can be found in the header file {\tt ic.h}.
+\begin{table}
+\begin{minipage}{5.9in}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+ \hline
+ field & mnemonic & name & possible entry \\
+ \hline\hline
+ 1 & NTSLAB & label & a term or {\it nil} \\
+ \hline
+ 2 & NTSLEV & level & $\beta$-integer \\
+ \hline
+ 3 & NTSGRD & groundness & one of TRUE = 1, FALSE = 0 \\
+   &        & information & or UNEXT\footnote{only for pruned top set trees}
+                                                  = 2  \\
+ \hline
+ 4 & NTSFAT & father & pointer to top set tree node \\
+ \hline
+ 5 & NTSPSL & principal subterm & list of pointers to \\
+   &        & list      & top set tree nodes \\
+ \hline
+ 6 & NTSSUC & successors & list of pointers to \\
+   &        &            & top set tree nodes \\
+ \hline
+ 7 & NTSURL & unifying rule list  & list of axioms or 0 \\
+ \hline
+ 8 & NTSMCA & mark for closure   & 0, 1 or 2 \\
+   &        & algorithm & \\
+ \hline
+\end{tabular}
+\caption{Syntax of top set tree nodes} \label{tb:tst}
+\end{center}
+\end{minipage}
+\end{table}
+
+The fields of a top set tree node have the following meaning:
+\begin{description}
+ \item[NTSLAB] The label of a node is a linear term or the empty list if the 
+   node is marked as deleted.
+ \item[NTSLEV] The level field describes the tree level the node is in.
+   The level of the root is -2. 
+   A node at level $k$ is labelled by a term $t$ with DEPTH1($k$) = $k-1$.
+ \item[NTSFAT] The father points to the parent node in the top set tree.
+ \item[NTSGRD] The groundness information is TRUE if the label of the node
+   is a ground term. Otherwise it is FALSE (see also Section~\ref{ss:ptst}).
+ \item[NTSPSL] The \ith{i} element of the principal subterm list of a node
+   $n$ is a pointer to a node labelled by a variant\footnote{a term equal modulo
+   variable renaming} of the \ith{i} argument of the label of $n$.
+ \item[NTSURL] The unifying rule list comprises the axioms of the data type
+   whose left-hand sides unify with the label of the node.
+ \item[NTSMCA] The mark for the closure algorithm is initialized to 0.
+   It is set to 1 if the node is ground or has ground successors and it is
+   set to 2 if the node may possibly have ground successors. The mark 1 is 
+   permanent whereas the mark 2 will be reset to 0 after the closure algorithm
+   has finished.
+\end{description}
+
+The module {\tt icgnfa} contains auxiliary algorithms needed to compute 
+both top set trees and pruned top set trees.
+\index{top set tree!pruned}
+First there are algorithms for the construction of top set trees.
+NTSTCO constructs a node, TSTGTS returns a subtree of a certain
+type and NTSTDL deletes a node and all its childless predecessors.
+NTSLCS tests if the intersection of a set of nodes and the nodes in the
+principal subterm list of another node is empty.
+
+GGLINI initializes the coroutine status for GGLINC ({\it co}-subsystem)
+\index{coroutine}
+which is used to compute all possible successors of a node $n$,
+where each successor has a label such that each principal subterm of
+the label of $n$ is replaced by a successor label of the according element
+in the principal subterm list of $n$.
+
+Next there are procedures to traverse a top set tree and to collect information
+from every node.
+TSTBFT traverses the tree in breadth first- and TSTTRV traverses the tree 
+in depth first manner.
+Both procedures are controlled by an integer encoding the kind of action and
+the nodes on which the action is to be performed (see NTSTAC).
+The result is a list with an element of each node.
+
+The module {\tt icgnf1} exports the algorithm TSTCMP which computes the top 
+set tree of a data type up to a given level $d$.
+TSTINI initializes a top set tree up to level 0.
+Then the tree is expanded level by level (TSTLXP, NTSTEX) and nodes which
+can be shown to be ground reducible are deleted (NTSTDT).
+TSTTGS implements the closure algorithm (\cite{Buendgen:91b}).
+
+\subsection{Pruned Top Set Trees} \label{ss:ptst}
+
+The modules {\tt icgnf2}, {\tt icgnfc}, {\tt icgnfd}, {\tt icgnfx} and
+{\tt icgnfa} contain the procedures to compute pruned top set trees.
+\index{top set tree!pruned}
+A description of the implementation can be found in \cite{Eckhardt:91}.
+
+In a pruned top set tree  certain branches of a top set tree can be pruned 
+according to a {\em cut predicate} (\cite{Buendgen:91b}).
+\index{cut predicate}
+Therefore the tree expansion procedures (PTSINI, PTSLXP, NPTSEX in 
+{\tt icgnf2}),
+the node deletion procedures (NPTSDL, NPTSDT in {\tt icgnfd}) and the 
+closure algorithm (PTSTGS in {\tt icgnfc}) are more complicated than for
+unpruned top set trees.
+
+The data structure used for a pruned top set tree is the same as for a
+top set tree (see Table~\ref{tb:tst}), the only difference being that the 
+value of NTSGRD may be TRUE = 1 for a ground label, UNEXT = 2 for an
+ unextensible non-ground label (the cut predicate applies) or FALSE = 0
+for an extensible non-ground node.
+
+The module {\tt icgnf2} exports  the algorithm PTSCMP which computes a 
+pruned top set tree which is maximally expanded up to level $d$.
+
+The module {\tt icgnfx} contains procedures to perform the extensibility
+test.
+Given a list of function symbols $(f_1, \ldots, f_n)$ LSTL computes a list
+$(F_1, \ldots, F_n)$ such that $F_i$ contains all subterms of the left-hand 
+side of a rule set with $f_i$ as top operator.
+A flag controls whether the result of LSTL may contain two terms which are 
+equal modulo variable renaming.
+NTSEXT tests whether a node is extensible.
+
+\subsection{The {\tt icts} Module}
+
+The procedure  CTOPS in {\tt icts} computes $d$-top sets
+\index{top set}
+(\cite{JouannaudKounalis:89},\cite{BuendgenKuechlin:89},
+\cite{BuendgenEckhardt:92}) by computing a top set tree and extracting its 
+leaves.
+
+\subsection{The {\tt icgm} Module}
+
+The module {\tt icgm} is used to extract a context free grammar for the 
+\index{grammar}
+\index{ground normal form}
+language of ground normal forms from a (pruned) top set tree.
+
+The grammars are represented by  {\em grammar lists} of the form
+\index{grammar list}
+\[ (type, TST, l_1, RT_1, \ldots, l_n, R_n) \]
+where $type$ is the name of the data type analyzed and $TST$ is the (pruned)
+top set tree.
+The $l_i$ are (pruned) top set tree nodes and the $R_i$ are lists of (pruned)
+top set tree nodes.
+Each pair $(l_i, R_i)$ represents production rules whose left-hand sides are
+\index{production rule}
+determined by $l_i$ and each element of $R_i$ determines an alternative 
+right-hand side (i.\,e.\ $l_i$ represents a terminal if $R_i = ()$).
+The grammar list of a (pruned) top set tree is computed by TSTGRM.
+
+There are also output procedures (GRTWRT, GRSWRT, PDWRT, PRLWRT, PRWRT) for
+grammar lists which decode the pairs $(l_i, R_i)$ as production rules.
+The production symbol is `$::=$' and non-terminal are enclosed in
+$< \ldots >$.
+The name of a non-terminal is typically a term or a type.
+Alternative right-hand sides are separated by $|$.
+The main output algorithm is GRLWRT.
+
+\subsection{The {\tt icpc} Module}
+
+The module {\tt icpc} provides procedures which are needed as preconditioning
+\index{preconditioning}
+steps for the inductive completion procedure.
+
+The main algorithm DTCDGR computes a $d$-top set and a top set
+such that $d$ is the depth of 
+\index{top}
+the deepest left-hand side of a constructor rule in a term rewriting system
+$\cal R$.
+In addition the function symbols and constants are partitioned into
+\index{constructor}
+constructors and defined operators, and DTCDGR determines whether the 
+$\cal R$-ground normal forms are freely generated by the constructors.
+DTCDGR implements the Algebra Separation Theorem in \cite{BuendgenKuechlin:89}.
+\index{algebra separation}
+DTCDGR may fail for non-linear term rewriting systems.
+
+Given a set of constructors $\cal C$, DCSLR computes the depth 
+(w.\,r.\,t.\ DEPTH1) of the deepest constructor rule, i.\,e.\ of the 
+deepest rule whose left-hand side is in $T({\cal C},{\cal X})$.
+RROC computes the restriction ${\cal R}^*$ of the term rewriting system 
+\index{rule!constructor}
+$\cal R$ to constructor rules:
+\[ {\cal R}^* = \{ l \leftarrow r \mid l \rightarrow r \in {\cal R} 
+    \wedge l \in T({\cal C},{\cal X}) \}.
+\]
+It also determines whether ${\cal R}^*$ is left-linear.
+
+\subsection{The {\tt icgr} Module}
+
+The module {\tt icgr} contains the ground reducibility test which 
+essentially tests whether a set of terms {\em covers its universe}.
+\index{cover}
+A detailed description of this module can be found in \cite{Buendgen:87}.
+
+The following two complex data structures are introduced in this module.
+\begin{itemize}
+ \item S-LISTs have the form of assignment lists (see Section~\ref{ss:sb}):
+\index{S-LIST}
+    \[ (x_1, t_1, \ldots, x_n, t_n). \]
+   where the $x_i$ are variables and the $t_i$ are terms such that no $t_i$ 
+   has a free variable in $\{x_1, \ldots,x_n\}$.
+   However different $t_i$ and $t_j$ may have common variables (with unique
+   representation).
+   S-LISTs are used to describe substitutions.
+ \item An SR-LIST is a list of the form
+\index{SR-LIST}
+   \[ ((S_1, R_1), \ldots, (S_k, R_k)) \]
+   where the $S_i$ are S-LISTs and the $R_i$ are rules.
+\end{itemize}
+
+The algorithm TAPUWR computes an SR-LIST describing the set of all possible
+rmgus between a term $t$ and all left-hand sides of rules in a term rewriting
+system $\cal R$.
+For each pair $(S_i, R_i)$ in the SR-LIST, $S_i$ denotes an rmgu $\rho_i$ and 
+$R_i$ a rule \( l_i \rightarrow r_i \in {\cal R} \).
+An {\em rmgu (restricted most general unifier)} is defined as follows.
+\index{rmgu}
+Let \( \mu = \mbox{mgu}(t,l_i) \) then
+\[ \rho_i = \mbox{rmgu}(t,l_i) = 
+     \{ x \mapsto s \mid s = \mu(x) \wedge x \in {\cal X}(t) \}
+\]
+and $\mbox{rmgu}(t,l_i)$ is such that the variables in $\rho_i$ have been 
+renamed away from ${\cal X}(t)$.
+
+Given an SR-LIST $((S_1, R_1), \ldots, (S_n, R_n))$, UCTWR computes a list of
+rules $(R_{i_1}, \ldots, R_{i_k})$ for \( i_j \in \{ 1, \ldots, n \} \) such
+that the set $\{ T_{i_1}, \ldots, T_{i_k} \}$ 
+(where \( T_{i_j}= \mbox{LP2EVE}(S_{i_j}) \) ) covers its universe.
+If no such set of rules exists, UCTWR returns the empty list.
+Therefore UCTWR can be used to decide which rules are needed to prove the
+$\cal R$-ground reducibility of a term $t$ (at certain positions)
+provided the SR-LIST contains all rmgus of $t$ and the left-hand sides of 
+$\cal R$ (at these positions).
+\index{cover}
+The main work of UCTWR is done in the COVER algorithm.
+
+IRPOS computes a subset \( R^* \in {\cal R} \) such that a term $t$ is 
+\index{ground reducibility}
+ground reducible at its top position using $R^*$.
+
+\subsection{The {\tt iccov} Module}
+
+The module {\tt iccov} provides the parallel cover algorithm presented in
+\index{cover}
+\cite{BuendgenKuechlin:89}.
+This algorithm has been extended to allow for non-linear term lists
+to cover the universe of a list of terms provided the non-linear variables
+in the covering term list match only ground terms.
+In particular, if a variable $x$ occurs more than once in $(a_1, \ldots, a_n)$ 
+and \( a_1\sigma = t_1 \) and $\sigma(x)$ is ground then
+\( (a_2\sigma, \ldots, a_n\sigma) \) may be used to cover
+$UNIV_{\cal R}((t_2,\ldots,t_n))$.
+
+The module {\tt iccov} introduces a data structure TR-LIST which is a list
+of pairs
+\[ ( (T_1,r_1), \ldots, (T_k,r_k)) \]
+where the $T_i$ are lists of terms and the $r_i$ are rewrite rules.
+All lists $T_i$ in a TR-LIST have the same length and terms in the same
+position of two term lists have the same type (sort).
+For \( i \neq j \), $T_i$ and $T_j$ do not share common variables.
+Each $T_i$ denotes the values of a substitution the domain of which is
+understood.
+The algorithm COVER is used to test whether $\{T_1, \ldots, T_k\}$
+covers $UNIV_{\cal R}((t_1,\ldots,t_{|T_i|}))$.
+The terms to be covered are provided by a list  of top set tree nodes and the 
+successors of these terms are computed using a precomputed top set tree.
+
+\subsection{The {\tt icip} Module}
+
+The module {\tt icip} contains a positional ground reducibility test as 
+\index{ground reducibility!positional}
+defined in \cite{Kuechlin:89}.
+A more detailed description of this module can be found in
+\cite{Buendgen:87}.
+
+In addition to S-LISTs and SR-LISTs the module {\tt icip} introduces the
+following data structures:
+\begin{itemize}
+ \item A PS-LIST is a list \( ((p_{1}, SR_{1}),\ldots,(p_{n},SR_{n}))
+\index{PS-LIST}
+ \) where the $p_{i}$ are  terms and the $SR_{i}$ are SR-LISTs.
+ As the
+ $p_{i}$ are used to describe positions of a term they are referred to as the
+ positions of the PS-LIST. PS-LISTs are used to list the positions $p$
+ of a term $t$ together with all rmgu's
+ between $t|_{p}$ and left-hand sides of a rule.
+ \item An IC-LIST is a list 
+\index{IC-LIST}
+  \( ((p_{1},\ldots,p_{n}),\ldots,(R_{1},\ldots, R_{m}) ) \) where the $p_{i}$ 
+   are terms referred to as the positions of
+  the IC-LIST and the $R_{i}$ are axioms. An IC-LIST is used
+ to describe an inductively complete set of positions for a set of rules.
+\end{itemize}
+The algorithm ICPR computes the set of all minimal inductively complete
+\index{inductively complete}
+position sets of a term together with the needed rules.
+I.\,e.\ ICPR computes the set
+\[ I^* = \{ (P,R) \mid P \subseteq O(t) \mbox{ and } t 
+    \mbox{ is ground reducible at } P \mbox{ using } R \}
+\]
+such that from \( (P_i,R_i), (P_j,R_j) \in I^* \) follows
+\( P_i \not\subset P_j \).
+
+\subsection{The {\tt iccpc} Module}
+
+The module {\tt iccpc} provides critical pair computation algorithms
+applying a ground subconnectedness criterion to ensure the ground confluence
+\index{subconnectedness criterion!ground}
+\index{confluence!ground}
+of critical pairs (\cite{Kuechlin:89}).
+
+ASCPUI is the only algorithm which is exported from iccpc.
+It computes the set of all critical pairs between a rule and a set of rules.
+The result is partitioned into a set of {\em essential} and a set of 
+{\em inessential} critical pairs.
+\index{critical pair!essential}
+\index{critical pair!inessential}
+The essential critical pairs are those obtained by superpositions at
+inductively complete positions and rules described by an IC-LIST.
+
+The critical pairs computed by ASCPUI are labelled by a mark (CPESS(CP),
+see Table~\ref{ta:cp}) stating whether they are essential (CPESS(CP) = ESS = 1)
+or inessential (CPESS(CP) = INESS = 0).
+ 
+\subsection{Inductive Completion}
+
+The module {\tt icic} provides an implementation of the inductive completion 
+\index{completion!inductive}
+procedure IC' in \cite{Kuechlin:89}\footnote{the non-deterministical parts of 
+IC' being controlled by user interaction}.
+The according ReDuX procedure is called EKBIC.
+It uses a similar completion strategy as DTKBC.
+See Figure~\ref{fi:INDCOMP} for an abstract version of an inductive 
+completion procedure.
+\begin{figure}[ht]
+\begin{center}
+\fbox{
+\begin{minipage}{5.6in} %necessary if there is a footnote within the figure
+\begin{quote}
+\begin{center} ${\cal R}^* \leftarrow$ {\bf IC'}$({\cal I},
+                                                 {\cal R},\succ)$
+\end{center}
+[Inductive completion procedure. \\
+$\cal I$ is a set of equations, ${\cal R}$ is a (ground) confluent
+term rewriting system
+and $\succ$ is a terminating term ordering.
+Then ${\cal R}^*$ is a ground confluent TRS
+containing ${\cal R}$ and inductive consequences of ${\cal R}$
+if all equations in $\cal I$ are inductive consequences of ${\cal R}$
+otherwise \( {\cal R}^*\! = \)`disproof'. ]
+\begin{description}
+ \item[{(1) [Initialize.]}] \(  {\cal R}^* := {\cal R}; \)
+      \( {\cal E}_+ := {\cal I} \); \( {\cal E}_- := \emptyset \).
+ \item[{(2) [Simplify.]}] {\bf while} the {\em simplify}-inference rule
+   applies {\bf do} \\
+  \(\bgn  ({\cal E_+};{\cal R^*}) := Simplify\&Decompose(({\cal E_+};{\cal R^*})); \) \\
+  \( \null \; ({\cal E_-};{\cal R^*}) := Simplify\&Decompose(({\cal E_-};{\cal R^*}))  \nd. \)
+ \item[{(3) [Delete.]}] {\bf while} the {\em delete}-inference rule
+   applies {\bf do} \\
+  \( \bgn ({\cal E_+};{\cal R^*}) := Delete(({\cal E_+};{\cal R^*})); \)
+  \( \; ({\cal E_-};{\cal R^*}) := Delete(({\cal E_-};{\cal R^*})) \nd. \)
+ \item[{(4) [Stop?]}] {\bf if} \(  {\cal E_+} = \emptyset \) {\bf then return}
+      ${\cal R}^*$ and {\bf stop}.
+ \item[{(5) [Orient.]}] Let
+       \( a \leftrightarrow b \in {\cal E}_+ \cup {\cal E}_- \); \\
+      \( {\cal E}_+ := {\cal E}_+ \setminus \{ a \leftrightarrow b \} \);
+      \( {\cal E}_- := {\cal E}_- \setminus \{ a \leftrightarrow b \} \);
+      {\bf if} \( a \succ b \) {\bf then} \(  \bgn l := a; r  := b \nd \) \\
+      {\bf elsif} \( b \succ a \) {\bf then} \(  \bgn l := b; r  := a \nd \) \\
+      {\bf else stop} with failure; \\
+      \( {\cal R}^* := {\cal R}^* \cup \{ l \rightarrow r \} \).
+ \item[{(6) [Consistency check.]}] {\bf if} $l$ is not ground reducible
+  w.\,r.\,t.\ $\cal R$ {\bf then} \\
+     \( \bgn {\cal R}^* := \) `disproof'; {\bf return} $\nd$.
+ \item[{(7) [Compose.]}] {\bf while} the {\em compose}-inference rule
+   applies {\bf do} \\
+   \( ({\cal E_+};{\cal R}^*) := Compose(({\cal E}_+;{\cal R}^*)). \)
+ \item[{(8) [Deduce.]}] \null \\
+   Let $E$ be the set of essential critical pairs
+   between $l \rightarrow r$ and $\cal R$;  \\
+   let $I$ be the set of inessential critical pairs
+   between $l \rightarrow r$ and ${\cal R}^*$; \\
+   \( {\cal E}_+ := {\cal E}_+ \cup E \);
+   \( {\cal E}_- := {\cal E}_- \cup I \)\footnote{Here we
+                                             identify pairs and equations.};
+    {\bf continue} with step 2. \hfill $\Box$
+\end{description}
+\end{quote}
+\end{minipage}
+}  
+\end{center}
+\caption{Algorithm {\em INDCOMP}} \label{fi:INDCOMP}
+\end{figure}
+ 
+The equation queues ${\cal E}_+$ and ${\cal E}_-$ are subdivided into lists
+\index{queue}
+Q1 (old axioms), Q2 (essential critical pairs), Q3 (delayed essential
+critical pairs) and Q4 (inessential critical pairs).
+
+If --- in the orientation step --- the smallest inessential critical pair can 
+yield a rule which can reduce the smallest essential critical pair, then the
+program proposes to prove the inessential critical pair next (HYPSEL).
+Otherwise it proposes to orient an essential critical pair.
+
+During the consistency check all inductively complete positions of the new
+\index{inductively complete}
+rule's left-hand side are computed together with the applicable rules.
+The user must select one of the inductively complete positions to proceed with.
+In the deduction step the ground subconnectedness criterion is applied 
+\index{subconnectedness criterion!ground}
+w.\,r.\,t.\ that set of inductively complete positions.
+
+If the set of $\cal R$-ground normal forms is freely generated by a set of
+constructors, then the critical pair decomposition described in
+\index{critical pair!decomposition}
+\cite{HuetHullot:80} is applied to both the essential and the inessential
+critical pairs (CPDFTC).
+It is also applied for  each constructor that is not a top-syombol
+of a left-hand side of a rule in $\cal R$.
+
+\subsection{The Main Programs}
+
+There are two main programs supplied with the {\it ic}-subsystem:
+one program to analyze the ground term model of a term rewriting system
+and one to perform inductive proofs.
+The function and use of these programs is described in 
+\RUD.
+\begin{description}
+ %\item[ICP] performs a preconditioning of the data type as in ITST and then
+            %allows the user to prove equations by running the inductive
+            %completion procedure.
+            %The data type's term rewriting system may be augmented by
+            %inductive theorems which may make a recomputation of the top set
+%\index{top set}
+            %necessary.
+ \item[TS]  allows the user to perform a ground normal form analysis of 
+            well behaved data type \footnote{A data type is well-behaved if 
+            there is a constant or nullary operator for each sort (no-void 
+            condition) and if the set of (ir)reducible ground terms is a 
+            regular tree language.}
+            using different methods: 
+            a straight forward top set
+\index{top set}
+\index{top set tree}
+            (tree) computation, an interleaved top set (tree) computation
+            using the Algebra Separation Theorem of
+\index{algebra separation}
+            \cite{BuendgenKuechlin:89} and a pruned top set tree computation.
+\index{top set tree!pruned}
+            In addition a ground normal form grammar is computed and 
+            positional ground reducibility tests can be performed.
+ \item[IC]  first performs a confluence and termination test of the data type's
+            term rewriting system and allows the user to run the 
+            Knuth-Bendix completion procedure if the rule set is not complete.
+            The complete term rewriting system is used in the remaining
+            part.
+            Then the ground normal forms of this term rewriting system are
+\index{preconditioning}
+            analyzed in a preconditioning step which among others computes
+            a top set tree.
+            Then the user may prove (inductive) theorems by inductive 
+\index{completion!inductive}
+            completions.
+            The new theorems and lemmas may be used to augment the original
+            rule set for further proofs.
+\end{description}
+
+The interactive procedures needed in the programs can be found in the modules
+{\tt icint}, {\tt INT/icici} and {\tt INT/ictsi}.

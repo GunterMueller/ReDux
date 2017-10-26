@@ -1,0 +1,70 @@
+\section{The CO-Subsystem}
+
+The ReDuX subsystem {\em co} contains `coroutines' for combinatorial
+\index{coroutine}
+\index{combinatorial algorithm}
+algorithms.
+
+Because of the complexity of problems like the computation of all subsets of
+a set, it may be prohibitive to compute the result at once due to
+space limitations.
+Therefore the algorithms in {\em co} simulate coroutines which compute 
+only one element each time they are called and
+`remember' which elements they have already computed.
+Hence the actual result is encoded in the status of the coroutine which 
+must be passed as input to that routine the next time it is called.
+
+MSNSSC (in {\tt coms}) computes one by one all multi-subsets $M'$ of a
+given multi-set $M$ such that $M'$ is $c$ times contained in $M$
+\index{multi-set}
+(for an integer $c$).
+If $e_1,\ldots,e_k$ are pairwise distinct elements, $M$ is encoded as a list
+$(e_1, n_1, \ldots, e_k, n_k)$ if element $e_i$ occurs $n_i$ times in $M$.
+\begin{example}
+ The following piece of \ALDES\ code show how to compute the
+ multi-subsets $M'$ of $M$ such that $M'$ is $c$ times contained in $M$.
+ \begin{description}
+      \item[{(1) [Initialize status of coroutine.]}] \( S:=() \). 
+      \item[{(2) [Enumerate multi-subsets.]}] {\bf repeat} \\
+        \null [ \( S^* = \{ s_1,s_3, \ldots, s_{|S|-1} \} \) is
+         a multi-subset of $M$ which fits $c$ times in $M$
+            where \( s_i = \mbox{FIRST}(S_i)  \)
+          and \( S = (S_1, \ldots, S_{|S|}) \). ] \\
+        MSNSSC$(M,S,c; S,b)$; \\
+        \null [ \( b = 1 \) if the length of $S$ has changed. ] \\
+       {\bf until} S = (). \hfill $\Box$
+ \end{description}
+\end{example}
+
+INCGL one by one computes all positive $k$-tuples $C^{(k)}$ whose elements 
+stem from a list $C$.
+\begin{example} 
+ The following piece of  \ALDES\ code show how to compute all
+ $k$-tuples in $C \times \cdots \times C$.
+ \begin{description} 
+      \item[{(1) [Initialize status of coroutine.]}] \( G:=() \);  
+      {\bf for} \( i = 1, \ldots, k \) {\bf do} \( G:=\mbox{COMP}(C,G) \). 
+      \item[{(2) [Generate $k$-tuples.]}] 
+         {\bf while} \(G \neq () \) {\bf do} \\ 
+        $\bf \{$ [ \( (g_1,\ldots, g_k) \in C \times \cdots \times C \),
+        where $g_i= \mbox{FIRST}(G_i)$ and \( G = (G_1, \ldots, G_k) \).] \\
+      \( G:=\mbox{INCGL}(C,G) {\bf \}} \). \hfill $\Box$
+ \end{description}
+\end{example}
+
+Given $k$ lists $C_1,\ldots,C_k$, GGLINC one by one computes all $k$-tuples 
+$(c_1,\ldots,c_k)$ whose elements $c_i$ stem from $C_i$ 
+(for $1 \leq i \leq k$).
+\begin{example}
+ The following piece of  \ALDES\ code show how to compute all 
+ $k$-tuples in $C_1 \times \cdots \times C_k$.
+ \begin{description}
+      \item[{(1) [Initialize status of coroutine such that 
+             \( G =(C_1,\ldots,C_k) \).] }]
+       \ldots. 
+      \item[{(2) [Generate $k$-tuples.]}] {\bf while} \(G \neq () \) {\bf do} \\
+        $\bf \{$ [ \( (g_1,\ldots, g_k) \in C_1 \times \cdots \times C_k \),
+        where $g_i= \mbox{FIRST}(G_i)$ and \( G = (G_1, \ldots G_k) \).] \\
+        \( G:=\mbox{GGLINC}(C,G) {\bf \}} \). \hfill $\Box$
+ \end{description}
+\end{example}

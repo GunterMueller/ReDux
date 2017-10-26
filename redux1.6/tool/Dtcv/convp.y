@@ -1,0 +1,444 @@
+/* convp.y:
+ * Convert signature part of data types, parser.
+ * 19.04.95 Carsten Sinz
+ */
+
+%{
+/* The following #define must be removed when YACC is used instead of BISON.
+ * Warnings during translation can be ignored in this case.
+ */
+#define YYSTYPE char*
+
+#include <stdio.h>
+#include <string.h>
+
+typedef enum { PREFIX, POSTFIX, INFIX, ROUNDFIX, LISPFIX, CONSTFIX, FNONE } fixity;
+typedef enum { AC, COM, UNONE } ustatus;
+
+typedef struct
+{
+  char *op;
+  int arity;
+  fixity fix;
+  ustatus ustat;
+  char *crsym;
+  char *xint;
+  char *coerc;
+  char *xfg;
+} prop;
+
+typedef struct PLIST
+{
+  prop *p;
+  struct PLIST *next;
+} plist;
+
+FILE *sorts, *xsrts;
+int snp = 1;    /* sorts not printed */
+
+/* prototypes */
+int main(void);
+plist *hdprop(plist *,char *, char *, int);
+void hdfx(plist *);
+void hdustat(plist *);
+void hdxprop(plist *);
+void prprop(plist *, char *);
+void prnl();         /* print new-line */
+void printop(char *);
+void yyerror(char *);
+
+/* (debug) */
+int plen(plist *);
+
+plist *pl = 0;   /* property list */
+int arity;      /* current operator arity */
+
+extern char *comment;  /* current line-comment */
+extern int tkrd;       /* token read? */
+
+%}
+
+%token TYPE EXTERNAL XREAD XWRITE XEQ XLT CONSTS
+%token VARS AXIOMS OPS USTAT FIX ROUND XINT
+%token NUMBER IDENT XIDENT EQUAL END
+%token COERC XTERM XFG XFGX
+
+%%
+start: AlgSpec
+     ;
+
+AlgSpec: NameSpec '.' ExtSpec ConstSpec VarSpec OperatorSpec EndDecl
+					{ hdfx(pl); hdustat(pl); hdxprop(pl);
+					  prnl(); YYACCEPT;				}
+       ;
+
+EndDecl: AXIOMS
+       | END
+       ;
+
+NameSpec: TYPE IDENT			{ printf("DATATYPE %s;",$2);			}
+        ;
+
+ExtSpec: EXTERNAL			{ prnl(); if(snp) { printf("SORT\n\t&@&@&@\n");
+					   snp=0; } printf("EXTERNAL");			}
+		  Externals
+       | /* epsilon */
+       ;
+Externals: Externals '.' IDENT		{ prnl(); printf("\t%s: ",$3); fprintf(xsrts,"%s\n",$3);}
+                               Ext2	{ printf(";");					}
+         | IDENT			{ prnl(); printf("\t%s: ",$1); fprintf(xsrts,"%s\n",$1);}
+                 Ext2			{ printf(";");					}
+         ;
+
+Ext2: Ext2 XREAD IDENT			{ printf(", XREAD=%s", $3);			}
+    | Ext2 XWRITE IDENT			{ printf(", XWRITE=%s", $3);			}
+    | Ext2 XEQ IDENT			{ printf(", XEQ=%s", $3);			}
+    | Ext2 XLT IDENT			{ printf(", XLT=%s", $3);			}
+    | Ext2 XTERM IDENT			{ printf(", XTERM=%s", $3);			}
+    | Ext2 XFGX IDENT			{ printf(", XFG=%s", $3);			}
+    | XREAD IDENT			{ printf("XREAD=%s", $2);			}
+    | XWRITE IDENT			{ printf("XWRITE=%s", $2);			}
+    | XEQ IDENT				{ printf("XEQ=%s", $2);				}
+    | XLT IDENT				{ printf("XLT=%s", $2);				}
+    | XTERM IDENT			{ printf("XTERM=%s", $2);			}
+    | XFGX IDENT			{ printf("XFG=%s", $2);				}
+    ;
+
+ConstSpec: CONSTS			{ prnl(); if(snp) { printf("SORT\n\t&@&@&@\n");
+					   snp=0; } printf("CONST");			}
+		  Constants
+         | /*epsilon*/
+         ;
+
+Constants: Constants '.' Xidents '-' IDENT PropList
+					{ printf(": %s;",$5); fprintf(sorts,"%s\n",$5);
+					  pl=hdprop(pl,$3,$6,0);			}
+         | Xidents '-' IDENT PropList	{ printf(": %s;",$3); fprintf(sorts,"%s\n",$3);
+					  pl=hdprop(pl,$1,$4,0);			}
+         ;
+
+VarSpec: VARS				{ prnl(); if(snp) { printf("SORT\n\t&@&@&@\n");
+					   snp=0; } printf("VAR");			}
+	      Variables
+       | /*epsilon*/
+       ;
+
+Variables: Variables '.' Idents '-' IDENT
+					{ printf(": %s;",$5); fprintf(sorts,"%s\n",$5);	}
+	 | Idents '-' IDENT		{ printf(": %s;",$3); fprintf(sorts,"%s\n",$3);	}
+	 ;
+
+OperatorSpec: OPS			{ prnl(); if(snp) { printf("SORT\n\t&@&@&@\n");
+					   snp=0; } printf("OPERATOR");			}
+		  Operators
+            | /*epsilon*/
+            ;
+
+Operators: Operators '.' Xident '('	{ prnl(); printf("\t"); printop($3); printf(": ");}
+				    Domain ')' '-' IDENT PropList
+					{ printf(" -> %s;", $9); fprintf(sorts,"%s\n",$9);
+   					  pl=hdprop(pl,$3,$10,arity); 			}
+         | Xident '('			{ prnl(); printf("\t"); printop($1); printf(": ");}
+		      Domain ')' '-' IDENT PropList
+					{ printf(" -> %s;", $7); fprintf(sorts,"%s\n",$7);
+					  pl=hdprop(pl,$1,$8,arity);			 }
+         ;
+
+Domain: Domain2
+      | /* epsilon */			{ arity=0;					}
+      ;
+
+Domain2: Domain2 ',' IDENT		{ printf(", %s", $3); fprintf(sorts,"%s\n",$3);
+					  arity++;					}
+       | IDENT				{ printf("%s", $1); fprintf(sorts,"%s\n",$1);
+					  arity=1;					}
+       ;
+
+PropList: PropList Indicator ':' PropVal
+					{ $$=strcat($1, strcat(strdup(" "), strcat($2,$4)));}
+        | /* epsilon */			{ $$=strdup("");				}
+        ;
+
+Indicator: USTAT			{ $$=strdup("U");				}
+         | FIX				{ $$=strdup("F");				}
+         | ROUND			{ $$=strdup("R");				}
+         | XINT				{ $$=strdup("X");				}
+         | COERC			{ $$=strdup("C");				}
+         | XFG				{ $$=strdup("G");				}
+         ;
+
+PropVal: Xident				{ $$=$1;					}
+       | CONSTS				{ $$="CONSTS";					}
+
+Xidents: Xidents ',' Xident		{ printf(", %s", $3);				}
+       | Xident				{ prnl(); printf("\t%s", $1);			}
+       ;
+
+Idents: Idents ',' IDENT		{ printf(", %s", $3);				}
+      | IDENT				{ prnl(); printf("\t%s", $1);			}
+      ;
+
+Xident: XIDENT
+      | IDENT
+      | NUMBER
+      ;
+
+%%
+
+int main(void)
+{
+  int error;
+
+  sorts = fopen("/tmp/sorts.rdx", "w");
+  xsrts = fopen("/tmp/xsrts.rdx", "w");
+  error = yyparse();
+  fclose(xsrts); fclose(sorts);
+
+  return error;
+}
+
+/* handle property list */
+plist *hdprop(plist *pl, char *op, char *pps, int ar)
+{
+  prop *p;
+  plist *npl;
+  char *lex, *arg;
+  char c;
+
+  /* allocate new property structure */
+  p = (prop *)malloc(sizeof(prop));
+  p->op = strdup(op);
+  p->arity = ar;
+  p->fix = FNONE;
+  p->ustat = UNONE;
+  p->xint = p->crsym = 0;
+
+  lex = strtok(pps," ");
+  while(lex)
+    {
+      /* printf("[%c %s]\n", lex[0], lex+1); */
+      c = lex[0]; arg=lex+1;
+      switch(c)
+	{
+	case 'U':
+	  if(strcmp(arg,"AC")==0) p->ustat=AC;
+	  else if(strcmp(arg,"COM")==0) p->ustat=COM;
+	  else { fprintf(stderr,"Error: unknown USTAT value\n"); exit(10); }
+	  break;
+	case 'F':
+	  if(strcmp(arg,"PREFIX")==0) p->fix=PREFIX;
+	  else if(strcmp(arg,"POSTFIX")==0) 
+	    { if(p->arity!=1)
+		{ fprintf(stderr,"Error: postfix operator with arity # 1\n");
+		  exit(30);
+		}
+	      else p->fix=POSTFIX;
+	    }
+	  else if(strcmp(arg,"INFIX")==0) p->fix=INFIX;
+	  else if(strcmp(arg,"ROUNDFIX")==0) p->fix=ROUNDFIX;
+	  else if(strcmp(arg,"LISP")==0) p->fix=LISPFIX;
+	  else if(strcmp(arg,"CONSTS")==0) p->fix=CONSTFIX;
+	  else { fprintf(stderr,"Error: unknown FIX property\n"); exit(10); }
+	  break;
+	case 'R':
+	  p->crsym = strdup(arg);
+	  break;
+	case 'X':
+	  p->xint = strdup(arg);
+	  break;
+	case 'C':		/* COERC property */
+	  p->coerc = strdup(arg);
+	  break;
+	case 'G':		/* XFG property */
+	  p->xfg = strdup(arg);
+	  break;
+	}
+
+      lex = strtok(NULL," ");
+    }
+
+  /* link new element into list */
+  npl = (plist *)malloc(sizeof(plist));
+  npl->p = p;
+  npl->next = pl;
+
+  return npl;
+}
+
+/* handle fixity */
+void hdfx(plist *pl)
+{
+  plist *npl;
+  prop *p;
+  plist *pre=0, *post=0, *in=0, *round=0, *lisp=0, *con=0;
+
+  /* make lists with only one specific fixity */
+  while(pl)
+    {
+      p = pl->p;
+      npl = (plist *)malloc(sizeof(plist));
+      npl->p = p;
+      npl->next = 0;
+      switch(p->fix)
+	{
+	case PREFIX:   npl->next=pre; pre=npl; break;
+	case POSTFIX:  npl->next=post; post=npl; break;
+	case INFIX:    npl->next=in; in=npl; break;
+	case ROUNDFIX: npl->next=round; round=npl; break;
+	case LISPFIX:  npl->next=lisp; lisp=npl; break;
+	case CONSTFIX: npl->next=con; con=npl; break;
+	case FNONE:
+	  if(p->arity <= 2 && p->arity > 0) { npl->next=pre; pre=npl; } break;
+	}
+      pl = pl->next;
+    }
+
+  if(pre==0 && post==0 && in==0 && round==0 && lisp==0 && con==0) return;
+  prnl(); printf("NOTATION");
+
+  /* handle lists */
+  prprop(pre, "FUNCTION"); prprop(post, "POSTFIX");
+  prprop(in, "INFIX"); prprop(lisp, "LISP");
+  prprop(con, "CONSTANT");
+
+  /* roundfix */
+  while(round)
+    { p = round->p;
+      printf("\n\t%s: ROUNDFIX %s;", p->op, p->crsym);
+      round=round->next;
+    }
+}
+
+/* handle unification status */
+void hdustat(plist *pl)
+{
+  plist *npl;
+  prop *p;
+  plist *ac=0, *com=0;
+
+  /* make lists with only one specific unification status */
+  while(pl)
+    {
+      p = pl->p;
+      npl = (plist *)malloc(sizeof(plist));
+      npl->p = p;
+      npl->next = 0;
+      switch(p->ustat)
+	{
+	case AC: npl->next=ac; ac=npl; break;
+	case COM: npl->next=com; com=npl; break;
+	case UNONE: break;
+	}
+      pl = pl->next;
+    }
+
+  if(ac==0 && com==0) return;
+  prnl(); printf("THEORY");
+  
+  /* handle lists */
+  prprop(ac, "AC"); prprop(com, "COM");
+}
+
+/* handle XINT,COERC and XFG properties */
+void hdxprop(plist *pl)
+{
+  int first=1;
+  prop *p;
+
+  while(pl)
+    { p = pl->p;
+      if(p->xint || p->coerc || p->xfg)
+      { if(first) { prnl(); printf("PROPERTY"); first=0; }
+        if(p->xint)
+        { printf("\n\t"); printop(p->op);
+          printf(": XINT="); printop(p->xint); printf(";");
+        }
+        if(p->coerc)
+        { printf("\n\t"); printop(p->op);
+          printf(": COERC="); printop(p->coerc); printf(";");
+        }
+        if(p->xfg)
+        { printf("\n\t"); printop(p->op);
+          printf(": XFG="); printop(p->xfg); printf(";");
+        }
+      }
+      pl = pl->next;
+    }
+}
+
+void prprop(plist *pl, char *value)
+{
+  prop *p;
+
+  if(pl)
+    {
+      printf("\n\t");
+      while(pl)
+	{
+	  p = pl->p;
+	  printop(p->op);
+	  pl=pl->next;
+	  if(pl) printf(", ");
+	}
+      printf(": %s;", value);
+    }
+}
+
+int plen(plist *pl)
+{
+  int l;
+  for(l=0; pl; pl=pl->next) l++;
+  return l;
+}
+
+void prnl(void)
+{
+  if(comment)
+    {
+      printf("\t%s", comment);
+      comment=0;
+    }
+  printf("\n");
+}
+
+void printop(char *op)
+{
+  int i,j;
+  char pop[255] = "\0";
+  const char *keyword[32] =
+    { "AC", "ASSOC", "AXIOM", "COERCION", "COM", "CONST", "CONSTANT", "DATATYPE", "END", "EXTERNAL",
+      "NOTATION", "INFIX", "KBINDEX", "KBWEIGHT", "LEFT", "LISP", "NONE", "OPERATOR", "POSTFIX",
+      "PREC", "PREFIX", "PROPERTY", "RIGHT", "ROUNDFIX", "SORT", "THEORY", "VAR", "XEQ", "XINT",
+      "XLT", "XREAD", "XWRITE" };
+  const char *reschar = "%`:-";
+  const char illegchar = ';';
+
+  /* test if operator name is keyword */
+  for(i=0; i<32; i++)
+    if(strcmp(op,keyword[i])==0)
+      { for(j=0; j<253; j++) pop[j+1]=op[j];
+	pop[0]='`'; pop[254]=0;
+	break;
+      }
+  /* test for illegal character */
+  if(pop[0]==0)
+    if(strchr(op,illegchar))
+      { fprintf(stderr,"Illegal character ';' in operator name!");
+	exit(20);
+      }
+  /* test for reserved characters */
+  if(pop[0]==0)
+    { i=0;
+      while(*op)
+	{ if(strchr(reschar,*op)) pop[i++]='`';
+	  pop[i++]=*op++;
+	}
+    }
+  printf("%s", pop);
+}
+
+void yyerror (char *s)
+
+{
+   fprintf (stderr, "%s\n", s);
+}

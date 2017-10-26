@@ -1,0 +1,23 @@
+DATATYPE CCC;
+SORT
+	CCC;
+CONST
+	I: CCC;
+VAR
+	x, y, z, u, v, w: CCC;
+OPERATOR
+	+: CCC, CCC -> CCC;
+	*: CCC, CCC -> CCC;
+	Fst: CCC -> CCC;
+	Snd: CCC -> CCC;
+NOTATION
+	+, *, Fst, Snd: FUNCTION;
+AXIOM
+[1] *(*(x,y),z) == *(x,*(y,z));
+[2] *(+(x,y),z) == +(*(x,z),*(y,z));
+[3] *(x,I) == x;
+[4] *(I,x) == x;
+[5] Fst(+(x,y)) == x;
+[6] Snd(+(x,y)) == y;
+END
+; This file is ccc.typ , cartesian category combinators

@@ -1,0 +1,44 @@
+%%  comment symbol
+DATATYPE BRING;
+%%  AUTHOR  R. Buendgen
+%%  STATUS not complete
+%%  DESCRIPTION Boolean ring 
+SORT
+	BOOLEAN;
+EXTERNAL
+        FDD: XTERM=TFFDDE, XFG=FDDFG;
+CONST
+	F, T: BOOLEAN;
+VAR
+	p, q, r: BOOLEAN;
+OPERATOR
+	#: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  exclusive or
+	/\: BOOLEAN, BOOLEAN -> BOOLEAN;	%%  and
+        ~: BOOLEAN -> BOOLEAN;
+        A, B, C, D, E: -> BOOLEAN;
+COERCION
+        ': FDD -> BOOLEAN;
+THEORY
+	#, /\: AC;
+PREC
+        # < /\;
+PROPERTY
+        /\: FDD=FDDAND;
+        #: FDD=FDDXOR;
+        ~: FDD=FDDNOT;
+        T: FDD=FDDONE;
+        F: FDD=FDDZER;
+AXIOM
+  [1] p # F == p;
+  [2] p # p == F;
+  [3] p /\ T == p;
+  [4] p /\ p == p;
+  [5] p /\ F == F;
+  [6] p /\ (q # r) == p /\ q # p /\ r;
+ 
+  [7] A /\ B == C # B;
+  [8] B # C == B /\ D /\ E;
+  [9] A /\ E # D /\ C == B /\ C /\ E # A;
+ [10] B # D /\ D == C /\ D # C;
+END
+

@@ -1,0 +1,162 @@
+\section{Syntactical Structure}
+
+The parser presented in this paper offers facilities for data type, operator,
+\input{dtgram1.tex}
+constant, variable, axiom and term parsing. The different parsers are described
+in the following sections.
+
+There is no parser to read just coercion operators or external sorts.
+
+\subsection{Data Type Parser}
+The grammar of a \redux\ data type is shown in figure~\ref{dtgram1} and
+figure~\ref{dtgram2}.
+\input{dtgram2.tex}
+The symbols {\vs Ident}, {\vs XIdent} and {\vs Digit} 
+have already been explained in the last section.
+All other symbols that are
+not defined within this diagram stand for identifiers, extended
+identifiers or comma-separated lists of both kinds of identifiers.
+They are written in a more descriptive way in the grammar
+in order to make the grammar more intelligible. Which of the symbols
+stands for a normal and which for an extended identifier (or list) can be seen
+in figure~\ref{axgram}. The start symbol for data type parsing is
+{\vs DataType}.
+\input{axgram.tex}
+
+All of the following parsers (with the exception of the term parser)
+allow input of parts of a data type. This includes constants, variables,
+operators and axioms. It is necessary to have a valid data type structure
+in order to use any of the aforementioned parsers, because at least
+the sort information of a data type is needed to achieve this.
+(In many cases, such as
+axiom parsing, this is also the case for the complete signature.)
+
+
+Additional objects parsed with one of the following parsers are not immediately
+added to the data type used for these procedures, but this can be done
+afterwards by using the appropriate \redux\ functions.
+
+\subsection{Axiom Parser}
+The axiom parser uses the following grammar.
+It is used to parse a single axiom.
+The number of the axiom is set to zero, but it can be set to any number
+explicitly after parsing.
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs AxiomParse} \gprod {\vs Term} \ts{==} {\vs Term} \ts{;}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+
+\subsection{Axiom Set Parser}
+The axiom set parser is used to parse a non-empty set of axioms.
+The grammar is almost the same
+as in the equation part of the data type parser.
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs AxiomSetParse} \gprod \gplus{{\vs Axiom} \ts{;}} \ts{END}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+
+\subsection{Constant Set Parser}
+The constant set parser allows parsing of a non-empty set of constants.
+The obligate sort information is taken from a formerly parsed data type.
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs ConstantSetParse} \gprod \gplus{{\vs Constant} \ts{;}} \ts{END}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+
+\subsection{Operator Parser}
+The operator parser is, by contrast to the operator set parser, an interactive
+parser. I.e. additional information for an operator, such as notation
+(fixity), associativity or precedence is interactively asked of the user.
+The operator parser allows parsing of only one operator at once, as can be
+seen from the grammar.
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs OperatorParse} \gprod {\vs OpName} \ts{:} {\vs DomainList} \ts{->}
+   {\vs Range} \ts{;}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+
+\subsection{Operator Set Parser}
+The operator set parser allows parsing of operator sets. Additional operator
+information, such as notation, precedence etc., can be specified after operator
+declaration, as can be seen from the following grammar.
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs OperatorSetParse} \= \kill
+{\vs OperatorSetParse} \> \gprod \gplus{{\vs Operator} \ts{;}} 
+   \gstar{{\vs OpInfo}} \ts{END} \\
+{\vs OpInfo} \> \gprod {\vs AssocDecl} \galt {\vs NotationDecl} \galt {\vs PrecedenceDecl}
+   \galt {\vs PropertyDecl} \galt {\vs TheoryDecl}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+
+\subsection{Term Parser}
+In order to parser terms, the following parser can be used. There are
+different versions of the term parser in order to parse ``related'' terms,
+i.e. terms, which share common variables. Details on how variables
+are handled during term parsing can be found in the Programmer's Guide.
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs TermParse} \gprod {\vs Term} \ts{;}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+
+\subsection{Variable Set Parser}
+The variable set parser makes parsing of non-empty variable sets possible.
+Sort information is taken from a data type. Input must be according to the
+following grammar.
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs VariableSetParse} \gprod \gplus{{\vs Variable} \ts{;}} \ts{END}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+
+\vspace{2em}
+
+There is another parser for ``operator-relation-operator lists''. This parser is
+used by some demo programs to read in a term ordering (path ordering). For the sake of
+completeness, the grammar of this parser is included in this manual.
+
+\subsection{Operator - Relation - Operator List Parser}
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs OpRelOpListParse} \gprod \gopt{{\vs OpName} \group{ \ts{<=} \galt \ts{>=} \galt \ts{~}
+  \galt \ts{\#} \galt \ts{<} \galt \ts{>}} {\vs OpNames}} \ts{;}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\end{center}
+\vspace{1em}

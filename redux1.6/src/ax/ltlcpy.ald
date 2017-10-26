@@ -1,0 +1,21 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/ltlcpy
+   modulespecification: copy elements of list into another list
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : $Date: 91/05/13 11:47:43 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.1 $
+   status             : 
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+]                                                                      
+  
+                    LTLCPY(L1,L2)
+[List to list copy.
+L1 and L2 are lists with |L1| <= |L2|. Then for 0 < i <= |L1| the i-the
+element of L2 will be set to the i-th element of L1.]
+
+(1)  [Initialize.] L'1:=L1; L'2:=L2. 
+(2)  [Copy.] while L'1 # () do 
+     { ADV(L'1; l,L'1); SFIRST(L'2,l); L'2:=RED(L'2) } ||

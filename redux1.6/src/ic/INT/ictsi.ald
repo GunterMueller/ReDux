@@ -1,0 +1,34 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICTSI -- Top Set Interactive 
+   modulespecification: Interactive procedures for top set computation
+   programmer         : Wolfgang Kuechlin/Reinhard Buendgen             
+   language           : aldes                                           
+   last change        : 25.01.89 15.11.90
+                        $Date: 1993/08/13 10:33:58 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.2 $
+   bugs               : non known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+
+[ #include globs.h ]
+
+[--------------------------------------------------------------------- 
+     Section 3.                                                         
+     Interactive queries.                                               
+----------------------------------------------------------------------]
+                                                                       
+                    QCT()                                              
+[Query concerning trace.                                               
+The trace options are set interactively.]                              
+(1)  BLINES(1); STOUTL(" You have 5 trace options -").
+(2)  STOUTL("- counter example   trace  [1/0] *");
+     READ; CETRC:=AREADR().
+(3)  STOUTL("- substitution      trace  [1/0] *");
+     READ; STRC:=AREADR().
+(4)  STOUTL("- procedure name    trace  [1/0] *");
+     READ; PNTRC:=AREADR().
+(5)  STOUTL("- tree extension    trace  [1/0] *");
+     READ; EXTRC:=AREADR().
+(6)  STOUTL("- node deletion     trace  [1/0] *");
+     READ; DLTRC:=AREADR(); BLINES(1)||                                  

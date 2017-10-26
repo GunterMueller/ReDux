@@ -1,0 +1,9 @@
+                    ALGDIS(A; i,t,n1,n2)
+[Algorithm key display.
+A is a an algorithm key.
+Then i is the algorithm identifier, n1 is the number of input 
+parameters, n2 is the number of output parameters and t is the
+algorithm type (0 = procedure, 1 = function).]
+
+(1)  []  ADV4(A; i,t,n1,n2,DUMMY) ||
+

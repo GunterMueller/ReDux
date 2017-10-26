@@ -1,0 +1,43 @@
+Directory ass
+=============
+
+Contents:
++++++++++
+
+  README:        this file
+  dpr.s:         assembler version of DPR for Sun4 (Sparc2) architecture
+  dpr-sparc10.s: assembler version of DPR for Sun4 (Sparc10) architecture
+  dpr-i486.s     assembler version of DPR for 80486 architecture
+  dqr-i486.s     assembler version of DQR for 80486 architecture
+
+
+For applications with a high percentage of arithmetic the basic
+multiplication- (DPR) and division operations (DQR) should be rewritten
+in assembler.
+
+For Sun4 (Sparc2 and Sparc10) such assembler routines are provided
+(author: Gabor Simon) for DPR. On Sparcs the assembler versions of DQR are 
+not significantly faster than the ALDES versions.
+
+For 80486 architectures assembler version for both DPR and DQR have been
+provided by Georg Hagel.
+
+To use them compile the assembler sources create a library containing 
+the respective dpr.o or dpr.o and dqr.o objects. Finally you must remove
+those object form liblow.a 
+% gcc -c -o dpr.o <dpr-name>.s
+% ar r ../lib/lib<dpqr>.a <dpr-name>.o
+% gcc -c -o dqr.o <dqr-name>.s             # for 80486
+% ar r ../lib/lib<dpqr>.a <dqr-name>.o     # for 80486
+% ranlib lib<dpqr>.a
+% ar d libsac2.a dpr.o
+% ar d libsac2.a dqr.o                      # for 80486
+% ranlib libsac2.a
+
+I suggest the following library names
+  libdpqr-sun4.a       for dpr.s / Sun4 / Sparc2, ELC
+  libdpqr-sun10.a      for dpr.s / Sun4 / Sparc10
+  libdpqr-i486.a       for dpr-i486.s + dqr-i486.s / 80486
+
+  libdpqr-slow.a       for DPR (and DQR) compiled from the ALDES sources
+

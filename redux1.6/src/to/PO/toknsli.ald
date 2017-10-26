@@ -1,0 +1,47 @@
+[Project:  Term Orderings
+   module name        : TOKNSLI -- TOKNSL interactive
+   modulespecification: Interactive procedures for toknsl
+   programmer         : Reinhard Buendgen
+   language           : aldes                                           
+   last change        : 16.02.89
+                        $Date: 1993/08/12 08:53:50 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.8 $
+   status             : 
+   bugs               : none known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+                        ic/icd                                          
+]                                                                      
+ 
+[ #include tp.h ]
+[ #include globs.h ]
+                                                                       
+     const                                                             
+     [Result type of po.]                                              
+     INCOMP =0,                                                        
+     GREATEQ =1,                                                        
+     [Status]
+     NONE   =0,
+     LRST   =1,
+     RLST   =2.
+
+[----------------------------------------------------------------------.
+   Section 1
+   Algorithms for export
+-----------------------------------------------------------------------]
+
+                    A:=OASKST(F)
+[Operator , ask for status.
+F is a constant or an operator; then A is its status.
+If F is an AC-operator then F has no status.]
+(1)  [Ask.] repeat
+     E:=TUSTAT(F); if E = DAC \/ E = DCO then { A:=NONE; return };
+     CLOUT("Which status has the symbol "); SWRT(TNAME(F)); 
+     CLOUT(" ?"); WRITE; 
+     CLOUT("  0 - no status"); WRITE; 
+     CLOUT("  1 - l-r status"); WRITE;
+     CLOUT("  2 - r-l status"); CLOUT("     [0/1/2]? *"); WRITE;
+     READ; C^:=CREAD();
+     until C^ = '0' \/ C^ = '1' \/ C^ = '2'.
+(2)  [Finish up.] if C^='0' then A:=NONE else
+     if C^='1' then A:=LRST else A:=RLST ||

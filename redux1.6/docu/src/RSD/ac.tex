@@ -1,0 +1,388 @@
+\section{The AC-Subsystem} \label{se:ac}
+
+The {\it ac}-subsystem provides all algorithms needed for a completion
+procedure modulo an equational theory \`{a} la Peterson and Stickel
+\index{completion!Peterson-Stickel}
+\cite{PetersonStickel:81}.
+Most of the algorithms are implemented such that they can be extended to
+other (operator dependent) theories.
+So far the only equational theories  implemented are those described by 
+commutative (C) operators and by
+\index{commutative}
+associative and commutative (AC) operators.
+\index{AC}
+\index{associative and commutative}
+C-operators have entry DCO in TUSTAT and
+\index{operators!C{-}}
+AC-operators have the entry DAC in TUSTAT.
+\index{operators!AC{-}}
+
+Therefore the algorithms for equality tests, unifications, matches are
+extended to operate modulo commutativity and
+modulo associativity and commutativity.
+In addition the AC-reduction relation described in
+\index{reduction!AC{-}}
+\cite{PetersonStickel:81} is implemented.
+This reduction relation requires that the term rewriting system is
+AC-compatible and therefore AC-extension rules must be added to some 
+\index{rule!AC-extension}
+rewrite systems.
+In the completion procedure, the collapse inference rule applies to extension
+rules only when it applies to the original rule.
+The extension rules play also a r\^{o}le when computing AC-critical pairs.
+
+All algorithms in the {\it ac}-subsystem are designed to handle mixed terms.
+In general external terms are handled like constants.
+External term equality is determined using the function whose key is stored
+in TUSTAT.
+
+\subsection{The {\tt actto}-Module}
+
+The module {\tt actto} provides procedures to determine the (structural)
+equality modulo AC of two terms,
+\index{term!AC-equality}
+i.\,e., the position and the `tree structure' of term parts with the same
+AC-operator do not matter.
+Therefore it is convenient to represent terms with AC-operators in a
+{\em flattened} form.
+\index{term!flattened}
+Namely AC-operators are considered to be of variable rank (arity) and no
+argument of an AC-operator  $f$ may have the top operator $f$.
+
+In addition, there must be a total ordering $\leq_{\mbox{\scriptsize tto}}$
+\index{ordering!total}
+such that \( s \leq_{\mbox{\scriptsize tto}} t \) and
+\( t \leq_{\mbox{\scriptsize tto}} s \) iff \( s =_{AC} t \),
+all variables are smaller than non-variable terms and
+\( s <_{\mbox{\scriptsize tto}} t \) if the top operator of $s$ is less than
+the
+top operator of $t$ w.\,r.\,t.\ a total ordering on constants and operators.
+
+The implementation of the total term ordering $\leq_{\mbox{\scriptsize tto}}$
+depends on the storage model.
+In particular it is assumed that the garbage collection 
+\index{garbage collection}
+\index{SPACE}
+does not change the relative order of list cells on the heap (SPACE).
+The relative order of external objects under the same coercion operator 
+is determined using the function key stored as a property of the external type
+\index{type!external}
+under indicator DXLA.
+
+TFCONT computes the flattened contents of a term with associative
+\index{term!flattened}
+(and commutative) top operator.
+The function TTO returns 0, -1 or 1 if the first argument is (w.\,r.\,t.\
+$\leq_{\mbox{\scriptsize tto}}$) equal to, less than or greater than the
+second argument.
+
+The module {\tt actto} contains further algorithms depending on the total
+term ordering $\leq_{\mbox{\scriptsize tto}}$.
+There is a sorting algorithm for term lists (TLBSD), a multiset ordering
+for term lists (TLTMSO), a term list membership test (TLMTTO) w.\,r.\,t.\ 
+$=_{\mbox{\scriptsize tto}}$ (i.\,e.\ AC-equality),
+and a difference function for two ordered term lists (TLODIF).
+The procedure TLOEML computes the multiplicities of all 
+$=_{\mbox{\scriptsize tto}}$-equal elements in a list.
+
+\subsection{The {\tt acde}-Module}
+
+According to Stickel \cite{Stickel:81} the problem of unifying two terms
+\index{unification!AC{-}}
+modulo associativity and commutativity can in a first step be reduced to
+solving a linear Diophantine equation over the set of positive
+\index{equation!linear Diophantine}
+integers.
+The module {\tt acde} provides algorithms for solving such Diophantine
+equations, imposing certain constraints on their solutions and
+algorithms to translate the numerical solutions to substitutions.
+
+A linear Diophantine equation
+\[ a_1 x_1 + \ldots + a_m x_m = b_1 y_1 + \ldots + b_n y_n \]
+is represented by two lists X and Y of period 2:
+\[ \begin{array}{lcl}
+   X = (a_1, x_1, \ldots, a_m,x_m), \\
+   Y = (b_1, y_1, \ldots, b_n,y_n)
+   \end{array}
+\]
+where the coefficients $a_i$, $b_i$ are $\beta$-integers and the 
+indeterminates $x_i$, $y_i$ are represented as different pointers.
+In the context of AC-unification the indeterminates point to subterms of the
+original unification problem.
+
+A solution of a Diophantine equation is a list
+\[ S = ( s_1, z_1, \ldots, s_k,z_k) \]
+where $z_1, \ldots, z_k$ are the indeterminates occurring in the equation and 
+\( z_i=s_i \) for \( 1 \leq i \leq k \) is an assignment which solves the 
+Diophantine equation.
+Sets of solutions are represented by lists of solutions.
+
+The algorithm DEBSS computes the set of basic solutions of a linear
+Diophantine equation over the natural numbers.
+It uses the completion algorithm described in \cite{Fortenbacher:83}.
+
+DESSRI deletes solutions from a (basic) solution set which assign a number not
+equal to one to an indeterminate represented by a non-variable term.
+
+DESSNS behaves like the coroutines in the {\it co}-subsystem.
+It computes one by one the index of all solutions composed
+from the basic solution set which meet certain conditions:
+all assignment values of a solution must be positive and all those
+assignment which are associated with an indeterminate pointing to
+a non-variable term must be one.
+The solution index is an integer which encodes the sum of which basic
+solutions represents a valid (candidate) substitution for the unification 
+problem.
+DESSTV computes the terms of this substitution.
+
+\subsection{The {\tt acu}-Module}
+
+The module {\tt acu} contains unification algorithms for terms which may 
+\index{unification!AC{-}}
+contain associative commutative operators.
+In contrast to {\tt tcu} the most general unifier modulo AC ($\mbox{mgu}_{AC}$)
+--- which generally consists of more than one substitution --- is computed.
+\index{substitution}
+Therefore the unification procedures have no side effects.
+TLMGUE computes the $\mbox{mgu}_{AC}$ for two lists of terms and TMGUAC
+computes the $\mbox{mgu}_{AC}$ for two terms which have the same AC-operator 
+at their top positions.
+
+Applying two different substitutions from the $\mbox{mgu}_{AC}$ to a unified
+term may result in a single common instance.
+Therefore TMGCIE first computes the $\mbox{mgu}_{AC}$ and then computes a
+minimal set of most general common instances.
+Warning: minimizing the $\mbox{mgci}_{AC}$ is a very expensive operation.
+
+\subsection{The {\tt acu1}-Module}
+
+The module {\tt acu1} exports the procedure TCSIE that given a term
+$t$ and a set of substitutions $\Sigma$ computes a minimal subset
+\( T \subseteq \{ t\sigma \mid \; \sigma \in \Sigma \} \) such that
+each \( t' \in \{ t\sigma \mid \; \sigma \in \Sigma \} \) is an instance of
+a \( t^* \in T \).
+The module introduces a new data structure {\em augmented term}
+that is a quintuple $(w,t,V,b,\sigma)$ where $t$ is a term $w$ is its
+weight, $V$ is its list of variables, $b$ is TRUE iff $t$ is linear and
+$\sigma$ is a substitution.
+
+\subsection{The {\tt acm}-Module}
+
+The module {\tt acm} contains matching algorithms for matching modulo AC.
+\index{match!AC{-}}
+As with AC-unifications the solution of an AC-matching problem is generally 
+a complete set of matching substitutions (matchers).
+\index{substitution} 
+However in the context of term rewriting, one is only interested in a single
+matching substitution.
+ 
+TLMSE computes a matcher for two term lists, TMSAC returns a matcher for two
+terms with common top AC-operator and TSMTHE tests whether one term is an
+AC-instance of a subterm of another term.
+TSMTHE is thought as a reducibility test (compare with TSMTH from {\tt tcu}).
+
+The matching algorithms in the {\tt acm}-module are based on those 
+described in \cite{Hullot:79} and \cite{KuechlinLeitsch:88}.
+However no backtracking is implemented, so the algorithms
+TLMSE and TMSAC are based on algorithms for computing complete matchers
+(TLMSSE, TMSSAC, VLMSAC with the last argument equal to FALSE).
+None of the AC-matching algorithms has side effects.
+
+\subsection{The {\tt acr}-Module}
+
+The module {\tt acr} contains algorithms to implement reduction relations
+\index{reduction!AC{-}}
+modulo AC based on matching subterms (\cite{PetersonStickel:81}).
+
+APUTXR adds an extension rule as property under indicator DXR to a rule with
+\index{rule!extension}
+an AC-top operator at its left-hand side,
+if the conditions described in \cite[pp 255]{PetersonStickel:81} are
+fulfilled.
+
+TIRDSE normalizes a term modulo AC w.\,r.\,t.\ to a list of rewrite rules.
+\index{normalization}
+Like TIREDS, TIRDSE uses an innermost reduction strategy but the marking
+mechanism had to be modified to take into account that the notion of a position
+does not apply for the parts of a term whose positions are labeled by the
+same AC-operator. 
+Therefore if a  flat term with an AC-top operator were to be marked the 
+mark is is shifted below the AC-operator.
+
+There is also a function TNDFLT that destructively flattens a non-atomic
+\index{term!flat}
+term.
+
+\index{substitution}
+SBERDE reduces the terms of a substitution.
+
+\subsection{The {\tt accp}-Module}
+
+The module {\tt accp} handles (generalized) AC-critical pairs and 
+queues of AC-critical pairs.
+\index{critical pair!AC{-}}
+The data structure used for AC-critical pairs is the one for
+critical pairs as defined in {\tt tccp}.
+For AC-critical pairs the extension rules must be considered and again
+the notion of a position does not apply for the parts of a term made 
+of AC-operators.
+
+The procedure ACPAC computes all AC-critical pairs between a rule and
+a  set of rules.
+the procedure ACPACG computes all generalized  AC-critical pairs
+\index{critical pair!generalized}
+between a rule and a  set of rules.
+For the theory of generalized critical pairs see \cite{Buendgen:94}.
+For ACPACG to work properly all participating rules are assumed to
+have the list of linearly constrained subterms of their left-hand sides
+\index{subterm!linearly constrained}
+stored as a property under indicator DST.
+Both ACPAC and ACPACG have a Boolean forth parameter that determines
+whether intrinsic pairs are to be computed or not.
+In contrast to the case of the empty theory (ASCPS, ASCPSU), the AC-critical
+pairs computed by ACPAC and ACPACG are normalized by a
+term rewriting system depicted in their third argument.
+
+CPLCLE partitions a list of AC-critical pairs into a list of pairs with 
+reducible terms and into a list of irreducible pairs.
+
+CPLOW8 updates the the weights of a list of critical pairs depending
+on a term ordering $\succ$ denoted by a string.
+If a pair is comparable w.\,r.\,t.\ $succ$ the weight of the larger
+term becomes the weight of the pair otherwise it becomes the maximum of the
+two terms' weights.
+
+CPSTST tests whether one critical pair subsumes (i.\,e., matches)
+another critical pair.
+Using this test CPLIST inserts a critical pair into an 
+ordered (w.\,r.\,t.\ their weights) list of critical pairs un less it is
+subsumed by one of the pairs in the list.
+On the other hand pair of the list that are subsumed by the new pair
+may be deleted.
+
+There is a trace facility built into the critical pair computation
+procedures.
+The critical pair trace is controlled by the global variable CPTRC
+which must externally be declared safe whenever referenced.
+There are two trace levels.
+A strong trace (CPTRC $= 2$) which prints the details of each superposition 
+and weak trace (CPTRC $= 1$) which only lists unresolved critical pairs.
+
+\subsection{AC-Completion and Fertilization}
+
+The Peterson-Stickel AC-completion procedure DTKBAC is implemented in the
+\index{completion!AC{-}}
+\index{completion!Peterson-Stickel}
+{\tt accmp}-module.
+It uses  the strategy that is sketched in
+\index{strategy}
+Figure~\ref{fi:accmpl}.
+\input{accomplete}
+The equation queues are organized as in DTKB:
+\index{queue}
+\begin{enumerate}
+ \item a queue Q1 for initial equations and collapsed rules,
+ \item a standard critical pair queue Q2 and
+ \item a queue Q3 where critical pairs are held which
+    were manually but back (option ``B'' in QCA).
+\end{enumerate}
+Q1 has priority over Q2 which has priority over Q3.
+
+The following modifications to the procedure presented in
+AC-COMPLETE  may be selected by the user.
+\begin{itemize}
+ \item The user may select a subset of ${\cal R}_0 \subseteq {\cal E}$
+       of which he know that it is complete.
+       Then $\cal R$ is initialized by ${\cal R}_o$ instead of the empty
+       set.
+ \item Since the reduction strategy depends on the order of the rules,
+       the user may influence this order or use the automatic rule
+       ordering.
+ \item The user may determine whether he wants to orient rules manually
+        or using the term ordering.
+       In the second case he can chose whether he wants to orient 
+       non-orientable rules manual (or take advantage of the
+       display, trace and exit options at that point) or
+       if non-orientable rules shall be added to the end of the
+       queue. The last option risks non-termination.
+ \item The user may determine whether the input equations shall be
+       selected first in step~5 (insert $\cal E$ into Q1) or not
+       (insert $\cal E$ into Q2).
+ \item The user may determine whether only the selected equation or
+        all equations in $\cal E$ shall be  kept normalized in step 2.
+ \item The user may determine whether collapsed rules are to be inserted
+       into Q1 (priority) or into Q2.
+ \item The user may choose to apply the subconnectedness criterion in
+       step~8 or not.
+ \item The user may choose to compute standard critical pairs or
+\index{critical pair!generalized}
+       generalized critical pairs.
+ \item The user may choose to delete subsumed critical pairs in step~11
+       or not.
+\end{itemize}
+The {\tt accsc}-modules provides a data structure called
+{\em completion strategy control record} containing the
+switches to control the configuration of the completion procedure.
+It also contains the queries to ask the user for the different options.
+
+%So far the completion procedure works only in step mode (STEPM $= 1$).
+
+In the dialogue of the orientation step (QCA) the user has the possibility to
+call the fertilization procedure. 
+The {\em fertilization} procedure CPFERT (see also \cite{Buendgen:91b}) is
+\index{fertilization}
+implemented in the {\tt acf}-module.
+It allows for guided computation of critical pairs between a single rule and 
+the critical pair selected from the equation queues.
+Before the fertilization process starts the selected pair must be oriented and
+possibly extended.
+The user can than select one of the new pairs to continue the 
+completion procedure starting with the orientation step.
+The original pair is pushed back onto Q2.
+As shown in \cite{Buendgen:91b} the fertilization of critical pairs is very 
+helpful if the left-hand side of the oriented original critical pair is
+reducible by the rule associated with the pair computed by the
+fertilization procedure.
+Since the completion is resumed at the orientation step, the fertilization 
+process may be iterated several times.
+
+The AC-completion calls (via QCTS0 from {\tt tcint}) a QCT procedure private to
+the {\it ac}-subsystem.
+
+\subsection{The {\tt acx}-Module}
+
+The module {\tt acx} provides the function TXCMPT which computes a
+mixed term:
+Let $f$ be a function symbol that has an algorithm key stored under indicator
+DXIA, Let $A$ be the \ALDES\ function denoted by that algorithm key, 
+let \( t_1, \ldots, t_n \) be external terms importing the external objects 
+\( o_1, \ldots, o_n \) and $o$ be the result of calling $A(o_1, \ldots,o_n)$.
+Then $s[c(o)]_p$ is the evaluation of $s[f(t_1,\ldots,t_n)]_p$ at position
+$p$ if $c$ is an appropriate coercion operator with the same result type
+\index{operator!coecrion}
+(ORTYPE) as $f$. 
+The appropriate coercion operator is stored under indicator DXCO
+either as property of $f$ or as property of the symbol denoting
+the result sort of $f$.
+Applying the evaluation procedure as often as possible to a term
+\index{compute}
+is called {\em computing} a term.
+
+\subsection{The AC-Rewrite Laboratory}
+
+The main algorithm AC is a rewrite laboratory for term rewriting systems
+\index{main algorithm}
+modulo AC-theories.
+The program first reads a data type from input stream 4, 
+then adds possible extension rules to its axioms and displays the data type.
+According to a menu selection the user may then AC-unify, AC-match, 
+\index{unification!AC{-}}
+\index{match!AC{-}}
+test two terms for equality modulo AC, order an axiom or order the axioms
+of the data type according to the installed and selected term ordering.
+He may also normalize a term, toggle traces, set or reset timers and counters,
+display the current data type,
+compute selected critical pairs, prove equality modulo the AC-term rewriting
+\index{term!AC-equality}
+system of the data type and complete the set of axioms using the AC-completion
+algorithm.

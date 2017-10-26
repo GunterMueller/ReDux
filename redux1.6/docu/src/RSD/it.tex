@@ -1,0 +1,91 @@
+\section{The IT-Subsystem} \label{se:it}
+
+The \redux\ subsystem {\it it} is so far an experimental subsystem to allow
+for writing an interpreter which has access to \ALDES\  algorithms
+which are compiled and linked to the program.
+In other words the {\it it} subsystems provides a portable support for a
+functionality typically provided by a dynamic link loader.
+
+{\em Algorithms}
+\index{algorithm}
+are represented by the symbols of their name which have an
+{\em algorithm key} stored as a property under indicator DAK.
+\index{algorithm key}
+An algorithm key is a list of length four as shown in Table~\ref{ta:ak}
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+ \hline
+ field  & mnemonic &  contents & type \\
+ \hline\hline
+ 1 & ALGIDNT & algorithm identifier & $\beta$-integer \\
+ \hline
+ 2 & ALGTYPE & algorithm type       & 0 = PROCEDURE \\
+   &         &                      & 1 = FUNCTION \\
+ \hline
+ 3 & ALGIPAR & number of input parameters & $\{0, \ldots, \mbox{ITMAXIN} \}$ \\
+ \hline
+ 4 & ALGOPAR & number of output parameters & $\{0, \ldots, \mbox{ITMAXOUT}\}$ \\
+ \hline
+\end{tabular}
+\caption{The fields of an algorithm key} \label{ta:ak}
+\end{center}
+\end{table}
+For each algorithm the entry ALGIDNT must be chosen such that the first
+three fields of the `algorithm key' form a key (a unique identification) of
+that algorithm.
+
+The symbol table initialization is done in ISTINI (cf.\ Section~\ref{se:ini})
+which enters the symbol 
+DAK and all symbols for algorithms according to the information on a file
+normally called {\it program-name}{\tt .algos}. 
+Each line of {\it program-name}{\tt .algos} has the format:
+\begin{quote}
+  algorithm-name algo.-id. algo.-type \#input-parameters \#output-parameters
+\end{quote}
+\begin{example} A part of {\tt algos} may look like the following:
+\begin{verbatim}
+AADV  1  0  1  2
+ABS  1  1  1  1
+ACOMP  1  1  2  1
+ACOMP1  2  1  2  1
+ADV2  2  0  1  3
+ADV3  3  0  1  4
+ADV4  4  0  1  5
+AFDIF  3  1  2  1
+AFINV  4  1  2  1
+AFNEG  2  1  1  1
+AFPROD  1  1  3  1
+\end{verbatim}
+\end{example}
+The \redux\ {\it it}-subsystem also provides for pseudo functions that
+support calls to ALDES-constants and ALDES-operators.
+They must be treated as if they were declared as follows:
+\begin{verbatim}
+x:=ALDESNIL()          : ALDES constant nil               ()
+x:=ALDESZERO()         : ALDES constant zero              0
+x:=ALDESONE()          : ALDES constant one               1
+x:=ALDESNEG(y)         : ALDES operator unary minus       -
+x:=ALDESPLUS(y,z)      : ALDES operator plus              +
+x:=ALDESMINUS(y,z)     : ALDES operator minus             -
+x:=ALDESTIMES(y,z)     : ALDES operator times             *
+x:=ALDESDIV(y,z)       : ALDES operator div               /
+x:=ALDESEXP(y,z)       : ALDES operator to the power of   ^
+\end{verbatim} 
+
+
+There is a display procedure ALGDIS for algorithm keys and a function
+SGCALL to call the algorithm described by a symbol.
+In addition there are functions FCALL0, FCALL1, FCALL2, FCALL3, FCALL,
+PCALL0, PCALL1, PCALL2, PCALL3, PCALL which call the functions or procedures
+with zero, one, two, three or more input parameters respectively
+for a given algorithm identifier.
+
+The file {\tt algos} and the functions FCALL0, \ldots, PCALL can be
+generated automatically from a file containing headers of \ALDES\ algorithms
+(compare with \RIX) using the lex-program 
+{\tt algos.lex}.
+
+
+
+

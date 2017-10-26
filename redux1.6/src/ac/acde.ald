@@ -1,0 +1,267 @@
+[Project:  ReDuX AC-completion
+   module name        : ACDE -- Diophantine Equations
+   modulespecification: algorithms to extract, solve and manipulate
+                        diophantine eqations
+   programmer         : Reinhard Buendgen [RB]
+   language           : aldes                                           
+   last change        : 02.08.89
+                        $Date: 1995/12/20 18:17:47 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.4 $
+   status             : not tested
+   bugs               : none known                                       
+                        A comment of the form [&    ^^^   ] indicates
+                        that only beta-integer arithmetic is used at
+                        the places pointed at by ^-characters.
+   modules needed     : sac2/ba, sac2/sy, sac2/lp                       
+                        redux/acdd
+]                                                                      
+
+[ #include tp.h ]
+[ #include globs.h ]
+
+[---------------------------------------------------------------------]
+[ A diophantine Equation a1*x1 + ... + am*xm = b1*y1 + ... bm*ym will ]
+[ be reprsented as two lists X and Y of period 2 such that            ]
+[ X = (a1, x1, ..., am, xm) and Y = (b1, y1, ..., bn, yn)             ]
+[ A solution of a diophantine equation is a list S of period 2 s. th. ]
+[ S = (s1, z1, ..., sk, zk) where z1, ... zk are the unknowns         ]
+[ occurring in the equation and zi = si for all i (1 <= i <= k) is an ]
+[ assignment which solves the equation.                               ]
+[---------------------------------------------------------------------]
+
+ 
+[----------------------------------------------------------------------
+       Section 1 Algorithms for export
+----------------------------------------------------------------------]
+
+                    S*:=DEBSS(D1,D2)
+[Diophantine equation, basic solution set.
+Di = (ai1, xi1, ..., aini, xini) (for i in {1, 2}) are lists of period
+2. the aij are positive integers (beta digits) and the xij are terms. 
+Then S* = (S1, ...,Sk) is the basic  set of solutions of the diophantine 
+equation a11*x11 + ... + a1n1*x1n1 = a21*x21 + ... + a2n2*x2n2. Each Si 
+(1 <= i <= k) is a list of period 2 such that the assignment of the odd 
+elements (integers) to the subsequent even elements (terms) form a 
+solution of the diophantine equation.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("DEBSS");
+     A':=D1; B':=D2; A:=(); B:=(); X:=(); Y:=().
+(2)  [Extract coefficients of LHS.] while A' # () do
+      { ADV2(A'; a,x,A'); A:=COMP(a,A); X:=COMP(x,X) };
+     A:=INV(A); X:=INV(X).
+(3)  [Extract coefficients of RHS.] while B' # () do
+      { ADV2(B'; b,y,B'); B:=COMP(b,B); Y:=COMP(y,Y) };
+     B:=INV(B); Y:=INV(Y).
+(4)  [Compute basis solutions.] M:=LDENSB(A,B).
+(5)  [Convert M.] S*:=(); while M # () do
+      { ADV(M; m,M); ADV2(m; m1,m2,m'); S:=(); X':=X; while X' # () do
+        { ADV(X'; x,X'); ADV(m1; s,m1); S:=COMP2(x,s,S) };
+       Y':=Y; while Y' # () do
+        { ADV(Y'; y,Y'); ADV(m2; s,m2); S:=COMP2(y,s,S) };
+       S:=INV(S); S*:=COMP(S,S*)
+      } ||
+
+
+                    p*:=DESSNS(S,l,L,k,C,p)
+[Diophantine equation solution set, next sum.
+S=(S1, ..., Sl) is a set of diophantine equations, C=(c1, ...,ck) is a
+list of integers where ci in {0,1} (for 1<=i<=k) and p < 2^k is a 
+positive integer. L = 2 to the power of l. 
+Then p < P* < 2^k and S* = sum{Si in S| bit i = 1 in 
+the binary representation of p*} is such that all coefficients of S*
+are greater 0 and if ci = 1 then the i-th coefficient of S* equals 1
+(1 <= i <= k).]
+     array v[k], c[k], s[l].
+(1)  [Initialize.] if PNTRC then STOUTL("DESSNS");
+       [ [TRC] STROUT("DESSNS (l,L,k,p): "); 
+         [TRC] AWRITE(l); CWRITE(' '); AWRITE(L); CWRITE(' ');
+         [TRC] AWRITE(k); CWRITE(' '); AWRITE(p); WRITE;
+       ]
+     C':=C; for i=1,...,k do ADV(C'; c[i],C');
+     p*:=p+1.
+(2)  [No more sums.] if p* >= L then { p*:= 0; return}
+     else p':=p* .
+(3)  [Init solution array.] S':=S; for i=1,...,l do 
+     { ADV(S'; s[i],S'); if EVEN(p') then s[i]:=(); p':=p' / 2 }
+     [&                     ^^^^                           ^  ]. 
+(4)  [Init array for coefficient of sum.] for i=1,...,k do v[i]:=0.
+(5)  [Sum up coefficients.] for i=l,l-1,...,1 do
+     { s':=s[i]; if s' # () then for j=1,...,k do
+       { ADV2(s'; a,x,s'); v[j]:=v[j]+a; if c[j] # 0 /\ v[j] > 1 then
+         { b:=EXPF(2,i-1); r:=REM(p*,b); p*:=(p* - r) + b; goto 2 }
+     [&       ^^^^            ^^^                ^    ^    ]
+     } }.
+(6)  [Are all coefficient of sum positive?] for i=1,...,k do
+     { if v[i] < 1 then { p* := p* + 1; goto 2 } } ||
+
+                    S*:=DESSRI(S*0)
+[Diophantine equation solution set, removal of impossible equations.
+S*0 is a set of solutions of a diophantine equation. Then S* is a 
+subset of S*0 s.th. no S=(s1, z1, ..., sk,zk) in S* contains a pair
+si, zi (1<=i<=k) with si > 1 and zi is not a variable. S*0 is 
+destroyed.]
+
+(1)  [Initialize.] S*1:=S*0; S*:=S*0.
+(2)  [Trivial case.] if S*1 = () then return.
+(3)  [Delete head of S*1.] S:=FIRST(S*1); while S # () do
+      { ADV2(S; s,z,S); if s > 1 /\ TKIND(z) # DVS then
+       { S*1:=RED(S*1); S*:=S*1; goto 2 }
+      }; S*2:=RED(S*1).
+(4)  [Delete in Rest of S*1.] if S*2 = () then return;
+     ADV(S*2; S,S*2); while S # () do 
+      { ADV2(S; s,z,S); if s > 1 /\ TKIND(z) # DVS then 
+       { RED(S*1):=S*2; goto 4 }
+      }; S*1:=RED(S*1); goto 4 ||
+
+                    T:=DESSTV(S,k,f,z*,p)
+[Diophantine equation, solution sum, substitution terms, variable only. 
+S=(S1, ..., Sl) is a set of diophantine equations, k is the number of 
+different terms in S which design the variables occuring in the 
+diophantine equation S. f is an AC-operator with arguments. z* is a 
+variable of the argument type of f. p < 2^k is a positive integer.
+Then T=(t1,...,tk) such that {vi <- ti | 1<=i<=k} is the substitution
+solving the AC-unification problem in the variable only case which is 
+associated with the solution of diophantine equation S*  sum{ Si |
+bit i = 1 in the binary representation of p*} as described in 
+[Stickel: "A Unification Algorithm of Associative-Commutative 
+Functions", JACM 28/3, 1981].]
+
+(1)  [Initialize.] if PNTRC then STOUTL("DESSTV");
+     S':=S; T:=(); for i=1,...,k do T:=COMP((),T).
+(2)  [Add solutions.] p':=p; while p' # 0 do
+     { ADV(S'; s,S'); z:=TCONS((),z*); if ODD(p') then [add equation.]
+     [&                                   ^^^        ]
+       { T':= T; while s # () do
+         { ADV2(s; a,x,s); if a > 0 then [add a variable to ti.]
+           { if FIRST(T') = () then { FIRST(T'):=z; j:=2 } else j:=1;
+             for i=j,...,a do FIRST(T'):=TCONS(LIST2(z,FIRST(T')),f)
+           }; T':=RED(T')
+       }   }; p':=p' / 2
+       [&            ^ ]
+     } ||
+
+[----------------------------------------------------------------------
+       Section 2  Algorithms for internal use
+& algorithms in this section are not designed for long integer 
+  arithmetic.
+----------------------------------------------------------------------]
+
+                    b:=LDEMIS(X,Y,M) 
+[Linear diophantine equation, minimal solutions.
+X = (x1, ..., xk), and Y = (y1, ...yl) are non-empty lists of integers. 
+M = (m1, ..., mn)is a list where each mi = (mi1,mi2) (1<=i<=n), mi1 is 
+a list of k integers and mi2 is a list of l integers.
+Then b = 0 if there is a mi such that mi1 <<= X and mi2 <<= Y (a <<= b
+means that each element of a is is less than or equal to the 
+corresponding element of b). Otherwise  b = 1.]
+
+(1)  [Initialize] if PNTRC then STOUTL("LDEMIS").
+(2)  [Compare.] b:=0; M':=M ; while M' # () do
+      { ADV(M'; m,M'); if LICLEQ(FIRST(m),X) = 1 
+                          /\ LICLEQ(SECOND(m),Y) = 1 then return;
+      }; b:=1 ||
+
+                    M:=LDENSB(A,B)
+[Linear diophantine equation, minimal non-negative solution basis.
+A = (a1, ..., ak) and B = (b1, ..., bl) are non-empty lists of positive
+integers representing the diophantine equation DE: a1*x1 + ... + ak*xk =
+b1*y1 + ... + bl*yl.
+Then M = (M1, ..., Mn) is a set of solutions of DE such that M is a 
+minimal basis of all non-negative solutions. Each basis solution is 
+represented by Mi=((x1i, ...,xki), (y1i, ...,yli)).
+Uses completion algorithm described in A. Fortenbacher's Diplomarbeit.]
+
+(1)  [Initialize.] if PNTRC then STOUTL("LDENSB");
+     M:=(); C:=(); d:=0; k:=LENGTH(A); l:=LENGTH(B); c1:=(); c2:=();
+     for i=1,...,k do c1:=COMP(0,c1); for i=1,...,l do c2:=COMP(0,c2).
+(2)  [Determine smaller side of solution.] if d < 0 then { g:=A; c:=c1 }
+     else { g:=B; c:=c2 }.
+(3)  [Propose new solutions.] while g # () do
+      { ADV(g; a,g); ADV(c; x,c'); FIRST(c):=x+1; 
+        if LDEMIS(c1,c2,M) then 
+         { c'1:=COPY(c1); c'2:=COPY(c2);
+           if d < 0 then d':=d+a else d':=d-a; if d' = 0 then
+            { m:=LIST1(LIST2(c'1,c'2)); 
+             if M = () then M:=m else RED(M^):=m ; M^:=m 
+            } else 
+            { c*:=LIST3(d',c'1,c'2); 
+             if C = () then C:=c* else RED(C^):=c*; C^:=RED2(c*) 
+         }  }; FIRST(c):=x; c:=c';
+      }.
+(4)  [Recursion] if C # () then { ADV3(C; d,c1,c2,C); goto 2} ||  
+
+                    b:=LICLEQ(L1,L2)
+[Lists of integers, componentwise less or equal.
+L1 and L2 are lists of integers of the same lenght.
+Then b = 1 if every element of L1 is less than the corresponding element
+of L2. Otherwise b = 0.]
+
+(1)  [Initialize.] L'1:=L1; L'2:=L2; b:=1.
+(2)  [Compare.] while L'1 # () do
+      { ADV(L'1; l1, L'1); ADV(L'2; l2,L'2); 
+        if l1 > l2 then { b:=0; return } 
+      } ||
+
+[----------------------------------------------------------------------
+       Section 3  Output routines 
+----------------------------------------------------------------------]
+
+                    DEWRT(D1,D2)
+[ Diophantine equation, write.
+Di = (ai1, xi1, ..., aini, xini) (for i in {1, 2}) are lists of period 
+2. the aij are positive integers (beta digits) and the xij are terms.
+Then the diophantine equation 
+a11*x11 + ... + a1n1*x1n1 = a21*x21 + ... + a2n2*x2n2 is written.]
+
+(1)  [Initialize.] L:= D1; l := 0; N := ().
+(2)  [ Write sum.] if L = () then GWRITE(0)
+     else while L # () do
+      { ADV2(L; a,x,L); GWRITE(a); CWRITE(' '); TDIWRT(x,N; N); 
+        if L # () then STROUT(" + ")
+      }.
+(3)  [Right-hand side.] if l = 0 
+      then { STROUT(" = "); l:=1; L:=D2; goto 2}
+      else WRITE||
+
+                    DESWRT(S)
+[Diophantine equation solution, write.
+S = (s1, x1, ..., sk, xk) is a list of period 2 where the si are 
+integers and the xi are terms. Then the solution of a diophantine 
+equation which assigns to xi the value si (1 <= i <= k) is written.]
+
+(1)  [Initialize.] S':=S; N:=(); CWRITE('{').
+(2)  [Write assignments.] while S' # () do
+      { ADV2(S'; s,x,S'); TDIWRT(x,N; N); STROUT(" = "); GWRITE(s); 
+        if S' # () then STROUT(",  ")
+      }; CWRITE('}'); WRITE||
+
+[----------------------------------------------------------------------
+       Section 4  Input & test routines
+----------------------------------------------------------------------]
+ 
+                    S:=DESRD(D1,D2)
+[Diophantine equation, set of solutions, read.
+Di = (ai1, xi1, ..., aini, xini) (for i in {1, 2}) are lists of period
+2. the aij are positive integers (beta digits) and the xij are terms.
+Then a set of solutions of the diophantine equation 
+a11*x11 + ... + a1n1*x1n1 = a21*x21 + ... + a2n2*x2n2 is read and stored
+into S = (S1, ...,Sk). Each Si (1 <= i <= k) is a list of period 2 such 
+that the assignment of the odd elements (integers) to the subsequent
+even elements (terms) form a solution of the diophantine equation.]
+
+(1)  [Initialize.] U:=(); L:=D1; l:=0; S:=(); N:=().
+(2)  [Collect unknowns.] while L # () do
+      { ADV2(L; a,x,L); if ~TLMTTO(x,U) then U:= COMP(x,U) }.
+(3)  [Right-hand side.] if l = 0 then { l:=1; L:=D2; goto 2 } 
+     else U:= INV(U).
+(4)  [Present equation.] STROUT("Which are the solutions of the ");
+     STOUTL(" following equation?"); DEWRT(D1,D2);
+     STOUTL("Is there a solution [Y/N]? *"); READ; c^:=CREAD().
+(5)  [All solutions found.] if c^ # 'y' /\ c^ # 'Y' then return.
+(6)  [Read single solution.] U':=U; S*:=(); while U' # () do
+      { ADV(U'; u,U'); STROUT("Input assignment for "); TDIWRT(u,N; N);
+        CWRITE('!'); WRITE; s:=GREAD(); S*:=COMP2(u,s,S*)
+      }; S:=COMP(INV(S*),S).
+(7)  [More solutions.] STOUTL("Is there another solution [Y/N]? *");
+     READ; c^:=CREAD(); goto 5||

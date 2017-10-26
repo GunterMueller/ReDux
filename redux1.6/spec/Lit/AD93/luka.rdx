@@ -1,0 +1,25 @@
+%% 
+DATATYPE LUKA;
+%%  AUTHOR Avenhaus, Denzinger
+%%  ORIGIN Distributing equational theorem proving, LNCS 690
+SORT
+	EL;
+CONST
+	0: EL;
+VAR
+	x, y, z: EL;
+OPERATOR
+	T:  -> EL;
+	C: EL, EL -> EL;
+	N: EL -> EL;
+NOTATION
+	C, N: FUNCTION;
+AXIOM
+[1]  C(T,x)                           == x;
+[2]  C(x,C(y,x))                      == T;
+[3]  C(x,N(N(x)))                     == T;
+[4]  C(C(x,y),C(N(y),N(x)))           == T;
+[5]  C(C(x,C(y,z)), C(C(x,y),C(x,z))) == T;
+[6]  C(N(N(x)),x)                     == T;
+[7]  C(C(x,C(y,z)),C(y,C(x,z)))       == T;
+END

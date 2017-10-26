@@ -1,0 +1,99 @@
+\subsection{The Term Generation Trace}
+\label{TermGenerationTrace}
+The term generation trace displays information while the terms are
+constructed.
+Some knowledge of the involved algorithms is required to
+understand its messages.
+
+To explain the trace information, we show a complete trace of the
+generation process (where the first mapping algorithm is used) of a
+small term over the signature given in {\tt typ/stack.typ}:
+
+\begin{quote}
+\begin{verbatim}
+NT2TE: n=105 no. of positions=5
+NT2T1E: n=21 sort=STACK
+\end{verbatim}
+\end{quote}
+The first line states that the topmost generation algorithm {\tt
+NT2TE} has been called with the argument 105. This argument is the
+number of the term which is to be generated. (Note that the numbers
+which represent terms start with 0.) The first result of the computation
+is that the term will have 5 positions.
+
+The second line means that the algorithm {\tt NT2T1E} has been called
+with the argument 21. This number is the number of the desired term in
+the set of terms with 5 positions. The next result of  the computation
+is  the information that the term will be of return type (sort)
+{\tt STACK}.
+
+\begin{quote}
+\begin{verbatim}
+NT2T2E{ p=5 s=STACK n=21
+   top-level operator=PUSH n'=21
+   distribution of pos. over arguments (1, 3) n''=21
+\end{verbatim}
+\end{quote}
+The first of the next three lines reveal that the function {\tt NT2T2E}
+is called to generate a term with 5 positions and return type {\tt
+STACK} whose number is 21.
+
+The next line show that this term will have the top-level operator {\tt
+PUSH} and that it will be the 21-st ({\tt n'=21}) of all terms with 5
+positions, return type {\tt STACK} and top-level operator {\tt PUSH}.
+
+The third line indicates that the first argument of {\tt PUSH} will get
+one of the four positions which remain to be
+distributed over the arguments of {\tt PUSH}, the second argument will
+have 3 positions. The desired term is term number 21 in the set of terms
+with 5 positions, return type {\tt STACK}, top-level operator {\tt PUSH}
+and the mentioned distribution of positions over the arguments.
+
+After those computations, {\tt NT2T2E} is called recursively: 
+\begin{quote}
+\begin{verbatim}
+NT2T2E{ p=1 s=EL n=1
+NT2T2E} A
+NT2T2E{ p=3 s=STACK n=5
+   top-level operator=PUSH n'=5
+   distribution of pos. over arguments (1, 1) n''=5
+NT2T2E{ p=1 s=EL n=1
+NT2T2E} A
+NT2T2E{ p=1 s=STACK n=1
+NT2T2E} ERROR
+NT2T2E} PUSH(A,ERROR)
+NT2T2E} PUSH(A,PUSH(A,ERROR))
+\end{verbatim}
+\end{quote}
+The first two lines show that {\tt NT2T2E} is called to generate a term
+with 1 position, return type {\tt EL} whose number is one. Since the
+program maintains an array with all atomic terms, it can look up the
+desired term which turns out to be the variable {\tt A}.
+
+The next lines reveal that {\tt NT2T2E} is called again to compute the
+second argument of the top-level operator {\tt PUSH}. This term is term
+number five in the set of term with three positions and return type
+{\tt STACK} and will again have the top-level operator {\tt PUSH}.
+Each of its arguments will have one position.  Of course there is no
+real choice in distributing the remaining two positions since each term
+has at least one position.
+
+The next four line show again the computation of two atomic terms, and
+the last two lines tell how the already computed sub-results are composed
+to the desired term which is {\tt PUSH(A,PUSH(A,ERROR))}.
+
+Note that the nesting level of the calls to {\tt NT2T2E} is not
+visualized by different indentation. This is because of the fact that the
+nesting can become rather deep.  To compensate for the missing
+indentation, all calls to {\tt NT2T2E} are marked with ``{\tt \{}'', all
+returns from {\tt NT2T2E} are marked with ``{\tt \}}''.  This can be used to
+navigate in the trace output in the log-file {\tt trd.log} if a
+text editor is used which can move the cursor from one bracket symbol to
+the corresponding one. (For the {\tt vi}--editor, the percent sign {\tt
+\%} is used.)
+
+If the second mapping algorithm is used, the trace output looks similar:
+The algorithm names of the first mapping function are replaced by
+those of the second one (whose last letters are ``D'').
+Furthermore, all occurrences of ``number of positions'' are replaced by
+``depth''.

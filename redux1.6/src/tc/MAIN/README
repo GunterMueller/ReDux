@@ -1,0 +1,10 @@
+Directory tc/MAIN
+=================
+
+Contents:
+  tc.ald            auxilliary source: a catenation of
+                        tc.front, globs.h and tc.end
+  tc.end            end part of the tc main program
+  tc.front          front part of the tc main program
+  tcsub.ald         Subalgorithms for differnt menu point of tc
+  

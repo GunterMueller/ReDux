@@ -1,0 +1,31 @@
+%%  comment symbol
+DATATYPE domino;
+%% AUTHOR K. A. Yelick & S. J. Garland
+%% ORIGIN CADE'92: A parallel Completion Procedure for Term Rewriting Systems
+%% 
+SORT
+	S;
+CONST
+	eni, ma, mb, p, q, o: S;
+VAR
+	x, y, z: S;
+OPERATOR
+	g: S, S -> S;
+	i: S -> S;
+	p1:  -> S;
+	q1:  -> S;
+NOTATION
+	g, i: FUNCTION;
+AXIOM
+[1]  g(g(x,y),z) == g(x, g(y,z));
+[2]  g(i(x),x) == eni;
+[3]  g(x,i(x)) == eni;
+[4]  g(eni,x) == x;
+[5]  g(x,eni) == x;
+[6]  g(p1, g(p1, g(q1, g(p, g(p, q))))) == eni;
+[7]  g(q1, g(q1, g(p1, g(q, g(q, p))))) == eni;
+[8]  q1 == i(q);
+[9]  p1 == i(p);
+[10]  g(p, p) == ma;
+[11]  g(q, q) == mb;
+END

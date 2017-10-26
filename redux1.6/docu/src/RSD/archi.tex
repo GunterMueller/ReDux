@@ -1,0 +1,110 @@
+\subsection{The ReDuX Module Architecture}
+
+The following tables give an overview the module hierarchies of the
+ReDuX system as installed at the Wilhelm-Schickard-Institut at the
+Universit\"{a}t T\"{u}bingen.
+The modules followed by a star (*) are {\em not} included in a library.
+
+{\small
+\begin{tabbing}
+12345\=12345\=12345\=12345  \kill
+ {\tt ac} \+  \\
+  {\tt accp.ald}, {\tt acde.ald}, {\tt acm.ald}, {\tt acr.ald}, 
+  {\tt actto.ald},  {\tt acu.ald} {\tt acx.ald}\\
+  {\tt CMP} \+ \\
+       {\tt accmp.ald}, {\tt acf.ald} \- \\
+  {\tt INT} \+ \\
+        {\tt qct.ald}* \- \\
+  {\tt MAIN} \+ \\
+        {\tt ac.ald}*, {\tt acsub.ald}* \- \- \\
+ {\tt ax} \+ \\
+    {\tt areadr.ald}, {\tt axsl1.ald}, {\tt endoln.ald}, {\tt halt.ald},
+    {\tt ilpass.ald}, {\tt intdif.ald},  {\tt intins.ald}, {\tt intint.ald}, \\
+    {\tt intmem.ald}, {\tt intsbs.ald}, {\tt intuni.ald}, {\tt iuchng.ald},
+    {\tt lp2eve.ald}, {\tt lp2odd.ald}, {\tt ltlcpy.ald}, {\tt schar.ald} \\
+    {\tt stoutl.ald}, {\tt strout.ald}   \- \\
+ {\tt co} \+ \\
+    {\tt coms.ald},
+    {\tt gglinc.ald}, 
+    {\tt incgl.ald}  \- \\
+ {\tt ic} \+ \\
+    {\tt iccov.ald}, 
+    {\tt iccpc.ald}, 
+    {\tt icgm.ald}, 
+    {\tt icgnf1.ald}, 
+    {\tt icgnf2.ald}, 
+    {\tt icgnfa.ald}, 
+    {\tt icgnfc.ald}, \\
+    {\tt icgnfd.ald}, 
+    {\tt icgnfx.ald}, 
+    {\tt icgr.ald}, 
+    {\tt icic.ald}, 
+    {\tt icint.ald}, 
+    {\tt icip.ald}, 
+    {\tt icpc.ald},
+    {\tt icts.ald}  \\
+    {\tt INT} \+ \\
+       {\tt icici.ald}*,
+       {\tt ictsi.ald}* \- \\
+    {\tt MAIN} \+ \\
+       {\tt ic.ald}*, {\tt icsub.ald}
+       {\tt ts.ald}* {\tt tssub.ald} \- \- \\
+  {\tt io} \+ \\
+      {\tt input.C}*,
+      {\tt output.C}* \- \\
+  {\tt it}  \+ \\
+      {\tt algdis.ald}, {\tt fcall.ald}, {\tt fcall0.ald}, {\tt fcall1.ald},
+      {\tt fcall2.ald}, {\tt fcall3.ald},{\tt itdummy.ald} \\
+      {\tt istini.ald}, {\tt pcall.ald}, {\tt pcall0.ald}, {\tt pcall1.ald}, 
+      {\tt pcall2.ald}, {\tt pcall3.ald}, {\tt sgcall.ald}  \- \\
+  {\tt rd} \+ \\
+      {\tt trand.ald} \\
+      {\tt MAIN} \+ \\
+           {\tt trd.ald}, {\tt trdsub.ald} \- \- \\
+  {\tt tc} \+ \\
+       {\tt tcint.ald}, {\tt tckbq.ald}, {\tt tcr.ald}, {tt tcsrt1.ald} \\
+       {\tt CPC} \+ \\
+          {\tt tccpc-s.ald},
+          {\tt tccpc-st.ald},
+          {\tt tccpc-t.ald},
+          {\tt tccpc.ald} \- \\
+       {\tt INT} \+ \\
+          {\tt mexit.ald}*,
+          {\tt qct.ald}* \- \\
+       {\tt KB} \+ \\
+          {\tt tckb-s.ald},
+          {\tt tckb-st.ald},
+          {\tt tckb-t.ald},
+          {\tt tckb0.ald} \- \\
+       {\tt MAIN} \+ \\
+          {\tt tc.ald}, {\tt tcsub.ald} \- \- \\
+    {\tt to} \+ \\
+    {\tt qewdummy.ald},
+    {\tt toint.ald},
+    {\tt tokb.ald},
+    {\tt torm.ald},
+    {\tt tppo.ald} \\
+    {\tt MAIN} \+ \\
+              {\tt to.ald}* \- \\
+    {\tt PI} \+ \\
+              {\tt tobcl.ald}, {\tt topit.ald}, {\tt topiti.ald}, 
+              {\tt tospi.ald} \- \\
+    {\tt PO} \+ \\
+              {\tt toknsl.ald},
+              {\tt toknsli.ald},
+              {\tt tosqol.ald} \- \\
+    {\tt SACR} \+ \\
+              {\tt fcomp.ald}, {\tt fdec.ald},  {\tt fvars.ald}, 
+              {\tt infviv.ald}, {\tt ipconv.ald},{\tt pcomp.ald}, \\
+              {\tt pdec.ald},  {\tt pfcv.ald}, {\tt pnt.ald},
+              {\tt romin.ald}, {\tt rpexp.ald},  {\tt rpfcv.ald}, \\
+              {\tt rpffml.ald}, {\tt tread1.ald},  {\tt vrd.ald} \- \\
+    {\tt YW} \+ \\
+              {\tt ipmon.ald}, {\tt pconst.ald}, {\tt pincr.ald},
+              {\tt qe.ald}, {\tt qeform.ald}, \- \- \\
+    {\tt tp} \+ \\
+    {\tt tpax.ald}, {\tt tpbgn.ald} {\tt tpcp.ald}, {\tt tpcy.ald},
+    {\tt tpdd.ald}, {\tt tperr.ald}, {\tt tpprs.ald}, {\tt tpsb.ald}, \\
+    {\tt tpsc.ald} {\tt tptm.ald}, {\tt tpwrt.ald}, {\tt tpxt.ald} \- 
+\end{tabbing}
+}

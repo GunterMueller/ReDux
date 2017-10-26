@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Find ALDes files
+#
+# usage: fald directory ...
+#
+# output: a list of all pathes relative to the arguments of fald whose
+# last part matches *.ald files
+
+if [ $# -eq 0 ]
+then
+   echo 'usage: fald directory ... '
+fi
+
+find $* -name "*.ald" -print | sort | tr '\012' ' ' 
+
+

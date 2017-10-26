@@ -1,0 +1,34 @@
+# NAME start_redux
+# SYNOPSIS source start_redux
+# The environment variable REDUX is set to the ReDuX installation
+# path and paths with the ReDuX binary files are prepended
+# to the environment variable PATH. If the environment variable 
+# MANPATH is set, the ReDuX manual page path is prepended to its
+# contents. Otherwise the MANPATH variable is set to ReDuX manual page
+# directory and two standard directories. A warning is issued if the
+# csh into which start_redux was sourced is an interactive shell.
+# This file must be _sourced_ into the csh! To prevent execution
+# as a shell script (as an own process), this file should not be executable!
+
+setenv REDUX REDUX
+#      ^^^^^^^^^^^                  Only to be modified by the ReDuX
+#                                   installation make file!
+if ( ! {(echo $PATH | fgrep -s $REDUX/demo)} ) then
+   setenv PATH $REDUX/demo:$PATH
+endif
+
+if ( ! {(echo $PATH | fgrep -s $REDUX/bin)} ) then
+   setenv PATH $REDUX/bin:$PATH
+endif
+
+if ($?MANPATH == 0) then
+   setenv MANPATH $REDUX/man:/usr/man:/usr/local/man
+   if ($?prompt == 1) then
+      echo "start_redux: The environment variable MANPATH was no set."
+      echo "See the manual page of start_redux(l) for the consequences of this fact."
+   endif
+else
+   if ( ! {(echo $MANPATH | fgrep -s $REDUX/man)} ) then
+      setenv MANPATH $REDUX/man:$MANPATH
+   endif
+endif

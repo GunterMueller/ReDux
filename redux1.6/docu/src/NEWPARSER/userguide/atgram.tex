@@ -1,0 +1,26 @@
+\begin{figure}[htbp]
+\begin{center}
+\fbox{
+\begin{minipage}{6in}
+\begin{tabbing}
+{\vs PrecedenceDecl} \= \gprod \= \kill
+{\vs Axiom} \> \gprod \ts{[} {\vs Number} \ts{]} {\vs Term} \ts{==} {\vs Term} \\
+\\
+{\vs Term} \> \gprod {\vs Var} \galt {\vs Const} \galt {\vs PrefixTerm} \galt {\vs PostfixTerm}\\
+  \>\> \galt {\vs InfixTerm} \galt {\vs FunctionTerm} \galt {\vs LispfixTerm} \\
+  \>\> \galt {\vs RoundfixTerm} \galt {\vs CoercionTerm} \\
+{\vs PrefixTerm} \> \gprod {\vs PrefixOp} {\vs Term} \\
+{\vs PostfixTerm} \> \gprod {\vs Term} {\vs PostfixOp} \\
+{\vs InfixTerm} \> \gprod {\vs Term} {\vs InfixOp} {\vs Term} \\
+{\vs FunctionTerm} \> \gprod {\vs FuctionOp} \ts{(} {\vs Term} 
+  \gstar{\ts{,} {\vs Term}} \ts{)} \\
+{\vs LispfixTerm} \> \gprod \ts{(} {\vs LispfixOp} \gstar{{\vs Term}} \ts{)} \\
+{\vs CoercionTerm} \> \gprod {\vs CoercionRoundfixOp} {\vs ExternalTerm} {\vs CoercionRoundfixOp} \\
+  \>\> \galt {\vs CoercionPrefixOp} {\vs ExternalTerm}
+\end{tabbing}
+\end{minipage}
+} % end fbox
+\caption{The syntax of axioms and terms}
+\label{atgram}
+\end{center}
+\end{figure}

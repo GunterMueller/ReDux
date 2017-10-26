@@ -1,0 +1,21 @@
+DATATYPE D4;
+SORT
+	D4;
+CONST
+	1, a, b: D4;
+VAR
+	A, B, C: D4;
+OPERATOR
+	*: D4, D4 -> D4;
+	I: D4 -> D4;
+NOTATION
+	*, I: FUNCTION;
+AXIOM
+[1] *(1,A)==A;
+[2] *(I(A),A)==1;
+[3] *(*(A,B),C)==*(A,*(B,C));
+[4] *(a,*(a,*(a,a)))==1;
+[5] *(b,b)==1;
+[6] *(b,a)==*(I(a),b);
+END
+; This file is  D4.TYP

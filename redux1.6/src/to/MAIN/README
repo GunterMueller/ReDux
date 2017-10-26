@@ -1,0 +1,9 @@
+Directory to/MAIN
+=================
+
+Contents:
+  to.ald            auxilliary source: a catenation of
+                        to.front, globs.h and to.end
+  to.end            end part of the to main program
+  to.front          front part of the to main program
+  

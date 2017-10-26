@@ -1,0 +1,29 @@
+%% 
+DATATYPE geradeungerage;
+%%  DESCRIPTION Beispiel von Joerg Hudelmaier
+%%  (ungerade(x) + gerade(x)) = S(0) kann nicht
+%%  inductiv bewiesen werden
+SORT
+	nat;
+CONST
+	0: nat;
+VAR
+	x, y, z, n: nat;
+OPERATOR
+	S: nat -> nat;
+	~: nat -> nat;
+	+: nat, nat -> nat;
+	gerade: nat -> nat;
+	ungerade: nat -> nat;
+NOTATION
+	S, ~, gerade, ungerade: FUNCTION;
+	+: INFIX;
+AXIOM
+  [1] (0 + x) == x;
+  [2] (S(x) + y) == S((x + y));
+  [3] ~(0) == S(0);
+  [4] ~(S(x)) == 0;
+  [5] gerade(0) == S(0);
+  [6] gerade(S(x)) == ~(gerade(x));
+  [7] ungerade(0) == 0;
+  [8] ungerade(S(x)) == ~(ungerade(x));

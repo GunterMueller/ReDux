@@ -1,0 +1,30 @@
+#csh
+# move a file with suffix `typ' stored in a subdirectory given in
+# the first argument or in subdirectory `typ' if there are no arguments 
+# into the file `file.4'.
+# An empty file called `_type_is_...' states which file is
+# stored in file.4 and will be updated accordingly.
+set linecount=0
+if ($#argv > 0) then
+   set DIR=$1
+else
+   set DIR="typ"
+endif
+rm -f tmp.typ
+foreach i ($DIR/*.typ)
+   set type=$i:t
+   echo $type:r >> tmp.typ
+end
+more tmp.typ
+rm -f tmp.typ
+echo _type_is_*
+echo -n "Which type do you want to work with?  "
+set adt=$<
+set file=$DIR/$adt.typ
+echo $adt $file
+if (-e $file) then
+  cp $file file.4
+  rm -f _type_is_*
+  echo >"_type_is_"$adt"_"
+endif
+echo _type_is_*

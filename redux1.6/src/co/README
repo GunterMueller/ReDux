@@ -1,0 +1,29 @@
+Verzeichnis co
+==============
+
+Quellen der kombinatorischen Algorithmen (combinatorical).
+
+Inhalt:
+  TOC:               Algothmenverzeichnis (table of contents)
+  coms.ald:          Aufzaehlung der Teilmengen von Mehrfachmengen
+  incgl.ald:         Aufzaehlung der Elemente von C X ... X C
+                     (C ist Liste)
+  gglinc.ald:        Aufzaehlung der Elemente von C1 X ... X Ck
+                     (Ci ist Liste fuer 1 <= i <= k)
+
+ Unterverzeichnisse:
+
+Format von TOC
+    <Funktions-/Procedurkopf> : <Herkunftsmodul>
+
+Die Quellen werden mit dem Versionskontrollsystem RCS verwalted.
+   *.ald:    read only Datei der neusteten version [% co *.ald]
+   *.ald,v:  Datei, die alle Versionen enthaelt.
+
+Aendern einer Version von xxx.ald:
+  % co -l xxx.ald         [ generieren der neustern Version in aenderbarer ]
+                          [ Form. `locken' von xx.ald,v.                   ]
+  % vi xxx.ald            [ aendere xxx.ald.]
+    ...
+  % ci xxx.ald            [ einloggen der neuen Version ]
+  % co xx.ald             [ generieren read only Datei der neusteten version ]

@@ -1,0 +1,84 @@
+[----------------------------------------------------------------------]
+[- This file contains query rountines for some sub-parsers ------------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                QOPAFP(DT,op)
+[Query operator associativity, fixity and precedence.]
+(1) [init, make dummy data type]
+    dummyDT:=MKEDT2(DT); MKDTOP(dummyDT, LIST1(op)).
+(2) [query]
+    STOUTL("Add (n)otation, (a)ssociativity, (p)recedence");
+    STOUTL("or (f)inished ?  *").
+(3) [user input]
+    READ(); c:=UCASE(CREAD()).
+(4) [switch upon selection: fixity]
+    if c='N' then {
+      STOUTL("(P)refix, (f)unction, (i)nfix, (r)oundfix,");
+      STOUTL("p(o)stfix, (l)isp or (c)onstant notation ?  *");
+      READ(); c':=UCASE(CREAD()); 
+      if c'='P' \/ c'='F' \/ c'='O' \/ c'='I' \/ c'='R' 
+         \/ c'='L' \/ c'='C' then { TPRRM(op,DFS); case c' of
+        { 'P' do { if LENGTH(ODTYPE(op))#1 then fx:=(DFS,DFF)
+                   else fx:=(DFS,DEF) };
+          'F' do { fx:=(DFS,DFF) };
+          'O' do { fx:=(DFS,DPF) };
+          'I' do { fx:=(DFS,DIF) };
+          'R' do { fx:=(DFS,DRF); crs:=QOPCRS(); TPUT(op, DCR,crs) };
+          'L' do { fx:=(DFS,DLF) };
+          'C' do { fx:=(DFS,DCS) }
+        }; ok:=FXFIX(dummyDT,(TNAME(op)),fx);
+        if ~ok then { TPRRM(op,DFS); goto 3 }
+      }; goto 1 }.
+(5) [associativity]
+    if c='A' then {
+      STOUTL("(L)eft, (r)ight, (n)one ?  *");
+      READ(); c':=UCASE(CREAD());
+      if c'='L' \/ c'='R' \/ c'='N' then
+      { TPRRM(op,DOA); case c' of
+        { 'L' do { as:=(DOA,DLA) };
+          'R' do { as:=(DOA,DRA) };
+          'N' do { as:=(DOA,DNA) }
+        }; ok:=FXASC(dummyDT,(TNAME(op)),as);
+        if ~ok then { TPRRM(op,DOA); goto 4 }
+      }; goto 1 }.
+(6) [precedence]
+    if c='P' then {
+      ops:=FOURTH(DT); STOUTL("Precedences already assigned:");
+      asgn:=FALSE;
+      while ops#() do { ADV(ops; o,ops); pr:=TGET(o,DOP);
+        if pr#() then { SWRT(TNAME(o)); BLKW(5); 
+          IWRITE(pr); WRITE; asgn:=TRUE } };
+      if asgn=FALSE then STOUTL("None.");
+      STOUTL("Precedence ?  *");
+      READ(); p:=IREAD(); TPUT(op,DOP,p);
+      goto 1 }.
+(7) [wrong input?]
+    if c#'F' then goto 1 ||
+
+                sym:=QOPCRS()
+[Query operator closing roundfix symbol.]
+(1) [query] STOUTL("Enter closing roundfix symbol: *").
+(2) [user input] READ(); sym:=CRSPRS().
+(3) [error?] if sym=() then { STOUTL("*** Error in symbol.");
+      goto 1 } ||
+
+               s:=CRSPRS()
+[Closing roundfix symbol parse.
+ A symbol is read from the input stream. The symbol s is
+ entered into the symbol table. Preceding blanks are skipped.
+ A newline terminates symbol input. If an error occurred, s=().]
+(1) [init] s:=().
+(2) [skip blanks] c:=CREADB(); if ~IDCHR(c) then
+    { STOUTL("Character not allowed."); DIBUFF; return }.
+(3) [read characters, upto an eoln]
+    while IDCHR(c) do { s:=COMP(c,s); c:=CREAD() };
+    if IDCHR(c) then s:=COMP(c,s) else BKSP; s:=INV(s).
+(4) [identifier starting with '%%' or '==' not allowed]
+    FIRST2(s; a,b); if a=b /\ a='%' \/ a='=' then
+    { s:=(); return }.
+(5) [enter symbol] s:=ENTER(s) ||

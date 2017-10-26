@@ -1,0 +1,83 @@
+%%   comment symbol
+DATATYPE RXY;
+%%  AUTHOR Reinhard Buendgen
+%%  STATUS completed
+%%  DESCRIPTION (R[x])[y]
+%%              in recursive presentation
+SORT
+	BIPOLY, KOEF, POLYNOM, XXX, YYY;
+CONST
+	0, 1: KOEF;
+	i, X: XXX;	%%  i=X^0
+	I, Y: YYY;	%%  I=Y^0
+	o: POLYNOM;
+	O: BIPOLY;
+VAR
+	a, b, c, d, e: KOEF;
+	x, x1, x2, x3: XXX;
+	y, y1, y2, y3: YYY;
+	p, q, r, s, t: POLYNOM;
+	P, Q, R, S, T: BIPOLY;
+OPERATOR
+	+: KOEF, KOEF -> KOEF;
+	*: KOEF, KOEF -> KOEF;
+	~: KOEF -> KOEF;
+	|: XXX, XXX -> XXX;
+	m: KOEF, XXX -> POLYNOM;
+	#: POLYNOM, POLYNOM -> POLYNOM;
+	@: POLYNOM, POLYNOM -> POLYNOM;
+	': YYY, YYY -> YYY;
+	M: POLYNOM, YYY -> BIPOLY;
+	&: BIPOLY, BIPOLY -> BIPOLY;
+	`%: BIPOLY, BIPOLY -> BIPOLY;
+NOTATION
+	+, *, ~, |, m, #, @, ', M, &, `%: FUNCTION;
+THEORY
+	+, *, |, #, @, ', &, `%: AC;
+AXIOM
+[1] +(0,a) == a;
+[2] *(0,a) == 0;
+[3] *(1,a) == a;
+[4] ~(0) == 0;
+[5] ~(~(a)) == a;
+[6] +(a,~(a)) == 0;
+[7] ~(+(a,b)) == +(~(a),~(b));
+[8] *(a,~(b)) == ~(*(a,b));
+[9] *(a,+(b,c)) == +(*(a,b),*(a,c));
+
+[10] |(x,i) == x;
+
+[11] m(0,x) == o;
+[12] #(m(a,x),m(b,x)) == m(+(a,b),x);
+[13] @(m(a,x),m(b,x1)) == m(*(a,b),|(x,x1));
+
+[14] #(p,o) == p;
+[15] @(p,o) == o;
+[16] @(p,m(1,i)) == p;
+[17] @(p,#(q,r)) == #(@(p,q),@(p,r));
+[18] #(@(p,m(a,x)),@(p,m(b,x))) == @(p,m(+(a,b),x));
+[19] @(p,m(+(1,b),i)) == #(p,@(p,m(b,i)));
+[20] #(p,@(p,m(~(1),i))) == o;
+[21] #(p,@(p,m(+(~(1),a),i))) == @(p,m(a,i));
+
+[22] '(y,I) == y;
+
+[23] M(o,y) == O;
+[24] &(M(p,y),M(q,y)) == M(#(p,q),y);
+[25] %(M(p,y),M(q,y1)) == M(@(p,q),'(y,y1));
+
+[26] &(P,O) == P;
+[27] %(P,O) == O;
+[28] %(P,M(m(1,i),I)) == P;
+[29] %(P,&(Q,R)) == &(%(P,Q),%(P,R));
+[30] &(%(P,M(p,y)),%(P,M(q,y))) == %(P,M(#(p,q),y));
+[31] %(P,M(#(m(1,i),q),I)) == &(P,%(P,M(q,I)));
+[32] &(P,%(P,M(m(~(1),i),I))) == O;
+[33] &(P,%(P,M(#(m(~(1),i),p),I))) == %(P,M(p,I));
+[34] %(P,M(m(+(1,b),i),I)) == &(P,%(P,M(m(b,i),I)));
+[35] %(P,M(#(p,m(+(1,b),i)),I)) == &(P,%(P,M(#(m(b,i),p),I)));
+[36] &(P,%(P,M(m(+(~(1),a),i),I))) == %(P,M(m(a,i),I));
+[37] &(P,%(P,M(#(m(+(~(1),a),i),p),I))) == %(P,M(#(p,m(a,i)),I));
+
+END
+%%  This file is RXY.typ 

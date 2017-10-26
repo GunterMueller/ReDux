@@ -1,0 +1,306 @@
+[----------------------------------------------------------------------]
+[- This file contains routines for symbol-table management ------------]
+[----------------------------------------------------------------------]
+
+[ #include "tp.h" ]
+[ #include "parse.h" ]
+[ #include "globs.h" ]
+
+[----- Section 1: algorithms for export -------------------------------]
+
+                    STUPDT(dt,sol)
+[Symbol table update.  
+ dt is a data type, sol is a signature object list.
+ The symbol table (trie) of dt is updated wrt. sol,
+ i.e. all elements of sol are inserted into this trie.]
+
+(1) [Initialize.] T:=DTSYMTAB(dt); S':=sol.
+(2) [Insert.] while S' # () do
+    { ADV(S'; s,S'); 
+      [Get name string of s.] n:=TNAME(s); N:=GET(n,FLAT);
+      if N = () then N:=EXPLOD(n);
+      T:=SOTINS(T,N,s)
+    }.
+(3) [Restore data typ symbol table.] DTSYMTAB(dt):=T ||
+ 
+
+                    STUDCR(dt,sym)
+[Symbol table update, closing roundfix.
+ dt is a data type, sym is a symbol denoting a closing
+ roundfix operator. The symbol table of dt is 
+ updated wrt. sym, i.e. a new object of the form 
+ ((), DCR, (),(),(), name), i.e. an
+ object with TKIND=DCR and TNAME="name of closing roundfix
+ symbol", is inserted. This object is never used by the
+ parser to build up a term.]
+(1) [make pseudo signature object] so:=OCONS(sym,(),());
+    TKIND(so):=DCR.
+(2) [insert so] STUPDT(dt, (so)) ||
+
+
+                    s:=SYTGET(dt,n)
+[Symbol table, get signature object by name.
+ dt is a data type, n is a symbol denoting a variable, constant or 
+ operator name. 
+ Then s is the signature object with name 'name'  if 'name' 
+ occurs in the  data type's symbol table, otherwise s = ().]
+
+(1) [Initialize.] s:=(); T:=DTSYMTAB(dt).
+(2) [Get name string of s.] N:=GET(n,FLAT); if N = () then N:=EXPLOD(n). 
+(3) [Search.] C:=SOTSST(T,N).
+(4) [Result.] if C # () then s:=SOTCSGOB(C) ||
+
+
+                    L':=LPREFX(L,n)
+[List prefix.
+ L is a list, n a non-negative BETA-integer.  
+ Then L' consists of the first n elements of L if 
+ n < length(L) otherwise L' = L.]
+
+(1) [|L| < n.] L'':=L; n':=0; 
+    repeat [n' <= n, |L| = n' + |L''|]
+      if L''=() then { L':=L; return };
+      L'':=RED(L''); n':=n'+1;
+    until n' > n.
+(2) L':=(); L*:=L; for i=1,...,n do
+    { ADV(L*; a,L*); L':=COMP(a,L') }; L':=INV(L') ||
+
+                    t:=LEQRF(L,L',n)
+[List equality, restricted to first n elements.
+ L and L' are lists, n is a BETA-integer. If the first n elements
+ of L and L' are equal then t:=TRUE, otherwise t:=FALSE.
+ If both lists are equal, but have a length smaller than n, then
+ t:=TRUE.]
+(1) [init] i:=0; L_:=L; L_':=L'; t:=FALSE; if L_=L_' then
+    { t:=TRUE; return }.
+(2) [compare] while i<n /\ L_#() /\ L_'#() do { ADV(L_; a,L_);
+       ADV(L_'; b,L_'); if ~EQUAL(a,b) then return; if L_=L_' then
+       { t:=TRUE; return }; i:=i+1 }.
+(3) [equal?] if i=n then t:=TRUE ||
+
+
+[ --- not needed
+                    t:=LCMPRF(L,L',n)
+[List lexicographical comparison, restricted to first n elements.
+ L and L' are lists, n is a BETA-integer. t=-1,0,+1 according to
+ whether L precedes, equals or follows L' lexicographically, where
+ only the first n characters of L and L' are considered.]
+(1) [init] M:=L; N:=L'; t:=0; if n=0 then return; i:=0.
+(2) [compare] repeat ADV(M; a,M); ADV(N; b,N); if a>b then t:=1
+      else if a<b then t:=-1; i:=i+1; if t#0 then return
+    until M=() \/ N=() \/ i>=n.
+(3) [end] if i>=n then t:=0 else if M=() then t:=1 else t:=-1 ||
+]
+
+                    STLUP(dt,c; tok,coerc,yylval,idlen)
+[Symbol table look-up.  dt is a data type. c' is the first
+ character of the lexeme. tok is the token of the recognized
+ symbol S, and -1 if an error occurred. coerc is TRUE
+ if S is a coercion operator, otherwise FALSE.
+ yylval is the signature object of the symbol,
+ idlen is the length of the symbol.
+ A symbol table must be stored in the data  type dt.
+ The token tok is either DCS or DVS in case S is a constant or
+ variable symbol, or the fixity property value if S is an operator.]
+
+(1) [Inititialize] tok :=-1; yylval:=(); idlen:=0; coerc:=FALSE;
+    [Symbol string scanned .] N:=(c); [|N|.] i:=1;
+    [List cell with last character scanned.] N':=N;
+    [Longest match so far (signature object).] s:=();
+    [Length of longest object scanned so far.] l:=0;
+    [Flag denoting if varaible with index scanned.] index:=FALSE;
+    [Flag denoting if furthe match is impossible.] exit:=FALSE;
+    [Symbol table of data type (a trie).] T:=DTSYMTAB(dt).
+(2) [Get initial signature object trie cell.] C:=SOTGTC(T,c).
+(3) [Search.] while  C # () do
+    { [Symbol found.] T:=SOTCSONS(C); s':=SOTCSGOB(C); 
+      if s' # () then 
+      { s:=s'; l:=i; index:=false; k:=TKIND(s);
+        [Variable found, check index.] if k = DVS then
+        { VIDXRD(;istr,ix,ilen); if ilen # 0 then 
+          { RED(N'):=istr; i:=i+ilen; l:=i; index:=true; 
+            N':=LAST(istr); C:=SOTSST(T,istr); if C = () then goto 4 
+      } } };
+      [Read next character.] c':=YYINPT(); i:=i+1; 
+      [Add c' as suffix to N.] RED(N'):=COMP(c',()); N':=RED(N');
+      [Look up new character.] C:=SOTGTC(T,c')
+    }.
+(4) [Symbol found?] N:=INV(N);
+    if s = () then { if i > 1 then YYUNPT(FIRST(N)); return }.
+(5) [Push unused characters back to input buffer, set idlen]
+    idlen:=l; for j=l+1,...,i do { ADV(N; c',N); YYUNPT(c') }.
+(6) [examine symbol: constant] 
+    if k=DCS then { tok:=k; yylval:=s; return }.
+(7) [variable]
+    if k=DVS then { tok:=k; yylval:=VDINST(s,ix); return }.
+(8) [closing roundfix symbol]
+    if k=DCR then { tok:=DRF; yylval:=s; return }.
+(9) [operator] tok:=TGET(s, DFS); yylval:=s;
+    [coercion operator?] if k = DXT then coerc:=TRUE ||
+    
+
+              num:=SYM2I(sym)
+[Symbol to integer.
+ sym is a symbol, num is a positive integer. The symbol sym is
+ interpreted as an integer and converted. If there is a letter
+ in sym, then num=0.]
+(1) [init] num:=0; name:=GET(sym,FLAT); if name=() then return.
+(2) [convert] c:=FIRST(name); while DIGIT(c) /\ name#() do
+    { num:=num*10+c-'0'; name:=RED(name); c:=FIRST(name) }.
+(3) [error check] if name#() then num:=0 ||
+
+
+[----- Section 2: algorithms for internal use  ------------------------]
+
+               VIDXRD(;istr,ix,len)
+[Variable index, read from input stream.
+ istr is a list of characters, ix and len are integers.
+ Entering this function, a variable has been scanned.
+ It is tested if an index follows. If this is the case,
+ then ix is the index,len is the number of additionally
+ scanned characters and istr is a list of these characters.
+ Otherwise ix=0, ilen=0 and istr=().]
+(1) [init] ix:=0; len:=0; istr:=().
+(2) [index?] c:=YYINPT(); if c#'_' then { YYUNPT(c); return }.
+(3) [read index] c:=YYINPT(); if DIGIT(c) then
+    { istr:=('_'); while DIGIT(c) do { istr:=COMP(c,istr);
+        ix:=ix*10+c-'0'; c:=YYINPT(); len:=len+1
+    } }
+    else { [missing index] YYUNPT(c); YYUNPT('_'); return }.
+(4) [finish] len:=len+1; [underscore]
+    YYUNPT(c);  [push back unused character]
+    istr:=INV(istr) ||
+    
+
+               v:=VDINST(vo, ix)
+[Parser variable dictionary insertion. 
+ vo is a signature object denoting a variable, 
+ ix is a BETA-integer.
+ Then v is the variable with name TNAME(vo) and index 'ix'. 
+ v is inserted into the parser variable dictionary stored
+ under PDXVRS, if it is not  already there.]
+(1) [init] N:=PDXVRS; N':=N.
+(2) [search for variable with name TNAME(vo).]
+    nam:=TNAME(vo); while N'#() /\ PDVARNAME(N')#nam
+    do N':=PDVARNEXT(N'); if N'=() then
+    { vl:=(); N':=PDVARCONS(nam,vl,N); PDXVRS:=N'; goto 4 };
+    vl:=PDVARLIST(N').
+(3) [search for variable with index ix]
+    l:=vl; while l#() /\ PDVLINDEX(l)#ix do l:=PDVLNEXT(l);
+    if l#() then { v:=PDVLVAR(l); return }.
+(4) [new entry in variable dictionary]
+    v:=TCONS((),vo); vl:=PDVLCONS(ix,v,vl); PDVARLIST(N')=vl ||
+
+
+[----- abstract data type: signature object trie ----------------------]
+
+                    SOTENC(T,c; C,T*)
+[Signature Object Trie, Enter Cell.
+T is a signature opject trie, c is a character.
+Then C is the cell in the top level of T that has c in its character
+field if such cell exists (then T* is equal to T).
+Otherwise C is a new cell with c in its character field and C is inserted
+into the top level of T. T* is updated version of T.
+T is modified.
+The top level node of signature opject tries is organized as a sorted 
+list.]
+
+(1)  [Initialize result.] T*:=T; 
+     [current pointer.  ] T':=T;   
+     [predecessor of T'.] T'':=SOTEMPTY.
+(2)  [Search c.] while T' # SOTEMPTY do
+     { C:=SOTFIRST(T'); c':=SOTCCHAR(C); if c' = c then return;
+       if c' > c then goto 3;
+       T'':= T'; T':=SOTNEXT(T');
+     }.
+(3)  [Enter new cell.] C:=SOTCCONS(c,(),()); 
+     if T'' = () then T*:=SOTPREP(C,T')
+                 else SOTNEXT(T''):=SOTPREP(C,T') ||
+       
+
+                    T*:=SOTINS(T,N,s)
+[Signature Object Trie, Insert.
+T is a signature object trie, s is a signature object and N is a 
+non-empty character list such that N is a suffix of the representation 
+of the name of s.
+Then s is inserted into T at the position defined by N. 
+If s is already contained in T then the old value is over written.
+The result is T*, T is modified.]
+
+(1)  [Initialize.] ADV(N; c,N').
+(2)  [Get Symbol Trie Cell.] SOTENC(T,c; C,T*).
+(3)  [Enter?] if N' = () then SOTCSGOB(C):=s
+                         else SOTCSONS(C):=SOTINS(SOTCSONS(C),N',s) ||
+
+                    C:=SOTGTC(T,c)
+[Signature Object Trie, get cell.
+T is a signature object trie, c is a character.
+Then C is the cell in the top level of T that has c in its character
+field if such cell exists, otherwise C = ().]
+
+(1)  [Initialize.] T':=T; C:=().
+(2)  [Search.] while T' # () do
+     { ADV(T'; C',T'); c':=SOTCCHAR(C');
+       [Assumes T to be sorted according to SOTCCHAR.]
+       if c' >= c then { if c = c' then C:=C'; return }
+     } ||
+
+                    C:=SOTSST(T,S)
+[Signature Object Trie, search string.
+T is a signature object trie, S is a string.
+Then C is the cell in T that has its path labeled with S
+(in the character fields) if such cell exists, 
+otherwise C = ().]
+
+(1)  [Initialize.] T':=T; S':=S; C:=().
+(2)  [Search.] while S' # () /\ T' # () do
+     { ADV(S'; c,S'); C':=SOTGTC(T',c);
+       if C' = () then return
+       else T':=SOTCSONS(C')
+     }.
+(3)  [Result.] if S' = () then C:=C' ||
+
+                    S*:=SOTLSO(T)
+[Signature Object Trie, list of signature objects.
+T is a signature object trie.
+Then S* is the list of the signature objects in T (in original order).]
+
+(1)  S*:=INV(SOTLS1(T,())) ||
+
+                    S*:=SOTLS1(T,S)
+[Signature Object Trie, list of signature objects, auxilliary.
+T is a signature object trie, S is a list of signature objects.
+Then the signature objects in T (in reverse order) are prepended 
+to S resulting in S*.]
+
+(1)  [Initialize.] T':=T; S*:=S.
+(2)  [Traverse T.] while T' # SOTEMPTY do
+     { C:=SOTFIRST(T'); s:=SOTCSGOB(C);
+       if s # () then S*:=COMP(s,S*);
+       S*:=SOTLS1(SOTCSONS(C),S*);
+       T':=SOTNEXT(T')
+     } ||
+
+                    C*:=SOTCCP(C)
+[Signature Object Trie Cell, Copy.
+C is a signature object trie cell.
+Then C* is a copy of C.]
+
+(1)  [Copy sons.] T:=SOTCSONS(C); T*:=SOTCPY(T).
+(2)  [Copy cell.] C*:=SOTCCONS(SOTCCHAR(C),T*,SOTCSGOB(C)) ||
+
+                    T*:=SOTCPY(T)
+[Signature Object Trie, Copy.
+C is a signature object trie.
+Then T* is a copy of T.
+Assumes top level nodes to be held as a sorted list.]
+
+(1) [Initialize.] T*:=SOTEMPTY; T':=T.
+(2) [Copy cell wise.] while T' # SOTEMPTY do
+    { C:=SOTFIRST(T'); C*:=SOTCCP(C); T*:=SOTPREP(C*,T*);
+      T':=SOTNEXT(T')
+    }; T*:=INV(T*) ||
+    
+
+
+

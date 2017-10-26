@@ -1,0 +1,389 @@
+                    C:=IPC(r,A)
+[Integral polynomial content.  A is an integral polynomial in r>=1
+variables.  C is the content of A.]
+     safe A',C',C1,C'1,r'.
+(1)  [A=0.]  if A=0 then { C:=0;  return }.
+(2)  [A # 0.]  A':=RED(A);  ADV(A';C,A');  r':=r-1;  while A' # ()
+     do { A':=RED(A');  ADV(A';C1,A');  IPGCDC(r',C,C1;C,C',C'1);
+     if IPONE(r',C) then return };  C:=IPABS(r',C)  ||
+                    IPCPP(r,A;C,A_)
+[Integral polynomial content and primitive part.  A is an integral
+polynomial in r>=1 variables.  C is the content of A and A_ is the
+primitive part of A.]
+     safe IPCPP.
+(1)  IPSCPP(r,A;s,C,A_) ||
+                    IPGCDC(r,A,B;C,A_,B_)
+[Integral polynomial greatest common divisor and cofactors.  A and B
+are integral polynomials in r variables, r>=0.  C=gcd(A,B).
+If C#0 then A_=A/C and B_=B/C.  Otherwise A_=0 and B_=0.]
+     safe a',b',c',c'',c*,P,p,q,q',t,w.
+(1)  [A=B=0.]  if A=0 /\ B=0 then { C:=0;  A_:=0;  B_:=0;  return }.
+(2)  [r=0.]  if r=0 then { C:=IGCD(A,B);  A_:=IQ(A,C);  B_:=IQ(B,C);
+     return }.
+(3)  [A=0 or B=0.]  if A=0 then { C:=IPABS(r,B);  A_:=0;  B_:=PINV(0,
+     IPSIGN(r,B),r);  return };  if B=0 then { C:=IPABS(r,A);  B_:=0;
+     A_:=PINV(0,IPSIGN(r,A),r);  return }.
+(4)  [Compute integer contents and primitive parts.]
+     IPICPP(r,A;a,A^);  IPICPP(r,B;b,B^);  c:=IGCD(a,b).
+(5)  [Compute normalization factor.]  a^:=PLBCF(r,A^);
+     b^:=PLBCF(r,B^);  c^:=IGCD(a^,b^).
+(6)  [Compute norms.]  d:=IPMAXN(r,A^);  e:=IPMAXN(r,B^);
+     f:=IMAX(d,e);  g:=IPROD(IPROD(2,c^),f).
+(7)  [Compute degree vectors.]  U:=PDEGV(r,A^);  V:=PDEGV(r,B^).
+(8)  [Compute factor coefficient bounds.]  d_:=IMP2(d,IPFCB(U));
+     e_:=IMP2(e,IPFCB(V));  f_:=IMAX(d_,e_);
+     g_:=IPROD(IPROD(8,c^),f_).
+(9)  [Initialize prime list and degree vector.]  P:=PRIME;
+     W:=COMP(FIRST(U)+1,RED(U)).
+(10) [Obtain next prime.]  if P=() then { print
+     "PRIME list exhausted in IPGCDC.";  stop };  ADV(P;p,P).
+(11) [Map normalization factor.]  c*:=MDHOM(p,c^);  if c*=0 then
+     go to  10.
+(12) [Map A^ and B^.]  A*:=MPHOM(r,p,A^);  U*:=PDEGV(r,A*);
+     if ~EQUAL(U,U*) then go to  10;  B*:=MPHOM(r,p,B^);
+     V*:=PDEGV(r,B*);  if ~EQUAL(V,V*) then go to  10.
+(13) [Compute g.c.d.]  MPGCDC(r,p,A*,B*;C*,A^*,B^*).
+(14) [Test for constant g.c.d.]  if IPONE(r,C*) then
+     { C:=PINV(0,c,r);  A_:=IPIQ(r,A,c);  B_:=IPIQ(r,B,c);  return }.
+(15) [Conditional initialization of chinese remainder process.]
+     W*:=PDEGV(r,C*);  t:=VCOMP(W,W*);  if t >= 2 then {  Q:=1;  A':=0;
+     B':=0; C':=0;  W:=VMIN(W,W*);  W':=W;  g^:=g_;
+     repeat { ADV(W';w,W'); g^:=IPROD(g^,w+1) } until W'=()  }.
+(16) [Test for unlucky prime.]  if t=1 \/ t=3 \/ t=0 /\
+     ICOMP(Q,g^) > 0 then go to  10.
+(17) [Apply chinese remainder algorithm.]  C^*:=MPMDP(r,p,c*,C*);
+     q':=MDINV(p,MDHOM(p,Q));  C':=IPCRA(Q,p,q',r,C',C^*);
+     A':=IPCRA(Q,p,q',r,A',A^*);  B':=IPCRA(Q,p,q',r,B',B^*);
+     Q:=IPROD(Q,p).
+(18) [Test for completion.]  if ICOMP(Q,g) <= 0 then go to  10;
+     q:=ILOG2(Q);  c':=ILOG2(IPSUMN(r,C'));  a':=ILOG2(IPMAXN(r,A'));
+     b':=ILOG2(IPMAXN(r,B'));  c'':=MAX(a',b');  if q < c'+c''+2
+     then go to  10.
+(19) [Remove normalization.]  IPICPP(r,C';c',C);  c^':=IQ(c^,c');
+     A_:=IPIQ(r,A',c^');  B_:=IPIQ(r,B',c^');  C:=IPIP(r,c,C);
+     a_:=IQ(a,c);  A_:=IPIP(r,a_,A_);  b_:=IQ(b,c);
+     B_:=IPIP(r,b_,B_)  ||
+                    c:=IPIC(r,A)
+[Integral polynomial integer content.  A is an integral polynomial in
+r>=1 variables.  c is the integer content of A.]
+     safe IPIC.
+(1)  if A=0 then c:=0 else c:=IPICS(r,A,0) ||
+                    IPICPP(r,A;a,A_)
+[Integral polynomial integer content and primitive part.  A is an
+integral polynomial in r>=1 variables.  a is the integer content of A.
+A_=A/a if A#0 and A_=0 if A=0.]
+     safe A_.
+(1)  if A=0 then { a:=0;  A_:=0 } else { a:=IPIC(r,A);
+     A_:=IPIQ(r,A,a) } ||
+                    d:=IPICS(r,A,c)
+[Integral polynomial integer content subroutine.  A is a non-zero
+integral polynomial in r>=1 variables.  c is an integer.  d is the
+greatest common divisor of c and the integer content of A.]
+     safe a,e.
+(1)  A':=A;  r':=r-1;  d:=c;  repeat { ADV2(A';e,a,A');  if r'=0
+     then d:=IGCD(a,d) else d:=IPICS(r',a,d);  if d=1 then
+     return } until A'=() ||
+                    A_:=IPIPP(r,A)
+[Integral polynomial integer primitive part.  A is an integral
+polynomial in r>=1 variables.  If A#0 then A_=A/a where a is the
+integer content of A.  If A=0 then A_=0.]
+     safe IPIPP.
+(1)  IPICPP(r,A;a,A_) ||
+                    B:=IPPGSD(r,A)
+[Integral polynomial primitive greatest square-free divisor.  A is an
+integral polynomial in r>=1 variables.  If A=0 then B=0.  Otherwise B is
+the greatest square-free divisor of the primitive part of A.]
+     safe C,D.
+(1)  [A=0.]  if A=0 then { B:=0;  return }.
+(2)  [A # 0.]  B:=IPPP(r,A);  if FIRST(B) > 0 then { B':=IPDMV(r,B);
+     IPGCDC(r,B,B';C,B,D) } ||
+                    A_:=IPPP(r,A)
+[Integral polynomial primitive part.  A is an integral polynomial in 
+r>=1 variables.  A_ is the primitive part of A.]
+     safe IPPP.
+(1)  IPCPP(r,A;C,A_) ||
+                    C:=IPRES(r,A,B)
+[Integral polynomial resultant.  A and B are integral polynomials in r
+variables, r>=1, of positive degrees.  C is the resultant of A and B
+with respect to the main variable, an integral polynomial in r-1
+variables.]
+     safe I,m,n,p,q.
+(1)  [Compute coefficient bound.]  d:=IPMAXN(r,A);
+     e:=IPMAXN(r,B);  m:=FIRST(A);  n:=FIRST(B);  d:=IEXP(d,n);
+     e:=IEXP(e,m);  f:=IFACTL(m+n);  f:=IPROD(e,f);
+     f:=IPROD(d,f).
+(2)  [Initialize.]  I:=PRIME;  Q:=1;  C:=0;  r':=r-1.
+(3)  [Loop.]  while I # () do {   ADV(I;p,I);  A*:=MPHOM(r,p,A);
+     if PDEG(A*)=m then {  B*:=MPHOM(r,p,B);  if PDEG(B*)=n
+     then { C*:=MPRES(r,p,A*,B*);  q:=MDHOM(p,Q);  q:=MDINV(p,q);
+     C:=IPCRA(Q,p,q,r',C,C*);  Q:=IPROD(Q,p);  if ICOMP(Q,f) >= 0
+     then return }  }   }.
+(4)  [Algorithm fails.]  CLOUT("ALGORITHM IPRES FAILS.");
+     EMPTOB;  stop||
+                    S:=IPRPRS(r,A,B)
+[Integral polynomial reduced polynomial remainder sequence.  A and B
+are non-zero integral polynomials in r>=1 variables with deg(A)>=deg(B).
+S is the reduced polynomial remainder sequence of A and B.]
+     safe a1,d,n1,n2.
+(1)  A1:=A;  A2:=B;  S:=LIST2(A2,A1);  d:=-1;  repeat {  A3:=IPPSR(r,
+     A1,A2);  if A3=0 then { S:=INV(S);  return };  if d >= 0 then
+     { a1:=PLDCF(A1);  a*1:=a1;  for i=1,...,d do if r=1 then
+     a*1:=IPROD(a*1,a1) else a*1:=IPPROD(r-1,a*1,a1);  a*1:=
+     LIST2(0,a*1);  A3:=IPQ(r,A3,a*1) };  S:=COMP(A3,S);
+     n1:=PDEG(A1);  n2:=PDEG(A2);  d:=n1-n2;  A1:=A2;  A2:=A3  }||
+                    IPSCPP(r,A;s,C,A_)
+[Integral polynomial sign, content, and primitive part.  A is an
+integral polynomial in r>=1 variables.  s is the sign of A, C is the
+content of A, and A_ is the primitive part of A.]
+     safe A1,e,r'.
+(1)  [A=0.]  if A = 0 then { s:=0;  C:=0;  A_:=0; return }.
+(2)  [A # 0.]  s:=IPSIGN(r,A);  A':=IPABS(r,A);  r':=r-1;
+     C:=IPC(r,A');  if IPONE(r',C) then A_:=A' else
+     {  A_:=();  repeat { ADV2(A';e,A1,A');  C1:=IPQ(r',A1,C);
+     A_:=COMP2(C1,e,A_) } until A' = ();  A_:=INV(A_)  } ||
+                    L:=IPSF(r,A)
+[Integral polynomial square-free factorization.  A is a positive 
+primitive integral polynomial in r>=1 variables of positive degree.  
+L is the list ((e_1,A_1),...,(e_k,A_k)) where A=prod_{i=1}^{k}
+A_i^{e_i} is the square-free factorization of A in which 1<=e_1<
+e_2<...<e_k and each A_i is a positive square-free polynomial of
+positive degree.]
+     safe j.
+(1)  [Initialize.]  L:=();  A':=IPDMV(r,A);  IPGCDC(r,A,A';B,C,C');
+     j:=1.
+(2)  [Compute factors.]  while PDEG(B) > 0 do { IPGCDC(r,B,C;
+     D,B',C');  if PDEG(C') > 0 then L:=COMP(LIST2(j,C'),L);
+     B:=B';  C:=D;  j:=j+1 }.
+(3)  [Finish.]  L:=COMP(LIST2(j,C),L);  L:=INV(L) ||
+                    S:=IPSPRS(r,A,B)
+[Integral polynomial subresultant polynomial remainder sequence.
+A and B are non-zero integral polynomials in r>=1 variables with
+deg(A)>=deg(B).  S is the subresultant p.r.s. of the first kind
+of A and B.]
+     safe d0,d1,i,n1,n2.
+(1)  [Initialize.]  G1:=A;  G2:=B;  S:=LIST2(G2,G1);  n1:=PDEG(G1);
+     n2:=PDEG(G2);  d0:=0;  d1:=n1-n2;  r':=r-1;  i:=1.
+(2)  [Compute G^(i+2).]  G^3:=IPPSR(r,G1,G2);  if G^3=0 then
+     { S:=INV(S);  return };  if EVEN(d1) then G^3:=IPNEG(r,G^3);
+     n3:=PDEG(G^3).
+(3)  [Compute h_i.]  if i > 1 then {  g1:=PLDCF(G1);
+     h1:=IPEXP(r',g1,d0);  if i > 2 then
+     { h*0:=IPEXP(r',h0,d0-1);  h1:=IPQ(r',h1,h*0);  h*0:=0 }  }.
+(4)  [Compute g_{i+2}.]  if i=1 then G3:=G^3 else { h*1:=IPEXP(r',
+     h1,d1);  h*1:=IPPROD(r',g1,h*1);  h*1:=LIST2(0,h*1);
+     G3:=IPQ(r,G^3,h*1);  h*1:=0;  G^3:=0 }.
+(5)  [Update.]  S:=COMP(G3,S);  n1:=n2;  n2:=n3;  d0:=d1;
+     d1:=n1-n2;  G1:=G2;  G2:=G3;  if i > 1 then h0:=h1;  i:=i+1;
+     go to  2||
+                    IPSRP(r,A;a,A_)
+[Integral polynomial similiar to rational polynomial.  A is a rational
+polynomial in r variables, r>=0.  a is a rational number, and A_ is an
+integral polynomial such that A_=a*A. If A=0 then a=A_=0. Otherwise A_
+is integer primitive and positive.]
+     safe s.
+(1)  [A=0.]  if A = 0 then { a:=0;  A_:=0;  return}.
+(2)  [A # 0.]  RPBLGS(r,A;u,v,s);  u':=IDPR(u,s);
+     a:=LIST2(u',v);  A*:=RPRNP(r,a,A);  A_:=IPFRP(r,A*) ||
+                    MPGCDC(r,p,A,B;C,A_,B_)
+[Modular polynomial greatest common divisor and cofactors.  p is a
+prime beta-integer.  A and B are polynomials in r>=1 variables over Z_p. 
+C=gcd(A,B).  If C#0 then A_=A/C and B_=B/C.  Otherwise A_=0 and B_=0.]
+     safe a',b',c',c'',e,f,q',U*,V*.
+(1)  [A=B=0.]  if A=0 /\ B=0 then { C:=0;  A_:=0;  B_:=0;  return }.
+(2)  [A=0 or B=0.]  if A=0 then { b:=PLBCF(r,B);  C:=MPMON(r,p,B);
+     A_:=0;  B_:=PINV(0,b,r);  return };  if B=0 then { a:=PLBCF(r,A);
+     C:=MPMON(r,p,A);  B_:=0;  A_:=PINV(0,a,r);  return }.
+(3)  [r=1.]  if r=1 then { C:=MUPGCD(p,A,B);  A_:=MPQ(r,p,A,C);
+     B_:=MPQ(r,p,B,C);  return }.
+(4)  [Compute univariate contents and primitive parts.]
+     MPUCPP(r,p,A;a,A^);  MPUCPP(r,p,B;b,B^);
+     c:=MUPGCD(p,a,b).
+(5)  [Compute normalization factor.]  r':=r-1;
+     a^:=PLBCF(r',A^);  b^:=PLBCF(r',B^);  c^:=MUPGCD(p,a^,b^).
+(6)  [Compute degrees.]  U:=PDEGV(r',A^);  V:=PDEGV(r',B^);
+     e:=PDEGSV(r,A^,1);  f:=PDEGSV(r,B^,1);  g:=PDEG(c^)+MAX(e,f).
+(7)  [Initialize element and degree vector.]  d:=-1;
+     W:=COMP(FIRST(U)+1,RED(U)).
+(8)  [Obtain next element.]  d:=d+1;  if d=p then
+     { print "Elements of Z sub p exhausted in MPGCDC.";  stop }.
+(9)  [Map normalization factor.]  c*:=MPEMV(1,p,c^,d);
+     if c*=0 then go to  8.
+(10) [Map A^ and B^.]  A*:=MPEVAL(r,p,A^,1,d);  U*:=PDEGV(r',A*);
+     if ~EQUAL(U,U*) then go to  8;  B*:=MPEVAL(r,p,B^,1,d);
+     V*:=PDEGV(r',B*);  if ~EQUAL(V,V*) then go to  8.
+(11) [Compute g.c.d.]  MPGCDC(r',p,A*,B*;C*,A^*,B^*).
+(12) [Test for constant g.c.d.]  if IPONE(r',C*) then
+     { C:=PINV(0,c,r');  A_:=MPUQ(r,p,A,c);  B_:=MPUQ(r,p,B,c);
+     return }.
+(13) [Conditional initialization of interpolation process.]
+     W*:=PDEGV(r',C*);  t:=VCOMP(W,W*);  if t >= 2 then { Q:=LIST2(0,1);
+     A':=0;  B':=0;  C':=0;  W:=VMIN(W,W*) }.
+(14) [Test for unlucky element.]  if t=1 \/ t=3 \/ t=0 /\
+     PDEG(Q) > g then go to  8.
+(15) [Interpolate.]  C^*:=MPMDP(r',p,c*,C*);  q':=MDINV(p,
+     MPEMV(1,p,Q,d));  C':=MPINT(p,Q,d,q',r,C',C^*);
+     A':=MPINT(p,Q,d,q',r,A',A^*);  B':=MPINT(p,Q,d,q',r,B',B^*);
+     Q:=MPPROD(1,p,Q,LIST4(1,1,0,MDNEG(p,d))).
+(16) [Test for completion.]  if PDEG(Q) <= g then go to  8;
+     c':=PDEGSV(r,C',1);  a':=PDEGSV(r,A',1);  b':=PDEGSV(r,B',1);
+     c'':=MAX(a',b');  if PDEG(Q) <= c'+c'' then go to  8.
+(17) [Remove normalization.]  MPUCPP(r,p,C';c',C);
+     c^':=MPQ(1,p,c^,c');  A_:=MPUQ(r,p,A',c^');
+     B_:=MPUQ(r,p,B',c^');  C:=MPUP(r,p,c,C);  a_:=MPQ(1,p,a,c);
+     A_:=MPUP(r,p,a_,A_);  b_:=MPQ(1,p,b,c);
+     B_:=MPUP(r,p,b_,B_)  ||
+                    C:=MPRES(r,p,A,B)
+[Modular polynomial resultant.  p is a prime beta-digit.  A and B are
+polynomials over Z_p in r variables, r>=1, of positive degrees.  C is
+the resultant of A and B, a polynomial over Z_p in r-1 variables.]
+     safe b,m1,n1.
+(1)  [r=1.]  if r=1 then { C:=MUPRES(p,A,B);  return }.
+(2)  [Initialize.]  m:=FIRST(A);  m1:=PDEGSV(r,A,1);
+     n:=FIRST(B);  n1:=PDEGSV(r,B,1);  k:=m * n1+m1 * n;
+     r':=r-1;  C:=0;  D:=LIST2(0,1);  i:=0.
+(3)  [Recursion.]  while i < p do {   A*:=MPEVAL(r,p,A,1,i);
+     if PDEG(A*)=m then {  B*:=MPEVAL(r,p,B,1,i);
+     if PDEG(B*)=n then { C*:=MPRES(r',p,A*,B*);  b:=MPEMV(1,p,D,i);
+     b:=MDINV(p,b);  C:=MPINT(p,D,i,b,r',C,C*);
+     D':=LIST4(1,1,0,p-i);  D:=MPPROD(1,p,D,D');
+     if PDEG(D) > k then return }  };  i:=i+1   }.
+(4)  [Algorithm fails.]  CLOUT("ALGORITHM MPRES FAILS.");
+     EMPTOB;  stop||
+                    S:=MPSPRS(r,p,A,B)
+[Modular polynomial subresultant polynomial remainder sequence.  A and
+B are non-zero polynomials in r>=1 variables over Z_p, p a prime
+beta-integer, with deg(A)>=deg(B).  S is the subresultant p.r.s. of
+the first kind of A and B.]
+     safe d0,d1,i,n1,n2.
+(1)  [Initialize.]  G1:=A;  G2:=B;  S:=LIST2(G2,G1);  n1:=PDEG(G1);
+     n2:=PDEG(G2);  d0:=0;  d1:=n1-n2;  r':=r-1;  i:=1.
+(2)  [Compute G^(i+2).]  G^3:=MPPSR(r,p,G1,G2);  if G^3=0 then
+     { S:=INV(S);  return };  if EVEN(d1) then G^3:=MPNEG(r,p,G^3);
+     n3:=PDEG(G^3).
+(3)  [Compute h_i.]  if i > 1 then {  g1:=PLDCF(G1);
+     h1:=MPEXP(r',p,g1,d0);  if i > 2 then
+     { h*0:=MPEXP(r',p,h0,d0-1);  h1:=MPQ(r',p,h1,h*0);
+     h*0:=0 }  }.
+(4)  [Compute g_{i+2}.]  if i=1 then G3:=G^3 else { h*1:=MPEXP(r',
+     p,h1,d1);  h*1:=MPPROD(r',p,g1,h*1);  h*1:=LIST2(0,h*1);
+     G3:=MPQ(r,p,G^3,h*1);  h*1:=0;  G^3:=0 }.
+(5)  [Update.]  S:=COMP(G3,S);  n1:=n2;  n2:=n3;  d0:=d1;
+     d1:=n1-n2;  G1:=G2;  G2:=G3;  if i > 1 then h0:=h1;  i:=i+1;
+     go to  2||
+                    c:=MPUC(r,p,A)
+[Modular polynomial univariate content.  A is a polynomial in r
+variables, r>=2, over Z_p, p a prime beta-integer.  c is the
+univariate content of A.]
+     safe MPUC.
+(1)  if A=0 then c:=0 else c:=MPUCS(r,p,A,0) ||
+                    MPUCPP(r,p,A;a,A_)
+[Modular polynomial univariate content and primitive part.  A is 
+a polynomial in r variables, r>=2, over Z_p, p a prime beta-integer. 
+If A#0 then a  is the univariate content of A and A_=A/a.  Otherwise
+a=A_=0.]
+     safe A_.
+(1)  if A=0 then { a:=0;  A_:=0 } else { a:=MPUC(r,p,A);
+     A_:=MPUQ(r,p,A,a) } ||
+                    d:=MPUCS(r,p,A,c)
+[Modular polynomial univariate content subroutine.  A is a non-zero
+polynomial in r variables, r>=2, over Z_p, p a prime beta-integer. 
+c is a univariate polynomial over Z_p.  d is the greatest common
+divisor of c and the univariate content of A.]
+     safe a,e.
+(1)  A':=A;  r':=r-1;  d:=c;  repeat { ADV2(A';e,a,A');  if r'=1
+     then d:=MUPGCD(p,a,d) else d:=MPUCS(r',p,a,d) } until A'=()
+     \/ PDEG(d)=0 ||
+                    A_:=MPUPP(r,p,A)
+[Modular polynomial univariate primitive part.  A  is a polynomial in
+r variables, r>=2, over Z_p, p a prime beta-integer.  If A#0 then
+A_=A/a where a  is the univariate content of A.  If A=0 then A_=0.]
+     safe MPUPP.
+(1)  MPUCPP(r,p,A;a,A_) ||
+                    MUPEGC(p,A,B;C,U,V)
+[Modular univariate polynomial extended greatest common divisor.  p is
+a prime beta-integer.  A and B are univariate polynomials over Z_p.
+C=gcd(A,B).  A*U+B*V=C, and, if deg(A/C)>0, then deg(V)<deg(A/C),
+else deg(V)=0.  Similarly, if deg(B/C)>0, then deg(U)<deg(B/C),
+else deg(U)=0.  If A=0 then U=0.  If B=0 then V=0.]
+(1)  MUPHEG(p,A,B;C,V);  if A=0 then U:=0 else { D:=MPPROD(1,p,B,V);
+     D:=MPDIF(1,p,C,D);  U:=MPQ(1,p,D,A) } ||
+                    C:=MUPGCD(p,A,B)
+[Modular univariate polynomial greatest common divisor.  A and B are
+univariate polynomials over Z_p, p a prime beta-integer.  C=gcd(A,B).]
+     safe A3,m,n.
+(1)  [A or B zero.]  if A=0 then { C:=MPMON(1,p,B);  return };
+     if B=0 then { C:=MPMON(1,p,A);  return }.
+(2)  [General case.]  m:=PDEG(A);  n:=PDEG(B);  if m >= n then
+     { A1:=A;  A2:=B } else { A1:=B;  A2:=A };  A1:=DPFP(1,A1);
+     A2:=DPFP(1,A2);  repeat { A3:=DMUPNR(p,A1,A2);  A1:=A2;  A2:=A3 }
+     until A2=0;  A1:=PFDP(1,A1);  C:=MPMON(1,p,A1) ||
+                    MUPHEG(p,A,B;C,V)
+[Modular univariate polynomial half-extended greatest common divisor.
+p is a prime beta-integer.  A and B are univariate polynomials over
+Z_p.  C=gcd(A,B).  There exists a polynomial U such that A*U+B*V=C,
+and, if deg(A/C)>0, then deg(V)<deg(A/C).  V is the same as the V
+produced by MUPEGC.]
+     safe a,a'.
+(1)  [Compute remainder sequence.]  V1:=0;  V2:=LIST2(0,1);  A1:=A;
+     A2:=B;
+     while A2 # 0 do { MPQR(1,p,A1,A2;Q,A3);  V3:=MPDIF(1,p,V1,
+     MPPROD(1,p,Q,V2));  A1:=A2;  A2:=A3;  V1:=V2;  V2:=V3 }.
+(2)  [Adjust ldcf.]  if A1=0 then { C:=0;  V:=0;  return };
+     a:=PLDCF(A1);  a':=MDINV(p,a);  C:=MPMDP(1,p,a',A1);
+     V:=MPMDP(1,p,a',V1) ||
+                    c:=MUPRES(p,A,B)
+[Modular univariate polynomial resultant.  p is a prime beta-digit.
+A and B are univariate polynomials over Z_p of positive degrees.
+C is the resultant of A and B, an element of Z_p.]
+     safe c2,i,n1,n2,n3,s,t.
+(1)  [Initialize.]  c:=1;  A1:=DPFP(1,A);  A2:=DPFP(1,B);
+     n1:=FIRST(A1);  n2:=FIRST(A2);  s:=0;  if n1 < n2
+     then { if ODD(n1) /\ ODD(n2) then s:=1;  t:=A1;
+     A1:=A2;  A2:=t }.
+(2)  [Loop.]  repeat {  A3:=DMUPNR(p,A1,A2);  if A3=0 then
+     { c:=0;  return };  n1:=FIRST(A1);  n2:=FIRST(A2);  n3:=FIRST(A3);
+     if ODD(n1) /\ ODD(n2) then s:=1-s;  c2:=SECOND(A2);
+     for i=1,...,n1-n3 do c:=MDPROD(p,c,c2);  A1:=A2;
+     A2:=A3  } until n3=0.
+(3)  [Finish.]  c2:=SECOND(A2);  for i=1,...,n2 do
+     c:=MDPROD(p,c,c2);  if s=1 then c:=p-c  ||
+                    L:=MUPSFF(p,A)
+[Modular univariate polynomial square-free factorization.  p is a
+prime beta-integer.  A is a monic univariate polynomial over Z_p
+of positive degree.  L is a list ((e_1,A_1),...,(e_r,A_r)) with
+e_1<e_2<...<e_r, A_j a monic square-free factor of A of
+positive degree for 1<=j<= r and A=prod_{j=1}^{r} A_j^{e_j}.]
+     safe B',e,j,L1,M',M1.
+(1)  [Initialize.]  L':=();  A':=MUPDER(p,A);  if A'=0 then
+     { B:=A;  go to  3 };  B:=MUPGCD(p,A,A');  C:=MPQ(1,p,A,B);
+     j:=1.
+(2)  [Compute A_j with j not divisible by p.]
+     D:=MUPGCD(p,B,C);  A1:=MPQ(1,p,C,D);  if FIRST(A1) > 0
+     then L':=COMP(LIST2(j,A1),L');  if FIRST(D) > 0 then
+     { C:=D;  B:=MPQ(1,p,B,C);  j:=j+1;  go to  2 }.
+(3)  [Compute A_j with j divisible by p.]  if FIRST(B)=0
+     then { L:=INV(L');  return };  B':=();  repeat { ADV2(B;
+     e,A1,B);  e:=e/p;  B':=COMP2(A1,e,B') } until B=();
+     B:=INV(B');  M:=MUPSFF(p,B);  M':=M;  repeat { ADV(M';
+     M1,M');  e:=p * FIRST(M1);  SFIRST(M1,e) } until M'=();
+     M:=INV(M).
+(4)  [Merge.]  L:=();  while L' # () /\ M # () do
+     { if FIRST(FIRST(L')) > FIRST(FIRST(M)) then ADV(L';L1,L')
+     else ADV(M;L1,M);  L:=COMP(L1,L) };  if M=() then
+     L':=INV(L') else L':=INV(M);  L:=CONC(L',L) ||
+                    RPBLGS(r,A;a,b,s)
+[Rational polynomial base coefficients least common multiple,
+greatest common divisor, and sign.  A  is a rational polynomial in r
+variables, r>=0.  If A=0 then a=b=s=0.  Otherwise, a  is
+the lcm of the denominators of the base coefficients of A, b
+is the gcd of the numerators of the base coefficients of A, and
+s is the sign of the leading base coefficient of A.]
+     safe s',e.
+(1)  [A=0.]  if A = 0 then {a:=0;  b:=0;  s:=0;  return}.
+(2)  [r=0.]  if r = 0 then { b':=FIRST(A);
+     s:=ISIGNF(b');  b:=IABSF(b');  a:=SECOND(A);  return}.
+(3)  [General case.]  r':=r-1;  ADV2(A;e,c,A*);
+     RPBLGS(r',c;a,b,s);  while A* # () do
+     { ADV2(A*;e,c,A*);  if r' = 0 then FIRST2(c;b',a')
+     else RPBLGS(r',c;a',b',s');  a:=ILCM(a,a');
+     if b # 1 then b:=IGCD(b,b') } ||

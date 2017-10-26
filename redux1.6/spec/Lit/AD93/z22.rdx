@@ -1,0 +1,41 @@
+%% 
+DATATYPE Z22;
+%%  AUTHOR Avenhaus, Denzinger
+%%  ORIGIN Distributing equational theorem proving, LNCS 690
+SORT
+	EL;
+CONST
+	0: EL;
+VAR
+	x: EL;
+OPERATOR
+	a: EL -> EL;
+	a1: EL -> EL;
+	b: EL -> EL;
+	b1: EL -> EL;
+	c: EL -> EL;
+	c1: EL -> EL;
+	d: EL -> EL;
+	d1: EL -> EL;
+	e: EL -> EL;
+	e1: EL -> EL;
+NOTATION
+	a, a1, b, b1, c, c1, d, d1, e, e1: FUNCTION;
+AXIOM
+[1]  a(b(c(x))) == d(x);
+[2]  b(c(d(x))) == e(x);
+[3]  c(d(e(x))) == a(x);
+[4]  d(e(a(x))) == b(x);
+[5]  e(a(b(x))) == c(x);
+[6]  a(a1(x))   == x;
+[7]  a1(a(x))   == x;
+[8]  b(b1(x))   == x;
+[9]  b1(b(x))   == x;
+[10] c(c1(x))   == x;
+[11] c1(c(x))   == x;
+[12] d(d1(x))   == x;
+[13] d1(d(x))   == x;
+[14] e(e1(x))   == x;
+[15] e1(e(x))   == x;
+END
+

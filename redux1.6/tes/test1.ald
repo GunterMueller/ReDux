@@ -1,0 +1,19 @@
+     
+                TEST1.
+[Ein erstes ALDES Programm mit Listenverarbeitung.]
+
+(1)  [Initialisiere Listenverarbeitung.] BEGIN1.
+(2)  [Lies Liste ein.] CLOUT("Gib Liste ein: *"); WRITE;
+     L:=LREAD().
+(3)  [Gib Liste aus.] CLOUT("Gelesen wurde L = "); LWRITE(L); WRITE.
+(4)  [Gib destruktiv invertierte liste aus.] L':=INV(L);
+     CLOUT("Die invertierte liste ist L'= INV(L) = "); LWRITE(L'); 
+     WRITE.
+(5)  [Gib 'urspruengliche' Liste aus.]     
+     CLOUT("L = "); LWRITE(L); WRITE.
+(6)  [Konstruktive inversion.] L'':=CINV(L');
+     CLOUT("L'' = CINV(L') = "); LWRITE(L''); WRITE.
+(7)  [Gib 'urspruengliche' Liste aus.]     
+     CLOUT("L' = "); LWRITE(L'); WRITE ||
+
+

@@ -1,0 +1,43 @@
+\section{Global Parser Variables}
+\label{globals}
+
+The header file {\tt globs.h} was extended by the following globals
+for parser handling:
+
+\begin{verbatim}
+[--- global variables for parser ---]
+
+[global variables for operator properties
+ DOA: operator associativity; DNA: none, DLA: left, DRA: right
+ DOP: operator precedence]
+global DOA. safe DOA.
+global DOP. safe DOP.
+global DNA. safe DNA.
+global DLA. safe DLA.  
+global DRA. safe DRA.
+
+global DFF. safe DFF.    [fixity: function, i.e. prefix with braces]
+
+[terms t in braces (safe terms) are terms with TCONT t and TSIGN
+ DBS, where DBS is the bracket signature object.]
+global DBS.              [bracket signature object]
+global DBN. safe DBN.    [bracket object name]
+
+[operator default indicator properties]
+global DDF. safe DDF.    [default fixity; 1: default]
+
+[external: tokens returned from scanner]
+global DXRF. safe DXRF.  [roundfix]
+global DXEF. safe DXEF.  [prefix]
+
+[global variable containing start symbol]
+global STSYMB. safe STSYMB.
+[parse variable dictionary for exchange: parser - ALDES]
+global PDXVRS.
+
+[ambiguity list property]
+global DAM. safe DAM.    [ambiguity list]
+
+[global variable containing output mode]
+global OTMODE. safe OTMODE.
+\end{verbatim}

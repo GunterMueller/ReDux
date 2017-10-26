@@ -1,0 +1,18 @@
+[Project: ReDuX Auxiliary algorithms
+   module name        : AX/halt
+   modulespecification: Stop Program with run time error
+   programmer         : Reinhard Buendgen                               
+   language           : aldes                                           
+   last change        : by $Author: buendgen $
+   version            : $Revision: 1.2 $
+   status             : 
+   bugs               : none known                                       
+   modules needed     : sac2/ba, sac2/lp                       
+]                                                                      
+                                                                       
+                                                                       
+                                                                       
+                    HALT()                                             
+[Stop program with division by zero error.]                             
+     safe HALT.
+(1)  X:=0; WRITE; D:=10/X; AWRITE(D) ||                                            

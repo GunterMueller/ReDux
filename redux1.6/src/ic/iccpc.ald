@@ -1,0 +1,135 @@
+[Project: ReDuX Inductive Completion
+   module name        : ICCPC -- critical pair Computation with
+                                 ground confluence criterion
+   modulespecification: Critical pair computation algorithms with
+                        ground confluence criterion as described in
+                        [Kuechlin:89].
+                        Formerly section 2 of iccp.
+                        Variables are uniquely defined by their TCONT.
+   programmer         : Wolfgang Kuechlin / Reinhard Buendgen             
+   language           : aldes                                           
+   last change        : 25/04/88                                        
+                        $Date: 1995/07/25 10:07:47 $
+                        by $Author: buendgen $
+   version            : $Revision: 1.2.1.5 $
+   bugs               : non known                                       
+   modules needed     : sac2/bs, sac2/sy, sac2/lp                       
+]                                                                      
+ 
+[ #include tp.h ]
+[ #include ic.h ]
+[ #include globs.h ]
+
+
+[--------------------------------------------------------------------- 
+
+     Section 2   algorithms for export
+     
+-----------------------------------------------------------------------]
+
+                    ASCPUI(A,a,IC; EP,IP)
+[Set of axioms, set of unconnected critical pairs using IC-LISTs.
+a  is  an axiom. A=(a sub 1, ..., a sub n) is a set of axioms s. th.
+for any two axioms in A all critical pairs are connected. IC is an IC-
+LIST (P, R) s. th. lhs(a) is inductvely reducible using the positions
+in list P with the rules in list R. Then EP is the set of all
+unconnected critical pairs of a and of axioms in R (axioms of R must be
+applied at a subterm of a which is in P) where  for  each pair of a
+and r sub i in R, connectedness may be established by creating a
+stepping stone  with  the help of any a sub j s. th. j < i. Then IP
+is the set of unconnected critical pairs of a and a, and of axioms  in
+A and  a in all cases an axiom of R is not applied at a position of P.]
+     safe A',a'.
+(1)  [Initialize.] EP:=(); IP:=(); A':=A; R':=(); ER:=SECOND(IC);
+     if PNTRC=1 then STOUTL("ASCPUI").
+(2)  [Loop.] while A' # () do
+     {ADV(A'; a',A'); ACPUIC(R',a',a,IC; E'',I'');
+      EP:=CONC(EP,E''); IP:=CONC(IP,I'');
+      if ASMEMN(a',ER)=TRUE then R':=COMP(a',R')
+     }.
+(3)  [Intrinsic critical pairs.] IP:=CONC(IP,AICPUI((),a)) ||
+
+[----------------------------------------------------------------------
+
+   Section 3     auxilliary algorithms for internal use
+
+-----------------------------------------------------------------------]
+
+                    ACPUIC(R,a1,a2,IC; EP,IP)                       
+[Axioms, sets of unconnected critical pairs, using IC-LIST.            
+Both  a1 and a2 are axioms, a1 ne a2. R=(alp sub 1, ..., alp sub nl)
+is a set of axioms s. th. For all alp  sub  il,  1  le  il  le  nl,  all
+critical  pairs  of  a1  and  alp  sub  il,  and a2 and alp sub il are
+connected. IC=(p, ru) is an IC-LIST with p is a list of positions of the
+left-hand side of a2 and ru is a set of rules s.Th the left-hand side  
+of a2 is induductively reducible using p with ru.Then EP is the set of 
+those critical  pairs  of  a1  and  a2 where a1 is an element of ru  
+and is applied into a2 at a position of p, furthermore  this critical  
+pair cannot  be connected through pairs with R as parent. IP is the list
+of critical pairs between a1 and a1 in all other cases. ]
+     safe ESSR,E*,n1,L1,V1,R1,n2,L2,V2,R2,U,b1,b2,b,i.                
+(1)  [Initialize.] EP:=(); IP:=(); ADIS(a1; n1,L1,V1,R1,b1);
+     if PNTRC=1 then STOUTL("ACPUIC");
+     ADIS(a2; n2,L2,V2,R2,b2); if b1=1 then b:=1 else b:=b2;
+     [Essential critical pair?] ESSR:=ASMEMN(a1,SECOND(IC));
+     if ESSR=TRUE then E*:=MEMBER(L2,FIRST(IC)) else E*:=INESS.
+(2)  [Critical pair at top position.] U:=TNMGCI(L1,L2,b);if U # ()     
+     then { if E*=TRUE then i:=TNASMS(L1,R) else i:=0; if i=0 then     
+      { [Copy R2m and R1m.] TRPCVS(R1,R2; c1,c2,V_0);
+       if E*=TRUE then EP:=COMP(CPCONS(c1,c2,n1,n2,ESS),EP)          
+                  else IP:=COMP(CPCONS(c1,c2,n1,n2,INESS),IP)}       
+      else CC:=CC+1 };      UNDO(V1); UNDO(V2).
+(3)  [Critical pairs at proper subterms of l2.]                        
+     ACPUI1(R,b,a2,L2,a1,ESSR,FIRST(IC); E'',I'');
+     IP:=CONC(IP,I''); EP:=CONC(EP,E'').
+(4)  [Critical pairs at proper subterms of l1.]                        
+     ACPUI1(R,b,a1,L1,a2,INESS,(); E'',I'');
+     IP:=CONC(IP,I''); EP:=CONC(EP,E'')||                              
+
+                    ACPUI1(R,b,a1,l1,a2,E,P; EP,IP)               
+[Axioms, set of unconnected critical pairs using IC-LIST, subalgorithm.
+Both a1 and a2 are axioms. l1 is A non-atomic subterm  of lhs(a1). 
+b=0 if none of the axioms  is left-linear, b=1 otherwise. 
+R=(a sub 1, ..., a sub n) is a set of axioms s. th. for all a sub i, 
+1 <= i <= n, all critical pairs of the input axioms and a sub i are 
+connected. E = ESS or E = INESS.  P  is A set of positions in lhs(a1). 
+Then if E=ESS EP is the set of those critical pairs which are obtained 
+by superposing lhs(a2) on every proper subterm of l1 in P, which cannot 
+be connected through pairs with R as parent. IP is the list of those 
+critical pairs which are obtained  by superposing lhs(a2) on every 
+proper subterm of l1. If E = INESS EP = nil and IP is the set of 
+critical pairs obtained by superposing lhs(a2) on any proper subterm of 
+l1.]                                 
+     safe R,b,N1,n2,L1,V1,R1,l2,v2,r2,l',t,t',U,k,i.
+(1)  [Initialize.] if PNTRC=1 then STOUTL("ACPUI1"); 
+     EP:=(); IP:=(); ADIS(a1; N1,L1,V1,R1,b1);
+     ADIS(a2; n2,l2,v2,r2,b2); l':=TSIGN(l2).
+(2)  [Process subterms of l1.] L':=OARGLST(l1); while L' # () do       
+     {    t:=FIRST(L'); k:=TKIND(t); if k=DOS then                    
+      {   t':=TSIGN(t); if t'=l' then                                
+       {  UTI:=UTI-CLOCK(); U:=TNRMCI(t,l2); UTI:=UTI+CLOCK(); UC:=UC+1;
+        if U # () then                                                 
+        { [Essential?] if E=ESS then E*:=MEMBER(t,P) else E*:=INESS;
+         if E*=ESS then i:=TNASMS(L1,R) else i:=0; if i=0 then         
+         { [Copy L1[L'<-r2]m and r1m.] t^:=t; FIRST(L'):=r2;
+            TRPCVS(L1,R1; c2,c1,V_0); FIRST(L'):=t^;
+          t^:=CPCONS(c2,c1,n2,N1,E*);
+          if E*=ESS then EP:=COMP(t^,EP) else IP:=COMP(t^,IP)}         
+         else CC:=CC+1 };
+        UNDO(V1); UNDO(v2)  };
+       ACPUI1(R,b,a1,t,a2,E,P; E'',I''); EP:=CONC(EP,E'');
+       IP:=CONC(IP,I'')   };
+      L':=RED(L')    }||                                               
+ 
+                    C:=AICPUI(R,a)                                   
+[Axiom, set of unconnected intrinsic critical pairs using IC-LISTs.
+a  is  an axiom. R=(a sub 1, ..., a sub n) is a set of axioms s. th.
+For all a sub i, 1 <= i <= n, all critical pairs of a and a sub i
+are connected. Then C is the set  of  those  critical  pairs  which  are
+obtained  by  superposing  the  left-hand side  of  a  on itself at all
+non-trivial subterms. ]
+     safe l,b.                                                        
+(1)  [Initialize.] ADIS(a; n,l,V^,r,b); a_:=ACOPY(a);
+     if PNTRC=1 then STOUTL("AICPUI").
+(2)  [Critical pairs at subterms.]                                     
+     ACPUI1(R,b,a,l,a_,INESS,(); EP,C) ||                         

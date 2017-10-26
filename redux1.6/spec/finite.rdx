@@ -1,0 +1,35 @@
+DATATYPE FINITE;
+SORT
+	TYP;
+CONST
+	0: TYP;
+VAR
+	A, B, C, D: TYP;
+OPERATOR
+	S: TYP -> TYP;
+	P: TYP -> TYP;
+	Q: TYP -> TYP;
+	+: TYP, TYP -> TYP;
+NOTATION
+	S, P, Q, +: FUNCTION;
+AXIOM
+[1]  Q(S(A)) == 0;
+[2]  Q(P(A)) == 0;
+[3]  Q(+(A,B)) == 0;
+[4]  Q(Q(A)) == 0;
+[5]  P(0) == 0;
+[6]  P(S(A)) == 0;
+[7]  P(+(A,B)) == 0;
+[8]  P(P(A)) == 0;
+[9]  S(0) == 0;
+[10] S(Q(A)) == 0;
+[11] S(+(A,B)) == 0;
+[12] S(S(A)) == 0;
+[13] +(0,P(A)) == 0;
+[14] +(0,Q(A)) == 0;
+[15] +(0,+(A,B)) == 0;
+[16] +(S(A),B) == 0;
+[17] +(P(A),B) == 0;
+[18] +(Q(A),B) == 0;
+[19] +(+(A,B),C) == 0;
+END
